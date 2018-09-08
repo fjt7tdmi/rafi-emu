@@ -1,6 +1,19 @@
-*-cppcheck-build-dir/
-.vs/
+*.cmake
+*.dir
+*.filters
+*.sln
+*.vcxproj
+*.user
+
+# CMake
 CMakeFiles/
+CMakeCache.txt
+
+# Cppcheck
+*-cppcheck-build-dir/
+
+# Windows (MSVC)
+.vs/
 Debug/
 Release/
 Win32/
@@ -8,11 +21,10 @@ ipch/
 x64/
 x86/
 
-CMakeCache.txt
-
-*.cmake
-*.dir
-*.filters
-*.sln
-*.vcxproj
-*.user
+# Linux (GCC)
+CheckIo
+CompareTrace
+DumpPc
+Makefile
+PrintTrace
+RafiEmu

@@ -249,7 +249,7 @@ void OpDecoder::DecodeRV32I(Op* out, int32_t insn) const
             }
             else if (funct3 == 4)
             {
-                out->opCode = OpCode::xor;
+                out->opCode = OpCode::xor_;
             }
             else if (funct3 == 5)
             {
@@ -257,11 +257,11 @@ void OpDecoder::DecodeRV32I(Op* out, int32_t insn) const
             }
             else if (funct3 == 6)
             {
-                out->opCode = OpCode::or;
+                out->opCode = OpCode::or_;
             }
             else if (funct3 == 7)
             {
-                out->opCode = OpCode::and;
+                out->opCode = OpCode::and_;
             }
         }
         else if (funct7 == 0b0000001)

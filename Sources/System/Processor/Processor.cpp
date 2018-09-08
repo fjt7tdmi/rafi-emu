@@ -333,7 +333,7 @@ void Processor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::sltu:
         m_IntReg.Write(op.rd, (static_cast<uint32_t>(m_IntReg.Read(op.rs1)) < static_cast<uint32_t>(m_IntReg.Read(op.rs2))) ? 1 : 0);
         break;
-    case OpCode::xor:
+    case OpCode::xor_:
         m_IntReg.Write(op.rd, m_IntReg.Read(op.rs1) ^ m_IntReg.Read(op.rs2));
         break;
     case OpCode::srl:
@@ -342,10 +342,10 @@ void Processor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::sra:
         m_IntReg.Write(op.rd, m_IntReg.Read(op.rs1) >> m_IntReg.Read(op.rs2));
         break;
-    case OpCode:: or :
+    case OpCode::or_:
         m_IntReg.Write(op.rd, m_IntReg.Read(op.rs1) | m_IntReg.Read(op.rs2));
         break;
-    case OpCode::and:
+    case OpCode::and_:
         m_IntReg.Write(op.rd, m_IntReg.Read(op.rs1) & m_IntReg.Read(op.rs2));
         break;
     case OpCode::fence:
