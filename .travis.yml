@@ -1,0 +1,10 @@
+language: cpp
+
+before_install:
+  - sudo apt update
+  - sudo apt install gcc-7 g++-7 -y
+  - sudo apt install libboost-all-dev -y
+
+script:
+  - cmake .
+  - cmake --build .
