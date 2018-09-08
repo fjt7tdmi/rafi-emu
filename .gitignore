@@ -5,6 +5,9 @@
 *.vcxproj
 *.user
 
+# Build
+build
+
 # CMake
 CMakeFiles/
 CMakeCache.txt
@@ -20,11 +23,3 @@ Win32/
 ipch/
 x64/
 x86/
-
-# Linux (GCC)
-CheckIo
-CompareTrace
-DumpPc
-Makefile
-PrintTrace
-RafiEmu
