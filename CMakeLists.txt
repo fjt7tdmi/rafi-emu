@@ -23,12 +23,19 @@ endif()
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     set(Boost_LIBRARIES "boost_program_options")
     set(FS_LIBRARIES "stdc++fs")
+    set(GoogleTest_LIBRARIES "gtest" "gtest_main" "pthread")
+else()
+    set(GoogleTest_LIBRARIES "gtest" "gtest_main")
 endif()
 
-message(STATUS "libdir: ${Boost_LIBRARY_DIRS}")
+set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
+set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${GoogleTest_INCLUDE_DIRS})
+
 link_directories(${Boost_LIBRARY_DIRS})
+link_directories(${GoogleTest_LIBRARY_DIRS})
 
 add_executable(CheckIo
     Sources/Common/BasicTypes.h
@@ -116,8 +123,13 @@ add_executable(RafiEmu
     Sources/RafiEmu.cpp
 )
 
+add_executable(SampleTest
+    Tests/SampleTest.cpp
+)
+
 target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(CompareTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(DumpPc ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(PrintTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(RafiEmu ${Boost_LIBRARIES})
+target_link_libraries(SampleTest ${GoogleTest_LIBRARIES})

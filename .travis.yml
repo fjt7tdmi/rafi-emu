@@ -8,5 +8,16 @@ before_install:
   - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7
 
 script:
-  - cmake .
+  # Build googletest
+  - pushd third_party/googletest
+  - mkdir build
+  - cd build
+  - cmake .. -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF
+  - cmake --build . --config release
+  - popd
+  # Build rafi-emu
+  - mkdir build
+  - cd build
+  - cmake ..
   - cmake --build .
+  - ./SampleTest --gtest_filter=SampleTest.Success
