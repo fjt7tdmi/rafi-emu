@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <cstring>
+
 #include "../../Common/BitField.h"
 #include "../../Common/Event.h"
 

@@ -15,8 +15,15 @@
  */
 
 #include <algorithm>
-#include <filesystem>
+#include <climits>
+#include <cstring>
 #include <fstream>
+
+#if defined(__GNUC__)
+#include <experimental/filesystem>
+#else
+#include <filesystem>
+#endif
 
 #include "../Common/Exception.h"
 

@@ -259,11 +259,11 @@ const char* GetString(OpCode opCode)
         GET_OP_NAME_CASE(sll);
         GET_OP_NAME_CASE(slt);
         GET_OP_NAME_CASE(sltu);
-        GET_OP_NAME_CASE(xor);
+        GET_OP_NAME_CASE(xor_);
         GET_OP_NAME_CASE(srl);
         GET_OP_NAME_CASE(sra);
-        GET_OP_NAME_CASE(or );
-        GET_OP_NAME_CASE(and);
+        GET_OP_NAME_CASE(or_);
+        GET_OP_NAME_CASE(and_);
         GET_OP_NAME_CASE(fence);
         GET_OP_NAME_CASE(fence_i);
         GET_OP_NAME_CASE(ecall);
@@ -307,4 +307,3 @@ const char* GetString(OpCode opCode)
     }
 #undef GET_OP_NAME_CASE
 }
-    

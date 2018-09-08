@@ -20,6 +20,11 @@ if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Cannot find boost.")
 endif()
 
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(Boost_LIBRARIES "boost_program_options")
+    set(FS_LIBRARIES "stdc++fs")
+endif()
+
 message(STATUS "libdir: ${Boost_LIBRARY_DIRS}")
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -111,7 +116,8 @@ add_executable(RafiEmu
     Sources/RafiEmu.cpp
 )
 
-target_link_libraries(CheckIo ${Boost_LIBRARIES})
-target_link_libraries(CompareTrace ${Boost_LIBRARIES})
-target_link_libraries(PrintTrace ${Boost_LIBRARIES})
+target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(CompareTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(DumpPc ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(PrintTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(RafiEmu ${Boost_LIBRARIES})
