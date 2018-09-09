@@ -104,8 +104,3 @@ struct IoNode
     int32_t hostIoValue;
     int32_t reserved;
 };
-
-struct MemoryNodeHeader
-{
-    int64_t bodySize;
-};

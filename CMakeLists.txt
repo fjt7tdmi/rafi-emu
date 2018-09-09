@@ -129,8 +129,17 @@ add_executable(RafiEmu
     Sources/RafiEmu.cpp
 )
 
-add_executable(SampleTest
-    Tests/SampleTest.cpp
+add_executable(test_Trace
+    Sources/Trace/TraceCycle.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
+    Sources/Trace/TraceCycleUtil.h
+    Tests/Trace/test_TraceCycle.cpp
 )
 
 target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
@@ -138,4 +147,4 @@ target_link_libraries(CompareTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(DumpPc ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(PrintTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(RafiEmu ${Boost_LIBRARIES})
-target_link_libraries(SampleTest ${GoogleTest_LIBRARIES})
+target_link_libraries(test_Trace ${GoogleTest_LIBRARIES})

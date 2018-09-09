@@ -14,8 +14,33 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "TraceCycleReader.h"
 
-#include "TraceCycle.h"
+TraceCycleReader::TraceCycleReader(void* buffer, int64_t bufferSize)
+{
+}
 
-int64_t GetNodeSize(NodeType nodeType);
+int64_t TraceCycleReader::GetOffsetOfPreviousCycle()
+{
+    return 0;
+}
+
+int64_t TraceCycleReader::GetOffsetOfNextCycle()
+{
+    return 0;
+}
+
+const void* TraceCycleReader::GetNode(NodeType nodeType)
+{
+    return nullptr;
+}
+
+int64_t TraceCycleReader::GetNodeSize(NodeType nodeType)
+{
+    return 0;
+}
+
+bool TraceCycleReader::IsNodeExist(NodeType nodeType)
+{
+    return false;
+}

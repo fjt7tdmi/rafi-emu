@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "TraceCycle.h"
+#include "TraceCycleCommon.h"
 
 enum NodeFlag : int32_t
 {
@@ -35,23 +35,45 @@ enum NodeFlag : int32_t
     NodeFlag_Memory         = 1 << static_cast<int32_t>(NodeType::Memory),
 };
 
-class TraceCycleBuilder
+class TraceCycleBuilder final
 {
 public:
-    TraceCycleBuilder(NodeFlag flags);
+    explicit TraceCycleBuilder(int32_t flags);
+
+    ~TraceCycleBuilder();
 
     // Get pointer to raw data
-    void* GetRaw();
+    void* GetData();
 
     // Get size of raw data
-    int64_t GetRawSize();
+    int64_t GetDataSize();
 
-    void SetOffsetOfPreviousCycle(int64_t size);
+    void SetOffsetOfPreviousCycle(int64_t offset);
 
-    void SetOffsetOfNextCycle(int64_t size);
+    void SetOffsetOfNextCycle(int64_t offset);
 
     void SetNode(NodeType nodeType, void* buffer, int64_t bufferSize);
 
 private:
-    // TODO: impl
+    int64_t CalculateDataSize(int32_t flags);
+
+    int32_t CountValidFlags(int32_t flags);
+
+    void InitializeMetaNodes(int32_t flags);
+
+    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset);
+
+    int64_t GetProperNodeSize(NodeType nodeType);
+
+    TraceCycleHeader* GetPointerToHeader();
+
+    TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+
+    TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
+
+    void* GetPointerToNode(NodeType nodeType);
+
+    void* m_pData;
+
+    int64_t m_DataSize;
 };

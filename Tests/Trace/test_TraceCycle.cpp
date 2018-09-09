@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../Sources/Trace/TraceCycle.h"
+#include "../../Sources/Trace/TraceCycle.h"
 
 namespace {
     void FillRandom(void* buffer, size_t size)
@@ -38,26 +38,26 @@ namespace {
     }
 }
 
-TEST(TraceCycleTest, BuilderGetRaw)
+TEST(TraceCycleTest, BuilderGetData)
 {
-    TraceCycleBuilder builder0(NodeFlag_None);
+    TraceCycleBuilder builder0(0);
     TraceCycleBuilder builder1(NodeFlag_BasicInfo);
     TraceCycleBuilder builder2(NodeFlag_BasicInfo | NodeFlag_Pc32);
 
-    ASSERT_NE(nullptr, builder0.GetRaw());
-    ASSERT_NE(nullptr, builder1.GetRaw());
-    ASSERT_NE(nullptr, builder2.GetRaw());
+    ASSERT_NE(nullptr, builder0.GetData());
+    ASSERT_NE(nullptr, builder1.GetData());
+    ASSERT_NE(nullptr, builder2.GetData());
 }
 
-TEST(TraceCycleTest, BuilderGetRawSize)
+TEST(TraceCycleTest, BuilderGetDataSize)
 {
-    TraceCycleBuilder builder0(NodeFlag_None);
+    TraceCycleBuilder builder0(0);
     TraceCycleBuilder builder1(NodeFlag_BasicInfo);
     TraceCycleBuilder builder2(NodeFlag_BasicInfo | NodeFlag_Pc32);
 
-    ASSERT_EQ(sizeof(TraceCycleHeader), builder0.GetRawSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) + sizeof(BasicInfoNode), builder1.GetRawSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetRawSize());
+    ASSERT_EQ(sizeof(TraceCycleHeader), builder0.GetDataSize());
+    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) + sizeof(BasicInfoNode), builder1.GetDataSize());
+    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetDataSize());
 }
 
 TEST(TraceCycleTest, BuilderSetOffsetAndReaderGetOffset)
@@ -81,7 +81,7 @@ TEST(TraceCycleTest, BuilderSetOffsetAndReaderGetOffset)
         builder.SetOffsetOfPreviousCycle(previousOffset);
         builder.SetOffsetOfNextCycle(nextOffset);
 
-        TraceCycleReader reader(builder.GetRaw(), builder.GetRawSize());
+        TraceCycleReader reader(builder.GetData(), builder.GetDataSize());
 
         ASSERT_EQ(previousOffset, reader.GetOffsetOfPreviousCycle());
         ASSERT_EQ(nextOffset, reader.GetOffsetOfNextCycle());
@@ -105,28 +105,28 @@ TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)
 
     ASSERT_THROW(builder.SetNode(NodeType::Pc64, &pc64, sizeof(pc64)), TraceCycleException);
 
-    TraceCycleReader reader(builder.GetRaw(), builder.GetRawSize());
+    TraceCycleReader reader(builder.GetData(), builder.GetDataSize());
 
     ASSERT_EQ(sizeof(basicInfo), reader.GetNodeSize(NodeType::BasicInfo));
     ASSERT_EQ(sizeof(pc32), reader.GetNodeSize(NodeType::Pc32));
 
     ASSERT_THROW(reader.GetNodeSize(NodeType::Pc64), TraceCycleException);
 
-    ASSERT_EQ(0, std::memcmp(&basicInfo, reader.GetNode(), sizeof(basicInfo)));
-    ASSERT_EQ(0, std::memcmp(&pc32, reader.GetNode(), sizeof(pc32)));
+    ASSERT_EQ(0, std::memcmp(&basicInfo, reader.GetNode(NodeType::BasicInfo), sizeof(basicInfo)));
+    ASSERT_EQ(0, std::memcmp(&pc32, reader.GetNode(NodeType::Pc32), sizeof(pc32)));
 
     ASSERT_THROW(reader.GetNode(NodeType::Pc64), TraceCycleException);
 }
 
 TEST(TraceCycleTest, ReaderIsNodeExist)
 {
-    TraceCycleBuilder builder0(NodeFlag_None);
+    TraceCycleBuilder builder0(0);
     TraceCycleBuilder builder1(NodeFlag_BasicInfo);
     TraceCycleBuilder builder2(NodeFlag_BasicInfo | NodeFlag_Pc32);
 
-    TraceCycleReader reader0(builder0.GetRaw(), builder0.GetRawSize());
-    TraceCycleReader reader1(builder1.GetRaw(), builder1.GetRawSize());
-    TraceCycleReader reader2(builder2.GetRaw(), builder2.GetRawSize());
+    TraceCycleReader reader0(builder0.GetData(), builder0.GetDataSize());
+    TraceCycleReader reader1(builder1.GetData(), builder1.GetDataSize());
+    TraceCycleReader reader2(builder2.GetData(), builder2.GetDataSize());
 
     ASSERT_FALSE(reader0.IsNodeExist(NodeType::BasicInfo));
     ASSERT_TRUE(reader1.IsNodeExist(NodeType::BasicInfo));
@@ -139,4 +139,9 @@ TEST(TraceCycleTest, ReaderIsNodeExist)
     ASSERT_FALSE(reader0.IsNodeExist(NodeType::Pc32));
     ASSERT_FALSE(reader1.IsNodeExist(NodeType::Pc64));
     ASSERT_FALSE(reader2.IsNodeExist(NodeType::Pc64));
+}
+
+TEST(TraceCycleTest, DISABLED_BuilderConfig)
+{
+    FAIL();
 }

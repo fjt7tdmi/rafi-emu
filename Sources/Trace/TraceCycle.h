@@ -21,4 +21,3 @@
 #include "TraceCycleException.h"
 #include "TraceCycleNode.h"
 #include "TraceCycleReader.h"
-#include "TraceCycleUtil.h"
