@@ -23,6 +23,10 @@ class TraceCycleReader
 public:
     TraceCycleReader(void* buffer, int64_t bufferSize);
 
+    int64_t GetOffsetOfPreviousCycle(int64_t size);
+
+    int64_t GetOffsetOfNextCycle(int64_t size);
+
     const void* GetNode(NodeType nodeType);
 
     int64_t GetNodeSize(NodeType nodeType);

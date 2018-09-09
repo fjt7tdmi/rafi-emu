@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
+#pragma once
 
-TEST(SampleTest, Success)
-{
-    ASSERT_EQ(1, 1);
-}
+#include "TraceCycle.h"
 
-TEST(SampleTest, Failure)
-{
-    ASSERT_EQ(1, 2);
-}
+int64_t GetNodeSize(NodeType nodeType);

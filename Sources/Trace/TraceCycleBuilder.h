@@ -46,7 +46,9 @@ public:
     // Get size of raw data
     int64_t GetRawSize();
 
-    void SetSizeOfPreviousCycle(int64_t size);
+    void SetOffsetOfPreviousCycle(int64_t size);
+
+    void SetOffsetOfNextCycle(int64_t size);
 
     void SetNode(NodeType nodeType, void* buffer, int64_t bufferSize);
 
