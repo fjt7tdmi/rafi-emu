@@ -14,33 +14,96 @@
  * limitations under the License.
  */
 
-#include "TraceCycleReader.h"
+#include <cassert>
 
-TraceCycleReader::TraceCycleReader(void* buffer, int64_t bufferSize)
+#include "TraceCycleReader.h"
+#include "TraceCycleException.h"
+
+TraceCycleReader::TraceCycleReader(const void* buffer, int64_t bufferSize)
 {
+    m_pData = buffer;
+    m_BufferSize = bufferSize;
 }
 
 int64_t TraceCycleReader::GetOffsetOfPreviousCycle()
 {
-    return 0;
+    return GetPointerToHeader()->prev;
 }
 
 int64_t TraceCycleReader::GetOffsetOfNextCycle()
 {
-    return 0;
+    return GetPointerToHeader()->next;
 }
 
 const void* TraceCycleReader::GetNode(NodeType nodeType)
 {
-    return nullptr;
+    auto pNode = GetPointerToNode(nodeType);
+
+    if (pNode == nullptr)
+    {
+        throw TraceCycleException("Cannot find node.");
+    }
+
+    return pNode;
 }
 
 int64_t TraceCycleReader::GetNodeSize(NodeType nodeType)
 {
-    return 0;
+    auto pMeta = GetPointerToMeta(nodeType);
+
+    if (pMeta == nullptr)
+    {
+        throw TraceCycleException("Cannot find node.");
+    }
+
+    return pMeta->size;
 }
 
 bool TraceCycleReader::IsNodeExist(NodeType nodeType)
 {
-    return false;
+    return GetPointerToMeta(nodeType) != nullptr;
+}
+
+const TraceCycleHeader* TraceCycleReader::GetPointerToHeader()
+{
+    return reinterpret_cast<const TraceCycleHeader*>(m_pData);
+}
+
+const TraceCycleMetaNode* TraceCycleReader::GetPointerToMeta(int32_t index)
+{
+    assert(0 <= index);
+    assert(index < GetPointerToHeader()->metaCount);
+
+    auto metaNodes = reinterpret_cast<const TraceCycleMetaNode*>(GetPointerToHeader() + 1);
+
+    return &metaNodes[index];
+}
+
+const TraceCycleMetaNode* TraceCycleReader::GetPointerToMeta(NodeType nodeType)
+{
+    const auto metaCount = GetPointerToHeader()->metaCount;
+
+    for (int i = 0; i < metaCount; i++)
+    {
+        auto pMeta = GetPointerToMeta(i);
+
+        if (pMeta->nodeType == nodeType)
+        {
+            return pMeta;
+        }
+    }
+
+    return nullptr;
+}
+
+const void* TraceCycleReader::GetPointerToNode(NodeType nodeType)
+{
+    auto pMeta = GetPointerToMeta(nodeType);
+
+    if (pMeta == nullptr)
+    {
+        return nullptr;
+    }
+
+    return reinterpret_cast<const uint8_t*>(m_pData) + pMeta->offset;
 }

@@ -21,7 +21,7 @@
 class TraceCycleReader
 {
 public:
-    TraceCycleReader(void* buffer, int64_t bufferSize);
+    TraceCycleReader(const void* buffer, int64_t bufferSize);
 
     int64_t GetOffsetOfPreviousCycle();
 
@@ -34,5 +34,15 @@ public:
     bool IsNodeExist(NodeType nodeType);
 
 private:
-    // TODO: impl
+    const TraceCycleHeader* GetPointerToHeader();
+
+    const TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+
+    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
+
+    const void* GetPointerToNode(NodeType nodeType);
+
+    const void* m_pData;
+
+    int64_t m_BufferSize;
 };

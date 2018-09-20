@@ -60,9 +60,9 @@ struct TraceCycleMetaNode
 
     int32_t reserved;
 
-    // Byte offset of 'nodeType' from the head of TraceCycleHeader
+    // Byte offset from the head of TraceCycleHeader
     int64_t offset;
 
-    // Byte size of 'nodeType'
+    // Byte size
     int64_t size;
 };

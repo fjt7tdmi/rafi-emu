@@ -22,11 +22,11 @@ if (MSVC)
     if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
         set(GoogleTest_LIBRARIES "gtestd" "gtest_maind")
         set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
-        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Debug")
+        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Debug" "third_party/googletest/build/googlemock/gtest/Debug")
     else()
         set(GoogleTest_LIBRARIES "gtest" "gtest_main")
         set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
-        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Release")
+        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Release" "third_party/googletest/build/googlemock/gtest/Release")
     endif()
 else()
     set(Boost_LIBRARIES "boost_program_options")
@@ -138,7 +138,6 @@ add_executable(test_Trace
     Sources/Trace/TraceCycleNode.h
     Sources/Trace/TraceCycleReader.cpp
     Sources/Trace/TraceCycleReader.h
-    Sources/Trace/TraceCycleUtil.h
     Tests/Trace/test_TraceCycle.cpp
 )
 
