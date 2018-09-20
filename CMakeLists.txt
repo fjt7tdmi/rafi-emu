@@ -46,11 +46,11 @@ link_directories(${GoogleTest_LIBRARY_DIRS})
 add_executable(CheckIo
     Sources/Common/BasicTypes.h
     Sources/Common/Exception.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/OldTrace/TraceBinary.h
+    Sources/OldTrace/TraceBinaryReader.cpp
+    Sources/OldTrace/TraceBinaryReader.h
+    Sources/OldTrace/TraceBinaryUtil.cpp
+    Sources/OldTrace/TraceBinaryUtil.h
     Sources/CheckIo.cpp
 )
 
@@ -59,13 +59,13 @@ add_executable(CompareTrace
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryComparator.cpp
-    Sources/Trace/TraceBinaryComparator.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/OldTrace/TraceBinary.h
+    Sources/OldTrace/TraceBinaryComparator.cpp
+    Sources/OldTrace/TraceBinaryComparator.h
+    Sources/OldTrace/TraceBinaryReader.cpp
+    Sources/OldTrace/TraceBinaryReader.h
+    Sources/OldTrace/TraceBinaryUtil.cpp
+    Sources/OldTrace/TraceBinaryUtil.h
     Sources/Trace/TraceException.h
     Sources/CompareTrace.cpp
 )
@@ -75,11 +75,11 @@ add_executable(DumpPc
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/OldTrace/TraceBinary.h
+    Sources/OldTrace/TraceBinaryReader.cpp
+    Sources/OldTrace/TraceBinaryReader.h
+    Sources/OldTrace/TraceBinaryUtil.cpp
+    Sources/OldTrace/TraceBinaryUtil.h
     Sources/DumpPc.cpp
 )
 
@@ -88,11 +88,11 @@ add_executable(PrintTrace
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/OldTrace/TraceBinary.h
+    Sources/OldTrace/TraceBinaryReader.cpp
+    Sources/OldTrace/TraceBinaryReader.h
+    Sources/OldTrace/TraceBinaryUtil.cpp
+    Sources/OldTrace/TraceBinaryUtil.h
     Sources/PrintTrace.cpp
 )
 
@@ -102,8 +102,8 @@ add_executable(RafiEmu
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinaryWriter.cpp
-    Sources/Trace/TraceBinaryWriter.h
+    Sources/OldTrace/TraceBinaryWriter.cpp
+    Sources/OldTrace/TraceBinaryWriter.h
     Sources/Profiler/Profiler.cpp
     Sources/Profiler/Profiler.h
     Sources/System/Bus/Bus.cpp

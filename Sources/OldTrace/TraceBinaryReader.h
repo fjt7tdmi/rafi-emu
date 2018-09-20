@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include "TraceBinary.h"
-#include "TraceException.h"
+#include "../Trace/TraceException.h"
 
 class TraceBinaryReader final
 {

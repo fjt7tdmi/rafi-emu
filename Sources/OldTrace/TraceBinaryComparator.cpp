@@ -22,7 +22,7 @@
 #include "TraceBinary.h"
 #include "TraceBinaryComparator.h"
 #include "TraceBinaryUtil.h"
-#include "TraceException.h"
+#include "../Trace/TraceException.h"
 
 bool TraceBinaryComparator::IsPc32NodeMatched(Pc32Node* pExpect, Pc32Node* pActual) const
 {
