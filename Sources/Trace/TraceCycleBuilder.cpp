@@ -67,7 +67,7 @@ void TraceCycleBuilder::SetOffsetOfNextCycle(int64_t offset)
     GetPointerToHeader()->next = offset;
 }
 
-void TraceCycleBuilder::SetNode(NodeType nodeType, void* buffer, int64_t bufferSize)
+void TraceCycleBuilder::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
 {
     auto pMeta = GetPointerToMeta(nodeType);
 
@@ -89,6 +89,56 @@ void TraceCycleBuilder::SetNode(NodeType nodeType, void* buffer, int64_t bufferS
     auto size = static_cast<size_t>(bufferSize);
 
     std::memcpy(GetPointerToNode(nodeType), buffer, size);
+}
+
+void TraceCycleBuilder::SetNode(const BasicInfoNode& node)
+{
+    SetNode(NodeType::BasicInfo, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const Pc32Node& node)
+{
+    SetNode(NodeType::Pc32, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const Pc64Node& node)
+{
+    SetNode(NodeType::Pc64, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const IntReg32Node& node)
+{
+    SetNode(NodeType::IntReg32, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const IntReg64Node& node)
+{
+    SetNode(NodeType::IntReg64, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const Trap32Node& node)
+{
+    SetNode(NodeType::Trap32, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const Trap64Node& node)
+{
+    SetNode(NodeType::Trap64, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const MemoryAccess32Node& node)
+{
+    SetNode(NodeType::MemoryAccess32, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const MemoryAccess64Node& node)
+{
+    SetNode(NodeType::MemoryAccess64, &node, sizeof(node));
+}
+
+void TraceCycleBuilder::SetNode(const IoNode& node)
+{
+    SetNode(NodeType::Io, &node, sizeof(node));
 }
 
 int64_t TraceCycleBuilder::CalculateDataSize(int32_t flags)

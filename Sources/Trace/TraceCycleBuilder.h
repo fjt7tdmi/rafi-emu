@@ -17,6 +17,7 @@
 #pragma once
 
 #include "TraceCycleCommon.h"
+#include "TraceCycleNode.h"
 
 enum NodeFlag : int32_t
 {
@@ -52,7 +53,19 @@ public:
 
     void SetOffsetOfNextCycle(int64_t offset);
 
-    void SetNode(NodeType nodeType, void* buffer, int64_t bufferSize);
+    void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
+
+    // utility
+    void SetNode(const BasicInfoNode& node);
+    void SetNode(const Pc32Node& node);
+    void SetNode(const Pc64Node& node);
+    void SetNode(const IntReg32Node& node);
+    void SetNode(const IntReg64Node& node);
+    void SetNode(const Trap32Node& node);
+    void SetNode(const Trap64Node& node);
+    void SetNode(const MemoryAccess32Node& node);
+    void SetNode(const MemoryAccess64Node& node);
+    void SetNode(const IoNode& node);
 
 private:
     int64_t CalculateDataSize(int32_t flags);

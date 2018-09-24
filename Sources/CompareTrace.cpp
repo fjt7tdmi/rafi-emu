@@ -23,9 +23,8 @@
 #include <boost/program_options.hpp>
 
 #include "Common/Exception.h"
-#include "Trace/TraceBinaryReader.h"
-#include "Trace/TraceBinaryUtil.h"
-#include "Trace/TraceBinaryComparator.h"
+#include "Trace/FileTraceReader.h"
+#include "CycleComparator.h"
 
 using namespace std;
 
@@ -38,41 +37,44 @@ const char* Failed = "[ FAILED ]";
 
 void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
 {
-    TraceBinaryComparator comparator(cmpPhysicalPc, cmpCsr, cmpMemory);
+    CycleComparator comparator(cmpPhysicalPc, cmpCsr, cmpMemory);
 
-    TraceBinaryReader expectReader(expectPath.c_str());
-    TraceBinaryReader actualReader(actualPath.c_str());
+    FileTraceReader expectReader(expectPath.c_str());
+    FileTraceReader actualReader(actualPath.c_str());
 
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    while (!expectReader.IsEndNode() || !actualReader.IsEndNode())
+    while (!expectReader.IsLastCycle() || !actualReader.IsLastCycle())
     {
-        if (!comparator.AreTraceChildsMatched(expectReader.GetNode(), expectReader.GetNodeSize(), actualReader.GetNode(), actualReader.GetNodeSize()))
+        TraceCycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
+        TraceCycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
+
+        if (!comparator.AreMatched(expectCycle, actualCycle))
         {
             std::cout << std::hex << "Archtecture state is not matched for opId 0x" << expectOpCount << "." << std::endl;
-            comparator.PrintDiff(expectReader.GetNode(), expectReader.GetNodeSize(), actualReader.GetNode(), actualReader.GetNodeSize());
+            comparator.PrintDiff(expectCycle, actualCycle);
             std::cout << Failed << std::endl;
 
             return;
         }
 
-        expectReader.MoveToNext();
-        actualReader.MoveToNext();
+        expectReader.MoveNextCycle();
+        actualReader.MoveNextCycle();
 
         expectOpCount++;
         actualOpCount++;
     }
 
     // Count ops
-    while (!expectReader.IsEndNode())
+    while (!expectReader.IsLastCycle())
     {
-        expectReader.MoveToNext();
+        expectReader.MoveNextCycle();
         expectOpCount++;
     }
-    while (!actualReader.IsEndNode())
+    while (!actualReader.IsLastCycle())
     {
-        actualReader.MoveToNext();
+        actualReader.MoveNextCycle();
         actualOpCount++;
     }
 

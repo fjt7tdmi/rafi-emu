@@ -24,14 +24,14 @@
 #include <boost/program_options.hpp>
 
 #include "Common/Exception.h"
-#include "Trace/TraceBinaryReader.h"
-#include "Trace/TraceBinaryUtil.h"
+#include "Trace/FileTraceReader.h"
+#include "Trace/TraceException.h"
 
 namespace po = boost::program_options;
 
 namespace {
 
-void PrintBasicInfoNode(const BasicInfoNode& node)
+void PrintBasicInfoNode(const BasicInfoNode* node)
 {
     printf(
         "  Basic {\n"
@@ -39,35 +39,35 @@ void PrintBasicInfoNode(const BasicInfoNode& node)
         "    opId:  0x%08x\n"
         "    insn:  0x%08x\n"
         "  }\n",
-        node.cycle,
-        node.opId,
-        node.insn
+        node->cycle,
+        node->opId,
+        node->insn
     );
 }
 
-void PrintIoNode(const IoNode& node)
+void PrintIoNode(const IoNode* node)
 {
     printf(
         "  Io {\n"
         "    host: 0x%08x\n"
         "  }\n",
-        node.hostIoValue
+        node->hostIoValue
     );
 }
 
-void PrintPc32Node(const Pc32Node& node)
+void PrintPc32Node(const Pc32Node* node)
 {
     printf(
         "  Pc32 {\n"
         "    virtualPc:  0x%08x\n"
         "    physicalPc: 0x%08x\n"
         "  }\n",
-        node.virtualPc,
-        node.physicalPc
+        node->virtualPc,
+        node->physicalPc
     );
 }
 
-void PrintIntReg32Node(const IntReg32Node& node)
+void PrintIntReg32Node(const IntReg32Node* node)
 {
     printf(
         "  IntReg32: {\n"
@@ -104,60 +104,42 @@ void PrintIntReg32Node(const IntReg32Node& node)
         "    x30: 0x%08x // t5\n"
         "    x31: 0x%08x // t6\n"
         "  }\n",
-        node.regs[0],
-        node.regs[1],
-        node.regs[2],
-        node.regs[3],
-        node.regs[4],
-        node.regs[5],
-        node.regs[6],
-        node.regs[7],
-        node.regs[8],
-        node.regs[9],
-        node.regs[10],
-        node.regs[11],
-        node.regs[12],
-        node.regs[13],
-        node.regs[14],
-        node.regs[15],
-        node.regs[16],
-        node.regs[17],
-        node.regs[18],
-        node.regs[19],
-        node.regs[20],
-        node.regs[21],
-        node.regs[22],
-        node.regs[23],
-        node.regs[24],
-        node.regs[25],
-        node.regs[26],
-        node.regs[27],
-        node.regs[28],
-        node.regs[29],
-        node.regs[30],
-        node.regs[31]
+        node->regs[0],
+        node->regs[1],
+        node->regs[2],
+        node->regs[3],
+        node->regs[4],
+        node->regs[5],
+        node->regs[6],
+        node->regs[7],
+        node->regs[8],
+        node->regs[9],
+        node->regs[10],
+        node->regs[11],
+        node->regs[12],
+        node->regs[13],
+        node->regs[14],
+        node->regs[15],
+        node->regs[16],
+        node->regs[17],
+        node->regs[18],
+        node->regs[19],
+        node->regs[20],
+        node->regs[21],
+        node->regs[22],
+        node->regs[23],
+        node->regs[24],
+        node->regs[25],
+        node->regs[26],
+        node->regs[27],
+        node->regs[28],
+        node->regs[29],
+        node->regs[30],
+        node->regs[31]
     );
 }
 
-void PrintCsr32Node(const void* pBody, int64_t bodySize)
-{
-    if (bodySize % sizeof(int32_t) != 0)
-    {
-        throw TraceException("Body size of Csr32Node must be multiple of 4.");
-    }
-
-    const auto count = bodySize / sizeof(int32_t);
-    const auto p = reinterpret_cast<const int32_t*>(pBody);
-
-    printf("  Csr32 {\n");
-    for (int64_t i = 0; i < count; i++)
-    {
-        printf("    0x%03I64x: 0x%08x // %s\n", i, p[i], GetString(static_cast<csr_addr_t>(i), ""));
-    }
-    printf("  }\n");
-}
-
-void PrintTrap32Node(const Trap32Node& node)
+void PrintTrap32Node(const Trap32Node* node)
 {
     printf(
         "  Trap32 {\n"
@@ -167,15 +149,15 @@ void PrintTrap32Node(const Trap32Node& node)
         "    cause:     0x%08x\n"
         "    trapValue: 0x%08x\n"
         "  }\n",
-        GetString(node.trapType),
-        GetString(node.from),
-        GetString(node.to),
-        node.cause,
-        node.trapValue
+        GetString(node->trapType),
+        GetString(node->from),
+        GetString(node->to),
+        node->cause,
+        node->trapValue
     );
 }
 
-void PrintMemoryAccess32Node(const MemoryAccess32Node& node)
+void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
 {
     printf(
         "  MemoryAccess32 {\n"
@@ -185,71 +167,67 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node& node)
         "    accessType: %s\n"
         "    accessSize: %s\n"
         "  }\n",
-        node.virtualAddress,
-        node.physicalAddress,
-        node.value,
-        GetString(node.memoryAccessType),
-        GetString(node.memoryAccessSize)
+        node->virtualAddress,
+        node->physicalAddress,
+        node->value,
+        GetString(node->memoryAccessType),
+        GetString(node->memoryAccessSize)
     );
 }
 
-// TODO: implement PrintMemoryNode()
-
-void PrintTraceChilds(char* buffer, size_t nodeSize, int cycle)
+void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
 {
-    printf("{ // cycle: 0x%08x\n", cycle);
+    printf("{ // cycle: 0x%08x\n", cycleNum);
 
-    if (auto p = FindBasicInfoNode(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::BasicInfo))
     {
-        PrintBasicInfoNode(*p);
+        PrintBasicInfoNode(cycle.GetBasicInfoNode());
     }
-    if (auto p = FindIoNode(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::Io))
     {
-        PrintIoNode(*p);
+        PrintIoNode(cycle.GetIoNode());
     }
-    if (auto p = FindPc32Node(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::Pc32))
     {
-        PrintPc32Node(*p);
+        PrintPc32Node(cycle.GetPc32Node());
     }
-    if (auto p = FindIntReg32Node(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::IntReg32))
     {
-        PrintIntReg32Node(*p);
+        PrintIntReg32Node(cycle.GetIntReg32Node());
     }
-    if (auto p = FindCsr32Node(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::Trap32))
     {
-        auto pBody = &p[1];
-        PrintCsr32Node(pBody, p->bodySize);
+        PrintTrap32Node(cycle.GetTrap32Node());
     }
-    if (auto p = FindTrap32Node(buffer, nodeSize); p != nullptr)
+    if (cycle.IsNodeExist(NodeType::MemoryAccess32))
     {
-        PrintTrap32Node(*p);
+        PrintMemoryAccess32Node(cycle.GetMemoryAccess32Node());
     }
-    if (auto p = FindMemoryAccess32Node(buffer, nodeSize); p != nullptr)
-    {
-        PrintMemoryAccess32Node(*p);
-    }
+
+    // TODO: implement PrintCsr() and PrintMemory()
 
     printf("}\n");
 }
 
 void PrintTrace(const std::string& path, int startCycle, int count)
 {
-    TraceBinaryReader reader(path.c_str());
-    reader.MoveToFirst();
+    FileTraceReader reader(path.c_str());
 
     for (int i = 0; i < startCycle + count; i++)
     {
-        if (reader.IsEndNode())
+        if (reader.IsLastCycle())
         {
             return;
         }
 
         if (i >= startCycle)
         {
-            PrintTraceChilds(reader.GetNode(), reader.GetNodeSize(), i);
+            TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+
+            PrintTraceCycle(cycle, i);
         }
 
-        reader.MoveToNext();
+        reader.MoveNextCycle();
     }
 }
 

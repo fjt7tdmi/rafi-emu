@@ -17,30 +17,50 @@
 #pragma once
 
 #include "TraceCycleCommon.h"
+#include "TraceCycleNode.h"
 
 class TraceCycleReader
 {
 public:
     TraceCycleReader(const void* buffer, int64_t bufferSize);
 
-    int64_t GetOffsetOfPreviousCycle();
+    int64_t GetOffsetOfPreviousCycle() const;
 
-    int64_t GetOffsetOfNextCycle();
+    int64_t GetOffsetOfNextCycle() const;
 
-    const void* GetNode(NodeType nodeType);
+    const void* GetNode(NodeType nodeType) const;
 
-    int64_t GetNodeSize(NodeType nodeType);
+    int64_t GetNodeSize(NodeType nodeType) const;
 
-    bool IsNodeExist(NodeType nodeType);
+    bool IsNodeExist(NodeType nodeType) const;
+
+    // utility
+    const BasicInfoNode* GetBasicInfoNode() const;
+    const Pc32Node* GetPc32Node() const;
+    const Pc64Node* GetPc64Node() const;
+    const IntReg32Node* GetIntReg32Node() const;
+    const IntReg64Node* GetIntReg64Node() const;
+    const Csr32NodeHeader* GetCsr32Node() const;
+    const Csr64NodeHeader* GetCsr64Node() const;
+    const Trap32Node* GetTrap32Node() const;
+    const Trap64Node* GetTrap64Node() const;
+    const MemoryAccess32Node* GetMemoryAccess32Node() const;
+    const MemoryAccess64Node* GetMemoryAccess64Node() const;
+    const IoNode* GetIoNode() const;
+    const MemoryNodeHeader* GetMemoryNode() const;
 
 private:
-    const TraceCycleHeader* GetPointerToHeader();
+    void CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const;
 
-    const TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+    void CheckNodeSizeGreaterThan(NodeType nodeType, size_t size) const;
 
-    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
+    const TraceCycleHeader* GetPointerToHeader() const;
 
-    const void* GetPointerToNode(NodeType nodeType);
+    const TraceCycleMetaNode* GetPointerToMeta(int32_t index) const;
+
+    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType) const;
+
+    const void* GetPointerToNode(NodeType nodeType) const;
 
     const void* m_pData;
 

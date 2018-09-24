@@ -24,12 +24,12 @@
 #include "Common/BasicTypes.h"
 #include "Common/Exception.h"
 
-#include "Trace/TraceBinaryWriter.h"
-
 #include "Profiler/Profiler.h"
 
 #include "System/System.h"
 #include "System/Bus/Bus.h"
+
+#include "TraceDumper.h"
 
 using namespace std;
 
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 
     pSystem->SetupDtbAddress(static_cast<int32_t>(dtbAddress));
 
-    TraceBinaryWriter* pTraceBinaryWriter;
+    TraceDumper* dumper;
     try
     {
         for (auto& arg: optionMap["binary"].as<vector<string>>())
@@ -175,7 +175,7 @@ int main(int argc, char** argv)
             pSystem->LoadFileToMemory(binaryOption.GetPath().c_str(), binaryOption.GetAddress());
         }
 
-        pTraceBinaryWriter = new TraceBinaryWriter(optionMap["dump-path"].as<string>().c_str(), pSystem);
+        dumper = new TraceDumper(optionMap["dump-path"].as<string>().c_str(), pSystem);
     }
     catch (CommandLineOptionException e)
     {
@@ -190,14 +190,14 @@ int main(int argc, char** argv)
 
     if (optionMap.count("dump-path"))
     {
-        pTraceBinaryWriter->EnableDump();
+        dumper->EnableDump();
     }
     if (optionMap.count("enable-dump-memory"))
     {
-        pTraceBinaryWriter->EnableDumpMemory();
+        dumper->EnableDumpMemory();
     }
 
-    pTraceBinaryWriter->DumpHeader();
+    dumper->DumpHeader();
 
     try
     {
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
             pSystem->ProcessOneCycle();
 
             pProfiler->SwitchPhase(Profiler::Phase_Dump);
-            pTraceBinaryWriter->DumpOneCycle(cycle);
+            dumper->DumpOneCycle(cycle);
 
             pProfiler->SwitchPhase(Profiler::Phase_None);
             if (optionMap.count("stop-by-host-io"))
@@ -233,11 +233,11 @@ int main(int argc, char** argv)
         e.PrintMessage();
     }
 
-    pTraceBinaryWriter->DumpFooter();
+    dumper->DumpFooter();
 
     pProfiler->Dump();
 
-    delete pTraceBinaryWriter;
+    delete dumper;
     delete pSystem;
     delete pProfiler;
 

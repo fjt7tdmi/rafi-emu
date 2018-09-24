@@ -75,7 +75,7 @@ struct Trap64Node
     PrivilegeLevel from;
     PrivilegeLevel to;
     int8_t cause;
-    int8_t reserved[4];
+    int8_t reserved[3];
     int64_t trapValue;
 };
 
@@ -103,4 +103,9 @@ struct IoNode
 {
     int32_t hostIoValue;
     int32_t reserved;
+};
+
+struct MemoryNodeHeader
+{
+    int64_t bodySize;
 };

@@ -21,8 +21,8 @@
 #include <vector>
 
 #include "Common/Exception.h"
-#include "Trace/TraceBinaryReader.h"
-#include "Trace/TraceBinaryUtil.h"
+#include "Trace/TraceException.h"
+#include "Trace/FileTraceReader.h"
 
 namespace {
     const char* Pass = "[  PASS  ]";
@@ -34,31 +34,25 @@ bool Check(const char* name, const char* path)
 {
     try
     {
-        TraceBinaryReader reader(path);
-
-        if (reader.IsEndNode())
-        {
-            std::cout << Failed << " " << name << " (No trace data)" << std::endl;
-            return false;
-        }
+        FileTraceReader reader(path);
 
         // Get last cycle data
-        reader.MoveToLast();
-
-        // Find IoNode
-        auto pNode = FindIoNode(reader.GetNode(), reader.GetNodeSize());
-        if (pNode == nullptr)
+        while (!reader.IsLastCycle())
         {
-            std::cout << Failed << " " << name << " (No io data at the last cycle)" << std::endl;
-            return false;
+            reader.MoveNextCycle();
         }
 
+        TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+
+        // Find IoNode
+        auto ioNode = cycle.GetIoNode();
+
         // Check IoValue
-        if (pNode->hostIoValue != ExpectedHostIoValue)
+        if (ioNode->hostIoValue != ExpectedHostIoValue)
         {
             std::cout << Failed << " " << name << " ("
-                << std::hex << "hostIoValue:0x" << pNode->hostIoValue << " "
-                << std::dec << "testId:" << (pNode->hostIoValue / 2)
+                << std::hex << "hostIoValue:0x" << ioNode->hostIoValue << " "
+                << std::dec << "testId:" << (ioNode->hostIoValue / 2)
                 << ")" << std::endl;
             return false;
         }
