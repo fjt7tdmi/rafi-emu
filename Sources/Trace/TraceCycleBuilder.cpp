@@ -35,6 +35,7 @@ TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 
     GetPointerToHeader()->next = size;
     GetPointerToHeader()->prev = 0;
+    GetPointerToHeader()->size = size;
     GetPointerToHeader()->metaCount = CountValidFlags(flags);
     GetPointerToHeader()->reserved = 0;
 

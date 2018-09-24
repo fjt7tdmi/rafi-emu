@@ -20,43 +20,91 @@
 #include <cstdlib>
 
 #include "MemoryTraceReader.h"
+#include "TraceCycle.h"
+#include "TraceException.h"
 
-MemoryTraceReader::MemoryTraceReader(void* buffer, int64_t bufferSize)
+MemoryTraceReader::MemoryTraceReader(const void* buffer, int64_t bufferSize)
+    : m_pBuffer(buffer)
+    , m_BufferSize(bufferSize)
+    , m_CurrentOffset(0)
 {
-    std::abort();
 }
 
 MemoryTraceReader::~MemoryTraceReader()
 {
-    std::abort();
 }
 
 const void* MemoryTraceReader::GetCurrentCycleData()
 {
-    std::abort();
+    if (m_CurrentOffset + sizeof(TraceCycleHeader) > m_BufferSize)
+    {
+        throw TraceException("detect data corruption.");
+    }
+
+    return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
 }
 
 int64_t MemoryTraceReader::GetCurrentCycleDataSize()
 {
-    std::abort();
+    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+
+    return header->size;
 }
 
 bool MemoryTraceReader::IsFirstCycle()
 {
-    std::abort();
+    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+
+    return header->prev == 0;
 }
 
 bool MemoryTraceReader::IsLastCycle()
 {
-    std::abort();
+    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+
+    return header->next == 0;
 }
 
 void MemoryTraceReader::MoveNextCycle()
 {
-    std::abort();
+    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+
+    if (header->next < 0)
+    {
+        throw TraceException("detect data corruption.");
+    }
+    else if (header->next == 0)
+    {
+        throw TraceException("cannot move to next cycle from the last cycle.");
+    }
+
+    m_CurrentOffset += header->next;
+
+    CheckCurrentOffset();
 }
 
 void MemoryTraceReader::MovePreviousCycle()
 {
-    std::abort();
+    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+
+    if (header->prev > 0)
+    {
+        throw TraceException("detect data corruption.");
+    }
+    else if (header->prev == 0)
+    {
+        throw TraceException("cannot move to preivious cycle from the first cycle.");
+    }
+
+    m_CurrentOffset += header->prev;
+
+    CheckCurrentOffset();
+}
+
+void MemoryTraceReader::CheckCurrentOffset()
+{
+    if (!(0 <= m_CurrentOffset && m_CurrentOffset < m_BufferSize))
+    {
+        throw TraceException("detect data corruption.");
+    }
 }

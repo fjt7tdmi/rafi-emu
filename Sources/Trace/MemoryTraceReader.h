@@ -19,11 +19,12 @@
 #include <cstdint>
 
 #include "ITraceReader.h"
+#include "TraceCycle.h"
 
 class MemoryTraceReader : public ITraceReader
 {
 public:
-    MemoryTraceReader(void* buffer, int64_t bufferSize);
+    MemoryTraceReader(const void* buffer, int64_t bufferSize);
     virtual ~MemoryTraceReader();
 
     virtual const void* GetCurrentCycleData();
@@ -34,4 +35,12 @@ public:
 
     virtual void MoveNextCycle();
     virtual void MovePreviousCycle();
+
+private:
+    void CheckCurrentOffset();
+
+    const void* m_pBuffer;
+    int64_t m_BufferSize;
+
+    int64_t m_CurrentOffset;
 };

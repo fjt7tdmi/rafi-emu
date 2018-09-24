@@ -18,25 +18,42 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 
 #include "MemoryTraceWriter.h"
+#include "TraceException.h"
 
-MemoryTraceWriter::MemoryTraceWriter(void* buffer, int64_t size)
+MemoryTraceWriter::MemoryTraceWriter(void* buffer, int64_t bufferSize)
+    : m_pBuffer(buffer)
+    , m_BufferSize(bufferSize)
 {
-    std::abort();
 }
 
 MemoryTraceWriter::~MemoryTraceWriter()
 {
-    std::abort();
 }
 
 int64_t MemoryTraceWriter::GetPreviousWriteSize()
 {
-    std::abort();
+    return m_PreviousWriteSize;
 }
 
 void MemoryTraceWriter::Write(void* buffer, int64_t size)
 {
-    std::abort();
+    if (m_CurrentOffset + size > m_BufferSize)
+    {
+        throw TraceException("detect buffer overflow.");
+    }
+
+    if (!(0 <= size && size < SIZE_MAX))
+    {
+        throw TraceException("argument 'size' is out-of-range.");
+    }
+
+    auto destination = reinterpret_cast<uint8_t*>(m_pBuffer) + m_CurrentOffset;
+
+    std::memcpy(destination, buffer, static_cast<size_t>(size));
+
+    m_CurrentOffset += size;
+    m_PreviousWriteSize = size;
 }

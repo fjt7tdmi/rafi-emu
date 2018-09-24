@@ -22,6 +22,7 @@
 #include "test_TraceUtil.h"
 
 #include "../../Sources/Trace/TraceCycle.h"
+#include "../../Sources/Trace/TraceException.h"
 #include "../../Sources/Trace/MemoryTraceWriter.h"
 
 TEST(TraceWriterTest, GetPreviousWriteSize)
@@ -36,7 +37,7 @@ TEST(TraceWriterTest, GetPreviousWriteSize)
 
     writer.Write(builder->GetData(), builder->GetDataSize());
 
-    ASSERT_EQ(0, builder->GetDataSize());
+    ASSERT_EQ(builder->GetDataSize(), writer.GetPreviousWriteSize());
 }
 
 TEST(TraceWriterTest, Overflow)
@@ -47,5 +48,5 @@ TEST(TraceWriterTest, Overflow)
 
     MemoryTraceWriter writer(buffer, sizeof(buffer));
 
-    ASSERT_THROW(writer.Write(builder->GetData(), builder->GetDataSize()), TraceCycleException);
+    ASSERT_THROW(writer.Write(builder->GetData(), builder->GetDataSize()), TraceException);
 }

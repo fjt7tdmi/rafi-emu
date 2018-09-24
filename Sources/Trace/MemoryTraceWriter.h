@@ -31,8 +31,8 @@ public:
 
 private:
     void* m_pBuffer;
-    void* m_pCurrent;
-
     int64_t m_BufferSize;
-    int64_t m_PreviousWriteSize;
+
+    int64_t m_CurrentOffset {0};
+    int64_t m_PreviousWriteSize {0};
 };

@@ -48,6 +48,9 @@ struct TraceCycleHeader
     // If here is the first cycle, this value is 0.
     int64_t prev;
 
+    // Byte size of this TraceCycleHeader.
+    int64_t size;
+
     // Number of TraceCycleMetaNode
     int32_t metaCount;
 
