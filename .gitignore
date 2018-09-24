@@ -15,6 +15,9 @@ CMakeCache.txt
 # Cppcheck
 *-cppcheck-build-dir/
 
+# Editor
+.vscode/
+
 # Windows (MSVC)
 .vs/
 Debug/
