@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include <memory>
 #include <cstdlib>
+#include <cstring>
+#include <memory>
 
 #include <gtest/gtest.h>
 

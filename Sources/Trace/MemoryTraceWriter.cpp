@@ -21,6 +21,8 @@
 #include "MemoryTraceWriter.h"
 #include "TraceException.h"
 
+using namespace std;
+
 MemoryTraceWriter::MemoryTraceWriter(void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)

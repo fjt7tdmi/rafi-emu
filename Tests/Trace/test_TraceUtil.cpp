@@ -16,6 +16,7 @@
 
 #include <memory>
 #include <cstdlib>
+#include <cstring>
 
 #include "../../Sources/Trace/TraceCycle.h"
 #include "../../Sources/Trace/TraceCycleBuilder.h"

@@ -15,6 +15,8 @@
  */
 
 #include <cassert>
+#include <cstddef>
+#include <cstdint>
 
 #include "TraceCycleReader.h"
 #include "TraceCycleException.h"

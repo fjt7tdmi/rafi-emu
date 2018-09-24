@@ -16,10 +16,13 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <cstring>
 
 #include "TraceCycleBuilder.h"
 #include "TraceCycleException.h"
 #include "TraceCycleNode.h"
+
+using namespace std;
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 {
@@ -147,7 +150,7 @@ int64_t TraceCycleBuilder::CalculateDataSize(int32_t flags)
 
     size += sizeof(TraceCycleMetaNode) * CountValidFlags(flags);
 
-#define GET_SIZE_FOR_FLAG(flag_) (((flags & NodeFlag_##flag_) != 0) ? GetProperNodeSize(NodeType::##flag_) : 0)
+#define GET_SIZE_FOR_FLAG(flag_) (((flags & NodeFlag_##flag_) != 0) ? GetProperNodeSize(NodeType:: flag_) : 0)
     size += GET_SIZE_FOR_FLAG(BasicInfo);
     size += GET_SIZE_FOR_FLAG(Pc32);
     size += GET_SIZE_FOR_FLAG(Pc64);

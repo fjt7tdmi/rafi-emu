@@ -21,6 +21,8 @@
 #include "FileTraceWriter.h"
 #include "TraceException.h"
 
+using namespace std;
+
 FileTraceWriter::FileTraceWriter(const char* path)
 {
     m_File = std::fopen(path, "wb");

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include "TraceCycleCommon.h"
 #include "TraceCycleNode.h"
 

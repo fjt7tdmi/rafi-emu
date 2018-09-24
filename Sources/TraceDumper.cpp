@@ -166,7 +166,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     // IoNode
     IoNode ioNode
     {
-        static_cast<int64_t>(m_pSystem->GetHostIoValue()),
+        static_cast<int32_t>(m_pSystem->GetHostIoValue()),
         0,
     };
     builder.SetNode(ioNode);

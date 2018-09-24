@@ -20,6 +20,7 @@
 #include <filesystem>
 #endif
 
+#include <cstddef>
 #include <cstdint>
 #include <fstream>
 
