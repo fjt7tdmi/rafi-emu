@@ -77,7 +77,7 @@ TEST(TraceCycleTest, BuilderSetOffsetAndReaderGetOffset)
         const auto nextOffset = offsetSet.second;
 
         TraceCycleBuilder builder(NodeFlag_BasicInfo);
-        
+
         builder.SetOffsetOfPreviousCycle(previousOffset);
         builder.SetOffsetOfNextCycle(nextOffset);
 

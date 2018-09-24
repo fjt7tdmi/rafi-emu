@@ -130,15 +130,24 @@ add_executable(RafiEmu
 )
 
 add_executable(test_Trace
-    Sources/Trace/TraceCycle.h
-    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/MemoryTraceWriter.cpp
+    Sources/Trace/MemoryTraceWriter.h
     Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
     Sources/Trace/TraceCycleCommon.h
     Sources/Trace/TraceCycleException.h
     Sources/Trace/TraceCycleNode.h
     Sources/Trace/TraceCycleReader.cpp
     Sources/Trace/TraceCycleReader.h
     Tests/Trace/test_TraceCycle.cpp
+    Tests/Trace/test_TraceReader.cpp
+    Tests/Trace/test_TraceUtil.cpp
+    Tests/Trace/test_TraceUtil.h
+    Tests/Trace/test_TraceWriter.cpp
 )
 
 target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
