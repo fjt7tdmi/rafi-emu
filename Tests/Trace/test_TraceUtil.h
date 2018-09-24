@@ -16,38 +16,13 @@
 
 #pragma once
 
-#include <cstdio>
+#include <memory>
+#include <cstdlib>
 
-#include "../System/System.h"
+#include "../../Sources/Trace/TraceCycleBuilder.h"
 
-class TraceBinaryWriter final
-{
-public:
-    TraceBinaryWriter(const char* path, const System* pSystem);
+void FillRandom(void* buffer, size_t size);
 
-    ~TraceBinaryWriter();
+void FillZero(void* buffer, size_t size);
 
-    void EnableDump();
-    void EnableDumpCsr();
-    void EnableDumpMemory();
-
-    void DumpOneCycle(int cycle);
-
-    void DumpHeader()
-    {
-        // stub
-    }
-    void DumpFooter()
-    {
-        // stub
-    }
-
-private:
-    std::FILE* m_File;
-
-    const System* m_pSystem;
-
-    bool m_Enabled = false;
-    bool m_EnableDumpCsr = false;
-    bool m_EnableDumpMemory = false;
-};
+std::unique_ptr<TraceCycleBuilder> MakeTestBuilder();

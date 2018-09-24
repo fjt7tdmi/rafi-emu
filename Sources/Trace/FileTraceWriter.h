@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
+#pragma once
 
-TEST(SampleTest, Success)
-{
-    ASSERT_EQ(1, 1);
-}
+#include <cstdio>
 
-TEST(SampleTest, Failure)
+#include "ITraceWriter.h"
+
+class FileTraceWriter : ITraceWriter
 {
-    ASSERT_EQ(1, 2);
-}
+public:
+    FileTraceWriter(const char* path);
+    virtual ~FileTraceWriter();
+
+    virtual int64_t GetPreviousWriteSize();
+    virtual void Write(void* buffer, int64_t size);
+
+private:
+    std::FILE* m_File;
+    
+    int64_t m_PreviousWriteSize {0};
+};

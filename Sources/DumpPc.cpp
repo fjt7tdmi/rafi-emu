@@ -24,8 +24,8 @@
 #include <boost/program_options.hpp>
 
 #include "Common/Exception.h"
-#include "Trace/TraceBinaryReader.h"
-#include "Trace/TraceBinaryUtil.h"
+#include "Trace/TraceCycle.h"
+#include "Trace/FileTraceReader.h"
 
 namespace po = boost::program_options;
 
@@ -33,21 +33,23 @@ namespace {
 
 void PrintTrace(const std::string& path, int startCycle, int count, bool showVirtual)
 {
-    TraceBinaryReader reader(path.c_str());
-    reader.MoveToFirst();
+    FileTraceReader reader(path.c_str());
 
     for (int i = 0; i < startCycle + count; i++)
     {
-        if (reader.IsEndNode())
+        if (reader.IsLastCycle())
         {
             return;
         }
 
         if (i >= startCycle)
         {
-            if (auto p = FindPc32Node(reader.GetNode(), reader.GetNodeSize()); p != nullptr)
+            TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+
+            if (cycle.IsNodeExist(NodeType::Pc32))
             {
-                printf("0x%08x\n", showVirtual ? p->virtualPc : p->physicalPc);
+                auto node = cycle.GetPc32Node();
+                printf("0x%08x\n", showVirtual ? node->virtualPc : node->physicalPc);
             }
             else
             {
@@ -56,7 +58,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
             }
         }
 
-        reader.MoveToNext();
+        reader.MoveNextCycle();
     }
 }
 

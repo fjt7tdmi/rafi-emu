@@ -20,4 +20,4 @@ script:
   - cd build
   - cmake ..
   - cmake --build .
-  - ./SampleTest --gtest_filter=SampleTest.Success
+  - ./test_Trace

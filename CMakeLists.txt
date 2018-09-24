@@ -5,13 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
-
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
 endif()
 
 find_package(Boost)
@@ -20,16 +18,24 @@ if (NOT ${Boost_FOUND})
     message(FATAL_ERROR "Cannot find boost.")
 endif()
 
-if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+if (MSVC)
+    if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
+        set(GoogleTest_LIBRARIES "gtestd" "gtest_maind")
+        set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
+        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Debug" "third_party/googletest/build/googlemock/gtest/Debug")
+    else()
+        set(GoogleTest_LIBRARIES "gtest" "gtest_main")
+        set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
+        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest/Release" "third_party/googletest/build/googlemock/gtest/Release")
+    endif()
+else()
     set(Boost_LIBRARIES "boost_program_options")
     set(FS_LIBRARIES "stdc++fs")
-    set(GoogleTest_LIBRARIES "gtest" "gtest_main" "pthread")
-else()
-    set(GoogleTest_LIBRARIES "gtest" "gtest_main")
-endif()
 
-set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
-set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
+    set(GoogleTest_LIBRARIES "gtest" "gtest_main" "pthread")
+    set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
+    set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
+endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${GoogleTest_INCLUDE_DIRS})
@@ -40,11 +46,21 @@ link_directories(${GoogleTest_LIBRARY_DIRS})
 add_executable(CheckIo
     Sources/Common/BasicTypes.h
     Sources/Common/Exception.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/FileTraceReader.cpp
+    Sources/Trace/FileTraceReader.h
+    Sources/Trace/FileTraceWriter.cpp
+    Sources/Trace/FileTraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
     Sources/CheckIo.cpp
 )
 
@@ -53,15 +69,25 @@ add_executable(CompareTrace
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryComparator.cpp
-    Sources/Trace/TraceBinaryComparator.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/FileTraceReader.cpp
+    Sources/Trace/FileTraceReader.h
+    Sources/Trace/FileTraceWriter.cpp
+    Sources/Trace/FileTraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
     Sources/Trace/TraceException.h
     Sources/CompareTrace.cpp
+    Sources/CycleComparator.cpp
+    Sources/CycleComparator.h
 )
 
 add_executable(DumpPc
@@ -69,11 +95,21 @@ add_executable(DumpPc
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/FileTraceReader.cpp
+    Sources/Trace/FileTraceReader.h
+    Sources/Trace/FileTraceWriter.cpp
+    Sources/Trace/FileTraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
     Sources/DumpPc.cpp
 )
 
@@ -82,11 +118,21 @@ add_executable(PrintTrace
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinary.h
-    Sources/Trace/TraceBinaryReader.cpp
-    Sources/Trace/TraceBinaryReader.h
-    Sources/Trace/TraceBinaryUtil.cpp
-    Sources/Trace/TraceBinaryUtil.h
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/FileTraceReader.cpp
+    Sources/Trace/FileTraceReader.h
+    Sources/Trace/FileTraceWriter.cpp
+    Sources/Trace/FileTraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
     Sources/PrintTrace.cpp
 )
 
@@ -96,8 +142,21 @@ add_executable(RafiEmu
     Sources/Common/Exception.h
     Sources/Common/RvTypes.cpp
     Sources/Common/RvTypes.h
-    Sources/Trace/TraceBinaryWriter.cpp
-    Sources/Trace/TraceBinaryWriter.h
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/FileTraceReader.cpp
+    Sources/Trace/FileTraceReader.h
+    Sources/Trace/FileTraceWriter.cpp
+    Sources/Trace/FileTraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
     Sources/Profiler/Profiler.cpp
     Sources/Profiler/Profiler.h
     Sources/System/Bus/Bus.cpp
@@ -121,15 +180,34 @@ add_executable(RafiEmu
     Sources/System/System.cpp
     Sources/System/System.h
     Sources/RafiEmu.cpp
+    Sources/TraceDumper.cpp
+    Sources/TraceDumper.h
 )
 
-add_executable(SampleTest
-    Tests/SampleTest.cpp
+add_executable(test_Trace
+    Sources/Trace/ITraceReader.h
+    Sources/Trace/ITraceWriter.h
+    Sources/Trace/MemoryTraceReader.cpp
+    Sources/Trace/MemoryTraceReader.h
+    Sources/Trace/MemoryTraceWriter.cpp
+    Sources/Trace/MemoryTraceWriter.h
+    Sources/Trace/TraceCycleBuilder.h
+    Sources/Trace/TraceCycleBuilder.cpp
+    Sources/Trace/TraceCycleCommon.h
+    Sources/Trace/TraceCycleException.h
+    Sources/Trace/TraceCycleNode.h
+    Sources/Trace/TraceCycleReader.cpp
+    Sources/Trace/TraceCycleReader.h
+    Tests/Trace/test_TraceCycle.cpp
+    Tests/Trace/test_TraceReader.cpp
+    Tests/Trace/test_TraceUtil.cpp
+    Tests/Trace/test_TraceUtil.h
+    Tests/Trace/test_TraceWriter.cpp
 )
 
 target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(CompareTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(DumpPc ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(PrintTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(RafiEmu ${Boost_LIBRARIES})
-target_link_libraries(SampleTest ${GoogleTest_LIBRARIES})
+target_link_libraries(RafiEmu ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test_Trace ${GoogleTest_LIBRARIES})

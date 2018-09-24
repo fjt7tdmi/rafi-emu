@@ -17,19 +17,18 @@
 #pragma once
 
 #include <cstdint>
-#include <cstdio>
 
-#include <iostream>
+class ITraceReader
+{
+public:
+    virtual ~ITraceReader(){}
 
-#include "TraceBinary.h"
+    virtual const void* GetCurrentCycleData() = 0;
+    virtual int64_t GetCurrentCycleDataSize() = 0;
 
-TraceChildHeader* FindTraceChild(NodeType nodeType, char* pNode, size_t nodeSize);
+    virtual bool IsFirstCycle() = 0;
+    virtual bool IsLastCycle() = 0;
 
-BasicInfoNode* FindBasicInfoNode(char* pNode, size_t nodeSize);
-IoNode* FindIoNode(char* pNode, size_t nodeSize);
-Pc32Node* FindPc32Node(char* pNode, size_t nodeSize);
-IntReg32Node* FindIntReg32Node(char* pNode, size_t nodeSize);
-Csr32NodeHeader* FindCsr32Node(char* pNode, size_t nodeSize);
-Trap32Node* FindTrap32Node(char* pNode, size_t nodeSize);
-MemoryAccess32Node* FindMemoryAccess32Node(char* pNode, size_t nodeSize);
-MemoryNodeHeader* FindMemoryNode(char* pNode, size_t nodeSize);
+    virtual void MoveNextCycle() = 0;
+    virtual void MovePreviousCycle() = 0;
+};

@@ -19,12 +19,10 @@
 #include <string>
 #include <sstream>
 
-#include "TraceBinary.h"
-#include "TraceBinaryComparator.h"
-#include "TraceBinaryUtil.h"
-#include "TraceException.h"
+#include "CycleComparator.h"
+#include "Trace/TraceException.h"
 
-bool TraceBinaryComparator::IsPc32NodeMatched(Pc32Node* pExpect, Pc32Node* pActual) const
+bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -43,7 +41,7 @@ bool TraceBinaryComparator::IsPc32NodeMatched(Pc32Node* pExpect, Pc32Node* pActu
     }
 }
 
-bool TraceBinaryComparator::IsIntReg32NodeMatched(IntReg32Node* pExpect, IntReg32Node* pActual) const
+bool CycleComparator::IsIntReg32NodeMatched(const IntReg32Node* pExpect, const IntReg32Node* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -53,7 +51,7 @@ bool TraceBinaryComparator::IsIntReg32NodeMatched(IntReg32Node* pExpect, IntReg3
     return std::memcmp(pExpect->regs, pActual->regs, sizeof(pExpect->regs)) == 0;
 }
 
-bool TraceBinaryComparator::IsCsr32NodeMatched(Csr32NodeHeader* pExpect, Csr32NodeHeader* pActual) const
+bool CycleComparator::IsCsr32NodeMatched(const Csr32NodeHeader* pExpect, const Csr32NodeHeader* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -84,7 +82,7 @@ bool TraceBinaryComparator::IsCsr32NodeMatched(Csr32NodeHeader* pExpect, Csr32No
     return std::memcmp(expectBody, actualBody, bodySize) == 0;
 }
 
-bool TraceBinaryComparator::IsMemoryNodeMatched(MemoryNodeHeader* pExpect, MemoryNodeHeader* pActual) const
+bool CycleComparator::IsMemoryNodeMatched(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -115,28 +113,28 @@ bool TraceBinaryComparator::IsMemoryNodeMatched(MemoryNodeHeader* pExpect, Memor
     return std::memcmp(expectBody, actualBody, bodySize) == 0;
 }
 
-bool TraceBinaryComparator::AreTraceChildsMatched(char* pExpect, size_t expectSize, char* pActual, size_t actualSize) const
+bool CycleComparator::AreMatched(const TraceCycleReader& expect, const TraceCycleReader& actual) const
 {
-    if (!IsPc32NodeMatched(FindPc32Node(pExpect, expectSize), FindPc32Node(pActual, actualSize)))
+    if (!IsPc32NodeMatched(expect.GetPc32Node(), actual.GetPc32Node()))
     {
         return false;
     }
-    if (!IsIntReg32NodeMatched(FindIntReg32Node(pExpect, expectSize), FindIntReg32Node(pActual, actualSize)))
+    if (!IsIntReg32NodeMatched(expect.GetIntReg32Node(), actual.GetIntReg32Node()))
     {
         return false;
     }
-    if (m_CmpCsr && !IsCsr32NodeMatched(FindCsr32Node(pExpect, expectSize), FindCsr32Node(pActual, actualSize)))
+    if (m_CmpCsr && !IsCsr32NodeMatched(expect.GetCsr32Node(), actual.GetCsr32Node()))
     {
         return false;
     }
-    if (m_CmpMemory && !IsMemoryNodeMatched(FindMemoryNode(pExpect, expectSize), FindMemoryNode(pActual, actualSize)))
+    if (m_CmpMemory && !IsMemoryNodeMatched(expect.GetMemoryNode(), actual.GetMemoryNode()))
     {
         return false;
     }
     return true;
 }
 
-void TraceBinaryComparator::PrintPc32Diff(Pc32Node* pExpect, Pc32Node* pActual) const
+void CycleComparator::PrintPc32Diff(const Pc32Node* pExpect, const Pc32Node* pActual) const
 {
     if (pExpect == nullptr)
     {
@@ -161,7 +159,7 @@ void TraceBinaryComparator::PrintPc32Diff(Pc32Node* pExpect, Pc32Node* pActual) 
     }
 }
 
-void TraceBinaryComparator::PrintIntReg32Diff(IntReg32Node* pExpect, IntReg32Node* pActual) const
+void CycleComparator::PrintIntReg32Diff(const IntReg32Node* pExpect, const IntReg32Node* pActual) const
 {
     if (pExpect == nullptr)
     {
@@ -185,7 +183,7 @@ void TraceBinaryComparator::PrintIntReg32Diff(IntReg32Node* pExpect, IntReg32Nod
     }
 }
 
-void TraceBinaryComparator::PrintCsr32Diff(Csr32NodeHeader* pExpect, Csr32NodeHeader* pActual) const
+void CycleComparator::PrintCsr32Diff(const Csr32NodeHeader* pExpect, const Csr32NodeHeader* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -229,7 +227,7 @@ void TraceBinaryComparator::PrintCsr32Diff(Csr32NodeHeader* pExpect, Csr32NodeHe
     }
 }
 
-void TraceBinaryComparator::PrintMemoryDiff(MemoryNodeHeader* pExpect, MemoryNodeHeader* pActual) const
+void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -281,31 +279,31 @@ void TraceBinaryComparator::PrintMemoryDiff(MemoryNodeHeader* pExpect, MemoryNod
     }
 }
 
-void TraceBinaryComparator::PrintDiff(char* pExpect, size_t expectSize, char* pActual, size_t actualSize) const
+void CycleComparator::PrintDiff(const TraceCycleReader& expect, const TraceCycleReader& actual) const
 {
-    auto pExpectPc32 = FindPc32Node(pExpect, expectSize);
-    auto pActualPc32 = FindPc32Node(pActual, actualSize);
+    auto pExpectPc32 = expect.GetPc32Node();
+    auto pActualPc32 = actual.GetPc32Node();
     if (!IsPc32NodeMatched(pExpectPc32, pActualPc32))
     {
         PrintPc32Diff(pExpectPc32, pActualPc32);
     }
 
-    auto pExpectIntReg32 = FindIntReg32Node(pExpect, expectSize);
-    auto pActualIntReg32 = FindIntReg32Node(pActual, actualSize);
+    auto pExpectIntReg32 = expect.GetIntReg32Node();
+    auto pActualIntReg32 = actual.GetIntReg32Node();
     if (!IsIntReg32NodeMatched(pExpectIntReg32, pActualIntReg32))
     {
         PrintIntReg32Diff(pExpectIntReg32, pActualIntReg32);
     }
 
-    auto pExpectCsr32 = FindCsr32Node(pExpect, expectSize);
-    auto pActualCsr32 = FindCsr32Node(pActual, actualSize);
+    auto pExpectCsr32 = expect.GetCsr32Node();
+    auto pActualCsr32 = actual.GetCsr32Node();
     if (m_CmpCsr && !IsCsr32NodeMatched(pExpectCsr32, pActualCsr32))
     {
         PrintCsr32Diff(pExpectCsr32, pActualCsr32);
     }
 
-    auto pExpectMemory = FindMemoryNode(pExpect, expectSize);
-    auto pActualMemory = FindMemoryNode(pActual, actualSize);
+    auto pExpectMemory = expect.GetMemoryNode();
+    auto pActualMemory = actual.GetMemoryNode();
     if (m_CmpMemory && !IsMemoryNodeMatched(pExpectMemory, pActualMemory))
     {
         PrintMemoryDiff(pExpectMemory, pActualMemory);
