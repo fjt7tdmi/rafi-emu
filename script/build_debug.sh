@@ -2,12 +2,12 @@
 
 # Move to project top directory
 pushd `dirname $0`
-cd ./third_party/googletest
+cd ..
 
 mkdir -p build
 cd build
 
-cmake .. -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF
+cmake .. -DCMAKE_BUILD_TYPE=Debug
 cmake --build .
 
 popd
