@@ -43,171 +43,97 @@ include_directories(${GoogleTest_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GoogleTest_LIBRARY_DIRS})
 
-add_executable(CheckIo
-    Sources/Common/BasicTypes.h
-    Sources/Common/Exception.h
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/FileTraceReader.cpp
-    Sources/Trace/FileTraceReader.h
-    Sources/Trace/FileTraceWriter.cpp
-    Sources/Trace/FileTraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Sources/CheckIo.cpp
+add_library(librvtrace
+    include/rvtrace/common.h
+    include/rvtrace/common/Exception.h
+    include/rvtrace/common/RvTypes.h
+    include/rvtrace/common/TraceCycleTypes.h
+    include/rvtrace/reader.h
+    include/rvtrace/reader/FileTraceReader.h
+    include/rvtrace/reader/ITraceReader.h
+    include/rvtrace/reader/MemoryTraceReader.h
+    include/rvtrace/reader/TraceCycleReader.h
+    include/rvtrace/writer.h
+    include/rvtrace/writer/FileTraceWriter.h
+    include/rvtrace/writer/ITraceWriter.h
+    include/rvtrace/writer/MemoryTraceWriter.h
+    include/rvtrace/writer/TraceCycleBuilder.h
+    src/librvtrace/FileTraceReader.cpp
+    src/librvtrace/FileTraceWriter.cpp
+    src/librvtrace/MemoryTraceReader.cpp
+    src/librvtrace/MemoryTraceWriter.cpp
+    src/librvtrace/RvTypes.cpp
+    src/librvtrace/TraceCycleBuilder.cpp
+    src/librvtrace/TraceCycleReader.cpp
 )
 
-add_executable(CompareTrace
-    Sources/Common/BasicTypes.h
-    Sources/Common/Exception.h
-    Sources/Common/RvTypes.cpp
-    Sources/Common/RvTypes.h
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/FileTraceReader.cpp
-    Sources/Trace/FileTraceReader.h
-    Sources/Trace/FileTraceWriter.cpp
-    Sources/Trace/FileTraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Sources/Trace/TraceException.h
-    Sources/CompareTrace.cpp
-    Sources/CycleComparator.cpp
-    Sources/CycleComparator.h
+add_executable(rafi-check-io
+    src/rafi-check-io/Main.cpp
 )
 
-add_executable(DumpPc
-    Sources/Common/BasicTypes.h
-    Sources/Common/Exception.h
-    Sources/Common/RvTypes.cpp
-    Sources/Common/RvTypes.h
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/FileTraceReader.cpp
-    Sources/Trace/FileTraceReader.h
-    Sources/Trace/FileTraceWriter.cpp
-    Sources/Trace/FileTraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Sources/DumpPc.cpp
+add_executable(rafi-diff
+    src/rafi-diff/Main.cpp
+    src/rafi-diff/CycleComparator.cpp
+    src/rafi-diff/CycleComparator.h
 )
 
-add_executable(PrintTrace
-    Sources/Common/BasicTypes.h
-    Sources/Common/Exception.h
-    Sources/Common/RvTypes.cpp
-    Sources/Common/RvTypes.h
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/FileTraceReader.cpp
-    Sources/Trace/FileTraceReader.h
-    Sources/Trace/FileTraceWriter.cpp
-    Sources/Trace/FileTraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Sources/PrintTrace.cpp
+add_executable(rafi-dump-pc
+    src/rafi-dump-pc/Main.cpp
 )
 
-add_executable(RafiEmu
-    Sources/Common/BasicTypes.h
-    Sources/Common/BitField.h
-    Sources/Common/Exception.h
-    Sources/Common/RvTypes.cpp
-    Sources/Common/RvTypes.h
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/FileTraceReader.cpp
-    Sources/Trace/FileTraceReader.h
-    Sources/Trace/FileTraceWriter.cpp
-    Sources/Trace/FileTraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Sources/Profiler/Profiler.cpp
-    Sources/Profiler/Profiler.h
-    Sources/System/Bus/Bus.cpp
-    Sources/System/Bus/Bus.h
-    Sources/System/Bus/IBusSlave.h
-    Sources/System/Memory/Memory.cpp
-    Sources/System/Memory/Memory.h
-    Sources/System/Processor/ControlStatusRegister.cpp
-    Sources/System/Processor/ControlStatusRegister.h
-    Sources/System/Processor/MemoryAccessUnit.cpp
-    Sources/System/Processor/MemoryAccessUnit.h
-    Sources/System/Processor/Op.cpp
-    Sources/System/Processor/Op.h
-    Sources/System/Processor/Processor.cpp
-    Sources/System/Processor/Processor.h
-    Sources/System/Processor/ProcessorException.h
-    Sources/System/Processor/RegisterFile.cpp
-    Sources/System/Processor/RegisterFile.h
-    Sources/System/Uart/Uart.cpp
-    Sources/System/Uart/Uart.h
-    Sources/System/System.cpp
-    Sources/System/System.h
-    Sources/RafiEmu.cpp
-    Sources/TraceDumper.cpp
-    Sources/TraceDumper.h
+add_executable(rafi-dump
+    src/rafi-dump/Main.cpp
 )
 
-add_executable(test_Trace
-    Sources/Trace/ITraceReader.h
-    Sources/Trace/ITraceWriter.h
-    Sources/Trace/MemoryTraceReader.cpp
-    Sources/Trace/MemoryTraceReader.h
-    Sources/Trace/MemoryTraceWriter.cpp
-    Sources/Trace/MemoryTraceWriter.h
-    Sources/Trace/TraceCycleBuilder.h
-    Sources/Trace/TraceCycleBuilder.cpp
-    Sources/Trace/TraceCycleCommon.h
-    Sources/Trace/TraceCycleException.h
-    Sources/Trace/TraceCycleNode.h
-    Sources/Trace/TraceCycleReader.cpp
-    Sources/Trace/TraceCycleReader.h
-    Tests/Trace/test_TraceCycle.cpp
-    Tests/Trace/test_TraceReader.cpp
-    Tests/Trace/test_TraceUtil.cpp
-    Tests/Trace/test_TraceUtil.h
-    Tests/Trace/test_TraceWriter.cpp
+add_executable(rafi-emu
+    src/rafi-emu/Common/BasicTypes.h
+    src/rafi-emu/Common/BitField.h
+    src/rafi-emu/Common/Exception.h
+    src/rafi-emu/Profiler/Profiler.cpp
+    src/rafi-emu/Profiler/Profiler.h
+    src/rafi-emu/System/Bus/Bus.cpp
+    src/rafi-emu/System/Bus/Bus.h
+    src/rafi-emu/System/Bus/IBusSlave.h
+    src/rafi-emu/System/Memory/Memory.cpp
+    src/rafi-emu/System/Memory/Memory.h
+    src/rafi-emu/System/Processor/ControlStatusRegister.cpp
+    src/rafi-emu/System/Processor/ControlStatusRegister.h
+    src/rafi-emu/System/Processor/MemoryAccessUnit.cpp
+    src/rafi-emu/System/Processor/MemoryAccessUnit.h
+    src/rafi-emu/System/Processor/Op.cpp
+    src/rafi-emu/System/Processor/Op.h
+    src/rafi-emu/System/Processor/Processor.cpp
+    src/rafi-emu/System/Processor/Processor.h
+    src/rafi-emu/System/Processor/ProcessorException.h
+    src/rafi-emu/System/Processor/RegisterFile.cpp
+    src/rafi-emu/System/Processor/RegisterFile.h
+    src/rafi-emu/System/Uart/Uart.cpp
+    src/rafi-emu/System/Uart/Uart.h
+    src/rafi-emu/System/System.cpp
+    src/rafi-emu/System/System.h
+    src/rafi-emu/Main.cpp
+    src/rafi-emu/TraceDumper.cpp
+    src/rafi-emu/TraceDumper.h
 )
 
-target_link_libraries(CheckIo ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(CompareTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(DumpPc ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(PrintTrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(RafiEmu ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(test_Trace ${GoogleTest_LIBRARIES})
+add_executable(test-trace
+    test/test-trace/test_TraceCycle.cpp
+    test/test-trace/test_TraceReader.cpp
+    test/test-trace/test_TraceUtil.cpp
+    test/test-trace/test_TraceUtil.h
+    test/test-trace/test_TraceWriter.cpp
+)
+
+include_directories(rafi-check-io include)
+include_directories(rafi-diff include)
+include_directories(rafi-dump include)
+include_directories(rafi-dump-pc include)
+include_directories(rafi-emu include)
+include_directories(test-trace include)
+
+target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})
