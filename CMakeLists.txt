@@ -43,7 +43,7 @@ include_directories(${GoogleTest_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GoogleTest_LIBRARY_DIRS})
 
-add_executable(rafi-check-io
+add_library(librvtrace
     include/rvtrace/common.h
     include/rvtrace/common/Exception.h
     include/rvtrace/common/RvTypes.h
@@ -65,108 +65,27 @@ add_executable(rafi-check-io
     src/librvtrace/RvTypes.cpp
     src/librvtrace/TraceCycleBuilder.cpp
     src/librvtrace/TraceCycleReader.cpp
+)
+
+add_executable(rafi-check-io
     src/rafi-check-io/Main.cpp
 )
 
 add_executable(rafi-diff
-    include/rvtrace/common.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
     src/rafi-diff/Main.cpp
     src/rafi-diff/CycleComparator.cpp
     src/rafi-diff/CycleComparator.h
 )
 
 add_executable(rafi-dump-pc
-    include/rvtrace/common.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
     src/rafi-dump-pc/Main.cpp
 )
 
 add_executable(rafi-dump
-    include/rvtrace/common.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
     src/rafi-dump/Main.cpp
 )
 
 add_executable(rafi-emu
-    include/rvtrace/common.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
     src/rafi-emu/Common/BasicTypes.h
     src/rafi-emu/Common/BitField.h
     src/rafi-emu/Common/Exception.h
@@ -198,27 +117,6 @@ add_executable(rafi-emu
 )
 
 add_executable(test-trace
-    include/rvtrace/common.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
     test/test-trace/test_TraceCycle.cpp
     test/test-trace/test_TraceReader.cpp
     test/test-trace/test_TraceUtil.cpp
@@ -233,9 +131,9 @@ include_directories(rafi-dump-pc include)
 include_directories(rafi-emu include)
 include_directories(test-trace include)
 
-target_link_libraries(rafi-check-io ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-diff ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump-pc ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-emu ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(test-trace ${GoogleTest_LIBRARIES})
+target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})
