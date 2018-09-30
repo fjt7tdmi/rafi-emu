@@ -22,7 +22,7 @@
 #include "../../Common/BitField.h"
 #include "../Bus/Bus.h"
 
-#include "ControlStatusRegister.h"
+#include "Csr.h"
 
 using namespace rvtrace;
 
@@ -56,7 +56,7 @@ public:
         std::memset(&m_Event, 0, sizeof(m_Event));
     }
 
-    void Initialize(Bus* pBus, ControlStatusRegister* pCsr)
+    void Initialize(Bus* pBus, Csr* pCsr)
     {
         m_pBus = pBus;
         m_pCsr = pCsr;
@@ -68,10 +68,9 @@ public:
     int16_t LoadInt16(int32_t virtualAddress);
     void StoreInt16(int32_t virtualAddress, int16_t value);
 
+    int32_t FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress);
     int32_t LoadInt32(int32_t virtualAddress);
     void StoreInt32(int32_t virtualAddress, int32_t value);
-
-    int32_t FetchInstruction(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress);
 
     void CheckException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
 
@@ -94,7 +93,7 @@ private:
     void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
 
     Bus* m_pBus = nullptr;
-    ControlStatusRegister* m_pCsr = nullptr;
+    Csr* m_pCsr = nullptr;
 
     bool m_EventValid = false;
 

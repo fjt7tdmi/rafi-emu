@@ -20,7 +20,7 @@
 #include "../../Common/Exception.h"
 
 #include "ProcessorException.h"
-#include "ControlStatusRegister.h"
+#include "Csr.h"
 
 using namespace rvtrace;
 
@@ -50,14 +50,14 @@ void SetLow32(int64_t* pOut, int32_t value)
 
 }
 
-void ControlStatusRegister::Update()
+void Csr::Update()
 {
     m_CycleCounter++;
     m_TimeCounter++;
     m_InstructionRetiredCounter++;
 }
 
-int32_t ControlStatusRegister::Read(int addr)
+int32_t Csr::Read(int addr)
 {
     auto csrAddr = static_cast<csr_addr_t>(addr);
     auto value = ReadInternal(csrAddr);
@@ -70,7 +70,7 @@ int32_t ControlStatusRegister::Read(int addr)
     return value;
 }
 
-void ControlStatusRegister::Write(int addr, int32_t value)
+void Csr::Write(int addr, int32_t value)
 {
     auto csrAddr = static_cast<csr_addr_t>(addr);
     WriteInternal(csrAddr, value);
@@ -80,7 +80,7 @@ void ControlStatusRegister::Write(int addr, int32_t value)
     m_WriteEventValid = true;
 }
 
-void ControlStatusRegister::CheckException(int regId, bool write, int32_t pc, int32_t insn)
+void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
 {
     CHECK_RANGE(0, regId, NumberOfRegister);
 
@@ -150,7 +150,7 @@ void ControlStatusRegister::CheckException(int regId, bool write, int32_t pc, in
     }
 }
 
-void ControlStatusRegister::ProcessException(ProcessorException e)
+void Csr::ProcessException(ProcessorException e)
 {
     // Calulate values
     auto cause = static_cast<int32_t>(e.GetCause());
@@ -215,7 +215,7 @@ void ControlStatusRegister::ProcessException(ProcessorException e)
     }
 }
 
-void ControlStatusRegister::ProcessTrapReturn(PrivilegeLevel level)
+void Csr::ProcessTrapReturn(PrivilegeLevel level)
 {
     int32_t previousLevel;
     int32_t previousInterruptEnable;
@@ -255,7 +255,7 @@ void ControlStatusRegister::ProcessTrapReturn(PrivilegeLevel level)
     m_PrivilegeLevel = nextPrivilegeLevel;
 }
 
-int32_t ControlStatusRegister::ReadInternal(csr_addr_t addr) const
+int32_t Csr::ReadInternal(csr_addr_t addr) const
 {
     if (IsMachineModeRegister(addr))
     {
@@ -276,7 +276,7 @@ int32_t ControlStatusRegister::ReadInternal(csr_addr_t addr) const
     }
 }
 
-void ControlStatusRegister::WriteInternal(csr_addr_t addr, int32_t value)
+void Csr::WriteInternal(csr_addr_t addr, int32_t value)
 {
     if (IsMachineModeRegister(addr))
     {
@@ -297,27 +297,27 @@ void ControlStatusRegister::WriteInternal(csr_addr_t addr, int32_t value)
     }
 }
 
-bool ControlStatusRegister::IsUserModeRegister(csr_addr_t addr) const
+bool Csr::IsUserModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b00;
 }
 
-bool ControlStatusRegister::IsSupervisorModeRegister(csr_addr_t addr) const
+bool Csr::IsSupervisorModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b01;
 }
 
-bool ControlStatusRegister::IsReservedModeRegister(csr_addr_t addr) const
+bool Csr::IsReservedModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b10;
 }
 
-bool ControlStatusRegister::IsMachineModeRegister(csr_addr_t addr) const
+bool Csr::IsMachineModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b11;
 }
 
-int32_t ControlStatusRegister::ReadMachineModeRegister(csr_addr_t addr) const
+int32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -384,7 +384,7 @@ int32_t ControlStatusRegister::ReadMachineModeRegister(csr_addr_t addr) const
     }
 }
 
-int32_t ControlStatusRegister::ReadSupervisorModeRegister(csr_addr_t addr) const
+int32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
@@ -418,7 +418,7 @@ int32_t ControlStatusRegister::ReadSupervisorModeRegister(csr_addr_t addr) const
     }
 }
 
-int32_t ControlStatusRegister::ReadUserModeRegister(csr_addr_t addr) const
+int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
@@ -456,7 +456,7 @@ int32_t ControlStatusRegister::ReadUserModeRegister(csr_addr_t addr) const
 	}
 }
 
-void ControlStatusRegister::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -526,7 +526,7 @@ void ControlStatusRegister::WriteMachineModeRegister(csr_addr_t addr, int32_t va
     }
 }
 
-void ControlStatusRegister::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
 {
     switch(addr)
     {
@@ -572,7 +572,7 @@ void ControlStatusRegister::WriteSupervisorModeRegister(csr_addr_t addr, int32_t
     }
 }
 
-void ControlStatusRegister::WriteUserModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
 {
     switch (addr)
     {
@@ -624,7 +624,7 @@ void ControlStatusRegister::WriteUserModeRegister(csr_addr_t addr, int32_t value
     }
 }
 
-int ControlStatusRegister::GetPerformanceCounterIndex(csr_addr_t addr) const
+int Csr::GetPerformanceCounterIndex(csr_addr_t addr) const
 {
     csr_addr_t base;
 
@@ -652,12 +652,12 @@ int ControlStatusRegister::GetPerformanceCounterIndex(csr_addr_t addr) const
     return static_cast<int>(addr) - static_cast<int>(base);
 }
 
-void ControlStatusRegister::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
+void Csr::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
 {
     printf("Detect unimplemented CSR access (addr=0x%03x).\n", static_cast<int>(addr));
 }
 
-bool ControlStatusRegister::IsAddresssTranslationEnabled() const
+bool Csr::IsAddresssTranslationEnabled() const
 {
     if (m_PrivilegeLevel == PrivilegeLevel::Machine)
     {
@@ -668,27 +668,27 @@ bool ControlStatusRegister::IsAddresssTranslationEnabled() const
     return mode != satp_t::Mode::Bare;
 }
 
-int32_t ControlStatusRegister::GetPhysicalPageNumber() const
+int32_t Csr::GetPhysicalPageNumber() const
 {
     return m_SupervisorAddressTranslationProtection.GetMember<satp_t::PPN>();
 }
 
-bool ControlStatusRegister::GetSupervisorUserMemory() const
+bool Csr::GetSupervisorUserMemory() const
 {
     return m_Status.GetMember<xstatus_t::SUM>();
 }
 
-bool ControlStatusRegister::GetMakeExecutableReadable() const
+bool Csr::GetMakeExecutableReadable() const
 {
     return m_Status.GetMember<xstatus_t::MXR>();
 }
 
-size_t ControlStatusRegister::GetRegisterFileSize() const
+size_t Csr::GetRegisterFileSize() const
 {
     return NumberOfRegister * sizeof(int32_t);
 }
 
-void ControlStatusRegister::ClearEvent()
+void Csr::ClearEvent()
 {
     m_ReadEventValid = false;
     m_WriteEventValid = false;
@@ -699,7 +699,7 @@ void ControlStatusRegister::ClearEvent()
     std::memset(&m_TrapEvent, 0, sizeof(m_TrapEvent));
 }
 
-void ControlStatusRegister::CopyRegisterFile(void* pOut, size_t size) const
+void Csr::CopyRegisterFile(void* pOut, size_t size) const
 {
     if (size != GetRegisterFileSize())
     {
@@ -815,32 +815,32 @@ void ControlStatusRegister::CopyRegisterFile(void* pOut, size_t size) const
     }
 }
 
-void ControlStatusRegister::CopyReadEvent(CsrReadEvent* pOut) const
+void Csr::CopyReadEvent(CsrReadEvent* pOut) const
 {
     std::memcpy(pOut, &m_ReadEvent, sizeof(*pOut));
 }
 
-void ControlStatusRegister::CopyWriteEvent(CsrWriteEvent* pOut) const
+void Csr::CopyWriteEvent(CsrWriteEvent* pOut) const
 {
     std::memcpy(pOut, &m_WriteEvent, sizeof(*pOut));
 }
 
-void ControlStatusRegister::CopyTrapEvent(TrapEvent* pOut) const
+void Csr::CopyTrapEvent(TrapEvent* pOut) const
 {
     std::memcpy(pOut, &m_TrapEvent, sizeof(*pOut));
 }
 
-bool ControlStatusRegister::IsReadEventExist() const
+bool Csr::IsReadEventExist() const
 {
     return m_ReadEventValid;
 }
 
-bool ControlStatusRegister::IsWriteEventExist() const
+bool Csr::IsWriteEventExist() const
 {
     return m_WriteEventValid;
 }
 
-bool ControlStatusRegister::IsTrapEventExist() const
+bool Csr::IsTrapEventExist() const
 {
     return m_TrapEventValid;
 }

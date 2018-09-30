@@ -16,11 +16,12 @@
 
 #pragma once
 
-#include "ProcessorException.h"
-#include "Op.h"
+#include "Csr.h"
+#include "Decoder.h"
+#include "Executor.h"
 #include "MemoryAccessUnit.h"
-#include "RegisterFile.h"
-#include "ControlStatusRegister.h"
+#include "ProcessorException.h"
+#include "IntRegFile.h"
 
 #include "../../Common/Event.h"
 
@@ -30,12 +31,11 @@ public:
     // Setup
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
-        , m_OpCount(0)
-        , m_ReserveAddress(0)
+        , m_Executor(&m_Csr, &m_IntRegFile, &m_MemAccessUnit)
     {
         std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
 
-        m_Memory.Initialize(pBus, &m_Csr);
+        m_MemAccessUnit.Initialize(pBus, &m_Csr);
     }
 
     void SetIntReg(int regId, int32_t regValue);
@@ -60,28 +60,21 @@ public:
     bool IsMemoryAccessEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
+    
 private:
     // TODO: refactor and remove this def
     const int32_t InvalidValue = 0xcdcdcdcd;
 
-    void PreCheckException(const Op& op, int32_t pc, int32_t insn);
-    void PostCheckException(const Op& op, int32_t pc);
+    Csr m_Csr;
+    MemoryAccessUnit m_MemAccessUnit;
+    Decoder m_Decoder;
+    IntRegFile m_IntRegFile;
+    Executor m_Executor;
 
-    void ProcessOp(const Op& op, int32_t pc);
-    void ProcessRV32I(const Op& op, int32_t pc);
-    void ProcessRV32M(const Op& op);
-    void ProcessRV32A(const Op& op);
-
-    ControlStatusRegister m_Csr;
-    MemoryAccessUnit m_Memory;
-    OpDecoder m_Decoder;
-    RegisterFile m_IntReg;
-
-    int32_t m_OpCount = 0;
-    int32_t m_ReserveAddress = 0;
+    int32_t m_OpCount { 0 };
 
     // for dump
-    bool m_OpEventValid = false;
+    bool m_OpEventValid { false };
 
     OpEvent m_OpEvent;
 };

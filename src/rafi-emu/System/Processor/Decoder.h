@@ -16,26 +16,9 @@
 
 #pragma once
 
-using namespace rvtrace;
+#include "OpTypes.h"
 
-struct Op
-{
-    OpClass opClass;
-    OpCode opCode;
-    int rd;
-    int rs1;
-    int rs2;
-    int32_t imm;
-	int32_t zimm;
-	int32_t shamt;
-    int pred;
-    int succ;
-    int csr;
-    bool aq;
-    bool rl;
-};
-
-class OpDecoder
+class Decoder
 {
 public:
     void Decode(Op* out, int32_t insn) const;
