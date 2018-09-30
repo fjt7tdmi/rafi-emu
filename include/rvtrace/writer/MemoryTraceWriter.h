@@ -26,7 +26,6 @@ public:
     MemoryTraceWriter(void* buffer, int64_t size);
     virtual ~MemoryTraceWriter();
 
-    virtual int64_t GetPreviousWriteSize();
     virtual void Write(void* buffer, int64_t size);
 
 private:

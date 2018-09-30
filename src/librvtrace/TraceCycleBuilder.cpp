@@ -34,11 +34,11 @@ TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
     m_pData = malloc(static_cast<size_t>(size));
     m_DataSize = size;
 
-    GetPointerToHeader()->next = size;
-    GetPointerToHeader()->prev = 0;
-    GetPointerToHeader()->size = size;
+    GetPointerToHeader()->footerOffset = size - sizeof(TraceCycleFooter);
     GetPointerToHeader()->metaCount = CountValidFlags(flags);
     GetPointerToHeader()->reserved = 0;
+
+    GetPointerToFooter()->headerOffset = size - sizeof(TraceCycleFooter);
 
     InitializeMetaNodes(flags);
 }
@@ -56,16 +56,6 @@ void* TraceCycleBuilder::GetData()
 int64_t TraceCycleBuilder::GetDataSize()
 {
     return m_DataSize;
-}
-
-void TraceCycleBuilder::SetOffsetOfPreviousCycle(int64_t offset)
-{
-    GetPointerToHeader()->prev = offset;
-}
-
-void TraceCycleBuilder::SetOffsetOfNextCycle(int64_t offset)
-{
-    GetPointerToHeader()->next = offset;
 }
 
 void TraceCycleBuilder::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
@@ -144,7 +134,7 @@ void TraceCycleBuilder::SetNode(const IoNode& node)
 
 int64_t TraceCycleBuilder::CalculateDataSize(int32_t flags)
 {
-    int64_t size = sizeof(TraceCycleHeader);
+    int64_t size = sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter);
 
     size += sizeof(TraceCycleMetaNode) * CountValidFlags(flags);
 
@@ -336,6 +326,13 @@ int64_t TraceCycleBuilder::GetProperNodeSize(NodeType nodeType)
 TraceCycleHeader* TraceCycleBuilder::GetPointerToHeader()
 {
     return reinterpret_cast<TraceCycleHeader*>(m_pData);
+}
+
+TraceCycleFooter* TraceCycleBuilder::GetPointerToFooter()
+{
+    auto offset = GetPointerToHeader()->footerOffset;
+
+    return reinterpret_cast<TraceCycleFooter*>(reinterpret_cast<uint8_t*>(m_pData) + offset);
 }
 
 TraceCycleMetaNode* TraceCycleBuilder::GetPointerToMeta(int32_t index)

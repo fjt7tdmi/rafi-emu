@@ -32,11 +32,6 @@ MemoryTraceWriter::~MemoryTraceWriter()
 {
 }
 
-int64_t MemoryTraceWriter::GetPreviousWriteSize()
-{
-    return m_PreviousWriteSize;
-}
-
 void MemoryTraceWriter::Write(void* buffer, int64_t size)
 {
     if (m_CurrentOffset + size > m_BufferSize)

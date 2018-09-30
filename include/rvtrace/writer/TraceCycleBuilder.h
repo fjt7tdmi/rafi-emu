@@ -31,10 +31,6 @@ public:
     // Get size of raw data
     int64_t GetDataSize();
 
-    void SetOffsetOfPreviousCycle(int64_t offset);
-
-    void SetOffsetOfNextCycle(int64_t offset);
-
     void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
 
     // utility
@@ -61,6 +57,8 @@ private:
     int64_t GetProperNodeSize(NodeType nodeType);
 
     TraceCycleHeader* GetPointerToHeader();
+
+    TraceCycleFooter* GetPointerToFooter();
 
     TraceCycleMetaNode* GetPointerToMeta(int32_t index);
 

@@ -23,6 +23,5 @@ class ITraceWriter
 public:
     virtual ~ITraceWriter(){}
 
-    virtual int64_t GetPreviousWriteSize() = 0;
     virtual void Write(void* buffer, int64_t size) = 0;
 };

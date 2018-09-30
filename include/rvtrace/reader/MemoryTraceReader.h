@@ -29,14 +29,17 @@ public:
     virtual const void* GetCurrentCycleData();
     virtual int64_t GetCurrentCycleDataSize();
 
-    virtual bool IsFirstCycle();
-    virtual bool IsLastCycle();
+    virtual bool IsBegin();
+    virtual bool IsEnd();
 
-    virtual void MoveNextCycle();
-    virtual void MovePreviousCycle();
+    virtual void MoveToNextCycle();
+    virtual void MoveToPreviousCycle();
 
 private:
-    void CheckCurrentOffset();
+    const TraceCycleHeader* GetCurrentCycleHeader();
+    const TraceCycleFooter* GetPreviousCycleFooter();
+
+    void CheckOffset(int64_t offset);
 
     const void* m_pBuffer;
     int64_t m_BufferSize;

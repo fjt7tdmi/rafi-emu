@@ -57,37 +57,9 @@ TEST(TraceCycleTest, BuilderGetDataSize)
     TraceCycleBuilder builder1(NodeFlag_BasicInfo);
     TraceCycleBuilder builder2(NodeFlag_BasicInfo | NodeFlag_Pc32);
 
-    ASSERT_EQ(sizeof(TraceCycleHeader), builder0.GetDataSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) + sizeof(BasicInfoNode), builder1.GetDataSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetDataSize());
-}
-
-TEST(TraceCycleTest, BuilderSetOffsetAndReaderGetOffset)
-{
-    // <previous, next> offsets
-    const std::pair<int64_t, int64_t> offsetSets[] =
-    {
-        {   0, 0 },
-        {  -8, 0 },
-        {   0, 8 },
-        { -24, 16 },
-    };
-
-    for (auto& offsetSet: offsetSets)
-    {
-        const auto previousOffset = offsetSet.first;
-        const auto nextOffset = offsetSet.second;
-
-        TraceCycleBuilder builder(NodeFlag_BasicInfo);
-
-        builder.SetOffsetOfPreviousCycle(previousOffset);
-        builder.SetOffsetOfNextCycle(nextOffset);
-
-        TraceCycleReader reader(builder.GetData(), builder.GetDataSize());
-
-        ASSERT_EQ(previousOffset, reader.GetOffsetOfPreviousCycle());
-        ASSERT_EQ(nextOffset, reader.GetOffsetOfNextCycle());
-    }
+    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter), builder0.GetDataSize());
+    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter) + sizeof(TraceCycleMetaNode) + sizeof(BasicInfoNode), builder1.GetDataSize());
+    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter) + sizeof(TraceCycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetDataSize());
 }
 
 TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)

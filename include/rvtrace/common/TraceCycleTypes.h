@@ -57,23 +57,20 @@ enum NodeFlag : int32_t
 
 struct TraceCycleHeader
 {
-    // Byte offset to next TraceCycleHeader from this TraceCycleHeader.
-    // This value should be positive.
-    // If here is the last cycle, this value is 0.
-    int64_t next;
-
-    // Byte offset to preivious TraceCycleHeader from this TraceCycleHeader.
-    // This value should be negative.
-    // If here is the first cycle, this value is 0.
-    int64_t prev;
-
-    // Byte size of this TraceCycleHeader.
-    int64_t size;
+    // Byte offset to TraceCycleFooter from this TraceCycleHeader.
+    int64_t footerOffset;
 
     // Number of TraceCycleMetaNode
     int32_t metaCount;
 
     int32_t reserved;
+};
+
+struct TraceCycleFooter
+{
+    // Byte offset to TraceCycleHeader from this TraceCycleFooter.
+    // This value is positive and equal to TraceCycleHeader::footerOffset.
+    int64_t headerOffset;
 };
 
 struct TraceCycleMetaNode

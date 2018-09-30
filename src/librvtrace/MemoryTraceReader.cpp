@@ -32,75 +32,79 @@ MemoryTraceReader::~MemoryTraceReader()
 
 const void* MemoryTraceReader::GetCurrentCycleData()
 {
-    if (m_CurrentOffset + sizeof(TraceCycleHeader) > m_BufferSize)
-    {
-        throw TraceException("detect data corruption.");
-    }
+    CheckOffset(m_CurrentOffset);
 
     return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
 }
 
 int64_t MemoryTraceReader::GetCurrentCycleDataSize()
 {
-    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+    auto size = GetCurrentCycleHeader()->footerOffset + sizeof(TraceCycleFooter);
 
-    return header->size;
-}
-
-bool MemoryTraceReader::IsFirstCycle()
-{
-    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
-
-    return header->prev == 0;
-}
-
-bool MemoryTraceReader::IsLastCycle()
-{
-    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
-
-    return header->next == 0;
-}
-
-void MemoryTraceReader::MoveNextCycle()
-{
-    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
-
-    if (header->next < 0)
+    if (size < sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter))
     {
         throw TraceException("detect data corruption.");
     }
-    else if (header->next == 0)
-    {
-        throw TraceException("cannot move to next cycle from the last cycle.");
-    }
 
-    m_CurrentOffset += header->next;
-
-    CheckCurrentOffset();
+    return size;
 }
 
-void MemoryTraceReader::MovePreviousCycle()
+bool MemoryTraceReader::IsBegin()
 {
-    auto header = reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
-
-    if (header->prev > 0)
-    {
-        throw TraceException("detect data corruption.");
-    }
-    else if (header->prev == 0)
-    {
-        throw TraceException("cannot move to preivious cycle from the first cycle.");
-    }
-
-    m_CurrentOffset += header->prev;
-
-    CheckCurrentOffset();
+    return m_CurrentOffset == 0;
 }
 
-void MemoryTraceReader::CheckCurrentOffset()
+bool MemoryTraceReader::IsEnd()
 {
-    if (!(0 <= m_CurrentOffset && m_CurrentOffset < m_BufferSize))
+    return m_CurrentOffset == m_BufferSize;
+}
+
+void MemoryTraceReader::MoveToNextCycle()
+{
+    CheckOffset(m_CurrentOffset);
+
+    m_CurrentOffset += GetCurrentCycleDataSize();
+
+    if (!IsEnd())
     {
-        throw TraceException("detect data corruption.");
+        CheckOffset(m_CurrentOffset);
     }
+}
+
+void MemoryTraceReader::MoveToPreviousCycle()
+{
+    if (!IsEnd())
+    {
+        CheckOffset(m_CurrentOffset);
+    }
+
+    auto size = GetPreviousCycleFooter()->headerOffset + sizeof(TraceCycleFooter);
+
+    m_CurrentOffset -= size;
+
+    CheckOffset(m_CurrentOffset);
+}
+
+void MemoryTraceReader::CheckOffset(int64_t offset)
+{
+    if (!(0 <= offset && offset < m_BufferSize))
+    {
+        std::abort();
+    }
+}
+
+const TraceCycleHeader* MemoryTraceReader::GetCurrentCycleHeader()
+{
+    return reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
+}
+
+const TraceCycleFooter* MemoryTraceReader::GetPreviousCycleFooter()
+{
+    auto offset = m_CurrentOffset - sizeof(TraceCycleFooter);
+
+    CheckOffset(offset);
+
+    auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
+
+    return reinterpret_cast<const TraceCycleFooter*>(p);
 }

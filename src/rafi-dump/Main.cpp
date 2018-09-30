@@ -213,7 +213,7 @@ void PrintTrace(const std::string& path, int startCycle, int count)
 
     for (int i = 0; i < startCycle + count; i++)
     {
-        if (reader.IsLastCycle())
+        if (reader.IsEnd())
         {
             return;
         }
@@ -225,7 +225,7 @@ void PrintTrace(const std::string& path, int startCycle, int count)
             PrintTraceCycle(cycle, i);
         }
 
-        reader.MoveNextCycle();
+        reader.MoveToNextCycle();
     }
 }
 

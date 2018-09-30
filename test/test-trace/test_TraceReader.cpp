@@ -33,47 +33,43 @@ TEST(TraceReaderTest, Basic)
     MemoryTraceWriter writer(buffer, sizeof(buffer));
 
     // cycle 0
-    {
-        auto prev = 0;
-        auto next = builder->GetDataSize();
-
-        builder->SetOffsetOfPreviousCycle(prev);
-        builder->SetOffsetOfNextCycle(next);
-        
-        writer.Write(builder->GetData(), builder->GetDataSize());
-
-    }
+    writer.Write(builder->GetData(), builder->GetDataSize());
 
     // cycle 1
-    {
-        auto prev = -writer.GetPreviousWriteSize();
-        auto next = 0;
+    writer.Write(builder->GetData(), builder->GetDataSize());
 
-        builder->SetOffsetOfPreviousCycle(prev);
-        builder->SetOffsetOfNextCycle(next);
-
-        writer.Write(builder->GetData(), builder->GetDataSize());
-    }
-
-    MemoryTraceReader reader(buffer, sizeof(buffer));
+    MemoryTraceReader reader(buffer, builder->GetDataSize() * 2);
 
     // cycle 0
-    ASSERT_TRUE(reader.IsFirstCycle());
-    ASSERT_FALSE(reader.IsLastCycle());
+    ASSERT_TRUE(reader.IsBegin());
+    ASSERT_FALSE(reader.IsEnd());
     ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
-    reader.MoveNextCycle();
+    reader.MoveToNextCycle();
 
     // cycle 1
-    ASSERT_FALSE(reader.IsFirstCycle());
-    ASSERT_TRUE(reader.IsLastCycle());
+    ASSERT_FALSE(reader.IsBegin());
+    ASSERT_FALSE(reader.IsEnd());
     ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
-    reader.MovePreviousCycle();
+    reader.MoveToNextCycle();
+
+    // end
+    ASSERT_FALSE(reader.IsBegin());
+    ASSERT_TRUE(reader.IsEnd());
+
+    reader.MoveToPreviousCycle();
+
+    // cycle 1
+    ASSERT_FALSE(reader.IsBegin());
+    ASSERT_FALSE(reader.IsEnd());
+    ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
+
+    reader.MoveToPreviousCycle();
 
     // cycle 0
-    ASSERT_TRUE(reader.IsFirstCycle());
-    ASSERT_FALSE(reader.IsLastCycle());
+    ASSERT_TRUE(reader.IsBegin());
+    ASSERT_FALSE(reader.IsEnd());
     ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 }
 
@@ -86,14 +82,13 @@ TEST(TraceReaderTest, OutOfRangeAccess)
     MemoryTraceWriter writer(buffer, sizeof(buffer));
 
     {
-        builder->SetOffsetOfPreviousCycle(0);
-        builder->SetOffsetOfNextCycle(0);
-
         writer.Write(builder->GetData(), builder->GetDataSize());
     }
 
-    MemoryTraceReader reader(buffer, sizeof(buffer));
+    MemoryTraceReader reader(buffer, builder->GetDataSize());
 
-    ASSERT_THROW(reader.MovePreviousCycle(), TraceException);
-    ASSERT_THROW(reader.MoveNextCycle(), TraceException);
+    ASSERT_DEATH_IF_SUPPORTED(reader.MoveToPreviousCycle(), "");
+
+    reader.MoveToNextCycle();
+    ASSERT_DEATH_IF_SUPPORTED(reader.MoveToNextCycle(), "");
 }

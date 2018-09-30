@@ -80,8 +80,6 @@ void TraceDumper::DumpOneCycle(int cycle)
 
     TraceCycleBuilder builder(flags);
 
-    builder.SetOffsetOfPreviousCycle(-m_FileTraceWriter.GetPreviousWriteSize());
-
     // OpEvent
     assert(m_pSystem->IsOpEventExist());
 

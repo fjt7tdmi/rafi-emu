@@ -34,11 +34,6 @@ FileTraceWriter::~FileTraceWriter()
     std::fclose(m_File);
 }
 
-int64_t FileTraceWriter::GetPreviousWriteSize()
-{
-    return m_PreviousWriteSize;
-}
-
 void FileTraceWriter::Write(void* buffer, int64_t size)
 {
 #if INT64_MAX > SIZE_MAX

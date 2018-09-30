@@ -82,22 +82,22 @@ int64_t FileTraceReader::GetCurrentCycleDataSize()
     return m_pMemoryTraceReader->GetCurrentCycleDataSize();
 }
 
-bool FileTraceReader::IsFirstCycle()
+bool FileTraceReader::IsBegin()
 {
-    return m_pMemoryTraceReader->IsFirstCycle();
+    return m_pMemoryTraceReader->IsBegin();
 }
 
-bool FileTraceReader::IsLastCycle()
+bool FileTraceReader::IsEnd()
 {
-    return m_pMemoryTraceReader->IsLastCycle();
+    return m_pMemoryTraceReader->IsEnd();
 }
 
-void FileTraceReader::MoveNextCycle()
+void FileTraceReader::MoveToNextCycle()
 {
-    m_pMemoryTraceReader->MoveNextCycle();
+    m_pMemoryTraceReader->MoveToNextCycle();
 }
 
-void FileTraceReader::MovePreviousCycle()
+void FileTraceReader::MoveToPreviousCycle()
 {
-    m_pMemoryTraceReader->MovePreviousCycle();
+    m_pMemoryTraceReader->MoveToPreviousCycle();
 }

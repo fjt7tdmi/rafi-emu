@@ -26,16 +26,6 @@ TraceCycleReader::TraceCycleReader(const void* buffer, int64_t bufferSize)
     m_BufferSize = bufferSize;
 }
 
-int64_t TraceCycleReader::GetOffsetOfPreviousCycle() const
-{
-    return GetPointerToHeader()->prev;
-}
-
-int64_t TraceCycleReader::GetOffsetOfNextCycle() const
-{
-    return GetPointerToHeader()->next;
-}
-
 const void* TraceCycleReader::GetNode(NodeType nodeType) const
 {
     auto pNode = GetPointerToNode(nodeType);
