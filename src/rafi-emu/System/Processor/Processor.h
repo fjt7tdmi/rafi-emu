@@ -19,9 +19,12 @@
 #include "Csr.h"
 #include "Decoder.h"
 #include "Executor.h"
+#include "InterruptController.h"
+#include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
 #include "ProcessorException.h"
-#include "IntRegFile.h"
+#include "TimerInterruptSource.h"
+#include "UserInterruptSource.h"
 
 #include "../../Common/Event.h"
 
@@ -32,10 +35,14 @@ public:
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
         , m_Executor(&m_Csr, &m_IntRegFile, &m_MemAccessUnit)
+        , m_TimerInterruptSource(&m_Csr)
+        , m_UserInterruptSource(&m_Csr)
     {
         std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
 
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
+        m_InterruptController.RegisterTimerInterruptSource(&m_TimerInterruptSource);
+        m_InterruptController.RegisterUserInterruptSource(&m_UserInterruptSource);
     }
 
     void SetIntReg(int regId, int32_t regValue);
@@ -70,6 +77,10 @@ private:
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;
     Executor m_Executor;
+
+    InterruptController m_InterruptController;
+    TimerInterruptSource m_TimerInterruptSource;
+    UserInterruptSource m_UserInterruptSource;
 
     int32_t m_OpCount { 0 };
 

@@ -40,6 +40,8 @@ void Processor::ProcessOneCycle()
     m_Csr.ClearEvent();
     m_MemAccessUnit.ClearEvent();
 
+    // TODO: Check interrupt
+
     // Fetch Op
     Op op { OpClass::RV32I, OpCode::unknown };
     int32_t pc = InvalidValue;
