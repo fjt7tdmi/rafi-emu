@@ -14,26 +14,35 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <cstring>
 
-#include <cassert>
-#include <cstdint>
+#include "IntRegFile.h"
 
-#include "../../Common/Exception.h"
-
-class RegisterFile
+IntRegFile::IntRegFile()
 {
-public:
-    static const int IntRegCount = 32;
+    std::memset(m_Body, 0, sizeof(m_Body));
+}
 
-    RegisterFile();
+void IntRegFile::Copy(void* pOut, size_t size) const
+{
+    if (size > sizeof(m_Body))
+    {
+        abort();
+    }
+    std::memcpy(pOut, m_Body, size);
+}
 
-    void Copy(void* pOut, size_t size) const;
+int32_t IntRegFile::Read(int regId) const
+{
+    CHECK_RANGE(0, regId, IntRegCount);
+    return m_Body[regId];
+}
 
-	int32_t Read(int regId) const;
-
-    void Write(int regId, int32_t value);
-
-private:
-	int32_t m_Body[IntRegCount];
-};
+void IntRegFile::Write(int regId, int32_t value)
+{
+    CHECK_RANGE(0, regId, IntRegCount);
+    if (regId != 0)
+    {
+        m_Body[regId] = value;
+    }
+}

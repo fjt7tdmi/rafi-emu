@@ -20,7 +20,7 @@
 #include "Decoder.h"
 #include "MemoryAccessUnit.h"
 #include "ProcessorException.h"
-#include "RegisterFile.h"
+#include "IntRegFile.h"
 
 #include "../../Common/Event.h"
 
@@ -75,7 +75,7 @@ private:
     ControlStatusRegister m_Csr;
     MemoryAccessUnit m_Memory;
     Decoder m_Decoder;
-    RegisterFile m_IntReg;
+    IntRegFile m_IntReg;
 
     int32_t m_OpCount = 0;
     int32_t m_ReserveAddress = 0;
