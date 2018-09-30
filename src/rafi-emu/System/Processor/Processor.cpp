@@ -52,7 +52,7 @@ void Processor::ProcessOneCycle()
         
         m_MemAccessUnit.CheckException(MemoryAccessType::Instruction, pc, pc);
         
-        insn = m_MemAccessUnit.FetchInstruction(&physicalPc, pc);
+        insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
         m_Decoder.Decode(&op, insn);
 

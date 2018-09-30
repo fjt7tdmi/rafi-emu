@@ -68,10 +68,9 @@ public:
     int16_t LoadInt16(int32_t virtualAddress);
     void StoreInt16(int32_t virtualAddress, int16_t value);
 
+    int32_t FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress);
     int32_t LoadInt32(int32_t virtualAddress);
     void StoreInt32(int32_t virtualAddress, int32_t value);
-
-    int32_t FetchInstruction(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress);
 
     void CheckException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
 

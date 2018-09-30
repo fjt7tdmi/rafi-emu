@@ -132,7 +132,7 @@ void MemoryAccessUnit::StoreInt32(int32_t virtualAddress, int32_t value)
     m_EventValid = true;
 }
 
-int32_t MemoryAccessUnit::FetchInstruction(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress)
+int32_t MemoryAccessUnit::FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress)
 {
     *outPhysicalAddress = ProcessTranslation(virtualAddress, false);
     return m_pBus->GetInt32(*outPhysicalAddress);
