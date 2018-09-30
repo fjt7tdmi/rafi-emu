@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include "ProcessorException.h"
-#include "Op.h"
-#include "MemoryAccessUnit.h"
-#include "RegisterFile.h"
 #include "ControlStatusRegister.h"
+#include "Decoder.h"
+#include "MemoryAccessUnit.h"
+#include "ProcessorException.h"
+#include "RegisterFile.h"
 
 #include "../../Common/Event.h"
 
@@ -74,7 +74,7 @@ private:
 
     ControlStatusRegister m_Csr;
     MemoryAccessUnit m_Memory;
-    OpDecoder m_Decoder;
+    Decoder m_Decoder;
     RegisterFile m_IntReg;
 
     int32_t m_OpCount = 0;

@@ -21,8 +21,8 @@
 
 #include <rvtrace/common.h>
 
+#include "Decoder.h"
 #include "ProcessorException.h"
-#include "Op.h"
 
 using namespace std;
 using namespace rvtrace;
@@ -52,7 +52,7 @@ namespace
     }
 }
 
-void OpDecoder::Decode(Op* out, int32_t insn) const
+void Decoder::Decode(Op* out, int32_t insn) const
 {
     assert(out != nullptr);
 
@@ -74,7 +74,7 @@ void OpDecoder::Decode(Op* out, int32_t insn) const
     }
 }
 
-void OpDecoder::DecodeRV32I(Op* out, int32_t insn) const
+void Decoder::DecodeRV32I(Op* out, int32_t insn) const
 {
     const auto opcode = Pick(insn,  0, 7);
     const auto funct3 = Pick(insn, 12, 3);
@@ -390,7 +390,7 @@ void OpDecoder::DecodeRV32I(Op* out, int32_t insn) const
     }
 }
 
-void OpDecoder::DecodeRV32M(Op* out, int32_t insn) const
+void Decoder::DecodeRV32M(Op* out, int32_t insn) const
 {
     const auto funct3 = Pick(insn, 12, 3);
 
@@ -443,7 +443,7 @@ void OpDecoder::DecodeRV32M(Op* out, int32_t insn) const
     }
 }
 
-void OpDecoder::DecodeRV32A(Op* out, int32_t insn) const
+void Decoder::DecodeRV32A(Op* out, int32_t insn) const
 {
     const auto funct5 = Pick(insn, 27, 5);
     const auto rd = Pick(insn, 7, 5);
@@ -506,12 +506,12 @@ void OpDecoder::DecodeRV32A(Op* out, int32_t insn) const
     }
 }
 
-void OpDecoder::DumpOpCode(std::fstream& file, const Op& op) const
+void Decoder::DumpOpCode(std::fstream& file, const Op& op) const
 {
 	file << GetString(op.opCode);
 }
 
-void OpDecoder::DumpOperand(std::fstream& file, const Op& op) const
+void Decoder::DumpOperand(std::fstream& file, const Op& op) const
 {
 	file << "rd=" << std::dec << op.rd
 		<< " rs1=" << std::dec << op.rs1

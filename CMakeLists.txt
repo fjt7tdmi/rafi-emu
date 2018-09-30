@@ -110,10 +110,11 @@ add_executable(rafi-emu
     src/rafi-emu/System/Memory/Memory.h
     src/rafi-emu/System/Processor/ControlStatusRegister.cpp
     src/rafi-emu/System/Processor/ControlStatusRegister.h
+    src/rafi-emu/System/Processor/Decoder.cpp
+    src/rafi-emu/System/Processor/Decoder.h
     src/rafi-emu/System/Processor/MemoryAccessUnit.cpp
     src/rafi-emu/System/Processor/MemoryAccessUnit.h
-    src/rafi-emu/System/Processor/Op.cpp
-    src/rafi-emu/System/Processor/Op.h
+    src/rafi-emu/System/Processor/OpTypes.h
     src/rafi-emu/System/Processor/Processor.cpp
     src/rafi-emu/System/Processor/Processor.h
     src/rafi-emu/System/Processor/ProcessorException.h
