@@ -20,9 +20,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "ProcessorException.h"
-#include "ControlStatusRegister.h"
+#include "Csr.h"
 #include "Processor.h"
+#include "ProcessorException.h"
 
 using namespace std;
 using namespace rvtrace;

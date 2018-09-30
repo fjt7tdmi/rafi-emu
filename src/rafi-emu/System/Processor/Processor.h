@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "ControlStatusRegister.h"
+#include "Csr.h"
 #include "Decoder.h"
 #include "MemoryAccessUnit.h"
 #include "ProcessorException.h"
@@ -72,7 +72,7 @@ private:
     void ProcessRV32M(const Op& op);
     void ProcessRV32A(const Op& op);
 
-    ControlStatusRegister m_Csr;
+    Csr m_Csr;
     MemoryAccessUnit m_Memory;
     Decoder m_Decoder;
     IntRegFile m_IntReg;

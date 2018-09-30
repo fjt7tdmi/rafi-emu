@@ -108,8 +108,9 @@ add_executable(rafi-emu
     src/rafi-emu/System/Bus/IBusSlave.h
     src/rafi-emu/System/Memory/Memory.cpp
     src/rafi-emu/System/Memory/Memory.h
-    src/rafi-emu/System/Processor/ControlStatusRegister.cpp
-    src/rafi-emu/System/Processor/ControlStatusRegister.h
+    src/rafi-emu/System/Processor/Csr.cpp
+    src/rafi-emu/System/Processor/Csr.h
+    src/rafi-emu/System/Processor/CsrTypes.h
     src/rafi-emu/System/Processor/Decoder.cpp
     src/rafi-emu/System/Processor/Decoder.h
     src/rafi-emu/System/Processor/IntRegFile.cpp
