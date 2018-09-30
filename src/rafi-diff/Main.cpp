@@ -27,6 +27,7 @@
 #include "CycleComparator.h"
 
 using namespace std;
+using namespace rvtrace;
 
 namespace po = boost::program_options;
 

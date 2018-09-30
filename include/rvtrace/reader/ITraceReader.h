@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rvtrace {
+
 class ITraceReader
 {
 public:
@@ -32,3 +34,5 @@ public:
     virtual void MoveToNextCycle() = 0;
     virtual void MoveToPreviousCycle() = 0;
 };
+
+}

@@ -20,6 +20,8 @@
 
 #include "ITraceWriter.h"
 
+namespace rvtrace {
+
 class FileTraceWriter : ITraceWriter
 {
 public:
@@ -33,3 +35,5 @@ private:
     
     int64_t m_PreviousWriteSize {0};
 };
+
+}

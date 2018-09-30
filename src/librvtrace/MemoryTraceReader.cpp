@@ -19,6 +19,8 @@
 
 #include <rvtrace/reader.h>
 
+namespace rvtrace {
+
 MemoryTraceReader::MemoryTraceReader(const void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
@@ -107,4 +109,6 @@ const TraceCycleFooter* MemoryTraceReader::GetPreviousCycleFooter()
     auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
 
     return reinterpret_cast<const TraceCycleFooter*>(p);
+}
+
 }

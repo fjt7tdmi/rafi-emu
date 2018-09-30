@@ -25,6 +25,8 @@
 
 #include <rvtrace/reader.h>
 
+using namespace rvtrace;
+
 namespace po = boost::program_options;
 
 namespace {

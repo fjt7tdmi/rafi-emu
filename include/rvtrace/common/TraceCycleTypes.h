@@ -21,6 +21,8 @@
 
 #include "RvTypes.h"
 
+namespace rvtrace {
+
 enum class NodeType : int32_t
 {
     BasicInfo = 1,
@@ -176,3 +178,5 @@ struct MemoryNodeHeader
 {
     int64_t bodySize;
 };
+
+}

@@ -22,6 +22,8 @@
 
 using namespace std;
 
+namespace rvtrace {
+
 MemoryTraceWriter::MemoryTraceWriter(void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
@@ -50,4 +52,6 @@ void MemoryTraceWriter::Write(void* buffer, int64_t size)
 
     m_CurrentOffset += size;
     m_PreviousWriteSize = size;
+}
+
 }

@@ -20,6 +20,8 @@
 
 #include "ITraceWriter.h"
 
+namespace rvtrace {
+
 class MemoryTraceWriter : ITraceWriter
 {
 public:
@@ -35,3 +37,5 @@ private:
     int64_t m_CurrentOffset {0};
     int64_t m_PreviousWriteSize {0};
 };
+
+}

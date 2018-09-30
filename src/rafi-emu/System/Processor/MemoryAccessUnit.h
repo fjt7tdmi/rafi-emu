@@ -24,6 +24,8 @@
 
 #include "ControlStatusRegister.h"
 
+using namespace rvtrace;
+
 class PageTableEntry : public BitField
 {
 public:

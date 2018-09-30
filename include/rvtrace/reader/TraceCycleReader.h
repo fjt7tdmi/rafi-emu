@@ -20,6 +20,8 @@
 
 #include <rvtrace/common.h>
 
+namespace rvtrace {
+
 class TraceCycleReader
 {
 public:
@@ -67,3 +69,5 @@ private:
 
     int64_t m_BufferSize;
 };
+
+}

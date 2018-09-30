@@ -20,6 +20,8 @@
 #include "../../Common//Exception.h"
 #include "MemoryAccessUnit.h"
 
+using namespace rvtrace;
+
 namespace {
     const int PageSize = 1 << 12;
     const int MegaPageSize = 1 << 22;

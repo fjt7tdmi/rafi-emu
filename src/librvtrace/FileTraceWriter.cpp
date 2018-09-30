@@ -20,6 +20,8 @@
 
 using namespace std;
 
+namespace rvtrace {
+
 FileTraceWriter::FileTraceWriter(const char* path)
 {
     m_File = std::fopen(path, "wb");
@@ -45,4 +47,6 @@ void FileTraceWriter::Write(void* buffer, int64_t size)
 
     std::fwrite(buffer, static_cast<size_t>(size), 1, m_File);
     std::fflush(m_File);
+}
+
 }

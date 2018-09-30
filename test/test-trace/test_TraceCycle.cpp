@@ -23,6 +23,8 @@
 #include <rvtrace/reader.h>
 #include <rvtrace/writer.h>
 
+using namespace rvtrace;
+
 namespace {
     void FillRandom(void* buffer, size_t size)
     {

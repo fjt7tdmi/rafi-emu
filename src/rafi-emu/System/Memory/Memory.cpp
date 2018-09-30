@@ -45,7 +45,7 @@ void Memory::LoadFile(const char* path, int offset)
     f.open(path, std::fstream::binary | std::fstream::in);
     if (!f.is_open())
     {
-        throw FileOpenFailureException(path);
+        std::abort();
     }
     f.read(&m_pBody[offset], MemorySize - offset);
     f.close();

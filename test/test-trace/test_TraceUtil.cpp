@@ -21,6 +21,8 @@
 #include <rvtrace/reader.h>
 #include <rvtrace/writer.h>
 
+using namespace rvtrace;
+
 void FillRandom(void* buffer, size_t size)
 {
     auto p = reinterpret_cast<uint8_t*>(buffer);

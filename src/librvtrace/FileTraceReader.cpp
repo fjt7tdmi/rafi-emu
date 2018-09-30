@@ -28,6 +28,8 @@
 
 namespace fs = std::experimental::filesystem;
 
+namespace rvtrace {
+
 FileTraceReader::FileTraceReader(const char* path)
 {
     uintmax_t fileSize;
@@ -100,4 +102,6 @@ void FileTraceReader::MoveToNextCycle()
 void FileTraceReader::MoveToPreviousCycle()
 {
     m_pMemoryTraceReader->MoveToPreviousCycle();
+}
+
 }

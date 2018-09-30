@@ -18,6 +18,8 @@
 
 #include <rvtrace/common.h>
 
+namespace rvtrace {
+
 class TraceCycleBuilder final
 {
 public:
@@ -70,3 +72,5 @@ private:
 
     int64_t m_DataSize;
 };
+
+}

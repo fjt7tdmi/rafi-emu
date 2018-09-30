@@ -20,6 +20,8 @@
 
 #include "ITraceReader.h"
 
+namespace rvtrace {
+
 class MemoryTraceReader : public ITraceReader
 {
 public:
@@ -46,3 +48,5 @@ private:
 
     int64_t m_CurrentOffset;
 };
+
+}

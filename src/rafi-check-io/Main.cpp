@@ -22,6 +22,8 @@
 
 #include <rvtrace/reader.h>
 
+using namespace rvtrace;
+
 namespace {
     const char* Pass = "[  PASS  ]";
     const char* Failed = "[ FAILED ]";

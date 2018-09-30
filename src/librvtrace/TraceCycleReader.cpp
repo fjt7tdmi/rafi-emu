@@ -20,6 +20,8 @@
 
 #include <rvtrace/reader.h>
 
+namespace rvtrace {
+
 TraceCycleReader::TraceCycleReader(const void* buffer, int64_t bufferSize)
 {
     m_pData = buffer;
@@ -191,4 +193,6 @@ const void* TraceCycleReader::GetPointerToNode(NodeType nodeType) const
     }
 
     return reinterpret_cast<const uint8_t*>(m_pData) + pMeta->offset;
+}
+
 }

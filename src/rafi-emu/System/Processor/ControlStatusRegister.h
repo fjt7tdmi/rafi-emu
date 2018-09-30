@@ -23,6 +23,8 @@
 
 #include "ProcessorException.h"
 
+using namespace rvtrace;
+
 class ControlStatusRegister
 {
 public:

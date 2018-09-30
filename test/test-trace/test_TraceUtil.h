@@ -26,4 +26,4 @@ void FillRandom(void* buffer, size_t size);
 
 void FillZero(void* buffer, size_t size);
 
-std::unique_ptr<TraceCycleBuilder> MakeTestBuilder();
+std::unique_ptr<rvtrace::TraceCycleBuilder> MakeTestBuilder();

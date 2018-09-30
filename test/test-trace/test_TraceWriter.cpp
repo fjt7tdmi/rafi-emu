@@ -24,6 +24,8 @@
 
 #include "test_TraceUtil.h"
 
+using namespace rvtrace;
+
 TEST(TraceWriterTest, Overflow)
 {
     char buffer[4];

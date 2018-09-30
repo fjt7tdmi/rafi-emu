@@ -19,10 +19,13 @@
 #include <fstream>
 #include <iostream>
 
+#include <rvtrace/common.h>
+
 #include "ProcessorException.h"
 #include "Op.h"
 
 using namespace std;
+using namespace rvtrace;
 
 namespace
 {

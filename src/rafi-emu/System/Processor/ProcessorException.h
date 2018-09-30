@@ -23,6 +23,8 @@
 
 #include <rvtrace/common.h>
 
+using namespace rvtrace;
+
 class ProcessorException
 {
 public:

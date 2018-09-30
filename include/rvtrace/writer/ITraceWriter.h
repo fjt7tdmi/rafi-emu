@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rvtrace {
+
 class ITraceWriter
 {
 public:
@@ -25,3 +27,5 @@ public:
 
     virtual void Write(void* buffer, int64_t size) = 0;
 };
+
+}

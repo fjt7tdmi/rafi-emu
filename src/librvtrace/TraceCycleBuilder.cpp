@@ -22,6 +22,8 @@
 
 using namespace std;
 
+namespace rvtrace {
+
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 {
     auto size = CalculateDataSize(flags);
@@ -372,4 +374,6 @@ void* TraceCycleBuilder::GetPointerToNode(NodeType nodeType)
     }
 
     return reinterpret_cast<uint8_t*>(m_pData) + pMeta->offset;
+}
+
 }

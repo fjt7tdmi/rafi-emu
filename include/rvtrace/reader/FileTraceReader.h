@@ -21,6 +21,8 @@
 #include "ITraceReader.h"
 #include "MemoryTraceReader.h"
 
+namespace rvtrace {
+
 class FileTraceReader : public ITraceReader
 {
 public:
@@ -42,3 +44,5 @@ private:
     char* m_pBuffer;
     int64_t m_BufferSize;
 };
+
+}

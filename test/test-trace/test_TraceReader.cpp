@@ -24,6 +24,8 @@
 
 #include "test_TraceUtil.h"
 
+using namespace rvtrace;
+
 TEST(TraceReaderTest, Basic)
 {
     char buffer[1024];

@@ -25,6 +25,7 @@
 #include "Processor.h"
 
 using namespace std;
+using namespace rvtrace;
 
 namespace
 {
