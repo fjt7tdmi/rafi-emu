@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rvtrace {
+
 class ITraceReader
 {
 public:
@@ -26,9 +28,11 @@ public:
     virtual const void* GetCurrentCycleData() = 0;
     virtual int64_t GetCurrentCycleDataSize() = 0;
 
-    virtual bool IsFirstCycle() = 0;
-    virtual bool IsLastCycle() = 0;
+    virtual bool IsBegin() = 0;
+    virtual bool IsEnd() = 0;
 
-    virtual void MoveNextCycle() = 0;
-    virtual void MovePreviousCycle() = 0;
+    virtual void MoveToNextCycle() = 0;
+    virtual void MoveToPreviousCycle() = 0;
 };
+
+}

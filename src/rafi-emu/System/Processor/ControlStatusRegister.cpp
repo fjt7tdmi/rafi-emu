@@ -22,6 +22,8 @@
 #include "ProcessorException.h"
 #include "ControlStatusRegister.h"
 
+using namespace rvtrace;
+
 namespace {
 
 int32_t GetHigh32(int64_t value)

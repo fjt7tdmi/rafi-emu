@@ -20,6 +20,10 @@
 
 #include "ITraceReader.h"
 
+namespace rvtrace {
+
+class MemoryTraceReaderImpl;
+
 class MemoryTraceReader : public ITraceReader
 {
 public:
@@ -29,17 +33,14 @@ public:
     virtual const void* GetCurrentCycleData();
     virtual int64_t GetCurrentCycleDataSize();
 
-    virtual bool IsFirstCycle();
-    virtual bool IsLastCycle();
+    virtual bool IsBegin();
+    virtual bool IsEnd();
 
-    virtual void MoveNextCycle();
-    virtual void MovePreviousCycle();
+    virtual void MoveToNextCycle();
+    virtual void MoveToPreviousCycle();
 
 private:
-    void CheckCurrentOffset();
-
-    const void* m_pBuffer;
-    int64_t m_BufferSize;
-
-    int64_t m_CurrentOffset;
+    MemoryTraceReaderImpl* m_pImpl;
 };
+
+}

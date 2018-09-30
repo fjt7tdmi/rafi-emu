@@ -21,6 +21,10 @@
 #include "ITraceReader.h"
 #include "MemoryTraceReader.h"
 
+namespace rvtrace {
+
+class FileTraceReaderImpl;
+
 class FileTraceReader : public ITraceReader
 {
 public:
@@ -30,15 +34,14 @@ public:
     virtual const void* GetCurrentCycleData();
     virtual int64_t GetCurrentCycleDataSize();
 
-    virtual bool IsFirstCycle();
-    virtual bool IsLastCycle();
+    virtual bool IsBegin();
+    virtual bool IsEnd();
 
-    virtual void MoveNextCycle();
-    virtual void MovePreviousCycle();
+    virtual void MoveToNextCycle();
+    virtual void MoveToPreviousCycle();
 
 private:
-    MemoryTraceReader* m_pMemoryTraceReader;
-
-    char* m_pBuffer;
-    int64_t m_BufferSize;
+    FileTraceReaderImpl* m_pImpl;
 };
+
+}

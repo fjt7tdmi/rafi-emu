@@ -19,6 +19,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace rvtrace {
+
 enum class MemoryAccessType : int32_t
 {
     Instruction = 0,
@@ -408,3 +410,6 @@ const char* GetString(ExceptionType exceptionType);
 const char* GetString(InterruptType interruptType);
 const char* GetString(csr_addr_t addr);
 const char* GetString(csr_addr_t addr, const char* defaultValue);
+const char* GetString(OpCode opCode);
+
+}

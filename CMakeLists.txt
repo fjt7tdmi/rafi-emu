@@ -58,13 +58,25 @@ add_library(librvtrace
     include/rvtrace/writer/ITraceWriter.h
     include/rvtrace/writer/MemoryTraceWriter.h
     include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/FileTraceReader.cpp
-    src/librvtrace/FileTraceWriter.cpp
-    src/librvtrace/MemoryTraceReader.cpp
-    src/librvtrace/MemoryTraceWriter.cpp
-    src/librvtrace/RvTypes.cpp
-    src/librvtrace/TraceCycleBuilder.cpp
-    src/librvtrace/TraceCycleReader.cpp
+    src/librvtrace/common/RvTypes.cpp
+    src/librvtrace/reader/FileTraceReader.cpp
+    src/librvtrace/reader/FileTraceReaderImpl.cpp
+    src/librvtrace/reader/FileTraceReaderImpl.h
+    src/librvtrace/reader/MemoryTraceReader.cpp
+    src/librvtrace/reader/MemoryTraceReaderImpl.cpp
+    src/librvtrace/reader/MemoryTraceReaderImpl.h
+    src/librvtrace/reader/TraceCycleReader.cpp
+    src/librvtrace/reader/TraceCycleReaderImpl.cpp
+    src/librvtrace/reader/TraceCycleReaderImpl.h
+    src/librvtrace/writer/FileTraceWriter.cpp
+    src/librvtrace/writer/FileTraceWriterImpl.cpp
+    src/librvtrace/writer/FileTraceWriterImpl.h
+    src/librvtrace/writer/MemoryTraceWriter.cpp
+    src/librvtrace/writer/MemoryTraceWriterImpl.cpp
+    src/librvtrace/writer/MemoryTraceWriterImpl.h
+    src/librvtrace/writer/TraceCycleBuilder.cpp
+    src/librvtrace/writer/TraceCycleBuilderImpl.cpp
+    src/librvtrace/writer/TraceCycleBuilderImpl.h
 )
 
 add_executable(rafi-check-io

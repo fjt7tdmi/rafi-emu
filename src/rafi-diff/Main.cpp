@@ -27,6 +27,7 @@
 #include "CycleComparator.h"
 
 using namespace std;
+using namespace rvtrace;
 
 namespace po = boost::program_options;
 
@@ -45,7 +46,7 @@ void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPh
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    while (!expectReader.IsLastCycle() || !actualReader.IsLastCycle())
+    while (!expectReader.IsEnd() || !actualReader.IsEnd())
     {
         TraceCycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
         TraceCycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
@@ -59,22 +60,22 @@ void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPh
             return;
         }
 
-        expectReader.MoveNextCycle();
-        actualReader.MoveNextCycle();
+        expectReader.MoveToNextCycle();
+        actualReader.MoveToNextCycle();
 
         expectOpCount++;
         actualOpCount++;
     }
 
     // Count ops
-    while (!expectReader.IsLastCycle())
+    while (!expectReader.IsEnd())
     {
-        expectReader.MoveNextCycle();
+        expectReader.MoveToNextCycle();
         expectOpCount++;
     }
-    while (!actualReader.IsLastCycle())
+    while (!actualReader.IsEnd())
     {
-        actualReader.MoveNextCycle();
+        actualReader.MoveToNextCycle();
         actualOpCount++;
     }
 

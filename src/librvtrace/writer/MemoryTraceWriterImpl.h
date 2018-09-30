@@ -16,16 +16,25 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdio>
+
+#include <rvtrace/writer.h>
 
 namespace rvtrace {
 
-class ITraceWriter
+class MemoryTraceWriterImpl final
 {
 public:
-    virtual ~ITraceWriter(){}
+    MemoryTraceWriterImpl(void* buffer, int64_t size);
+    ~MemoryTraceWriterImpl();
 
-    virtual void Write(void* buffer, int64_t size) = 0;
+    void Write(void* buffer, int64_t size);
+
+private:
+    void* m_pBuffer;
+    int64_t m_BufferSize;
+
+    int64_t m_CurrentOffset {0};
 };
 
 }

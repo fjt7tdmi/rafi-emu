@@ -26,9 +26,13 @@
 
 #include <rvtrace/reader.h>
 
+#include "FileTraceReaderImpl.h"
+
 namespace fs = std::experimental::filesystem;
 
-FileTraceReader::FileTraceReader(const char* path)
+namespace rvtrace {
+
+FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
 {
     uintmax_t fileSize;
 
@@ -63,41 +67,43 @@ FileTraceReader::FileTraceReader(const char* path)
     std::ifstream ifs(path, std::ios::in | std::ios::binary);
     ifs.read(m_pBuffer, size);
 
-    m_pMemoryTraceReader = new MemoryTraceReader(m_pBuffer, m_BufferSize);
+    m_pMemoryTraceReader = new MemoryTraceReaderImpl(m_pBuffer, m_BufferSize);
 }
 
-FileTraceReader::~FileTraceReader()
+FileTraceReaderImpl::~FileTraceReaderImpl()
 {
     delete m_pMemoryTraceReader;
     delete[] m_pBuffer;
 }
 
-const void* FileTraceReader::GetCurrentCycleData()
+const void* FileTraceReaderImpl::GetCurrentCycleData()
 {
     return m_pMemoryTraceReader->GetCurrentCycleData();
 }
 
-int64_t FileTraceReader::GetCurrentCycleDataSize()
+int64_t FileTraceReaderImpl::GetCurrentCycleDataSize()
 {
     return m_pMemoryTraceReader->GetCurrentCycleDataSize();
 }
 
-bool FileTraceReader::IsFirstCycle()
+bool FileTraceReaderImpl::IsBegin()
 {
-    return m_pMemoryTraceReader->IsFirstCycle();
+    return m_pMemoryTraceReader->IsBegin();
 }
 
-bool FileTraceReader::IsLastCycle()
+bool FileTraceReaderImpl::IsEnd()
 {
-    return m_pMemoryTraceReader->IsLastCycle();
+    return m_pMemoryTraceReader->IsEnd();
 }
 
-void FileTraceReader::MoveNextCycle()
+void FileTraceReaderImpl::MoveToNextCycle()
 {
-    m_pMemoryTraceReader->MoveNextCycle();
+    m_pMemoryTraceReader->MoveToNextCycle();
 }
 
-void FileTraceReader::MovePreviousCycle()
+void FileTraceReaderImpl::MoveToPreviousCycle()
 {
-    m_pMemoryTraceReader->MovePreviousCycle();
+    m_pMemoryTraceReader->MoveToPreviousCycle();
+}
+
 }

@@ -31,20 +31,20 @@ public:
     }
 
     // compare
-    bool IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const;
-    bool IsIntReg32NodeMatched(const IntReg32Node* pExpect, const IntReg32Node* pActual) const;
-    bool IsCsr32NodeMatched(const Csr32NodeHeader* pExpect, const Csr32NodeHeader* pActual) const;
-    bool IsMemoryNodeMatched(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const;
+    bool IsPc32NodeMatched(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
+    bool IsIntReg32NodeMatched(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
+    bool IsCsr32NodeMatched(const rvtrace::Csr32NodeHeader* pExpect, const rvtrace::Csr32NodeHeader* pActual) const;
+    bool IsMemoryNodeMatched(const rvtrace::MemoryNodeHeader* pExpect, const rvtrace::MemoryNodeHeader* pActual) const;
 
-    bool AreMatched(const TraceCycleReader& expect, const TraceCycleReader& actual) const;
+    bool AreMatched(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
 
     // print diff
-    void PrintPc32Diff(const Pc32Node* pExpect, const Pc32Node* pActual) const;
-    void PrintIntReg32Diff(const IntReg32Node* pExpect, const IntReg32Node* pActual) const;
-    void PrintCsr32Diff(const Csr32NodeHeader* pExpect, const Csr32NodeHeader* pActual) const;
-    void PrintMemoryDiff(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const;
+    void PrintPc32Diff(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
+    void PrintIntReg32Diff(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
+    void PrintCsr32Diff(const rvtrace::Csr32NodeHeader* pExpect, const rvtrace::Csr32NodeHeader* pActual) const;
+    void PrintMemoryDiff(const rvtrace::MemoryNodeHeader* pExpect, const rvtrace::MemoryNodeHeader* pActual) const;
 
-    void PrintDiff(const TraceCycleReader& expect, const TraceCycleReader& actual) const;
+    void PrintDiff(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
 
 private:
     bool m_CmpPhysicalPc;

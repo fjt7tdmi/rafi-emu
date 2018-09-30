@@ -16,16 +16,22 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdio>
+
+#include <rvtrace/reader.h>
 
 namespace rvtrace {
 
-class ITraceWriter
+class FileTraceWriterImpl final
 {
 public:
-    virtual ~ITraceWriter(){}
+    explicit FileTraceWriterImpl(const char* path);
+    ~FileTraceWriterImpl();
 
-    virtual void Write(void* buffer, int64_t size) = 0;
+    void Write(void* buffer, int64_t size);
+
+private:
+    std::FILE* m_File;
 };
 
 }

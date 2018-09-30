@@ -16,6 +16,8 @@
 
 #pragma once
 
+using namespace rvtrace;
+
 struct Op
 {
     OpClass opClass;
@@ -45,5 +47,3 @@ private:
     void DecodeRV32M(Op* out, int32_t insn) const;
     void DecodeRV32A(Op* out, int32_t insn) const;
 };
-
-const char* GetString(OpCode opCode);

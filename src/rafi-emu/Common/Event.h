@@ -22,6 +22,8 @@
 
 #include "BasicTypes.h"
 
+using namespace rvtrace;
+
 struct CsrReadEvent
 {
     csr_addr_t address;

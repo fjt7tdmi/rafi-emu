@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <cstdio>
 
-#include <cstdint>
+#include <rvtrace/writer.h>
+
+#include "FileTraceWriterImpl.h"
 
 namespace rvtrace {
 
-class ITraceWriter
+FileTraceWriter::FileTraceWriter(const char* path)
 {
-public:
-    virtual ~ITraceWriter(){}
+    m_pImpl = new FileTraceWriterImpl(path);
+}
 
-    virtual void Write(void* buffer, int64_t size) = 0;
-};
+FileTraceWriter::~FileTraceWriter()
+{
+    delete m_pImpl;
+}
+
+void FileTraceWriter::Write(void* buffer, int64_t size)
+{
+    m_pImpl->Write(buffer, size);
+}
 
 }

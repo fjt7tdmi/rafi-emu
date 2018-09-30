@@ -17,15 +17,35 @@
 #pragma once
 
 #include <cstdint>
+#include <rvtrace/reader.h>
 
 namespace rvtrace {
 
-class ITraceWriter
+class MemoryTraceReaderImpl
 {
 public:
-    virtual ~ITraceWriter(){}
+    MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize);
+    ~MemoryTraceReaderImpl();
 
-    virtual void Write(void* buffer, int64_t size) = 0;
+    const void* GetCurrentCycleData();
+    int64_t GetCurrentCycleDataSize();
+
+    bool IsBegin();
+    bool IsEnd();
+
+    void MoveToNextCycle();
+    void MoveToPreviousCycle();
+
+private:
+    const TraceCycleHeader* GetCurrentCycleHeader();
+    const TraceCycleFooter* GetPreviousCycleFooter();
+
+    void CheckOffset(int64_t offset);
+
+    const void* m_pBuffer;
+    int64_t m_BufferSize;
+
+    int64_t m_CurrentOffset;
 };
 
 }

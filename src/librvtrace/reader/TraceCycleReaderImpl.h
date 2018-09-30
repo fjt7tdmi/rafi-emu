@@ -22,14 +22,11 @@
 
 namespace rvtrace {
 
-class TraceCycleReaderImpl;
-
-class TraceCycleReader
+class TraceCycleReaderImpl
 {
 public:
-    TraceCycleReader(const void* buffer, int64_t bufferSize);
-    ~TraceCycleReader();
-    
+    TraceCycleReaderImpl(const void* buffer, int64_t bufferSize);
+
     int64_t GetOffsetOfPreviousCycle() const;
 
     int64_t GetOffsetOfNextCycle() const;
@@ -56,7 +53,21 @@ public:
     const MemoryNodeHeader* GetMemoryNode() const;
 
 private:
-    TraceCycleReaderImpl* m_pImpl;
+    void CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const;
+
+    void CheckNodeSizeGreaterThan(NodeType nodeType, size_t size) const;
+
+    const TraceCycleHeader* GetPointerToHeader() const;
+
+    const TraceCycleMetaNode* GetPointerToMeta(int32_t index) const;
+
+    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType) const;
+
+    const void* GetPointerToNode(NodeType nodeType) const;
+
+    const void* m_pData;
+
+    int64_t m_BufferSize;
 };
 
 }

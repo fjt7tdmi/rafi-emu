@@ -20,7 +20,11 @@
 
 using namespace std;
 
-FileTraceWriter::FileTraceWriter(const char* path)
+#include "FileTraceWriterImpl.h"
+
+namespace rvtrace {
+
+FileTraceWriterImpl::FileTraceWriterImpl(const char* path)
 {
     m_File = std::fopen(path, "wb");
     if (m_File == nullptr)
@@ -29,17 +33,12 @@ FileTraceWriter::FileTraceWriter(const char* path)
     }
 }
 
-FileTraceWriter::~FileTraceWriter()
+FileTraceWriterImpl::~FileTraceWriterImpl()
 {
     std::fclose(m_File);
 }
 
-int64_t FileTraceWriter::GetPreviousWriteSize()
-{
-    return m_PreviousWriteSize;
-}
-
-void FileTraceWriter::Write(void* buffer, int64_t size)
+void FileTraceWriterImpl::Write(void* buffer, int64_t size)
 {
 #if INT64_MAX > SIZE_MAX
     if (size > SIZE_MAX)
@@ -50,4 +49,6 @@ void FileTraceWriter::Write(void* buffer, int64_t size)
 
     std::fwrite(buffer, static_cast<size_t>(size), 1, m_File);
     std::fflush(m_File);
+}
+
 }

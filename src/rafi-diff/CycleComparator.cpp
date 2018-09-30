@@ -23,6 +23,8 @@
 
 #include "CycleComparator.h"
 
+using namespace rvtrace;
+
 bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const
 {
     if (pExpect == nullptr || pActual == nullptr)

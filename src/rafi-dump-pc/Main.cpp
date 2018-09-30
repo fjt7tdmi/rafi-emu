@@ -25,6 +25,8 @@
 
 #include <rvtrace/reader.h>
 
+using namespace rvtrace;
+
 namespace po = boost::program_options;
 
 namespace {
@@ -35,7 +37,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
 
     for (int i = 0; i < startCycle + count; i++)
     {
-        if (reader.IsLastCycle())
+        if (reader.IsEnd())
         {
             return;
         }
@@ -56,7 +58,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
             }
         }
 
-        reader.MoveNextCycle();
+        reader.MoveToNextCycle();
     }
 }
 

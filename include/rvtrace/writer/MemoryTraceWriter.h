@@ -20,19 +20,20 @@
 
 #include "ITraceWriter.h"
 
+namespace rvtrace {
+
+class MemoryTraceWriterImpl;
+
 class MemoryTraceWriter : ITraceWriter
 {
 public:
     MemoryTraceWriter(void* buffer, int64_t size);
     virtual ~MemoryTraceWriter();
 
-    virtual int64_t GetPreviousWriteSize();
     virtual void Write(void* buffer, int64_t size);
 
 private:
-    void* m_pBuffer;
-    int64_t m_BufferSize;
-
-    int64_t m_CurrentOffset {0};
-    int64_t m_PreviousWriteSize {0};
+    MemoryTraceWriterImpl* m_pImpl;
 };
+
+}

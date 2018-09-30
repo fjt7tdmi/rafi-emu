@@ -24,20 +24,7 @@
 
 #include "test_TraceUtil.h"
 
-TEST(TraceWriterTest, GetPreviousWriteSize)
-{
-    char buffer[1024];
-
-    auto builder = MakeTestBuilder();
-
-    MemoryTraceWriter writer(buffer, sizeof(buffer));
-
-    ASSERT_EQ(0, writer.GetPreviousWriteSize());
-
-    writer.Write(builder->GetData(), builder->GetDataSize());
-
-    ASSERT_EQ(builder->GetDataSize(), writer.GetPreviousWriteSize());
-}
+using namespace rvtrace;
 
 TEST(TraceWriterTest, Overflow)
 {

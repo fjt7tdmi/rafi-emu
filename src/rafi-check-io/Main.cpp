@@ -22,6 +22,8 @@
 
 #include <rvtrace/reader.h>
 
+using namespace rvtrace;
+
 namespace {
     const char* Pass = "[  PASS  ]";
     const char* Failed = "[ FAILED ]";
@@ -35,10 +37,11 @@ bool Check(const char* name, const char* path)
         FileTraceReader reader(path);
 
         // Get last cycle data
-        while (!reader.IsLastCycle())
+        while (!reader.IsEnd())
         {
-            reader.MoveNextCycle();
+            reader.MoveToNextCycle();
         }
+        reader.MoveToPreviousCycle();
 
         TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 

@@ -16,6 +16,8 @@
 
 #include <rvtrace/common/RvTypes.h>
 
+namespace rvtrace {
+
 const char* GetString(MemoryAccessType accessType)
 {
 #define GET_STRING_CASE(arg) case MemoryAccessType::arg: return #arg
@@ -306,4 +308,6 @@ const char* GetString(OpCode opCode)
         return "unknown";
     }
 #undef GET_OP_NAME_CASE
+}
+
 }

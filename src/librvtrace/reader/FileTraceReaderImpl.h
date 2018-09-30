@@ -17,15 +17,32 @@
 #pragma once
 
 #include <cstdint>
+#include <rvtrace/reader.h>
+
+#include "MemoryTraceReaderImpl.h"
 
 namespace rvtrace {
 
-class ITraceWriter
+class FileTraceReaderImpl
 {
 public:
-    virtual ~ITraceWriter(){}
+    FileTraceReaderImpl(const char* path);
+    ~FileTraceReaderImpl();
 
-    virtual void Write(void* buffer, int64_t size) = 0;
+    const void* GetCurrentCycleData();
+    int64_t GetCurrentCycleDataSize();
+
+    bool IsBegin();
+    bool IsEnd();
+
+    void MoveToNextCycle();
+    void MoveToPreviousCycle();
+
+private:
+    MemoryTraceReaderImpl* m_pMemoryTraceReader;
+
+    char* m_pBuffer;
+    int64_t m_BufferSize;
 };
 
 }

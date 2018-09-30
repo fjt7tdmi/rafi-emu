@@ -23,6 +23,8 @@
 
 #pragma warning (disable: 4996)
 
+using namespace rvtrace;
+
 TraceDumper::TraceDumper(const char* path, const System* pSystem)
     : m_FileTraceWriter(path)
     , m_pSystem(pSystem)
@@ -79,8 +81,6 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     TraceCycleBuilder builder(flags);
-
-    builder.SetOffsetOfPreviousCycle(-m_FileTraceWriter.GetPreviousWriteSize());
 
     // OpEvent
     assert(m_pSystem->IsOpEventExist());

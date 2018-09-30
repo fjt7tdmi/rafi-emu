@@ -18,6 +18,8 @@
 
 #include <iostream>
 
+namespace rvtrace {
+
 class FileOpenFailureException
 {
 public:
@@ -81,3 +83,5 @@ public:
 private:
     const char* m_pMessage;
 };
+
+}
