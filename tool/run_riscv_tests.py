@@ -22,8 +22,8 @@ import subprocess
 from functools import reduce
 from operator import or_
 
-CheckIoPath = "./build/Debug/rafi-check-io.exe"
-EmulatorPath = "./build/Debug/rafi-emu.exe"
+CheckIoPath = "./build/Release/rafi-check-io.exe"
+EmulatorPath = "./build/Release/rafi-emu.exe"
 BinaryDirPath = "./work/riscv_tests"
 TraceDirPath = "./work/trace"
 
