@@ -22,6 +22,8 @@
 
 namespace rvtrace {
 
+class MemoryTraceReaderImpl;
+
 class MemoryTraceReader : public ITraceReader
 {
 public:
@@ -38,15 +40,7 @@ public:
     virtual void MoveToPreviousCycle();
 
 private:
-    const TraceCycleHeader* GetCurrentCycleHeader();
-    const TraceCycleFooter* GetPreviousCycleFooter();
-
-    void CheckOffset(int64_t offset);
-
-    const void* m_pBuffer;
-    int64_t m_BufferSize;
-
-    int64_t m_CurrentOffset;
+    MemoryTraceReaderImpl* m_pImpl;
 };
 
 }

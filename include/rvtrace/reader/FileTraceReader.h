@@ -23,6 +23,8 @@
 
 namespace rvtrace {
 
+class FileTraceReaderImpl;
+
 class FileTraceReader : public ITraceReader
 {
 public:
@@ -39,10 +41,7 @@ public:
     virtual void MoveToPreviousCycle();
 
 private:
-    MemoryTraceReader* m_pMemoryTraceReader;
-
-    char* m_pBuffer;
-    int64_t m_BufferSize;
+    FileTraceReaderImpl* m_pImpl;
 };
 
 }

@@ -18,22 +18,20 @@
 
 #include <cstdio>
 
-#include "ITraceWriter.h"
+#include <rvtrace/reader.h>
 
 namespace rvtrace {
 
-class FileTraceWriterImpl;
-
-class FileTraceWriter : ITraceWriter
+class FileTraceWriterImpl final
 {
 public:
-    FileTraceWriter(const char* path);
-    virtual ~FileTraceWriter();
+    explicit FileTraceWriterImpl(const char* path);
+    ~FileTraceWriterImpl();
 
-    virtual void Write(void* buffer, int64_t size);
+    void Write(void* buffer, int64_t size);
 
 private:
-    FileTraceWriterImpl* m_pImpl;
+    std::FILE* m_File;
 };
 
 }

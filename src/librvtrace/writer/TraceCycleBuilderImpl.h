@@ -16,18 +16,16 @@
 
 #pragma once
 
-#include <rvtrace/common.h>
+#include <rvtrace/writer.h>
 
 namespace rvtrace {
 
-class TraceCycleBuilderImpl;
-
-class TraceCycleBuilder final
+class TraceCycleBuilderImpl final
 {
 public:
-    explicit TraceCycleBuilder(int32_t flags);
+    explicit TraceCycleBuilderImpl(int32_t flags);
 
-    ~TraceCycleBuilder();
+    ~TraceCycleBuilderImpl();
 
     // Get pointer to raw data
     void* GetData();
@@ -50,7 +48,29 @@ public:
     void SetNode(const IoNode& node);
 
 private:
-    TraceCycleBuilderImpl* m_pImpl;
+    int64_t CalculateDataSize(int32_t flags);
+
+    int32_t CountValidFlags(int32_t flags);
+
+    void InitializeMetaNodes(int32_t flags);
+
+    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset);
+
+    int64_t GetProperNodeSize(NodeType nodeType);
+
+    TraceCycleHeader* GetPointerToHeader();
+
+    TraceCycleFooter* GetPointerToFooter();
+
+    TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+
+    TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
+
+    void* GetPointerToNode(NodeType nodeType);
+
+    void* m_pData;
+
+    int64_t m_DataSize;
 };
 
 }

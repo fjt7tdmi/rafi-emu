@@ -16,24 +16,36 @@
 
 #pragma once
 
-#include <cstdio>
-
-#include "ITraceWriter.h"
+#include <cstdint>
+#include <rvtrace/reader.h>
 
 namespace rvtrace {
 
-class FileTraceWriterImpl;
-
-class FileTraceWriter : ITraceWriter
+class MemoryTraceReaderImpl
 {
 public:
-    FileTraceWriter(const char* path);
-    virtual ~FileTraceWriter();
+    MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize);
+    ~MemoryTraceReaderImpl();
 
-    virtual void Write(void* buffer, int64_t size);
+    const void* GetCurrentCycleData();
+    int64_t GetCurrentCycleDataSize();
+
+    bool IsBegin();
+    bool IsEnd();
+
+    void MoveToNextCycle();
+    void MoveToPreviousCycle();
 
 private:
-    FileTraceWriterImpl* m_pImpl;
+    const TraceCycleHeader* GetCurrentCycleHeader();
+    const TraceCycleFooter* GetPreviousCycleFooter();
+
+    void CheckOffset(int64_t offset);
+
+    const void* m_pBuffer;
+    int64_t m_BufferSize;
+
+    int64_t m_CurrentOffset;
 };
 
 }

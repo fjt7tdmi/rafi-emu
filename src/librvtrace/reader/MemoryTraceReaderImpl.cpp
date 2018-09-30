@@ -17,29 +17,29 @@
 #include <cstdint>
 #include <cstdlib>
 
-#include <rvtrace/reader.h>
+#include "MemoryTraceReaderImpl.h"
 
 namespace rvtrace {
 
-MemoryTraceReader::MemoryTraceReader(const void* buffer, int64_t bufferSize)
+MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
     , m_CurrentOffset(0)
 {
 }
 
-MemoryTraceReader::~MemoryTraceReader()
+MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
 {
 }
 
-const void* MemoryTraceReader::GetCurrentCycleData()
+const void* MemoryTraceReaderImpl::GetCurrentCycleData()
 {
     CheckOffset(m_CurrentOffset);
 
     return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
 }
 
-int64_t MemoryTraceReader::GetCurrentCycleDataSize()
+int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
 {
     auto size = GetCurrentCycleHeader()->footerOffset + sizeof(TraceCycleFooter);
 
@@ -51,17 +51,17 @@ int64_t MemoryTraceReader::GetCurrentCycleDataSize()
     return size;
 }
 
-bool MemoryTraceReader::IsBegin()
+bool MemoryTraceReaderImpl::IsBegin()
 {
     return m_CurrentOffset == 0;
 }
 
-bool MemoryTraceReader::IsEnd()
+bool MemoryTraceReaderImpl::IsEnd()
 {
     return m_CurrentOffset == m_BufferSize;
 }
 
-void MemoryTraceReader::MoveToNextCycle()
+void MemoryTraceReaderImpl::MoveToNextCycle()
 {
     CheckOffset(m_CurrentOffset);
 
@@ -73,7 +73,7 @@ void MemoryTraceReader::MoveToNextCycle()
     }
 }
 
-void MemoryTraceReader::MoveToPreviousCycle()
+void MemoryTraceReaderImpl::MoveToPreviousCycle()
 {
     if (!IsEnd())
     {
@@ -87,7 +87,7 @@ void MemoryTraceReader::MoveToPreviousCycle()
     CheckOffset(m_CurrentOffset);
 }
 
-void MemoryTraceReader::CheckOffset(int64_t offset)
+void MemoryTraceReaderImpl::CheckOffset(int64_t offset)
 {
     if (!(0 <= offset && offset < m_BufferSize))
     {
@@ -95,12 +95,12 @@ void MemoryTraceReader::CheckOffset(int64_t offset)
     }
 }
 
-const TraceCycleHeader* MemoryTraceReader::GetCurrentCycleHeader()
+const TraceCycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader()
 {
     return reinterpret_cast<const TraceCycleHeader*>(GetCurrentCycleData());
 }
 
-const TraceCycleFooter* MemoryTraceReader::GetPreviousCycleFooter()
+const TraceCycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
 {
     auto offset = m_CurrentOffset - sizeof(TraceCycleFooter);
 
