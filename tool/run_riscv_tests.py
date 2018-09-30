@@ -23,7 +23,7 @@ from functools import reduce
 from operator import or_
 
 CheckIoPath = "./build/Debug/rafi-check-io.exe"
-EmulatorPath = "./build/Debug/RafiEmu.exe"
+EmulatorPath = "./build/Debug/rafi-emu.exe"
 BinaryDirPath = "./work/riscv_tests"
 TraceDirPath = "./work/trace"
 
