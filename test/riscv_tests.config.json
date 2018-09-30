@@ -1,0 +1,506 @@
+[
+    {
+        "name": "rv32mi-p-breakpoint",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-csr",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-illegal",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-ma_addr",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-ma_fetch",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-mcsr",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-sbreak",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-scall",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32mi-p-shamt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-csr",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-dirty",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-ma_fetch",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-sbreak",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-scall",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32si-p-wfi",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amoadd_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amoand_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amomax_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amomaxu_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amomin_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amominu_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amoor_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amoswap_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-amoxor_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-p-lrsc",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ua-v-amoadd_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amoand_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amomax_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amomaxu_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amomin_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amominu_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amoor_w",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ua-v-amoswap_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-amoxor_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ua-v-lrsc",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-p-add",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-addi",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-and",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-andi",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-auipc",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-beq",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-bge",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-bgeu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-blt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-bltu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-bne",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-fence_i",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-jal",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-jalr",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lb",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lbu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lh",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lhu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lui",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-lw",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-or",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-ori",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sb",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sh",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-simple",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sll",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-slli",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-slt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-slti",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sltiu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sltu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sra",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-srai",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-srl",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-srli",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sub",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-sw",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-xor",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-p-xori",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ui-v-add",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-addi",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-and",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-andi",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-auipc",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-beq",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-bge",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-bgeu",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-blt",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-bltu",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-bne",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-fence_i",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-jal",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-jalr",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-lh",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-lhu",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-lui",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-lw",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-or",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-ori",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-sh",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-simple",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-sll",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-slli",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-slt",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-slti",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-sltiu",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-sltu",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-sra",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-srai",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-srl",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-srli",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32ui-v-sub",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-sw",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32ui-v-xor",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-v-xori",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32um-p-div",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-divu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-mul",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-mulh",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-mulhsu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-mulhu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-rem",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-p-remu",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32um-v-div",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32um-v-divu",
+        "cycle": 128000
+    },
+    {
+        "name": "rv32um-v-mul",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32um-v-mulh",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32um-v-mulhsu",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32um-v-mulhu",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32um-v-rem",
+        "cycle": 384000
+    },
+    {
+        "name": "rv32um-v-remu",
+        "cycle": 128000
+    }
+]

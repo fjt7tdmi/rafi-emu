@@ -5,8 +5,9 @@
 *.vcxproj
 *.user
 
-# Build
-build
+# Working directories
+build/
+work/
 
 # CMake
 CMakeFiles/
