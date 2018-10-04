@@ -51,9 +51,9 @@ void Processor::ProcessOneCycle()
     try
     {
         pc = m_Csr.GetProgramCounter();
-        
+
         m_MemAccessUnit.CheckException(MemoryAccessType::Instruction, pc, pc);
-        
+
         insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
         m_Decoder.Decode(&op, insn);
@@ -105,12 +105,12 @@ void Processor::CopyIntRegs(void* pOut, size_t size) const
 
 void Processor::CopyCsrReadEvent(CsrReadEvent* pOut) const
 {
-    m_Csr.CopyReadEvent(pOut);
+    m_CsrAccessor.CopyReadEvent(pOut);
 }
 
 void Processor::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
 {
-    m_Csr.CopyWriteEvent(pOut);
+    m_CsrAccessor.CopyWriteEvent(pOut);
 }
 
 void Processor::CopyOpEvent(OpEvent* pOut) const
@@ -130,12 +130,12 @@ void Processor::CopyTrapEvent(TrapEvent* pOut) const
 
 bool Processor::IsCsrReadEventExist() const
 {
-    return m_Csr.IsReadEventExist();
+    return m_CsrAccessor.IsReadEventExist();
 }
 
 bool Processor::IsCsrWriteEventExist() const
 {
-    return m_Csr.IsWriteEventExist();
+    return m_CsrAccessor.IsWriteEventExist();
 }
 
 bool Processor::IsOpEventExist() const

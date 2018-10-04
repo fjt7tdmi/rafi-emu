@@ -291,33 +291,33 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::ebreak:
         break;
     case OpCode::csrrw:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrs:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp | m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp | m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrc:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp & ~m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp & ~m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrwi:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrsi:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp | op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp | op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrci:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp & ~op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp & ~op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::mret:

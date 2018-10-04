@@ -24,8 +24,9 @@
 class Executor
 {
 public:
-    Executor(Csr* pCsr, IntRegFile* pIntRegFile, MemoryAccessUnit* pMemAccessUnit)
+    Executor(Csr* pCsr, CsrAccessor* pCsrAccessor, IntRegFile* pIntRegFile, MemoryAccessUnit* pMemAccessUnit)
         : m_pCsr(pCsr)
+        , m_pCsrAccessor(pCsrAccessor)
         , m_pIntRegFile(pIntRegFile)
         , m_pMemAccessUnit(pMemAccessUnit)
     {
@@ -41,6 +42,7 @@ public:
 
 private:
     Csr* m_pCsr;
+    CsrAccessor* m_pCsrAccessor;
     IntRegFile* m_pIntRegFile;
     MemoryAccessUnit* m_pMemAccessUnit;
 

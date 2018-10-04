@@ -17,6 +17,7 @@
 #pragma once
 
 #include "Csr.h"
+#include "CsrAccessor.h"
 #include "Decoder.h"
 #include "Executor.h"
 #include "InterruptController.h"
@@ -34,7 +35,8 @@ public:
     // Setup
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
-        , m_Executor(&m_Csr, &m_IntRegFile, &m_MemAccessUnit)
+        , m_CsrAccessor(&m_Csr)
+        , m_Executor(&m_Csr, &m_CsrAccessor, &m_IntRegFile, &m_MemAccessUnit)
         , m_TimerInterruptSource(&m_Csr)
         , m_UserInterruptSource(&m_Csr)
     {
@@ -67,12 +69,13 @@ public:
     bool IsMemoryAccessEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
-    
+
 private:
     // TODO: refactor and remove this def
     const int32_t InvalidValue = 0xcdcdcdcd;
 
     Csr m_Csr;
+    CsrAccessor m_CsrAccessor;
     MemoryAccessUnit m_MemAccessUnit;
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;

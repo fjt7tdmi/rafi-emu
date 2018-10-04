@@ -33,8 +33,6 @@ public:
         : m_PrivilegeLevel(PrivilegeLevel::Machine)
         , m_ProgramCounter(initialPc)
 	{
-        std::memset(&m_ReadEvent, 0, sizeof(m_ReadEvent));
-        std::memset(&m_WriteEvent, 0, sizeof(m_WriteEvent));
         std::memset(&m_TrapEvent, 0, sizeof(m_TrapEvent));
 	}
 
@@ -61,8 +59,8 @@ public:
     // Update registers for cycle
     void Update();
 
-    int32_t Read(int addr);
-    void Write(int addr, int32_t value);
+    int32_t Read(csr_addr_t addr) const;
+    void Write(csr_addr_t addr, int32_t value);
 
     // Exception handling
     void CheckException(int addr, bool write, int32_t pc, int32_t insn);
@@ -79,20 +77,13 @@ public:
     size_t GetRegisterFileSize() const;
     void ClearEvent();
     void CopyRegisterFile(void* pOut, size_t size) const;
-    void CopyReadEvent(CsrReadEvent* pOut) const;
-    void CopyWriteEvent(CsrWriteEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
-    bool IsReadEventExist() const;
-    bool IsWriteEventExist() const;
     bool IsTrapEventExist() const;
 
 private:
     static const int RegisterAddrWidth = 12;
 	static const int NumberOfRegister = 1 << RegisterAddrWidth;
 	static const int NumberOfPerformanceCounter = 0x20;
-
-    int32_t ReadInternal(csr_addr_t addr) const;
-    void WriteInternal(csr_addr_t addr, int32_t value);
 
     bool IsUserModeRegister(csr_addr_t addr) const;
     bool IsSupervisorModeRegister(csr_addr_t addr) const;
@@ -164,11 +155,7 @@ private:
     PrivilegeLevel m_PrivilegeLevel;
 
     // Events
-    bool m_ReadEventValid = false;
-    bool m_WriteEventValid = false;
     bool m_TrapEventValid = false;
 
-    CsrReadEvent m_ReadEvent;
-    CsrWriteEvent m_WriteEvent;
     TrapEvent m_TrapEvent;
 };

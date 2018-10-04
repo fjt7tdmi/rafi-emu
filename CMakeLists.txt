@@ -110,6 +110,8 @@ add_executable(rafi-emu
     src/rafi-emu/System/Memory/Memory.h
     src/rafi-emu/System/Processor/Csr.cpp
     src/rafi-emu/System/Processor/Csr.h
+    src/rafi-emu/System/Processor/CsrAccessor.cpp
+    src/rafi-emu/System/Processor/CsrAccessor.h
     src/rafi-emu/System/Processor/CsrTypes.h
     src/rafi-emu/System/Processor/Decoder.cpp
     src/rafi-emu/System/Processor/Decoder.h

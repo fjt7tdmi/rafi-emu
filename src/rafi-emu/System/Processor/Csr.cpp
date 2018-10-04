@@ -50,34 +50,53 @@ void SetLow32(int64_t* pOut, int32_t value)
 
 }
 
+int32_t Csr::Read(csr_addr_t addr) const
+{
+    if (IsMachineModeRegister(addr))
+    {
+        return ReadMachineModeRegister(addr);
+    }
+    else if (IsSupervisorModeRegister(addr))
+    {
+        return ReadSupervisorModeRegister(addr);
+    }
+    else if (IsUserModeRegister(addr))
+    {
+        return ReadUserModeRegister(addr);
+    }
+    else
+    {
+        PrintRegisterUnimplementedMessage(addr);
+        return 0;
+    }
+}
+
+void Csr::Write(csr_addr_t addr, int32_t value)
+{
+    if (IsMachineModeRegister(addr))
+    {
+        WriteMachineModeRegister(addr, value);
+    }
+    else if (IsSupervisorModeRegister(addr))
+    {
+        WriteSupervisorModeRegister(addr, value);
+    }
+    else if (IsUserModeRegister(addr))
+    {
+        WriteUserModeRegister(addr, value);
+    }
+    else
+    {
+        PrintRegisterUnimplementedMessage(addr);
+        return;
+    }
+}
+
 void Csr::Update()
 {
     m_CycleCounter++;
     m_TimeCounter++;
     m_InstructionRetiredCounter++;
-}
-
-int32_t Csr::Read(int addr)
-{
-    auto csrAddr = static_cast<csr_addr_t>(addr);
-    auto value = ReadInternal(csrAddr);
-
-    // set event
-    m_ReadEvent.address = csrAddr;
-    m_ReadEvent.value = value;
-    m_ReadEventValid = true;
-
-    return value;
-}
-
-void Csr::Write(int addr, int32_t value)
-{
-    auto csrAddr = static_cast<csr_addr_t>(addr);
-    WriteInternal(csrAddr, value);
-
-    // set event
-    m_WriteEvent = {csrAddr, value};
-    m_WriteEventValid = true;
 }
 
 void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
@@ -157,10 +176,10 @@ void Csr::ProcessException(ProcessorException e)
     auto causeMask = 1 << cause;
 
     PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
-    if ((ReadInternal(csr_addr_t::medeleg) & causeMask) != 0)
+    if ((Read(csr_addr_t::medeleg) & causeMask) != 0)
     {
         nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        if ((ReadInternal(csr_addr_t::sedeleg) & causeMask) != 0)
+        if ((Read(csr_addr_t::sedeleg) & causeMask) != 0)
         {
             nextPrivilegeLevel = PrivilegeLevel::User;
         }
@@ -181,23 +200,23 @@ void Csr::ProcessException(ProcessorException e)
     switch (m_PrivilegeLevel)
     {
     case PrivilegeLevel::Machine:
-        WriteInternal(csr_addr_t::mcause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::mepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::mtval, e.GetTrapValue());
+        Write(csr_addr_t::mcause, static_cast<int32_t>(e.GetCause()));
+        Write(csr_addr_t::mepc, e.GetProgramCounter());
+        Write(csr_addr_t::mtval, e.GetTrapValue());
         base = m_MachineTrapVector.GetWithMask(xtvec_t::BASE::Mask);
         mode = m_MachineTrapVector.GetMember<xtvec_t::MODE>();
         break;
     case PrivilegeLevel::Supervisor:
-        WriteInternal(csr_addr_t::scause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::sepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::stval, e.GetTrapValue());
+        Write(csr_addr_t::scause, static_cast<int32_t>(e.GetCause()));
+        Write(csr_addr_t::sepc, e.GetProgramCounter());
+        Write(csr_addr_t::stval, e.GetTrapValue());
         base = m_SupervisorTrapVector.GetWithMask(xtvec_t::BASE::Mask);
         mode = m_SupervisorTrapVector.GetMember<xtvec_t::MODE>();
         break;
     case PrivilegeLevel::User:
-        WriteInternal(csr_addr_t::ucause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::uepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::utval, e.GetTrapValue());
+        Write(csr_addr_t::ucause, static_cast<int32_t>(e.GetCause()));
+        Write(csr_addr_t::uepc, e.GetProgramCounter());
+        Write(csr_addr_t::utval, e.GetTrapValue());
         base = m_UserTrapVector.GetWithMask(xtvec_t::BASE::Mask);
         mode = m_UserTrapVector.GetMember<xtvec_t::MODE>();
         break;
@@ -253,48 +272,6 @@ void Csr::ProcessTrapReturn(PrivilegeLevel level)
     m_TrapEvent.to = nextPrivilegeLevel;
 
     m_PrivilegeLevel = nextPrivilegeLevel;
-}
-
-int32_t Csr::ReadInternal(csr_addr_t addr) const
-{
-    if (IsMachineModeRegister(addr))
-    {
-        return ReadMachineModeRegister(addr);
-    }
-    else if (IsSupervisorModeRegister(addr))
-    {
-        return ReadSupervisorModeRegister(addr);
-    }
-    else if (IsUserModeRegister(addr))
-    {
-        return ReadUserModeRegister(addr);
-    }
-    else
-    {
-        PrintRegisterUnimplementedMessage(addr);
-        return 0;
-    }
-}
-
-void Csr::WriteInternal(csr_addr_t addr, int32_t value)
-{
-    if (IsMachineModeRegister(addr))
-    {
-        WriteMachineModeRegister(addr, value);
-    }
-    else if (IsSupervisorModeRegister(addr))
-    {
-        WriteSupervisorModeRegister(addr, value);
-    }
-    else if (IsUserModeRegister(addr))
-    {
-        WriteUserModeRegister(addr, value);
-    }
-    else
-    {
-        PrintRegisterUnimplementedMessage(addr);
-        return;
-    }
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -690,12 +667,8 @@ size_t Csr::GetRegisterFileSize() const
 
 void Csr::ClearEvent()
 {
-    m_ReadEventValid = false;
-    m_WriteEventValid = false;
     m_TrapEventValid = false;
 
-    std::memset(&m_ReadEvent, 0, sizeof(m_ReadEvent));
-    std::memset(&m_WriteEvent, 0, sizeof(m_WriteEvent));
     std::memset(&m_TrapEvent, 0, sizeof(m_TrapEvent));
 }
 
@@ -790,54 +763,34 @@ void Csr::CopyRegisterFile(void* pOut, size_t size) const
 
     for (const auto& addr: addrs)
     {
-        p[static_cast<int>(addr)] = ReadInternal(addr);
+        p[static_cast<int>(addr)] = Read(addr);
     }
 
     // User Counter / Timers
     for (int i = static_cast<int>(csr_addr_t::hpmcounter_begin); i < static_cast<int>(csr_addr_t::hpmcounter_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::hpmcounterh_begin); i < static_cast<int>(csr_addr_t::hpmcounterh_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::mhpmcounter_begin); i < static_cast<int>(csr_addr_t::mhpmcounter_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::mhpmcounterh_begin); i < static_cast<int>(csr_addr_t::mhpmcounterh_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
-}
-
-void Csr::CopyReadEvent(CsrReadEvent* pOut) const
-{
-    std::memcpy(pOut, &m_ReadEvent, sizeof(*pOut));
-}
-
-void Csr::CopyWriteEvent(CsrWriteEvent* pOut) const
-{
-    std::memcpy(pOut, &m_WriteEvent, sizeof(*pOut));
 }
 
 void Csr::CopyTrapEvent(TrapEvent* pOut) const
 {
     std::memcpy(pOut, &m_TrapEvent, sizeof(*pOut));
-}
-
-bool Csr::IsReadEventExist() const
-{
-    return m_ReadEventValid;
-}
-
-bool Csr::IsWriteEventExist() const
-{
-    return m_WriteEventValid;
 }
 
 bool Csr::IsTrapEventExist() const
