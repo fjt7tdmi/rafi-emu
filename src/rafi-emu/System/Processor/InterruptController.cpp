@@ -19,20 +19,51 @@
 
 #include "InterruptController.h"
 
+namespace {
+    int32_t CountBits(int32_t value)
+    {
+        auto tmp = value;
+
+        tmp = (tmp & 0x55555555) + (tmp >> 1 & 0x55555555);
+        tmp = (tmp & 0x33333333) + (tmp >> 2 & 0x33333333);
+        tmp = (tmp & 0x0f0f0f0f) + (tmp >> 4 & 0x0f0f0f0f);
+        tmp = (tmp & 0x00ff00ff) + (tmp >> 8 & 0x00ff00ff);
+        tmp = (tmp & 0x0000ffff) + (tmp >> 16 & 0x0000ffff);
+
+        return tmp;
+    }
+
+    int32_t NumberOfTrainingZero(int32_t value)
+    {
+        return CountBits((value & (-value)) - 1);
+    }
+}
+
+InterruptController::InterruptController(Csr* pCsr)
+    : m_pCsr(pCsr)
+{
+}
+
+void InterruptController::Update()
+{
+    xie_t enable = m_pCsr->ReadInterruptEnable();
+    xip_t pending = m_pCsr->ReadInterruptPending();
+
+    const int32_t mask = enable.GetInt32();
+    const int32_t value = static_cast<int32_t>(pending.GetWithMask(mask));
+
+    m_IsRequested = (value != 0);
+    m_InterruptType = static_cast<InterruptType>(NumberOfTrainingZero(value));
+}
+
 bool InterruptController::IsRequested() const
 {
-    assert(m_pTimer != nullptr);
-    assert(m_pUser != nullptr);
-
-    return m_pTimer->IsRequested() || m_pUser->IsRequested();
+    return m_IsRequested;
 }
 
-void InterruptController::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
+InterruptType InterruptController::GetInterruptType() const
 {
-    m_pTimer = pInterruptSource;
-}
+    assert(m_IsRequested);
 
-void InterruptController::RegisterUserInterruptSource(IInterruptSource* pInterruptSource)
-{
-    m_pUser = pInterruptSource;
+    return m_InterruptType;
 }

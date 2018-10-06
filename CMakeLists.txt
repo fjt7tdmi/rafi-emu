@@ -127,10 +127,6 @@ add_executable(rafi-emu
     src/rafi-emu/System/Processor/Processor.cpp
     src/rafi-emu/System/Processor/Processor.h
     src/rafi-emu/System/Processor/ProcessorException.h
-    src/rafi-emu/System/Processor/TimerInterruptSource.cpp
-    src/rafi-emu/System/Processor/TimerInterruptSource.h
-    src/rafi-emu/System/Processor/SoftwareInterruptSource.cpp
-    src/rafi-emu/System/Processor/SoftwareInterruptSource.h
     src/rafi-emu/System/Processor/TrapProcessor.cpp
     src/rafi-emu/System/Processor/TrapProcessor.h
     src/rafi-emu/System/Uart/Uart.cpp

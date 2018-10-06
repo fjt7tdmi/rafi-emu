@@ -21,15 +21,20 @@
 
 #include "../../Common/IInterruptSource.h"
 
+#include "Csr.h"
+
 class InterruptController
 {
 public:
-    bool IsRequested() const;
+    InterruptController(Csr* pCsr);
 
-    void RegisterTimerInterruptSource(IInterruptSource* pInterruptSource);
-    void RegisterUserInterruptSource(IInterruptSource* pInterruptSource);
+    void Update();
+
+    bool IsRequested() const;
+    InterruptType GetInterruptType() const;
 
 private:
-    const IInterruptSource* m_pTimer;
-    const IInterruptSource* m_pUser;
+    Csr* m_pCsr;
+    bool m_IsRequested;
+    InterruptType m_InterruptType;
 };

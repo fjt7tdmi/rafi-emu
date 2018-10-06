@@ -24,8 +24,6 @@
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
 #include "ProcessorException.h"
-#include "TimerInterruptSource.h"
-#include "SoftwareInterruptSource.h"
 #include "TrapProcessor.h"
 
 #include "../../Common/Event.h"
@@ -37,16 +35,13 @@ public:
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
+        , m_InterruptController(&m_Csr)
         , m_TrapProcessor(&m_Csr)
         , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_MemAccessUnit)
-        , m_TimerInterruptSource(&m_Csr)
-        , m_SoftwareInterruptSource(&m_Csr)
     {
         std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
 
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
-        m_InterruptController.RegisterTimerInterruptSource(&m_TimerInterruptSource);
-        m_InterruptController.RegisterUserInterruptSource(&m_SoftwareInterruptSource);
     }
 
     void SetIntReg(int regId, int32_t regValue);
@@ -78,15 +73,14 @@ private:
 
     Csr m_Csr;
     CsrAccessor m_CsrAccessor;
+    InterruptController m_InterruptController;
     TrapProcessor m_TrapProcessor;
-    MemoryAccessUnit m_MemAccessUnit;
+
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;
+    MemoryAccessUnit m_MemAccessUnit;
+    
     Executor m_Executor;
-
-    InterruptController m_InterruptController;
-    TimerInterruptSource m_TimerInterruptSource;
-    SoftwareInterruptSource m_SoftwareInterruptSource;
 
     int32_t m_OpCount { 0 };
 

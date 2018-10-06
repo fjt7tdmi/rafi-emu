@@ -71,7 +71,10 @@ public:
         return T(Read(addr));
     }
 
-    // Address translation
+    // Direct register access
+    xip_t ReadInterruptPending() const;
+    xie_t ReadInterruptEnable() const;
+
     bool IsAddresssTranslationEnabled() const;
     int32_t GetPhysicalPageNumber() const;
     bool GetSupervisorUserMemory() const;
@@ -115,10 +118,6 @@ private:
     int32_t m_MachineInterruptDelegation = 0;
     int32_t m_SupervisorInterruptDelegation = 0;
 
-    xie_t m_MachineInterruptEnable;
-    xie_t m_SupervisorInterruptEnable;
-    xie_t m_UserInterruptEnable;
-
     int32_t m_MachineCounterEnable = 0;
     int32_t m_SupervisorCounterEnable = 0;
 
@@ -139,9 +138,9 @@ private:
     int32_t m_SupervisorTrapValue = 0;
     int32_t m_UserTrapValue = 0;
 
-    xip_t m_MachineInterruptPending;
-    xip_t m_SupervisorInterruptPending;
-    xip_t m_UserInterruptPending;
+    // Interrupt
+    xie_t m_InterruptEnable;
+    xip_t m_InterruptPending;
 
     // Protection and Translation (0x180-0x1bf and 0x380-0x3bf)
     satp_t m_SupervisorAddressTranslationProtection;
