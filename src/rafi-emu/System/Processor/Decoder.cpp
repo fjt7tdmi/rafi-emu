@@ -22,7 +22,7 @@
 #include <rvtrace/common.h>
 
 #include "Decoder.h"
-#include "ProcessorException.h"
+#include "Trap.h"
 
 using namespace std;
 using namespace rvtrace;

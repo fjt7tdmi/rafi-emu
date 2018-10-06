@@ -23,7 +23,7 @@
 #include "InterruptController.h"
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
-#include "ProcessorException.h"
+#include "Trap.h"
 #include "TrapProcessor.h"
 
 #include "../../Common/Event.h"

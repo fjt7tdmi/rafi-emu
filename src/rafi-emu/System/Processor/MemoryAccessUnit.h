@@ -72,7 +72,7 @@ public:
     int32_t LoadInt32(int32_t virtualAddress);
     void StoreInt32(int32_t virtualAddress, int32_t value);
 
-    void CheckException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
+    std::optional<Trap> CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
 
     // for Dump
     void ClearEvent();
@@ -84,10 +84,10 @@ private:
 
     bool IsLeafEntry(const PageTableEntry& entry);
 
-    void CheckExceptionForEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
-    void CheckExceptionForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
+    std::optional<Trap> CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
+    std::optional<Trap> CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
 
-    void RaiseException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
+    std::optional<Trap> MakeTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress);
 
     PhysicalAddress ProcessTranslation(int32_t virtualAddress, bool isWrite);
     void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);

@@ -17,9 +17,11 @@
 #pragma once
 
 #include "Csr.h"
+#include "CsrAccessor.h"
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
 #include "OpTypes.h"
+#include "Trap.h"
 #include "TrapProcessor.h"
 
 class Executor
@@ -34,15 +36,24 @@ public:
     {
     }
 
-    void PreCheckException(const Op& op, int32_t pc, int32_t insn);
-    void PostCheckException(const Op& op, int32_t pc);
+    std::optional<Trap> PreCheckTrap(const Op& op, int32_t pc, int32_t insn);
+
+    std::optional<Trap> PostCheckTrap(const Op& op, int32_t pc);
 
     void ProcessOp(const Op& op, int32_t pc);
+
+private:
+    std::optional<Trap> PreCheckTrapForLoad(int32_t pc, int32_t address);
+    std::optional<Trap> PreCheckTrapForStore(int32_t pc, int32_t address);
+    std::optional<Trap> PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn);
+    std::optional<Trap> PreCheckTrapForAtomic(int32_t pc, int32_t address);
+
+    std::optional<Trap> PostCheckTrapForEcall(int32_t pc);
+
     void ProcessRV32I(const Op& op, int32_t pc);
     void ProcessRV32M(const Op& op);
     void ProcessRV32A(const Op& op);
 
-private:
     Csr* m_pCsr;
     CsrAccessor* m_pCsrAccessor;
     TrapProcessor* m_pTrapProcessor;

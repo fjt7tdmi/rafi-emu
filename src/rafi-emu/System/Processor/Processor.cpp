@@ -20,9 +20,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "Csr.h"
 #include "Processor.h"
-#include "ProcessorException.h"
 
 using namespace std;
 using namespace rvtrace;
@@ -53,39 +51,57 @@ void Processor::ProcessOneCycle()
         return;
     }
 
-    // Fetch Op
+    // Fetch
     Op op { OpClass::RV32I, OpCode::unknown };
 
-    int32_t insn = InvalidValue;
     PhysicalAddress physicalPc = InvalidValue;
 
-    try
+    auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
+    if (fetchTrap)
     {
-        m_MemAccessUnit.CheckException(MemoryAccessType::Instruction, pc, pc);
+        m_TrapProcessor.ProcessException(fetchTrap.value());
 
-        insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
-
-        m_Decoder.Decode(&op, insn);
-
-        if (op.opCode == OpCode::unknown)
-        {
-            throw IllegalInstructionException(pc, insn);
-        }
-
-        m_Executor.PreCheckException(op, pc, insn);
-
-        m_Csr.SetProgramCounter(pc + 4);
-
-        m_Executor.ProcessOp(op, pc);
-
-        m_Executor.PostCheckException(op, pc);
-    }
-    catch (const ProcessorException& e)
-    {
-        m_TrapProcessor.ProcessException(e);
+        SetOpEvent(pc);
+        return;
     }
 
-    // set event for Dump
+    auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
+
+    // Decode
+    m_Decoder.Decode(&op, insn);
+    if (op.opCode == OpCode::unknown)
+    {
+        auto decodeTrap = MakeIllegalInstructionException(pc, insn);
+
+        m_TrapProcessor.ProcessException(decodeTrap);
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
+    // Execute
+    auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
+    if (preExecuteTrap)
+    {
+        m_TrapProcessor.ProcessException(preExecuteTrap.value());
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
+    m_Csr.SetProgramCounter(pc + 4);
+
+    m_Executor.ProcessOp(op, pc);
+
+    auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
+    if (postExecuteTrap)
+    {
+        m_TrapProcessor.ProcessException(postExecuteTrap.value());
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
     SetOpEvent(pc, physicalPc, insn, op.opCode);
 }
 

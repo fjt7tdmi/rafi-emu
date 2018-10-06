@@ -23,7 +23,7 @@
 
 #include "Csr.h"
 #include "CsrTypes.h"
-#include "ProcessorException.h"
+#include "Trap.h"
 
 using namespace rvtrace;
 
@@ -35,7 +35,7 @@ public:
 	{
 	}
 
-    void ProcessException(ProcessorException e);
+    void ProcessException(const Trap& trap);
     void ProcessInterrupt(InterruptType type, int32_t pc);
     void ProcessTrapReturn(PrivilegeLevel level);
 

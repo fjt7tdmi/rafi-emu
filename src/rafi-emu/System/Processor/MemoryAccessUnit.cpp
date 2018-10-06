@@ -17,7 +17,9 @@
 #include <cstdint>
 #include <fstream>
 
-#include "../../Common//Exception.h"
+#include "../../Common/Exception.h"
+#include "../../Common/Macro.h"
+
 #include "MemoryAccessUnit.h"
 
 using namespace rvtrace;
@@ -138,13 +140,13 @@ int32_t MemoryAccessUnit::FetchInt32(PhysicalAddress* outPhysicalAddress, int32_
     return m_pBus->GetInt32(*outPhysicalAddress);
 }
 
-void MemoryAccessUnit::CheckException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
+std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
 {
     // TODO: Implement Physical Memory Protection (PMP)
 
     if (!m_pCsr->IsAddresssTranslationEnabled())
     {
-        return;
+        return std::nullopt;
     }
 
     auto va = VirtualAddress(virtualAddress);
@@ -153,15 +155,23 @@ void MemoryAccessUnit::CheckException(MemoryAccessType accessType, int32_t pc, i
     auto firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
     auto firstEntry = PageTableEntry(m_pBus->GetInt32(firstEntryAddress));
 
-    CheckExceptionForEntry(firstEntry, accessType, pc, virtualAddress);
+    auto firstTrap = CheckTrapForEntry(firstEntry, accessType, pc, virtualAddress);
+    if (firstTrap)
+    {
+        return firstTrap;
+    }
 
     if (IsLeafEntry(firstEntry))
     {
-        CheckExceptionForLeafEntry(firstEntry, accessType, pc, virtualAddress);
+        auto leafTrap = CheckTrapForLeafEntry(firstEntry, accessType, pc, virtualAddress);
+        if (leafTrap)
+        {
+            return leafTrap;
+        }
 
         if (firstEntry.GetMember<PageTableEntry::PhysicalPageNumber0>() != 0)
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
     }
     else
@@ -170,9 +180,20 @@ void MemoryAccessUnit::CheckException(MemoryAccessType accessType, int32_t pc, i
         auto secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
         auto secondEntry = PageTableEntry(m_pBus->GetInt32(secondEntryAddress));
 
-        CheckExceptionForEntry(secondEntry, accessType, pc, virtualAddress);
-        CheckExceptionForLeafEntry(secondEntry, accessType, pc, virtualAddress);
+        auto secondTrap = CheckTrapForEntry(secondEntry, accessType, pc, virtualAddress);
+        if (secondTrap)
+        {
+            return secondTrap;
+        }
+
+        auto leafTrap = CheckTrapForLeafEntry(secondEntry, accessType, pc, virtualAddress);
+        if (leafTrap)
+        {
+            return leafTrap;
+        }
     }
+
+    return std::nullopt;
 }
 
 void MemoryAccessUnit::ClearEvent()
@@ -195,15 +216,17 @@ bool MemoryAccessUnit::IsLeafEntry(const PageTableEntry& entry)
     return entry.GetMember<PageTableEntry::Read>() || entry.GetMember<PageTableEntry::Execute>();
 }
 
-void MemoryAccessUnit::CheckExceptionForEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
+std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
 {
     if (!entry.GetMember<PageTableEntry::Valid>() || (!entry.GetMember<PageTableEntry::Read>() && entry.GetMember<PageTableEntry::Write>()))
     {
-        RaiseException(accessType, pc, virtualAddress);
+        return MakeTrap(accessType, pc, virtualAddress);
     }
+
+    return std::nullopt;
 }
 
-void MemoryAccessUnit::CheckExceptionForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
+std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
 {
     PrivilegeLevel privilegeLevel = m_pCsr->GetPrivilegeLevel();
     bool supervisorCanAccessUserMemory = m_pCsr->GetSupervisorUserMemory();
@@ -214,13 +237,13 @@ void MemoryAccessUnit::CheckExceptionForLeafEntry(const PageTableEntry& entry, M
     case PrivilegeLevel::Supervisor:
         if (!supervisorCanAccessUserMemory && entry.GetMember<PageTableEntry::User>())
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
         break;
     case PrivilegeLevel::User:
         if (!entry.GetMember<PageTableEntry::User>())
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
         break;
     default:
@@ -232,38 +255,40 @@ void MemoryAccessUnit::CheckExceptionForLeafEntry(const PageTableEntry& entry, M
     case MemoryAccessType::Instruction:
         if (!entry.GetMember<PageTableEntry::Execute>())
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
         break;
     case MemoryAccessType::Load:
         if (!entry.GetMember<PageTableEntry::Read>() && !(makeExecutableReadable && entry.GetMember<PageTableEntry::Execute>()))
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
         break;
     case MemoryAccessType::Store:
         if (!entry.GetMember<PageTableEntry::Write>())
         {
-            RaiseException(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, virtualAddress);
         }
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        ABORT();
     }
+
+    return std::nullopt;
 }
 
-void MemoryAccessUnit::RaiseException(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
+std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress)
 {
     switch (accessType)
     {
     case MemoryAccessType::Instruction:
-        throw InstructionPageFaultException(pc);
+        return MakeInstructionPageFaultException(pc);
     case MemoryAccessType::Load:
-        throw LoadPageFaultException(pc, virtualAddress);
+        return MakeLoadPageFaultException(pc, virtualAddress);
     case MemoryAccessType::Store:
-        throw StorePageFaultException(pc, virtualAddress);
+        return MakeStorePageFaultException(pc, virtualAddress);
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        ABORT();
     }
 }
 

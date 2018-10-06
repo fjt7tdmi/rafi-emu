@@ -19,7 +19,7 @@
 
 #include "../../Common/Exception.h"
 
-#include "ProcessorException.h"
+#include "Trap.h"
 #include "Csr.h"
 
 using namespace rvtrace;
@@ -56,7 +56,7 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
+std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn)
 {
     CHECK_RANGE(0, regId, NumberOfRegister);
 
@@ -111,19 +111,21 @@ void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
         case PrivilegeLevel::Supervisor:
             if (!(m_MachineCounterEnable & mask))
             {
-                throw IllegalInstructionException(pc, insn);
+                return MakeIllegalInstructionException(pc, insn);
             }
             break;
         case PrivilegeLevel::User:
             if (!(m_MachineCounterEnable & mask) || !(m_SupervisorCounterEnable & mask))
             {
-                throw IllegalInstructionException(pc, insn);
+                return MakeIllegalInstructionException(pc, insn);
             }
             break;
         default:
             break;
         }
     }
+
+    return std::nullopt;
 }
 
 

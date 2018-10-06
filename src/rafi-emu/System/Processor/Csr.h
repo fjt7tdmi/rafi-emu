@@ -17,12 +17,13 @@
 #pragma once
 
 #include <cstring>
+#include <optional>
 
 #include "../../Common/BitField.h"
 #include "../../Common/Event.h"
 
 #include "CsrTypes.h"
-#include "ProcessorException.h"
+#include "Trap.h"
 
 using namespace rvtrace;
 
@@ -56,7 +57,7 @@ public:
         m_ProgramCounter = value;
     }
 
-    void CheckException(int addr, bool write, int32_t pc, int32_t insn);
+    std::optional<Trap> CheckTrap(int addr, bool write, int32_t pc, int32_t insn);
 
     // Update registers for cycle
     void Update();

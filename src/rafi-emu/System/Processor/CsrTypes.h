@@ -20,7 +20,7 @@
 
 #include "../../Common/BitField.h"
 
-#include "ProcessorException.h"
+#include "Trap.h"
 
 using namespace rvtrace;
 

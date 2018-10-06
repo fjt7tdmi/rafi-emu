@@ -126,7 +126,8 @@ add_executable(rafi-emu
     src/rafi-emu/System/Processor/OpTypes.h
     src/rafi-emu/System/Processor/Processor.cpp
     src/rafi-emu/System/Processor/Processor.h
-    src/rafi-emu/System/Processor/ProcessorException.h
+    src/rafi-emu/System/Processor/Trap.cpp
+    src/rafi-emu/System/Processor/Trap.h
     src/rafi-emu/System/Processor/TrapProcessor.cpp
     src/rafi-emu/System/Processor/TrapProcessor.h
     src/rafi-emu/System/Uart/Uart.cpp

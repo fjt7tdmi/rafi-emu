@@ -18,12 +18,13 @@
 #include <cstdint>
 
 #include "TrapProcessor.h"
+#include "../../Common/Macro.h"
 
 using namespace rvtrace;
 
-void TrapProcessor::ProcessException(ProcessorException e)
+void TrapProcessor::ProcessException(const Trap& trap)
 {
-    auto exceptionCode = static_cast<int32_t>(e.GetCause());
+    auto exceptionCode = static_cast<int32_t>(trap.type);
     auto delegMask = 1 << exceptionCode;
 
     PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
@@ -36,7 +37,7 @@ void TrapProcessor::ProcessException(ProcessorException e)
         }
     }
 
-    ProcessTrapEnter(false, exceptionCode, e.GetTrapValue(), e.GetProgramCounter(), nextPrivilegeLevel);
+    ProcessTrapEnter(false, exceptionCode, trap.trapValue, trap.pc, nextPrivilegeLevel);
 }
 
 void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
@@ -93,7 +94,7 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         m_pCsr->SetProgramCounter(pc);
         break;
     default:
-        std::abort();
+        ABORT();
     }
 
     auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
@@ -155,7 +156,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
         trapVector = m_pCsr->ReadAs<xtvec_t>(csr_addr_t::utvec);
         break;
     default:
-        std::abort();
+        ABORT();
     }
 
     int32_t base = trapVector.GetWithMask(xtvec_t::BASE::Mask);
