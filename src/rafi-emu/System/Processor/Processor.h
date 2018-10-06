@@ -26,6 +26,7 @@
 #include "ProcessorException.h"
 #include "TimerInterruptSource.h"
 #include "SoftwareInterruptSource.h"
+#include "TrapProcessor.h"
 
 #include "../../Common/Event.h"
 
@@ -36,7 +37,8 @@ public:
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
-        , m_Executor(&m_Csr, &m_CsrAccessor, &m_IntRegFile, &m_MemAccessUnit)
+        , m_TrapProcessor(&m_Csr)
+        , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_MemAccessUnit)
         , m_TimerInterruptSource(&m_Csr)
         , m_SoftwareInterruptSource(&m_Csr)
     {
@@ -76,6 +78,7 @@ private:
 
     Csr m_Csr;
     CsrAccessor m_CsrAccessor;
+    TrapProcessor m_TrapProcessor;
     MemoryAccessUnit m_MemAccessUnit;
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;

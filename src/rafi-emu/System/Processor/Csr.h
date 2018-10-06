@@ -56,6 +56,8 @@ public:
         m_ProgramCounter = value;
     }
 
+    void CheckException(int addr, bool write, int32_t pc, int32_t insn);
+
     // Update registers for cycle
     void Update();
 
@@ -69,11 +71,6 @@ public:
         return T(Read(addr));
     }
 
-    // Exception handling
-    void CheckException(int addr, bool write, int32_t pc, int32_t insn);
-    void ProcessException(ProcessorException e);
-    void ProcessTrapReturn(PrivilegeLevel level);
-
     // Address translation
     bool IsAddresssTranslationEnabled() const;
     int32_t GetPhysicalPageNumber() const;
@@ -82,10 +79,7 @@ public:
 
     // for Dump
     size_t GetRegisterFileSize() const;
-    void ClearEvent();
     void CopyRegisterFile(void* pOut, size_t size) const;
-    void CopyTrapEvent(TrapEvent* pOut) const;
-    bool IsTrapEventExist() const;
 
 private:
     static const int RegisterAddrWidth = 12;

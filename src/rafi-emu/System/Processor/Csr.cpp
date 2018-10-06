@@ -169,111 +169,6 @@ void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
     }
 }
 
-void Csr::ProcessException(ProcessorException e)
-{
-    // Calulate values
-    auto cause = static_cast<int32_t>(e.GetCause());
-    auto causeMask = 1 << cause;
-
-    PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
-    if ((Read(csr_addr_t::medeleg) & causeMask) != 0)
-    {
-        nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        if ((Read(csr_addr_t::sedeleg) & causeMask) != 0)
-        {
-            nextPrivilegeLevel = PrivilegeLevel::User;
-        }
-    }
-
-    // for Dump
-    m_TrapEvent.trapType = TrapType::Exception;
-    m_TrapEvent.from = m_PrivilegeLevel;
-    m_TrapEvent.to = nextPrivilegeLevel;
-    m_TrapEvent.trapCause = e.GetCause();
-    m_TrapEvent.trapValue = e.GetTrapValue();
-
-    // Update
-    m_PrivilegeLevel = nextPrivilegeLevel;
-
-    int32_t base;
-    int32_t mode;
-    switch (m_PrivilegeLevel)
-    {
-    case PrivilegeLevel::Machine:
-        Write(csr_addr_t::mcause, static_cast<int32_t>(e.GetCause()));
-        Write(csr_addr_t::mepc, e.GetProgramCounter());
-        Write(csr_addr_t::mtval, e.GetTrapValue());
-        base = m_MachineTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_MachineTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    case PrivilegeLevel::Supervisor:
-        Write(csr_addr_t::scause, static_cast<int32_t>(e.GetCause()));
-        Write(csr_addr_t::sepc, e.GetProgramCounter());
-        Write(csr_addr_t::stval, e.GetTrapValue());
-        base = m_SupervisorTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_SupervisorTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    case PrivilegeLevel::User:
-        Write(csr_addr_t::ucause, static_cast<int32_t>(e.GetCause()));
-        Write(csr_addr_t::uepc, e.GetProgramCounter());
-        Write(csr_addr_t::utval, e.GetTrapValue());
-        base = m_UserTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_UserTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    default:
-        throw new NotImplementedException(__FILE__, __LINE__);
-    }
-
-    if (mode == static_cast<int32_t>(xtvec_t::Mode::Directed))
-    {
-        m_ProgramCounter = base;
-    }
-    else
-    {
-        m_ProgramCounter = base + cause * 4;
-    }
-}
-
-void Csr::ProcessTrapReturn(PrivilegeLevel level)
-{
-    int32_t previousLevel;
-    int32_t previousInterruptEnable;
-
-    switch (level)
-    {
-    case PrivilegeLevel::Machine:
-        previousLevel = m_Status.GetMember<xstatus_t::MPP>();
-        m_Status.SetMember<xstatus_t::MPP>(0);
-
-        previousInterruptEnable = m_Status.GetMember<xstatus_t::MPIE>();
-        m_Status.SetMember<xstatus_t::MIE>(previousInterruptEnable);
-
-        m_ProgramCounter = m_MachineExceptionProgramCounter;
-        break;
-    case PrivilegeLevel::Supervisor:
-        previousLevel = m_Status.GetMember<xstatus_t::SPP>();
-        m_Status.SetMember<xstatus_t::SPP>(0);
-
-        previousInterruptEnable = m_Status.GetMember<xstatus_t::SPIE>();
-        m_Status.SetMember<xstatus_t::SIE>(previousInterruptEnable);
-
-        m_ProgramCounter = m_SupervisorExceptionProgramCounter;
-        break;
-    default:
-        throw NotImplementedException(__FILE__, __LINE__);
-    }
-
-    auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
-
-    // for Dump
-    m_TrapEventValid = true;
-    m_TrapEvent.trapType = TrapType::Return;
-    m_TrapEvent.from = m_PrivilegeLevel;
-    m_TrapEvent.to = nextPrivilegeLevel;
-
-    m_PrivilegeLevel = nextPrivilegeLevel;
-}
-
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b00;
@@ -665,13 +560,6 @@ size_t Csr::GetRegisterFileSize() const
     return NumberOfRegister * sizeof(int32_t);
 }
 
-void Csr::ClearEvent()
-{
-    m_TrapEventValid = false;
-
-    std::memset(&m_TrapEvent, 0, sizeof(m_TrapEvent));
-}
-
 void Csr::CopyRegisterFile(void* pOut, size_t size) const
 {
     if (size != GetRegisterFileSize())
@@ -786,14 +674,4 @@ void Csr::CopyRegisterFile(void* pOut, size_t size) const
     {
         p[i] = Read(static_cast<csr_addr_t>(i));
     }
-}
-
-void Csr::CopyTrapEvent(TrapEvent* pOut) const
-{
-    std::memcpy(pOut, &m_TrapEvent, sizeof(*pOut));
-}
-
-bool Csr::IsTrapEventExist() const
-{
-    return m_TrapEventValid;
 }

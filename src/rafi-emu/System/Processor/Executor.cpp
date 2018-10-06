@@ -321,13 +321,13 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::mret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::Machine);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::Machine);
         break;
     case OpCode::sret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::Supervisor);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::Supervisor);
         break;
     case OpCode::uret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::User);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
         // Interrupt is not implemented.

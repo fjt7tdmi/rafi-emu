@@ -20,13 +20,15 @@
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
 #include "OpTypes.h"
+#include "TrapProcessor.h"
 
 class Executor
 {
 public:
-    Executor(Csr* pCsr, CsrAccessor* pCsrAccessor, IntRegFile* pIntRegFile, MemoryAccessUnit* pMemAccessUnit)
+    Executor(Csr* pCsr, CsrAccessor* pCsrAccessor, TrapProcessor* pTrapProcessor, IntRegFile* pIntRegFile, MemoryAccessUnit* pMemAccessUnit)
         : m_pCsr(pCsr)
         , m_pCsrAccessor(pCsrAccessor)
+        , m_pTrapProcessor(pTrapProcessor)
         , m_pIntRegFile(pIntRegFile)
         , m_pMemAccessUnit(pMemAccessUnit)
     {
@@ -43,6 +45,7 @@ public:
 private:
     Csr* m_pCsr;
     CsrAccessor* m_pCsrAccessor;
+    TrapProcessor* m_pTrapProcessor;
     IntRegFile* m_pIntRegFile;
     MemoryAccessUnit* m_pMemAccessUnit;
 

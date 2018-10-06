@@ -37,7 +37,7 @@ void Processor::ProcessOneCycle()
     // clear event for Dump
     m_OpEventValid = false;
 
-    m_Csr.ClearEvent();
+    m_TrapProcessor.ClearEvent();
     m_MemAccessUnit.ClearEvent();
 
     // TODO: Check interrupt
@@ -73,7 +73,7 @@ void Processor::ProcessOneCycle()
     }
     catch (const ProcessorException& e)
     {
-        m_Csr.ProcessException(e);
+        m_TrapProcessor.ProcessException(e);
     }
 
     // set event for Dump
@@ -125,7 +125,7 @@ void Processor::CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const
 
 void Processor::CopyTrapEvent(TrapEvent* pOut) const
 {
-    m_Csr.CopyTrapEvent(pOut);
+    m_TrapProcessor.CopyTrapEvent(pOut);
 }
 
 bool Processor::IsCsrReadEventExist() const
@@ -150,5 +150,5 @@ bool Processor::IsMemoryAccessEventExist() const
 
 bool Processor::IsTrapEventExist() const
 {
-    return m_Csr.IsTrapEventExist();
+    return m_TrapProcessor.IsTrapEventExist();
 }
