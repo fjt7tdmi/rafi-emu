@@ -90,6 +90,10 @@ struct xstatus_t : BitField
     {
     }
 
+    xstatus_t(int32_t value) : BitField(value)
+    {
+    }
+
     using SD    = BitFieldMember<31>;   // Status Dirty
 
     using TSR   = BitFieldMember<22>;   // Trap SRET
@@ -124,6 +128,10 @@ struct xtvec_t : BitField
     {
     }
 
+    xtvec_t(int32_t value) : BitField(value)
+    {
+    }
+
     using BASE = BitFieldMember<31, 2>;
     using MODE = BitFieldMember<1, 0>;
 
@@ -138,6 +146,10 @@ struct xtvec_t : BitField
 struct xip_t : BitField
 {
     xip_t() : BitField(0)
+    {
+    }
+
+    xip_t(int32_t value) : BitField(value)
     {
     }
 
@@ -163,6 +175,10 @@ struct xie_t : BitField
     {
     }
 
+    xie_t(int32_t value) : BitField(value)
+    {
+    }
+
     using MEIE = BitFieldMember<11>;    // Machine External Interrupt Enable
     using SEIE = BitFieldMember<9>;     // Supervisor External Interrupt Enable
     using UEIE = BitFieldMember<8>;     // User External Interrupt Enable
@@ -182,6 +198,10 @@ struct xie_t : BitField
 struct satp_t : BitField
 {
     satp_t() : BitField(0)
+    {
+    }
+
+    satp_t(int32_t value) : BitField(value)
     {
     }
 

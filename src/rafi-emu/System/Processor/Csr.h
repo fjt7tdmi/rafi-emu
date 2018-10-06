@@ -59,8 +59,15 @@ public:
     // Update registers for cycle
     void Update();
 
+    // Register access
     int32_t Read(csr_addr_t addr) const;
     void Write(csr_addr_t addr, int32_t value);
+
+    template <typename T>
+    T ReadAs(csr_addr_t addr) const
+    {
+        return T(Read(addr));
+    }
 
     // Exception handling
     void CheckException(int addr, bool write, int32_t pc, int32_t insn);

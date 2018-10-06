@@ -19,19 +19,19 @@
 #include <cassert>
 #include <cstdint>
 
-#include "TimerInterruptSource.h"
+#include "SoftwareInterruptSource.h"
 
-TimerInterruptSource::TimerInterruptSource(Csr* pCsr)
+SoftwareInterruptSource::SoftwareInterruptSource(Csr* pCsr)
     : m_pCsr(pCsr)
 {
 }
 
-bool TimerInterruptSource::IsRequested() const
+bool SoftwareInterruptSource::IsRequested() const
 {
     return m_Requested;
 }
 
-void TimerInterruptSource::Update()
+void SoftwareInterruptSource::Update()
 {
     bool enable;
     bool pending; 
@@ -39,16 +39,16 @@ void TimerInterruptSource::Update()
     switch (m_pCsr->GetPrivilegeLevel())
     {
     case PrivilegeLevel::Machine:
-        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::mie).GetMember<xie_t::MTIE>() != 0;
-        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::mip).GetMember<xip_t::MTIP>() != 0;
+        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::mie).GetMember<xie_t::MSIE>() != 0;
+        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::mip).GetMember<xip_t::MSIP>() != 0;
         break;
     case PrivilegeLevel::Supervisor:
-        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::sie).GetMember<xie_t::STIE>() != 0;
-        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::sip).GetMember<xip_t::STIP>() != 0;
+        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::sie).GetMember<xie_t::SSIE>() != 0;
+        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::sip).GetMember<xip_t::SSIP>() != 0;
         break;
     case PrivilegeLevel::User:
-        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::uie).GetMember<xie_t::UTIE>() != 0;
-        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::uip).GetMember<xip_t::UTIP>() != 0;
+        enable = m_pCsr->ReadAs<xie_t>(csr_addr_t::uie).GetMember<xie_t::USIE>() != 0;
+        pending = m_pCsr->ReadAs<xip_t>(csr_addr_t::uip).GetMember<xip_t::USIP>() != 0;
         break;
     default:
         std::abort();

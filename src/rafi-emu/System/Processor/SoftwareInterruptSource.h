@@ -19,20 +19,21 @@
 #include <cassert>
 #include <cstdint>
 
-#include "UserInterruptSource.h"
+#include "../../Common/IInterruptSource.h"
 
-UserInterruptSource::UserInterruptSource(Csr* pCsr)
-    : m_pCsr(pCsr)
-{
-}
+#include "Csr.h"
 
-bool UserInterruptSource::IsRequested() const
+class SoftwareInterruptSource : public IInterruptSource
 {
-    return m_Requested;
-}
+public:
+    SoftwareInterruptSource(Csr* pCsr);
 
-void UserInterruptSource::Update()
-{
-    // not implemented
-    std::abort();
-}
+    virtual bool IsRequested() const;
+
+    void Update();
+
+private:
+    const Csr* m_pCsr;
+
+    bool m_Requested;
+};

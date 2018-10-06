@@ -25,7 +25,7 @@
 #include "MemoryAccessUnit.h"
 #include "ProcessorException.h"
 #include "TimerInterruptSource.h"
-#include "UserInterruptSource.h"
+#include "SoftwareInterruptSource.h"
 
 #include "../../Common/Event.h"
 
@@ -38,13 +38,13 @@ public:
         , m_CsrAccessor(&m_Csr)
         , m_Executor(&m_Csr, &m_CsrAccessor, &m_IntRegFile, &m_MemAccessUnit)
         , m_TimerInterruptSource(&m_Csr)
-        , m_UserInterruptSource(&m_Csr)
+        , m_SoftwareInterruptSource(&m_Csr)
     {
         std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
 
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
         m_InterruptController.RegisterTimerInterruptSource(&m_TimerInterruptSource);
-        m_InterruptController.RegisterUserInterruptSource(&m_UserInterruptSource);
+        m_InterruptController.RegisterUserInterruptSource(&m_SoftwareInterruptSource);
     }
 
     void SetIntReg(int regId, int32_t regValue);
@@ -83,7 +83,7 @@ private:
 
     InterruptController m_InterruptController;
     TimerInterruptSource m_TimerInterruptSource;
-    UserInterruptSource m_UserInterruptSource;
+    SoftwareInterruptSource m_SoftwareInterruptSource;
 
     int32_t m_OpCount { 0 };
 
