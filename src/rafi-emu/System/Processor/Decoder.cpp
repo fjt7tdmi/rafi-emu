@@ -34,7 +34,7 @@ namespace
         if ((value >> msb) & 0x1)
         {
             // minus
-            auto mask = static_cast<int32_t>(-1) << msb;
+            const auto mask = static_cast<int32_t>(-1) << msb;
             return value | mask;
         }
         else

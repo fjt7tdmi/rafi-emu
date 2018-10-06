@@ -26,7 +26,7 @@
 using namespace std;
 using namespace rvtrace;
 
-std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t insn)
+std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const
 {
     switch (op.opCode)
     {
@@ -67,7 +67,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t ins
     }
 }
 
-std::optional<Trap> Executor::PostCheckTrap(const Op& op, int32_t pc)
+std::optional<Trap> Executor::PostCheckTrap(const Op& op, int32_t pc) const
 {
     switch (op.opCode)
     {
@@ -98,24 +98,24 @@ void Executor::ProcessOp(const Op& op, int32_t pc)
     }
 }
 
-std::optional<Trap> Executor::PreCheckTrapForLoad(int32_t pc, int32_t address)
+std::optional<Trap> Executor::PreCheckTrapForLoad(int32_t pc, int32_t address) const
 {
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForStore(int32_t pc, int32_t address)
+std::optional<Trap> Executor::PreCheckTrapForStore(int32_t pc, int32_t address) const
 {
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn)
+std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const
 {
     return m_pCsr->CheckTrap(op.csr, op.rs1 != 0, pc, insn);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address)
+std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address) const
 {
-    auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+    const auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 
     if (trap)
     {
@@ -125,7 +125,7 @@ std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address)
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
-std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc)
+std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc) const
 {
     const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
 

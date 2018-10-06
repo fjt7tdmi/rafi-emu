@@ -32,7 +32,7 @@ TraceCycleReaderImpl::TraceCycleReaderImpl(const void* buffer, int64_t bufferSiz
 
 const void* TraceCycleReaderImpl::GetNode(NodeType nodeType) const
 {
-    auto pNode = GetPointerToNode(nodeType);
+    const auto pNode = GetPointerToNode(nodeType);
 
     if (pNode == nullptr)
     {
@@ -44,7 +44,7 @@ const void* TraceCycleReaderImpl::GetNode(NodeType nodeType) const
 
 int64_t TraceCycleReaderImpl::GetNodeSize(NodeType nodeType) const
 {
-    auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType);
 
     if (pMeta == nullptr)
     {
@@ -163,7 +163,7 @@ const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(int32_t index) 
     assert(0 <= index);
     assert(index < GetPointerToHeader()->metaCount);
 
-    auto metaNodes = reinterpret_cast<const TraceCycleMetaNode*>(GetPointerToHeader() + 1);
+    const auto metaNodes = reinterpret_cast<const TraceCycleMetaNode*>(GetPointerToHeader() + 1);
 
     return &metaNodes[index];
 }
@@ -174,7 +174,7 @@ const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(NodeType nodeTy
 
     for (int i = 0; i < metaCount; i++)
     {
-        auto pMeta = GetPointerToMeta(i);
+        const auto pMeta = GetPointerToMeta(i);
 
         if (pMeta->nodeType == nodeType)
         {
@@ -187,7 +187,7 @@ const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(NodeType nodeTy
 
 const void* TraceCycleReaderImpl::GetPointerToNode(NodeType nodeType) const
 {
-    auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType);
 
     if (pMeta == nullptr)
     {

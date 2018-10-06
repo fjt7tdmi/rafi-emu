@@ -49,6 +49,32 @@ void SetLow32(int64_t* pOut, int32_t value)
 }
 
 }
+
+Csr::Csr(int32_t initialPc)
+    : m_ProgramCounter(initialPc)
+{
+}
+
+PrivilegeLevel Csr::GetPrivilegeLevel() const
+{
+    return m_PrivilegeLevel;
+}
+
+void Csr::SetPrivilegeLevel(PrivilegeLevel level)
+{
+    m_PrivilegeLevel = level;
+}
+
+int32_t Csr::GetProgramCounter() const
+{
+    return m_ProgramCounter;
+}
+
+void Csr::SetProgramCounter(int32_t value)
+{
+    m_ProgramCounter = value;
+}
+
 void Csr::Update()
 {
     m_CycleCounter++;
@@ -56,7 +82,7 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn)
+std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn) const
 {
     CHECK_RANGE(0, regId, NumberOfRegister);
 
@@ -96,15 +122,15 @@ std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t in
 #endif
 
     // Performance Counter
-    auto addr = static_cast<csr_addr_t>(regId);
+    const auto addr = static_cast<csr_addr_t>(regId);
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
     {
-        auto index = GetPerformanceCounterIndex(addr);
+        const auto index = GetPerformanceCounterIndex(addr);
 
         CHECK_RANGE(0, index, 32);
 
-        auto mask = 1 << index;
+        const auto mask = 1 << index;
 
         switch (m_PrivilegeLevel)
         {
@@ -179,6 +205,16 @@ xip_t Csr::ReadInterruptPending() const
 xie_t Csr::ReadInterruptEnable() const
 {
     return m_InterruptEnable;
+}
+
+xstatus_t Csr::ReadStatus() const
+{
+    return m_Status;
+}
+
+satp_t Csr::ReadSatp() const
+{
+    return m_SupervisorAddressTranslationProtection;
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -539,32 +575,6 @@ int Csr::GetPerformanceCounterIndex(csr_addr_t addr) const
 void Csr::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
 {
     printf("Detect unimplemented CSR access (addr=0x%03x).\n", static_cast<int>(addr));
-}
-
-bool Csr::IsAddresssTranslationEnabled() const
-{
-    if (m_PrivilegeLevel == PrivilegeLevel::Machine)
-    {
-        return false;
-    }
-
-    auto mode = static_cast<satp_t::Mode>(m_SupervisorAddressTranslationProtection.GetMember<satp_t::MODE>());
-    return mode != satp_t::Mode::Bare;
-}
-
-int32_t Csr::GetPhysicalPageNumber() const
-{
-    return m_SupervisorAddressTranslationProtection.GetMember<satp_t::PPN>();
-}
-
-bool Csr::GetSupervisorUserMemory() const
-{
-    return m_Status.GetMember<xstatus_t::SUM>();
-}
-
-bool Csr::GetMakeExecutableReadable() const
-{
-    return m_Status.GetMember<xstatus_t::MXR>();
 }
 
 size_t Csr::GetRegisterFileSize() const

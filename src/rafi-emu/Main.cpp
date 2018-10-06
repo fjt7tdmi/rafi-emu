@@ -42,7 +42,7 @@ class BinaryOption
 public:
     explicit BinaryOption(const string& arg)
     {
-        auto delimPos = arg.find(':');
+        const auto delimPos = arg.find(':');
 
         if (delimPos == string::npos)
         {
@@ -212,7 +212,7 @@ int main(int argc, char** argv)
             pProfiler->SwitchPhase(Profiler::Phase_None);
             if (optionMap.count("stop-by-host-io"))
             {
-                auto hostIoValue = pSystem->GetHostIoValue();
+                const auto hostIoValue = pSystem->GetHostIoValue();
                 if (hostIoValue != 0)
                 {
                     break;

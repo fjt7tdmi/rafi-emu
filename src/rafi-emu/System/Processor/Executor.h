@@ -36,19 +36,19 @@ public:
     {
     }
 
-    std::optional<Trap> PreCheckTrap(const Op& op, int32_t pc, int32_t insn);
+    std::optional<Trap> PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const;
 
-    std::optional<Trap> PostCheckTrap(const Op& op, int32_t pc);
+    std::optional<Trap> PostCheckTrap(const Op& op, int32_t pc) const;
 
     void ProcessOp(const Op& op, int32_t pc);
 
 private:
-    std::optional<Trap> PreCheckTrapForLoad(int32_t pc, int32_t address);
-    std::optional<Trap> PreCheckTrapForStore(int32_t pc, int32_t address);
-    std::optional<Trap> PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn);
-    std::optional<Trap> PreCheckTrapForAtomic(int32_t pc, int32_t address);
+    std::optional<Trap> PreCheckTrapForLoad(int32_t pc, int32_t address) const;
+    std::optional<Trap> PreCheckTrapForStore(int32_t pc, int32_t address) const;
+    std::optional<Trap> PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const;
+    std::optional<Trap> PreCheckTrapForAtomic(int32_t pc, int32_t address) const;
 
-    std::optional<Trap> PostCheckTrapForEcall(int32_t pc);
+    std::optional<Trap> PostCheckTrapForEcall(int32_t pc) const;
 
     void ProcessRV32I(const Op& op, int32_t pc);
     void ProcessRV32M(const Op& op);

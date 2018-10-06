@@ -43,7 +43,7 @@ void Processor::ProcessOneCycle()
 
     if (m_InterruptController.IsRequested())
     {
-        auto interruptType = m_InterruptController.GetInterruptType();
+        const auto interruptType = m_InterruptController.GetInterruptType();
 
         m_TrapProcessor.ProcessInterrupt(interruptType, pc);
 
@@ -56,7 +56,7 @@ void Processor::ProcessOneCycle()
 
     PhysicalAddress physicalPc = InvalidValue;
 
-    auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
+    const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
     if (fetchTrap)
     {
         m_TrapProcessor.ProcessException(fetchTrap.value());
@@ -65,13 +65,13 @@ void Processor::ProcessOneCycle()
         return;
     }
 
-    auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
+    const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
     // Decode
     m_Decoder.Decode(&op, insn);
     if (op.opCode == OpCode::unknown)
     {
-        auto decodeTrap = MakeIllegalInstructionException(pc, insn);
+        const auto decodeTrap = MakeIllegalInstructionException(pc, insn);
 
         m_TrapProcessor.ProcessException(decodeTrap);
 
@@ -80,7 +80,7 @@ void Processor::ProcessOneCycle()
     }
 
     // Execute
-    auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
+    const auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
     if (preExecuteTrap)
     {
         m_TrapProcessor.ProcessException(preExecuteTrap.value());
@@ -93,7 +93,7 @@ void Processor::ProcessOneCycle()
 
     m_Executor.ProcessOp(op, pc);
 
-    auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
+    const auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
     if (postExecuteTrap)
     {
         m_TrapProcessor.ProcessException(postExecuteTrap.value());

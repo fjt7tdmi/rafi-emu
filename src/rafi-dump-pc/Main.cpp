@@ -48,7 +48,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
 
             if (cycle.IsNodeExist(NodeType::Pc32))
             {
-                auto node = cycle.GetPc32Node();
+                const auto node = cycle.GetPc32Node();
                 printf("0x%08x\n", showVirtual ? node->virtualPc : node->physicalPc);
             }
             else

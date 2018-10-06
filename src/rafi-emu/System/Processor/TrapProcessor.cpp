@@ -24,8 +24,8 @@ using namespace rvtrace;
 
 void TrapProcessor::ProcessException(const Trap& trap)
 {
-    auto exceptionCode = static_cast<int32_t>(trap.type);
-    auto delegMask = 1 << exceptionCode;
+    const auto exceptionCode = static_cast<int32_t>(trap.type);
+    const auto delegMask = 1 << exceptionCode;
 
     PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
     if ((m_pCsr->Read(csr_addr_t::medeleg) & delegMask) != 0)
@@ -97,7 +97,7 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         ABORT();
     }
 
-    auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
+    const auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
 
     // for Dump
     m_TrapEventValid = true;

@@ -23,8 +23,8 @@ using namespace rvtrace;
 
 int32_t CsrAccessor::Read(int addr)
 {
-    auto csrAddr = static_cast<csr_addr_t>(addr);
-    auto value = m_pCsr->Read(csrAddr);
+    const auto csrAddr = static_cast<csr_addr_t>(addr);
+    const auto value = m_pCsr->Read(csrAddr);
 
     // set event
     m_ReadEvent.address = csrAddr;
@@ -36,7 +36,7 @@ int32_t CsrAccessor::Read(int addr)
 
 void CsrAccessor::Write(int addr, int32_t value)
 {
-    auto csrAddr = static_cast<csr_addr_t>(addr);
+    const auto csrAddr = static_cast<csr_addr_t>(addr);
     m_pCsr->Write(csrAddr, value);
 
     // set event

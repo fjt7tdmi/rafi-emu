@@ -23,7 +23,7 @@ int8_t Bus::GetInt8(PhysicalAddress address) const
 {
     try
     {
-        auto location = Convert(address, sizeof(int32_t));
+        const auto location = Convert(address, sizeof(int32_t));
         return location.first->GetInt8(location.second);
     }
     catch (const InvalidAccessException& e)
@@ -41,7 +41,7 @@ void Bus::SetInt8(PhysicalAddress address, int8_t value)
 {
     try
     {
-        auto location = Convert(address, sizeof(int8_t));
+        const auto location = Convert(address, sizeof(int8_t));
         location.first->SetInt8(location.second, value);
     }
     catch (const InvalidAccessException& e)
@@ -59,7 +59,7 @@ int16_t Bus::GetInt16(PhysicalAddress address) const
 {
     try
     {
-        auto location = Convert(address, sizeof(int32_t));
+        const auto location = Convert(address, sizeof(int32_t));
         return location.first->GetInt16(location.second);
     }
     catch (const InvalidAccessException& e)
@@ -77,7 +77,7 @@ void Bus::SetInt16(PhysicalAddress address, int16_t value)
 {
     try
     {
-        auto location = Convert(address, sizeof(int32_t));
+        const auto location = Convert(address, sizeof(int32_t));
         location.first->SetInt16(location.second, value);
     }
     catch (const InvalidAccessException& e)
@@ -95,7 +95,7 @@ int32_t Bus::GetInt32(PhysicalAddress address) const
 {
     try
     {
-        auto location = Convert(address, sizeof(int32_t));
+        const auto location = Convert(address, sizeof(int32_t));
         return location.first->GetInt32(location.second);
     }
     catch (const InvalidAccessException& e)
@@ -113,7 +113,7 @@ void Bus::SetInt32(PhysicalAddress address, int32_t value)
 {
     try
     {
-        auto location = Convert(address, sizeof(int32_t));
+        const auto location = Convert(address, sizeof(int32_t));
         location.first->SetInt32(location.second, value);
     }
     catch (const InvalidAccessException& e)
