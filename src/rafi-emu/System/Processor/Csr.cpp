@@ -19,7 +19,7 @@
 
 #include "../../Common/Exception.h"
 
-#include "ProcessorException.h"
+#include "Trap.h"
 #include "Csr.h"
 
 using namespace rvtrace;
@@ -50,6 +50,31 @@ void SetLow32(int64_t* pOut, int32_t value)
 
 }
 
+Csr::Csr(int32_t initialPc)
+    : m_ProgramCounter(initialPc)
+{
+}
+
+PrivilegeLevel Csr::GetPrivilegeLevel() const
+{
+    return m_PrivilegeLevel;
+}
+
+void Csr::SetPrivilegeLevel(PrivilegeLevel level)
+{
+    m_PrivilegeLevel = level;
+}
+
+int32_t Csr::GetProgramCounter() const
+{
+    return m_ProgramCounter;
+}
+
+void Csr::SetProgramCounter(int32_t value)
+{
+    m_ProgramCounter = value;
+}
+
 void Csr::Update()
 {
     m_CycleCounter++;
@@ -57,30 +82,7 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-int32_t Csr::Read(int addr)
-{
-    auto csrAddr = static_cast<csr_addr_t>(addr);
-    auto value = ReadInternal(csrAddr);
-
-    // set event
-    m_ReadEvent.address = csrAddr;
-    m_ReadEvent.value = value;
-    m_ReadEventValid = true;
-
-    return value;
-}
-
-void Csr::Write(int addr, int32_t value)
-{
-    auto csrAddr = static_cast<csr_addr_t>(addr);
-    WriteInternal(csrAddr, value);
-
-    // set event
-    m_WriteEvent = {csrAddr, value};
-    m_WriteEventValid = true;
-}
-
-void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
+std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn) const
 {
     CHECK_RANGE(0, regId, NumberOfRegister);
 
@@ -120,142 +122,40 @@ void Csr::CheckException(int regId, bool write, int32_t pc, int32_t insn)
 #endif
 
     // Performance Counter
-    auto addr = static_cast<csr_addr_t>(regId);
+    const auto addr = static_cast<csr_addr_t>(regId);
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
     {
-        auto index = GetPerformanceCounterIndex(addr);
+        const auto index = GetPerformanceCounterIndex(addr);
 
         CHECK_RANGE(0, index, 32);
 
-        auto mask = 1 << index;
+        const auto mask = 1 << index;
 
         switch (m_PrivilegeLevel)
         {
         case PrivilegeLevel::Supervisor:
             if (!(m_MachineCounterEnable & mask))
             {
-                throw IllegalInstructionException(pc, insn);
+                return MakeIllegalInstructionException(pc, insn);
             }
             break;
         case PrivilegeLevel::User:
             if (!(m_MachineCounterEnable & mask) || !(m_SupervisorCounterEnable & mask))
             {
-                throw IllegalInstructionException(pc, insn);
+                return MakeIllegalInstructionException(pc, insn);
             }
             break;
         default:
             break;
         }
     }
+
+    return std::nullopt;
 }
 
-void Csr::ProcessException(ProcessorException e)
-{
-    // Calulate values
-    auto cause = static_cast<int32_t>(e.GetCause());
-    auto causeMask = 1 << cause;
 
-    PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
-    if ((ReadInternal(csr_addr_t::medeleg) & causeMask) != 0)
-    {
-        nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        if ((ReadInternal(csr_addr_t::sedeleg) & causeMask) != 0)
-        {
-            nextPrivilegeLevel = PrivilegeLevel::User;
-        }
-    }
-
-    // for Dump
-    m_TrapEvent.trapType = TrapType::Exception;
-    m_TrapEvent.from = m_PrivilegeLevel;
-    m_TrapEvent.to = nextPrivilegeLevel;
-    m_TrapEvent.trapCause = e.GetCause();
-    m_TrapEvent.trapValue = e.GetTrapValue();
-
-    // Update
-    m_PrivilegeLevel = nextPrivilegeLevel;
-
-    int32_t base;
-    int32_t mode;
-    switch (m_PrivilegeLevel)
-    {
-    case PrivilegeLevel::Machine:
-        WriteInternal(csr_addr_t::mcause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::mepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::mtval, e.GetTrapValue());
-        base = m_MachineTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_MachineTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    case PrivilegeLevel::Supervisor:
-        WriteInternal(csr_addr_t::scause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::sepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::stval, e.GetTrapValue());
-        base = m_SupervisorTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_SupervisorTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    case PrivilegeLevel::User:
-        WriteInternal(csr_addr_t::ucause, static_cast<int32_t>(e.GetCause()));
-        WriteInternal(csr_addr_t::uepc, e.GetProgramCounter());
-        WriteInternal(csr_addr_t::utval, e.GetTrapValue());
-        base = m_UserTrapVector.GetWithMask(xtvec_t::BASE::Mask);
-        mode = m_UserTrapVector.GetMember<xtvec_t::MODE>();
-        break;
-    default:
-        throw new NotImplementedException(__FILE__, __LINE__);
-    }
-
-    if (mode == static_cast<int32_t>(xtvec_t::Mode::Directed))
-    {
-        m_ProgramCounter = base;
-    }
-    else
-    {
-        m_ProgramCounter = base + cause * 4;
-    }
-}
-
-void Csr::ProcessTrapReturn(PrivilegeLevel level)
-{
-    int32_t previousLevel;
-    int32_t previousInterruptEnable;
-
-    switch (level)
-    {
-    case PrivilegeLevel::Machine:
-        previousLevel = m_Status.GetMember<xstatus_t::MPP>();
-        m_Status.SetMember<xstatus_t::MPP>(0);
-
-        previousInterruptEnable = m_Status.GetMember<xstatus_t::MPIE>();
-        m_Status.SetMember<xstatus_t::MIE>(previousInterruptEnable);
-
-        m_ProgramCounter = m_MachineExceptionProgramCounter;
-        break;
-    case PrivilegeLevel::Supervisor:
-        previousLevel = m_Status.GetMember<xstatus_t::SPP>();
-        m_Status.SetMember<xstatus_t::SPP>(0);
-
-        previousInterruptEnable = m_Status.GetMember<xstatus_t::SPIE>();
-        m_Status.SetMember<xstatus_t::SIE>(previousInterruptEnable);
-
-        m_ProgramCounter = m_SupervisorExceptionProgramCounter;
-        break;
-    default:
-        throw NotImplementedException(__FILE__, __LINE__);
-    }
-
-    auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
-
-    // for Dump
-    m_TrapEventValid = true;
-    m_TrapEvent.trapType = TrapType::Return;
-    m_TrapEvent.from = m_PrivilegeLevel;
-    m_TrapEvent.to = nextPrivilegeLevel;
-
-    m_PrivilegeLevel = nextPrivilegeLevel;
-}
-
-int32_t Csr::ReadInternal(csr_addr_t addr) const
+int32_t Csr::Read(csr_addr_t addr) const
 {
     if (IsMachineModeRegister(addr))
     {
@@ -276,7 +176,7 @@ int32_t Csr::ReadInternal(csr_addr_t addr) const
     }
 }
 
-void Csr::WriteInternal(csr_addr_t addr, int32_t value)
+void Csr::Write(csr_addr_t addr, int32_t value)
 {
     if (IsMachineModeRegister(addr))
     {
@@ -295,6 +195,26 @@ void Csr::WriteInternal(csr_addr_t addr, int32_t value)
         PrintRegisterUnimplementedMessage(addr);
         return;
     }
+}
+
+xip_t Csr::ReadInterruptPending() const
+{
+    return m_InterruptPending;
+}
+
+xie_t Csr::ReadInterruptEnable() const
+{
+    return m_InterruptEnable;
+}
+
+xstatus_t Csr::ReadStatus() const
+{
+    return m_Status;
+}
+
+satp_t Csr::ReadSatp() const
+{
+    return m_SupervisorAddressTranslationProtection;
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -341,7 +261,7 @@ int32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     case csr_addr_t::mideleg:
         return m_MachineInterruptDelegation;
     case csr_addr_t::mie:
-        return m_MachineInterruptEnable;
+        return m_InterruptEnable.GetWithMask(xie_t::MachineMask);
     case csr_addr_t::mtvec:
         return m_MachineTrapVector;
     case csr_addr_t::mcounteren:
@@ -355,7 +275,7 @@ int32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     case csr_addr_t::mtval:
         return m_MachineTrapValue;
     case csr_addr_t::mip:
-        return m_MachineInterruptPending;
+        return m_InterruptPending.GetWithMask(xip_t::MachineMask);
     case csr_addr_t::pmpcfg0:
     case csr_addr_t::pmpcfg1:
     case csr_addr_t::pmpcfg2:
@@ -395,7 +315,7 @@ int32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     case csr_addr_t::sideleg:
         return m_SupervisorInterruptDelegation;
     case csr_addr_t::sie:
-        return m_SupervisorInterruptEnable;
+        return m_InterruptEnable.GetWithMask(xie_t::SupervisorMask);
     case csr_addr_t::stvec:
         return m_SupervisorTrapVector;
     case csr_addr_t::scounteren:
@@ -409,7 +329,7 @@ int32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     case csr_addr_t::stval:
         return m_SupervisorTrapValue;
     case csr_addr_t::sip:
-        return m_SupervisorInterruptPending;
+        return m_InterruptPending.GetWithMask(xip_t::SupervisorMask);
     case csr_addr_t::satp:
         return m_SupervisorAddressTranslationProtection;
     default:
@@ -425,7 +345,7 @@ int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     case csr_addr_t::ustatus:
         return m_Status.GetWithMask(xstatus_t::UserMask);
     case csr_addr_t::uie:
-        return m_UserInterruptEnable.GetWithMask(xie_t::UserMask);
+        return m_InterruptEnable.GetWithMask(xie_t::UserMask);
     case csr_addr_t::utvec:
         return m_UserTrapVector;
     case csr_addr_t::uscratch:
@@ -437,7 +357,7 @@ int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     case csr_addr_t::utval:
         return m_UserTrapValue;
     case csr_addr_t::uip:
-        return m_UserInterruptPending;
+        return m_InterruptPending.GetWithMask(xip_t::UserMask);
     case csr_addr_t::cycle:
         return GetLow32(m_CycleCounter);
     case csr_addr_t::time:
@@ -476,7 +396,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
         m_MachineInterruptDelegation = value;
         return;
     case csr_addr_t::mie:
-        m_MachineInterruptEnable.Set(value);
+        m_InterruptEnable.SetWithMask(value, xie_t::MachineMask);
         return;
     case csr_addr_t::mcounteren:
         m_MachineCounterEnable = value;
@@ -497,7 +417,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
         m_MachineTrapValue = value;
         return;
     case csr_addr_t::mip:
-        m_MachineInterruptPending.SetWithMask(value, xip_t::WriteMask);
+        m_InterruptPending.SetWithMask(value, xip_t::MachineMask & xip_t::WriteMask);
         return;
     case csr_addr_t::pmpcfg0:
     case csr_addr_t::pmpcfg1:
@@ -540,7 +460,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
         m_SupervisorInterruptDelegation = value;
         return;
     case csr_addr_t::sie:
-        m_SupervisorInterruptEnable.Set(value);
+        m_InterruptEnable.SetWithMask(value, xie_t::SupervisorMask);
         return;
     case csr_addr_t::stvec:
         m_SupervisorTrapVector.Set(value);
@@ -561,7 +481,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
         m_SupervisorTrapValue = value;
         return;
     case csr_addr_t::sip:
-        m_SupervisorInterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::SupervisorMask);
+        m_InterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::SupervisorMask);
         return;
     case csr_addr_t::satp:
         m_SupervisorAddressTranslationProtection.Set(value);
@@ -580,7 +500,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
         m_Status.SetWithMask(value, xstatus_t::UserMask);
         return;
     case csr_addr_t::uie:
-        m_UserInterruptEnable.SetWithMask(value, xie_t::UserMask);
+        m_InterruptEnable.SetWithMask(value, xie_t::UserMask);
         return;
     case csr_addr_t::utvec:
         m_UserTrapVector.Set(value);
@@ -598,7 +518,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
         m_UserTrapValue = value;
         return;
     case csr_addr_t::uip:
-        m_UserInterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::SupervisorMask);
+        m_InterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::UserMask);
         return;
     case csr_addr_t::cycle:
         SetLow32(&m_CycleCounter, value);
@@ -657,46 +577,9 @@ void Csr::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
     printf("Detect unimplemented CSR access (addr=0x%03x).\n", static_cast<int>(addr));
 }
 
-bool Csr::IsAddresssTranslationEnabled() const
-{
-    if (m_PrivilegeLevel == PrivilegeLevel::Machine)
-    {
-        return false;
-    }
-
-    auto mode = static_cast<satp_t::Mode>(m_SupervisorAddressTranslationProtection.GetMember<satp_t::MODE>());
-    return mode != satp_t::Mode::Bare;
-}
-
-int32_t Csr::GetPhysicalPageNumber() const
-{
-    return m_SupervisorAddressTranslationProtection.GetMember<satp_t::PPN>();
-}
-
-bool Csr::GetSupervisorUserMemory() const
-{
-    return m_Status.GetMember<xstatus_t::SUM>();
-}
-
-bool Csr::GetMakeExecutableReadable() const
-{
-    return m_Status.GetMember<xstatus_t::MXR>();
-}
-
 size_t Csr::GetRegisterFileSize() const
 {
     return NumberOfRegister * sizeof(int32_t);
-}
-
-void Csr::ClearEvent()
-{
-    m_ReadEventValid = false;
-    m_WriteEventValid = false;
-    m_TrapEventValid = false;
-
-    std::memset(&m_ReadEvent, 0, sizeof(m_ReadEvent));
-    std::memset(&m_WriteEvent, 0, sizeof(m_WriteEvent));
-    std::memset(&m_TrapEvent, 0, sizeof(m_TrapEvent));
 }
 
 void Csr::CopyRegisterFile(void* pOut, size_t size) const
@@ -790,57 +673,27 @@ void Csr::CopyRegisterFile(void* pOut, size_t size) const
 
     for (const auto& addr: addrs)
     {
-        p[static_cast<int>(addr)] = ReadInternal(addr);
+        p[static_cast<int>(addr)] = Read(addr);
     }
 
     // User Counter / Timers
     for (int i = static_cast<int>(csr_addr_t::hpmcounter_begin); i < static_cast<int>(csr_addr_t::hpmcounter_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::hpmcounterh_begin); i < static_cast<int>(csr_addr_t::hpmcounterh_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::mhpmcounter_begin); i < static_cast<int>(csr_addr_t::mhpmcounter_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
 
     for (int i = static_cast<int>(csr_addr_t::mhpmcounterh_begin); i < static_cast<int>(csr_addr_t::mhpmcounterh_end); i++)
     {
-        p[i] = ReadInternal(static_cast<csr_addr_t>(i));
+        p[i] = Read(static_cast<csr_addr_t>(i));
     }
-}
-
-void Csr::CopyReadEvent(CsrReadEvent* pOut) const
-{
-    std::memcpy(pOut, &m_ReadEvent, sizeof(*pOut));
-}
-
-void Csr::CopyWriteEvent(CsrWriteEvent* pOut) const
-{
-    std::memcpy(pOut, &m_WriteEvent, sizeof(*pOut));
-}
-
-void Csr::CopyTrapEvent(TrapEvent* pOut) const
-{
-    std::memcpy(pOut, &m_TrapEvent, sizeof(*pOut));
-}
-
-bool Csr::IsReadEventExist() const
-{
-    return m_ReadEventValid;
-}
-
-bool Csr::IsWriteEventExist() const
-{
-    return m_WriteEventValid;
-}
-
-bool Csr::IsTrapEventExist() const
-{
-    return m_TrapEventValid;
 }

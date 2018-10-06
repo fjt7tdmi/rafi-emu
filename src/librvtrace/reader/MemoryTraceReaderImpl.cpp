@@ -41,7 +41,7 @@ const void* MemoryTraceReaderImpl::GetCurrentCycleData()
 
 int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
 {
-    auto size = GetCurrentCycleHeader()->footerOffset + sizeof(TraceCycleFooter);
+    const auto size = GetCurrentCycleHeader()->footerOffset + sizeof(TraceCycleFooter);
 
     if (size < sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter))
     {
@@ -80,7 +80,7 @@ void MemoryTraceReaderImpl::MoveToPreviousCycle()
         CheckOffset(m_CurrentOffset);
     }
 
-    auto size = GetPreviousCycleFooter()->headerOffset + sizeof(TraceCycleFooter);
+    const auto size = GetPreviousCycleFooter()->headerOffset + sizeof(TraceCycleFooter);
 
     m_CurrentOffset -= size;
 
@@ -102,11 +102,11 @@ const TraceCycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader()
 
 const TraceCycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
 {
-    auto offset = m_CurrentOffset - sizeof(TraceCycleFooter);
+    const auto offset = m_CurrentOffset - sizeof(TraceCycleFooter);
 
     CheckOffset(offset);
 
-    auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
+    const auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
 
     return reinterpret_cast<const TraceCycleFooter*>(p);
 }

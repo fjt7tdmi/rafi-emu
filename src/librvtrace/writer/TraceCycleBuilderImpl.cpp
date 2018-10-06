@@ -28,7 +28,7 @@ namespace rvtrace {
 
 TraceCycleBuilderImpl::TraceCycleBuilderImpl(int32_t flags)
 {
-    auto size = CalculateDataSize(flags);
+    const auto size = CalculateDataSize(flags);
 
     if (size > SIZE_MAX)
     {
@@ -64,7 +64,7 @@ int64_t TraceCycleBuilderImpl::GetDataSize()
 
 void TraceCycleBuilderImpl::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
 {
-    auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType);
 
     if (pMeta == nullptr)
     {
@@ -81,7 +81,7 @@ void TraceCycleBuilderImpl::SetNode(NodeType nodeType, const void* buffer, int64
         throw TraceCycleException("Overflow.");
     }
 
-    auto size = static_cast<size_t>(bufferSize);
+    const auto size = static_cast<size_t>(bufferSize);
 
     std::memcpy(GetPointerToNode(nodeType), buffer, size);
 }
@@ -368,7 +368,7 @@ TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(NodeType nodeType)
 
 void* TraceCycleBuilderImpl::GetPointerToNode(NodeType nodeType)
 {
-    auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType);
 
     if (pMeta == nullptr)
     {

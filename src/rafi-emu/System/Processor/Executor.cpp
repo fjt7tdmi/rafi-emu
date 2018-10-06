@@ -20,16 +20,14 @@
 #include <fstream>
 #include <iostream>
 
-#include "Csr.h"
-#include "Processor.h"
-#include "ProcessorException.h"
+#include "../../Common/Macro.h"
+#include "Executor.h"
 
 using namespace std;
 using namespace rvtrace;
 
-void Executor::PreCheckException(const Op& op, int32_t pc, int32_t insn)
+std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const
 {
-    int32_t memoryAddress;
     switch (op.opCode)
     {
     case OpCode::lb:
@@ -37,31 +35,23 @@ void Executor::PreCheckException(const Op& op, int32_t pc, int32_t insn)
     case OpCode::lw:
     case OpCode::lbu:
     case OpCode::lhu:
-        memoryAddress = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Load, pc, memoryAddress);
-        break;
+        return PreCheckTrapForLoad(pc, m_pIntRegFile->Read(op.rs1) + op.imm);
     case OpCode::sb:
     case OpCode::sh:
     case OpCode::sw:
-        memoryAddress = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Store, pc, memoryAddress);
-        break;
+        return PreCheckTrapForStore(pc, m_pIntRegFile->Read(op.rs1) + op.imm);
     case OpCode::csrrw:
     case OpCode::csrrs:
     case OpCode::csrrc:
     case OpCode::csrrwi:
     case OpCode::csrrsi:
     case OpCode::csrrci:
-        m_pCsr->CheckException(op.csr, op.rs1 != 0, pc, insn);
-        break;
+        return PreCheckTrapForCsr(op, pc, insn);
     case OpCode::lr_w:
-        memoryAddress = m_pIntRegFile->Read(op.rs1);
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Load, pc, memoryAddress);
+        return PreCheckTrapForLoad(pc, m_pIntRegFile->Read(op.rs1));
         break;
     case OpCode::sc_w:
-        memoryAddress = m_pIntRegFile->Read(op.rs1);
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Store, pc, memoryAddress);
-        break;
+        return PreCheckTrapForStore(pc, m_pIntRegFile->Read(op.rs1));
     case OpCode::amoswap_w:
     case OpCode::amoadd_w:
     case OpCode::amoxor_w:
@@ -71,42 +61,22 @@ void Executor::PreCheckException(const Op& op, int32_t pc, int32_t insn)
     case OpCode::amomax_w:
     case OpCode::amominu_w:
     case OpCode::amomaxu_w:
-        memoryAddress = m_pIntRegFile->Read(op.rs1);
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Load, pc, memoryAddress);
-        m_pMemAccessUnit->CheckException(MemoryAccessType::Store, pc, memoryAddress);
+        return PreCheckTrapForAtomic(pc, m_pIntRegFile->Read(op.rs1));
     default:
-        break;
+        return std::nullopt;
     }
 }
 
-void Executor::PostCheckException(const Op& op, int32_t pc)
+std::optional<Trap> Executor::PostCheckTrap(const Op& op, int32_t pc) const
 {
-    const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
-
     switch (op.opCode)
     {
     case OpCode::ecall:
-        if (privilegeLevel == PrivilegeLevel::User)
-        {
-            throw EnvironmentCallFromUserException(pc);
-        }
-        if (privilegeLevel == PrivilegeLevel::Supervisor)
-        {
-            throw EnvironmentCallFromSupervisorException(pc);
-        }
-        if (privilegeLevel == PrivilegeLevel::Machine)
-        {
-            throw EnvironmentCallFromMachineException(pc);
-        }
-        else
-        {
-            throw NotImplementedException(__FILE__, __LINE__);
-        }
-        break;
+        return PostCheckTrapForEcall(pc);
     case OpCode::ebreak:
-        throw BreakpointException(pc);
+        return MakeBreakpointException(pc);
     default:
-        break;
+        return std::nullopt;
     }
 }
 
@@ -126,6 +96,50 @@ void Executor::ProcessOp(const Op& op, int32_t pc)
     default:
         throw NotImplementedException(__FILE__, __LINE__);
     }
+}
+
+std::optional<Trap> Executor::PreCheckTrapForLoad(int32_t pc, int32_t address) const
+{
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapForStore(int32_t pc, int32_t address) const
+{
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const
+{
+    return m_pCsr->CheckTrap(op.csr, op.rs1 != 0, pc, insn);
+}
+
+std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address) const
+{
+    const auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+
+    if (trap)
+    {
+        return trap;
+    }
+    
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc) const
+{
+    const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
+
+    switch (privilegeLevel)
+    {
+    case PrivilegeLevel::Machine:
+        return MakeEnvironmentCallFromMachineException(pc);
+    case PrivilegeLevel::Supervisor:
+        return MakeEnvironmentCallFromSupervisorException(pc);        
+    case PrivilegeLevel::User:
+        return MakeEnvironmentCallFromUserException(pc);
+    default:
+        ABORT();
+    }    
 }
 
 void Executor::ProcessRV32I(const Op& op, int32_t pc)
@@ -291,43 +305,43 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::ebreak:
         break;
     case OpCode::csrrw:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrs:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp | m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp | m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrc:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp & ~m_pIntRegFile->Read(op.rs1));
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp & ~m_pIntRegFile->Read(op.rs1));
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrwi:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrsi:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp | op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp | op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::csrrci:
-        tmp = m_pCsr->Read(op.csr);
-        m_pCsr->Write(op.csr, tmp & ~op.zimm);
+        tmp = m_pCsrAccessor->Read(op.csr);
+        m_pCsrAccessor->Write(op.csr, tmp & ~op.zimm);
         m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::mret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::Machine);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::Machine);
         break;
     case OpCode::sret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::Supervisor);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::Supervisor);
         break;
     case OpCode::uret:
-        m_pCsr->ProcessTrapReturn(PrivilegeLevel::User);
+        m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
         // Interrupt is not implemented.

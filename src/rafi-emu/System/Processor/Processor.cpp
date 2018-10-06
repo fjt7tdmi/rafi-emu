@@ -20,9 +20,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "Csr.h"
 #include "Processor.h"
-#include "ProcessorException.h"
 
 using namespace std;
 using namespace rvtrace;
@@ -34,56 +32,77 @@ void Processor::SetIntReg(int regId, int32_t regValue)
 
 void Processor::ProcessOneCycle()
 {
-    // clear event for Dump
-    m_OpEventValid = false;
-
-    m_Csr.ClearEvent();
+    ClearOpEvent();
+    m_TrapProcessor.ClearEvent();
     m_MemAccessUnit.ClearEvent();
 
-    // Fetch Op
+    const auto pc = m_Csr.GetProgramCounter();
+
+    // Check interrupt
+    m_InterruptController.Update();
+
+    if (m_InterruptController.IsRequested())
+    {
+        const auto interruptType = m_InterruptController.GetInterruptType();
+
+        m_TrapProcessor.ProcessInterrupt(interruptType, pc);
+
+        SetOpEvent(pc);
+        return;
+    }
+
+    // Fetch
     Op op { OpClass::RV32I, OpCode::unknown };
-    int32_t pc = InvalidValue;
-    int32_t insn = InvalidValue;
+
     PhysicalAddress physicalPc = InvalidValue;
 
-    try
+    const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
+    if (fetchTrap)
     {
-        pc = m_Csr.GetProgramCounter();
-        
-        m_MemAccessUnit.CheckException(MemoryAccessType::Instruction, pc, pc);
-        
-        insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
+        m_TrapProcessor.ProcessException(fetchTrap.value());
 
-        m_Decoder.Decode(&op, insn);
-
-        if (op.opCode == OpCode::unknown)
-        {
-            throw IllegalInstructionException(pc, insn);
-        }
-
-        m_Executor.PreCheckException(op, pc, insn);
-
-        m_Csr.SetProgramCounter(pc + 4);
-
-        m_Executor.ProcessOp(op, pc);
-
-        m_Executor.PostCheckException(op, pc);
-    }
-    catch (const ProcessorException& e)
-    {
-        m_Csr.ProcessException(e);
+        SetOpEvent(pc);
+        return;
     }
 
-    // set event for Dump
-    m_OpEvent.insn = insn;
-    m_OpEvent.opCode = op.opCode;
-    m_OpEvent.opId = m_OpCount;
-    m_OpEvent.virtualPc = pc;
-    m_OpEvent.physicalPc = physicalPc;
+    const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
-    m_OpEventValid = true;
+    // Decode
+    m_Decoder.Decode(&op, insn);
+    if (op.opCode == OpCode::unknown)
+    {
+        const auto decodeTrap = MakeIllegalInstructionException(pc, insn);
 
-    m_OpCount++;
+        m_TrapProcessor.ProcessException(decodeTrap);
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
+    // Execute
+    const auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
+    if (preExecuteTrap)
+    {
+        m_TrapProcessor.ProcessException(preExecuteTrap.value());
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
+    m_Csr.SetProgramCounter(pc + 4);
+
+    m_Executor.ProcessOp(op, pc);
+
+    const auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
+    if (postExecuteTrap)
+    {
+        m_TrapProcessor.ProcessException(postExecuteTrap.value());
+
+        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        return;
+    }
+
+    SetOpEvent(pc, physicalPc, insn, op.opCode);
 }
 
 int Processor::GetCsrSize() const
@@ -103,12 +122,12 @@ void Processor::CopyIntRegs(void* pOut, size_t size) const
 
 void Processor::CopyCsrReadEvent(CsrReadEvent* pOut) const
 {
-    m_Csr.CopyReadEvent(pOut);
+    m_CsrAccessor.CopyReadEvent(pOut);
 }
 
 void Processor::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
 {
-    m_Csr.CopyWriteEvent(pOut);
+    m_CsrAccessor.CopyWriteEvent(pOut);
 }
 
 void Processor::CopyOpEvent(OpEvent* pOut) const
@@ -123,17 +142,17 @@ void Processor::CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const
 
 void Processor::CopyTrapEvent(TrapEvent* pOut) const
 {
-    m_Csr.CopyTrapEvent(pOut);
+    m_TrapProcessor.CopyTrapEvent(pOut);
 }
 
 bool Processor::IsCsrReadEventExist() const
 {
-    return m_Csr.IsReadEventExist();
+    return m_CsrAccessor.IsReadEventExist();
 }
 
 bool Processor::IsCsrWriteEventExist() const
 {
-    return m_Csr.IsWriteEventExist();
+    return m_CsrAccessor.IsWriteEventExist();
 }
 
 bool Processor::IsOpEventExist() const
@@ -148,5 +167,28 @@ bool Processor::IsMemoryAccessEventExist() const
 
 bool Processor::IsTrapEventExist() const
 {
-    return m_Csr.IsTrapEventExist();
+    return m_TrapProcessor.IsTrapEventExist();
+}
+
+void Processor::ClearOpEvent()
+{
+    m_OpEventValid = false;
+}
+
+void Processor::SetOpEvent(int32_t virtualPc)
+{
+    SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown);
+}
+
+void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode)
+{
+    m_OpEvent.insn = insn;
+    m_OpEvent.opCode = opCode;
+    m_OpEvent.opId = m_OpCount;
+    m_OpEvent.virtualPc = virtualPc;
+    m_OpEvent.physicalPc = physicalPc;
+
+    m_OpEventValid = true;
+
+    m_OpCount++;
 }

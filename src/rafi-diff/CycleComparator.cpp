@@ -284,29 +284,29 @@ void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const Mem
 
 void CycleComparator::PrintDiff(const TraceCycleReader& expect, const TraceCycleReader& actual) const
 {
-    auto pExpectPc32 = expect.GetPc32Node();
-    auto pActualPc32 = actual.GetPc32Node();
+    const auto pExpectPc32 = expect.GetPc32Node();
+    const auto pActualPc32 = actual.GetPc32Node();
     if (!IsPc32NodeMatched(pExpectPc32, pActualPc32))
     {
         PrintPc32Diff(pExpectPc32, pActualPc32);
     }
 
-    auto pExpectIntReg32 = expect.GetIntReg32Node();
-    auto pActualIntReg32 = actual.GetIntReg32Node();
+    const auto pExpectIntReg32 = expect.GetIntReg32Node();
+    const auto pActualIntReg32 = actual.GetIntReg32Node();
     if (!IsIntReg32NodeMatched(pExpectIntReg32, pActualIntReg32))
     {
         PrintIntReg32Diff(pExpectIntReg32, pActualIntReg32);
     }
 
-    auto pExpectCsr32 = expect.GetCsr32Node();
-    auto pActualCsr32 = actual.GetCsr32Node();
+    const auto pExpectCsr32 = expect.GetCsr32Node();
+    const auto pActualCsr32 = actual.GetCsr32Node();
     if (m_CmpCsr && !IsCsr32NodeMatched(pExpectCsr32, pActualCsr32))
     {
         PrintCsr32Diff(pExpectCsr32, pActualCsr32);
     }
 
-    auto pExpectMemory = expect.GetMemoryNode();
-    auto pActualMemory = actual.GetMemoryNode();
+    const auto pExpectMemory = expect.GetMemoryNode();
+    const auto pActualMemory = actual.GetMemoryNode();
     if (m_CmpMemory && !IsMemoryNodeMatched(pExpectMemory, pActualMemory))
     {
         PrintMemoryDiff(pExpectMemory, pActualMemory);

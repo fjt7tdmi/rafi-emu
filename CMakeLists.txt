@@ -110,11 +110,15 @@ add_executable(rafi-emu
     src/rafi-emu/System/Memory/Memory.h
     src/rafi-emu/System/Processor/Csr.cpp
     src/rafi-emu/System/Processor/Csr.h
+    src/rafi-emu/System/Processor/CsrAccessor.cpp
+    src/rafi-emu/System/Processor/CsrAccessor.h
     src/rafi-emu/System/Processor/CsrTypes.h
     src/rafi-emu/System/Processor/Decoder.cpp
     src/rafi-emu/System/Processor/Decoder.h
     src/rafi-emu/System/Processor/Executor.cpp
     src/rafi-emu/System/Processor/Executor.h
+    src/rafi-emu/System/Processor/InterruptController.cpp
+    src/rafi-emu/System/Processor/InterruptController.h
     src/rafi-emu/System/Processor/IntRegFile.cpp
     src/rafi-emu/System/Processor/IntRegFile.h
     src/rafi-emu/System/Processor/MemoryAccessUnit.cpp
@@ -122,7 +126,10 @@ add_executable(rafi-emu
     src/rafi-emu/System/Processor/OpTypes.h
     src/rafi-emu/System/Processor/Processor.cpp
     src/rafi-emu/System/Processor/Processor.h
-    src/rafi-emu/System/Processor/ProcessorException.h
+    src/rafi-emu/System/Processor/Trap.cpp
+    src/rafi-emu/System/Processor/Trap.h
+    src/rafi-emu/System/Processor/TrapProcessor.cpp
+    src/rafi-emu/System/Processor/TrapProcessor.h
     src/rafi-emu/System/Uart/Uart.cpp
     src/rafi-emu/System/Uart/Uart.h
     src/rafi-emu/System/System.cpp

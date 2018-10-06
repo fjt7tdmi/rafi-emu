@@ -46,7 +46,7 @@ bool Check(const char* name, const char* path)
         TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
         // Find IoNode
-        auto ioNode = cycle.GetIoNode();
+        const auto ioNode = cycle.GetIoNode();
 
         // Check IoValue
         if (ioNode->hostIoValue != ExpectedHostIoValue)

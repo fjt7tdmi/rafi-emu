@@ -20,7 +20,7 @@
 
 #include "../../Common/BitField.h"
 
-#include "ProcessorException.h"
+#include "Trap.h"
 
 using namespace rvtrace;
 
@@ -90,6 +90,10 @@ struct xstatus_t : BitField
     {
     }
 
+    xstatus_t(int32_t value) : BitField(value)
+    {
+    }
+
     using SD    = BitFieldMember<31>;   // Status Dirty
 
     using TSR   = BitFieldMember<22>;   // Trap SRET
@@ -124,6 +128,10 @@ struct xtvec_t : BitField
     {
     }
 
+    xtvec_t(int32_t value) : BitField(value)
+    {
+    }
+
     using BASE = BitFieldMember<31, 2>;
     using MODE = BitFieldMember<1, 0>;
 
@@ -141,6 +149,10 @@ struct xip_t : BitField
     {
     }
 
+    xip_t(int32_t value) : BitField(value)
+    {
+    }
+
     using MEIP = BitFieldMember<11>;    // Machine External Interrupt Pending
     using SEIP = BitFieldMember<9>;     // Supervisor External Interrupt Pending
     using UEIP = BitFieldMember<8>;     // User External Interrupt Pending
@@ -152,14 +164,20 @@ struct xip_t : BitField
     using USIP = BitFieldMember<0>;     // User Software Interrupt Pending
 
     static const int32_t WriteMask = MEIP::Mask | SEIP::Mask | UEIP::Mask | MSIP::Mask | SSIP::Mask | USIP::Mask;
-    static const int32_t SupervisorMask = SEIP::Mask | UEIP::Mask | STIP::Mask | UTIP::Mask | SSIP::Mask | USIP::Mask;
+
     static const int32_t UserMask = UEIP::Mask | UTIP::Mask | USIP::Mask;
+    static const int32_t SupervisorMask = SEIP::Mask | STIP::Mask | SSIP::Mask | UserMask;
+    static const int32_t MachineMask =  MEIP::Mask | MTIP::Mask | MSIP::Mask | SupervisorMask;
 };
 
 // mie, sie, uie
 struct xie_t : BitField
 {
     xie_t() : BitField(0)
+    {
+    }
+
+    xie_t(int32_t value) : BitField(value)
     {
     }
 
@@ -174,14 +192,20 @@ struct xie_t : BitField
     using USIE = BitFieldMember<0>;     // User Software Interrupt Enable
 
     static const int32_t WriteMask = MEIE::Mask | SEIE::Mask | UEIE::Mask | MSIE::Mask | SSIE::Mask | USIE::Mask;
-    static const int32_t SupervisorMask = SEIE::Mask | UEIE::Mask | STIE::Mask | UTIE::Mask | SSIE::Mask | USIE::Mask;
+
     static const int32_t UserMask = UEIE::Mask | UTIE::Mask | USIE::Mask;
+    static const int32_t SupervisorMask = SEIE::Mask | STIE::Mask | SSIE::Mask | UserMask;
+    static const int32_t MachineMask = MEIE::Mask | MTIE::Mask | MSIE::Mask | SupervisorMask;
 };
 
 // satp
 struct satp_t : BitField
 {
     satp_t() : BitField(0)
+    {
+    }
+
+    satp_t(int32_t value) : BitField(value)
     {
     }
 

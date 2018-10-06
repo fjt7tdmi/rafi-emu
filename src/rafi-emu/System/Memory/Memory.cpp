@@ -21,6 +21,7 @@
 #include <rvtrace/common.h>
 
 #include "../../Common/Exception.h"
+#include "../../Common/Macro.h"
 #include "Memory.h"
 
 Memory::Memory()
@@ -38,14 +39,14 @@ void Memory::LoadFile(const char* path, int offset)
 {
     if (!(0 <= offset && offset < MemorySize))
     {
-        abort();
+        ABORT();
     }
 
     std::ifstream f;
     f.open(path, std::fstream::binary | std::fstream::in);
     if (!f.is_open())
     {
-        std::abort();
+        ABORT();
     }
     f.read(&m_pBody[offset], MemorySize - offset);
     f.close();
@@ -55,7 +56,7 @@ void Memory::Copy(void* pOut, size_t size) const
 {
     if (size > MemorySize)
     {
-        abort();
+        ABORT();
     }
 
     std::memcpy(pOut, m_pBody, size);

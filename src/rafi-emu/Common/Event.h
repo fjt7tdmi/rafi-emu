@@ -57,7 +57,7 @@ struct OpEvent
 struct TrapEvent
 {
     TrapType trapType;
-    ExceptionType trapCause;
+    int32_t trapCause;
     PrivilegeLevel from;
     PrivilegeLevel to;
     int32_t trapValue;

@@ -17,11 +17,14 @@
 #pragma once
 
 #include "Csr.h"
+#include "CsrAccessor.h"
 #include "Decoder.h"
 #include "Executor.h"
-#include "MemoryAccessUnit.h"
-#include "ProcessorException.h"
+#include "InterruptController.h"
 #include "IntRegFile.h"
+#include "MemoryAccessUnit.h"
+#include "Trap.h"
+#include "TrapProcessor.h"
 
 #include "../../Common/Event.h"
 
@@ -31,7 +34,10 @@ public:
     // Setup
     Processor(Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
-        , m_Executor(&m_Csr, &m_IntRegFile, &m_MemAccessUnit)
+        , m_CsrAccessor(&m_Csr)
+        , m_InterruptController(&m_Csr)
+        , m_TrapProcessor(&m_Csr)
+        , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_MemAccessUnit)
     {
         std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
 
@@ -60,15 +66,25 @@ public:
     bool IsMemoryAccessEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
-    
+
 private:
+    void ClearOpEvent();
+
+    void SetOpEvent(int32_t virtualPc);
+    void SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode);
+
     // TODO: refactor and remove this def
     const int32_t InvalidValue = 0xcdcdcdcd;
 
     Csr m_Csr;
-    MemoryAccessUnit m_MemAccessUnit;
+    CsrAccessor m_CsrAccessor;
+    InterruptController m_InterruptController;
+    TrapProcessor m_TrapProcessor;
+
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;
+    MemoryAccessUnit m_MemAccessUnit;
+    
     Executor m_Executor;
 
     int32_t m_OpCount { 0 };
