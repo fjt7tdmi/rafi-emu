@@ -68,6 +68,11 @@ public:
     bool IsTrapEventExist() const;
 
 private:
+    void ClearOpEvent();
+
+    void SetOpEvent(int32_t virtualPc);
+    void SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode);
+
     // TODO: refactor and remove this def
     const int32_t InvalidValue = 0xcdcdcdcd;
 

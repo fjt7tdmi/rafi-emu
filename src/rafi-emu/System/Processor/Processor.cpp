@@ -34,24 +34,33 @@ void Processor::SetIntReg(int regId, int32_t regValue)
 
 void Processor::ProcessOneCycle()
 {
-    // clear event for Dump
-    m_OpEventValid = false;
-
+    ClearOpEvent();
     m_TrapProcessor.ClearEvent();
     m_MemAccessUnit.ClearEvent();
 
-    // TODO: Check interrupt
+    const auto pc = m_Csr.GetProgramCounter();
+
+    // Check interrupt
+    m_InterruptController.Update();
+
+    if (m_InterruptController.IsRequested())
+    {
+        auto interruptType = m_InterruptController.GetInterruptType();
+
+        m_TrapProcessor.ProcessInterrupt(interruptType, pc);
+
+        SetOpEvent(pc);
+        return;
+    }
 
     // Fetch Op
     Op op { OpClass::RV32I, OpCode::unknown };
-    int32_t pc = InvalidValue;
+
     int32_t insn = InvalidValue;
     PhysicalAddress physicalPc = InvalidValue;
 
     try
     {
-        pc = m_Csr.GetProgramCounter();
-
         m_MemAccessUnit.CheckException(MemoryAccessType::Instruction, pc, pc);
 
         insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
@@ -77,15 +86,7 @@ void Processor::ProcessOneCycle()
     }
 
     // set event for Dump
-    m_OpEvent.insn = insn;
-    m_OpEvent.opCode = op.opCode;
-    m_OpEvent.opId = m_OpCount;
-    m_OpEvent.virtualPc = pc;
-    m_OpEvent.physicalPc = physicalPc;
-
-    m_OpEventValid = true;
-
-    m_OpCount++;
+    SetOpEvent(pc, physicalPc, insn, op.opCode);
 }
 
 int Processor::GetCsrSize() const
@@ -151,4 +152,27 @@ bool Processor::IsMemoryAccessEventExist() const
 bool Processor::IsTrapEventExist() const
 {
     return m_TrapProcessor.IsTrapEventExist();
+}
+
+void Processor::ClearOpEvent()
+{
+    m_OpEventValid = false;
+}
+
+void Processor::SetOpEvent(int32_t virtualPc)
+{
+    SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown);
+}
+
+void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode)
+{
+    m_OpEvent.insn = insn;
+    m_OpEvent.opCode = opCode;
+    m_OpEvent.opId = m_OpCount;
+    m_OpEvent.virtualPc = virtualPc;
+    m_OpEvent.physicalPc = physicalPc;
+
+    m_OpEventValid = true;
+
+    m_OpCount++;
 }
