@@ -16,27 +16,49 @@
 
 #pragma once
 
+#include <vector>
+
 #include "../../Common/BasicTypes.h"
 #include "../Bus/IBusSlave.h"
+
+#include "UartTypes.h"
 
 class Uart : public IBusSlave
 {
 public:
-    virtual int8_t GetInt8(int address) const override;
+    virtual int8_t GetInt8(int address) override;
     virtual void SetInt8(int address, int8_t value) override;
 
-    virtual int16_t GetInt16(int address) const override;
+    virtual int16_t GetInt16(int address) override;
     virtual void SetInt16(int address, int16_t value) override;
 
-    virtual int32_t GetInt32(int address) const override;
+    virtual int32_t GetInt32(int address) override;
     virtual void SetInt32(int address, int32_t value) override;
 
     virtual int GetSize() const override
     {
-        return Size;
+        return RegSize;
     }
 
+    void ProcessCycle();
+
 private:
-    // UART register space size
-    static const int Size = 64;
+    static const int RegSize = 32;
+    static const int InitialRxCycle = 100;
+    static const int RxCycle = 50;
+
+    int32_t Read(int address, int size);
+    void Write(int address, int32_t value, int size);
+
+    void UpdateRx();
+    void PrintTx();
+
+    InterruptEnable m_InterruptEnable;
+    InterruptPending m_InterruptPending;
+
+    std::vector<char> m_TxChars;
+    char m_RxChar {'\0'};
+
+    int m_Cycle {0};
+    size_t m_PrintCount {0};
 };
