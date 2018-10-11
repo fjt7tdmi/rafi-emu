@@ -37,6 +37,7 @@ void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 
 void System::ProcessOneCycle()
 {
+    m_Uart.ProcessCycle();
     m_Processor.ProcessOneCycle();
 }
 
@@ -52,7 +53,8 @@ int System::GetMemorySize() const
 
 int32_t System::GetHostIoValue() const
 {
-    return m_Bus.GetInt32(Bus::HostIoAddr);
+    int offset = m_Bus.ConvertToMemoryOffset(Bus::HostIoAddr);
+    return m_Memory.GetInt32(offset);
 }
 
 void System::CopyCsr(void* pOut, size_t size) const

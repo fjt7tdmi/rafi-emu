@@ -62,7 +62,13 @@ void Memory::Copy(void* pOut, size_t size) const
     std::memcpy(pOut, m_pBody, size);
 }
 
-int8_t Memory::GetInt8(int address) const
+int32_t Memory::GetInt32(int address) const
+{
+    assert(0 <= address && address + sizeof(int32_t) <= MemorySize);
+    return *reinterpret_cast<int32_t*>(&m_pBody[address]);
+}
+
+int8_t Memory::GetInt8(int address)
 {
     assert(0 <= address && address + sizeof(int8_t) <= MemorySize);
     return *reinterpret_cast<int8_t*>(&m_pBody[address]);
@@ -74,7 +80,7 @@ void Memory::SetInt8(int address, int8_t value)
     *reinterpret_cast<int8_t*>(&m_pBody[address]) = value;
 }
 
-int16_t Memory::GetInt16(int address) const
+int16_t Memory::GetInt16(int address)
 {
     assert(0 <= address && address + sizeof(int16_t) <= MemorySize);
     return *reinterpret_cast<int16_t*>(&m_pBody[address]);
@@ -86,7 +92,7 @@ void Memory::SetInt16(int address, int16_t value)
     *reinterpret_cast<int16_t*>(&m_pBody[address]) = value;
 }
 
-int32_t Memory::GetInt32(int address) const
+int32_t Memory::GetInt32(int address)
 {
     assert(0 <= address && address + sizeof(int32_t) <= MemorySize);
     return *reinterpret_cast<int32_t*>(&m_pBody[address]);

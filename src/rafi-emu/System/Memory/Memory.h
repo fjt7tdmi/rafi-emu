@@ -36,13 +36,15 @@ public:
 
     void Copy(void* pOut, size_t size) const;
 
-    virtual int8_t GetInt8(int address) const override;
+    int32_t GetInt32(int address) const;
+
+    virtual int8_t GetInt8(int address) override;
     virtual void SetInt8(int address, int8_t value) override;
 
-    virtual int16_t GetInt16(int address) const override;
+    virtual int16_t GetInt16(int address) override;
     virtual void SetInt16(int address, int16_t value) override;
 
-    virtual int32_t GetInt32(int address) const override;
+    virtual int32_t GetInt32(int address) override;
     virtual void SetInt32(int address, int32_t value) override;
 
     virtual int GetSize() const override

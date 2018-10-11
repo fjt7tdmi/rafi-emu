@@ -33,13 +33,13 @@ public:
     {
     }
 
-    int8_t GetInt8(PhysicalAddress address) const;
+    int8_t GetInt8(PhysicalAddress address);
     void SetInt8(PhysicalAddress address, int8_t value);
 
-    int16_t GetInt16(PhysicalAddress address) const;
+    int16_t GetInt16(PhysicalAddress address);
     void SetInt16(PhysicalAddress address, int16_t value);
 
-    int32_t GetInt32(PhysicalAddress address) const;
+    int32_t GetInt32(PhysicalAddress address);
     void SetInt32(PhysicalAddress address, int32_t value);
 
     // Memory Map

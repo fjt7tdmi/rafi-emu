@@ -19,7 +19,7 @@
 
 //#define IGNORE_CONVERSION_ERROR
 
-int8_t Bus::GetInt8(PhysicalAddress address) const
+int8_t Bus::GetInt8(PhysicalAddress address)
 {
     try
     {
@@ -55,7 +55,7 @@ void Bus::SetInt8(PhysicalAddress address, int8_t value)
     }
 }
 
-int16_t Bus::GetInt16(PhysicalAddress address) const
+int16_t Bus::GetInt16(PhysicalAddress address)
 {
     try
     {
@@ -91,7 +91,7 @@ void Bus::SetInt16(PhysicalAddress address, int16_t value)
     }
 }
 
-int32_t Bus::GetInt32(PhysicalAddress address) const
+int32_t Bus::GetInt32(PhysicalAddress address)
 {
     try
     {
