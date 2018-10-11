@@ -18,11 +18,12 @@
 
 #include <utility>
 
-#include "../../Common/BasicTypes.h"
+#include <emu/BasicTypes.h>
+
 #include "IBusSlave.h"
 
-#include "../Memory/Memory.h"
-#include "../Uart/Uart.h"
+#include "../mem/Memory.h"
+#include "../uart/Uart.h"
 
 class Bus
 {

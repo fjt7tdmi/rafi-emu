@@ -17,7 +17,8 @@
 #include <cassert>
 #include <cstdio>
 
-#include "../../Common/Macro.h"
+#include <emu/Macro.h>
+
 #include "Uart.h"
 
 int8_t Uart::GetInt8(int address)

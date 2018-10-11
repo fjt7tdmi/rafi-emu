@@ -18,38 +18,38 @@
 
 #include <cstring>
 
-#include "../../Common/BitField.h"
-#include "../../Common/Event.h"
+#include <emu/BitField.h>
+#include <emu/Event.h>
 
 #include "Csr.h"
+#include "CsrTypes.h"
+#include "Trap.h"
 
 using namespace rvtrace;
 
-class CsrAccessor
+class TrapProcessor
 {
 public:
-    explicit CsrAccessor(Csr* pCsr)
+    explicit TrapProcessor(Csr* pCsr)
         : m_pCsr(pCsr)
 	{
-        std::memset(&m_ReadEvent, 0, sizeof(m_ReadEvent));
-        std::memset(&m_WriteEvent, 0, sizeof(m_WriteEvent));
 	}
 
-    int32_t Read(int addr);
-    void Write(int addr, int32_t value);
+    void ProcessException(const Trap& trap);
+    void ProcessInterrupt(InterruptType type, int32_t pc);
+    void ProcessTrapReturn(PrivilegeLevel level);
 
+    // for Dump
     void ClearEvent();
-    void CopyReadEvent(CsrReadEvent* pOut) const;
-    void CopyWriteEvent(CsrWriteEvent* pOut) const;
-    bool IsReadEventExist() const;
-    bool IsWriteEventExist() const;
+    void CopyTrapEvent(TrapEvent* pOut) const;
+    bool IsTrapEventExist() const;
 
 private:
+    void ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, int32_t trapValue, int32_t pc, PrivilegeLevel nextPrivilegeLevel);
+
     Csr* m_pCsr;
 
-    bool m_ReadEventValid { false };
-    bool m_WriteEventValid { false };
+    bool m_TrapEventValid { false };
 
-    CsrReadEvent m_ReadEvent;
-    CsrWriteEvent m_WriteEvent;
+    TrapEvent m_TrapEvent;
 };

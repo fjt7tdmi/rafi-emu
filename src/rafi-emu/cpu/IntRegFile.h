@@ -19,22 +19,21 @@
 #include <cassert>
 #include <cstdint>
 
-#include "../../Common/IInterruptSource.h"
+#include <emu/Exception.h>
 
-#include "Csr.h"
-
-class InterruptController
+class IntRegFile
 {
 public:
-    InterruptController(Csr* pCsr);
+    static const int IntRegCount = 32;
 
-    void Update();
+    IntRegFile();
 
-    bool IsRequested() const;
-    InterruptType GetInterruptType() const;
+    void Copy(void* pOut, size_t size) const;
+
+	int32_t Read(int regId) const;
+
+    void Write(int regId, int32_t value);
 
 private:
-    Csr* m_pCsr;
-    bool m_IsRequested;
-    InterruptType m_InterruptType;
+	int32_t m_Body[IntRegCount];
 };

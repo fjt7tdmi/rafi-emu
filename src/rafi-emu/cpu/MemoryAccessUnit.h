@@ -19,8 +19,9 @@
 #include <cstdint>
 #include <cstring>
 
-#include "../../Common/BitField.h"
-#include "../Bus/Bus.h"
+#include <emu/BitField.h>
+
+#include "../bus/Bus.h"
 
 #include "Csr.h"
 

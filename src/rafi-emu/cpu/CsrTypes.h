@@ -18,7 +18,7 @@
 
 #include <cstring>
 
-#include "../../Common/BitField.h"
+#include <emu/BitField.h>
 
 #include "Trap.h"
 

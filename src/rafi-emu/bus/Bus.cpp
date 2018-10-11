@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include "../../Common/Exception.h"
+#include <emu/Exception.h>
+
 #include "Bus.h"
 
 //#define IGNORE_CONVERSION_ERROR

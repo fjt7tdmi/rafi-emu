@@ -21,15 +21,15 @@
 
 #include <boost/program_options.hpp>
 
-#include "Common/BasicTypes.h"
-#include "Common/Exception.h"
+#include <emu/BasicTypes.h>
+#include <emu/Exception.h>
 
-#include "Profiler/Profiler.h"
+#include "bus/Bus.h"
 
-#include "System/System.h"
-#include "System/Bus/Bus.h"
+#include "log/Profiler.h"
+#include "log/TraceDumper.h"
 
-#include "TraceDumper.h"
+#include "System.h"
 
 using namespace std;
 

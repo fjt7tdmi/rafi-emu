@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "Uart/Uart.h"
-#include "Memory/Memory.h"
-#include "Bus/Bus.h"
-#include "Processor/Processor.h"
+#include "uart/Uart.h"
+#include "mem/Memory.h"
+#include "bus/Bus.h"
+#include "cpu/Processor.h"
 
-#include "../Common/Event.h"
+#include <emu/Event.h>
 
 class System
 {

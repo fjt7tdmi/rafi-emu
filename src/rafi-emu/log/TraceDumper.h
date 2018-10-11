@@ -16,41 +16,40 @@
 
 #pragma once
 
-#include "../../Common/BitField.h"
-#include "../Bus/IBusSlave.h"
+#include <cstdio>
 
-enum Address
+#include <rvtrace/writer.h>
+
+#include "../System.h"
+
+class TraceDumper final
 {
-    Address_TxData = 0,
-    Address_RxData = 4,
-    Address_InterruptEnable = 16,
-    Address_InterruptPending = 24,
-};
+public:
+    TraceDumper(const char* path, const System* pSystem);
 
-struct InterruptEnable : BitField
-{
-    InterruptEnable() : BitField(0)
+    ~TraceDumper();
+
+    void EnableDump();
+    void EnableDumpCsr();
+    void EnableDumpMemory();
+
+    void DumpOneCycle(int cycle);
+
+    void DumpHeader()
     {
+        // stub
+    }
+    void DumpFooter()
+    {
+        // stub
     }
 
-    InterruptEnable(int32_t value) : BitField(value)
-    {
-    }
+private:
+    FileTraceWriter m_FileTraceWriter;
 
-    using TXIE = BitFieldMember<1>;
-    using RXIE = BitFieldMember<2>;
-};
+    const System* m_pSystem;
 
-struct InterruptPending : BitField
-{
-    InterruptPending() : BitField(0)
-    {
-    }
-
-    InterruptPending(int32_t value) : BitField(value)
-    {
-    }
-
-    using TXIP = BitFieldMember<1>;
-    using RXIP = BitFieldMember<2>;
+    bool m_Enabled = false;
+    bool m_EnableDumpCsr = false;
+    bool m_EnableDumpMemory = false;
 };

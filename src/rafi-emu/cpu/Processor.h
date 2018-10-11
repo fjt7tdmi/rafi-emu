@@ -26,7 +26,7 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-#include "../../Common/Event.h"
+#include <emu/Event.h>
 
 class Processor
 {
@@ -84,7 +84,7 @@ private:
     Decoder m_Decoder;
     IntRegFile m_IntRegFile;
     MemoryAccessUnit m_MemAccessUnit;
-    
+
     Executor m_Executor;
 
     int32_t m_OpCount { 0 };

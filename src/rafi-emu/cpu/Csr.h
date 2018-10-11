@@ -19,8 +19,8 @@
 #include <cstring>
 #include <optional>
 
-#include "../../Common/BitField.h"
-#include "../../Common/Event.h"
+#include <emu/BitField.h>
+#include <emu/Event.h>
 
 #include "CsrTypes.h"
 #include "Trap.h"

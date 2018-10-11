@@ -17,8 +17,9 @@
 #include <cassert>
 #include <cstdint>
 
+#include <emu/Macro.h>
+
 #include "TrapProcessor.h"
-#include "../../Common/Macro.h"
 
 using namespace rvtrace;
 
@@ -61,19 +62,19 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
 {
     xstatus_t status;
     int32_t pc;
-    
+
     int32_t previousLevel;
     int32_t previousInterruptEnable;
 
     switch (level)
     {
     case PrivilegeLevel::Machine:
-        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::mstatus);  
+        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::mstatus);
         pc = m_pCsr->Read(csr_addr_t::mepc);
 
         previousLevel = status.GetMember<xstatus_t::MPP>();
         previousInterruptEnable = status.GetMember<xstatus_t::MPIE>();
-        
+
         status.SetMember<xstatus_t::MPP>(0);
         status.SetMember<xstatus_t::MIE>(previousInterruptEnable);
 
@@ -81,12 +82,12 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         m_pCsr->SetProgramCounter(pc);
         break;
     case PrivilegeLevel::Supervisor:
-        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::sstatus);  
+        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::sstatus);
         pc = m_pCsr->Read(csr_addr_t::sepc);
 
         previousLevel = status.GetMember<xstatus_t::SPP>();
         previousInterruptEnable = status.GetMember<xstatus_t::SPIE>();
-        
+
         status.SetMember<xstatus_t::SPP>(0);
         status.SetMember<xstatus_t::SIE>(previousInterruptEnable);
 
@@ -169,7 +170,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
     else
     {
         m_pCsr->SetProgramCounter(base);
-    }    
+    }
 
     // for Dump
     m_TrapEvent.trapType = isInterrupt ? TrapType::Interrupt : TrapType::Exception;

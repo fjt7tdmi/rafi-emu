@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include "../../Common/Exception.h"
+#include <emu/Exception.h>
 
 #include "Trap.h"
 #include "Csr.h"

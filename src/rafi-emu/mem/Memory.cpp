@@ -20,8 +20,9 @@
 
 #include <rvtrace/common.h>
 
-#include "../../Common/Exception.h"
-#include "../../Common/Macro.h"
+#include <emu/Exception.h>
+#include <emu/Macro.h>
+
 #include "Memory.h"
 
 Memory::Memory()

@@ -18,7 +18,8 @@
 #include <string>
 #include <sstream>
 
-#include "System/Bus/Bus.h"
+#include "../bus/Bus.h"
+
 #include "TraceDumper.h"
 
 #pragma warning (disable: 4996)
@@ -64,7 +65,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     {
         flags |= NodeFlag_Trap32;
     }
-    
+
     if (m_pSystem->IsMemoryAccessEventExist())
     {
         flags |= NodeFlag_MemoryAccess32;
@@ -108,10 +109,10 @@ void TraceDumper::DumpOneCycle(int cycle)
 
     // IntReg32Node
     // TODO: optimize (values are double copied now)
-    IntReg32Node intRegNode;    
+    IntReg32Node intRegNode;
 
     m_pSystem->CopyIntRegs(&intRegNode.regs, sizeof(intRegNode.regs));
-    
+
     builder.SetNode(intRegNode);
 
     // Trap32Node

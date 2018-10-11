@@ -20,7 +20,8 @@
 #include <fstream>
 #include <iostream>
 
-#include "../../Common/Macro.h"
+#include <emu/Macro.h>
+
 #include "Executor.h"
 
 using namespace std;
@@ -121,7 +122,7 @@ std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address)
     {
         return trap;
     }
-    
+
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
@@ -134,12 +135,12 @@ std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc) const
     case PrivilegeLevel::Machine:
         return MakeEnvironmentCallFromMachineException(pc);
     case PrivilegeLevel::Supervisor:
-        return MakeEnvironmentCallFromSupervisorException(pc);        
+        return MakeEnvironmentCallFromSupervisorException(pc);
     case PrivilegeLevel::User:
         return MakeEnvironmentCallFromUserException(pc);
     default:
         ABORT();
-    }    
+    }
 }
 
 void Executor::ProcessRV32I(const Op& op, int32_t pc)

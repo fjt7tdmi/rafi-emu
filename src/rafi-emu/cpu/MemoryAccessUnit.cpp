@@ -17,8 +17,8 @@
 #include <cstdint>
 #include <fstream>
 
-#include "../../Common/Exception.h"
-#include "../../Common/Macro.h"
+#include <emu/Exception.h>
+#include <emu/Macro.h>
 
 #include "MemoryAccessUnit.h"
 
@@ -244,7 +244,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
 {
     const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
     const auto status = m_pCsr->ReadStatus();
-    
+
     bool supervisorCanAccessUserMemory = status.GetMember<xstatus_t::SUM>();
     bool makeExecutableReadable = status.GetMember<xstatus_t::MXR>();
 

@@ -16,16 +16,28 @@
 
 #pragma once
 
-#include <vector>
+#include <cstdint>
+#include <cstring>
 
-#include "../../Common/BasicTypes.h"
-#include "../Bus/IBusSlave.h"
+#include "../bus/IBusSlave.h"
 
-#include "UartTypes.h"
-
-class Uart : public IBusSlave
+class Memory : public IBusSlave
 {
+    Memory(const Memory&) = delete;
+    Memory(Memory&&) = delete;
+    Memory& operator=(const Memory&) = delete;
+    Memory& operator=(Memory&&) = delete;
+
 public:
+    Memory();
+    ~Memory();
+
+    void LoadFile(const char* path, int offset = 0);
+
+    void Copy(void* pOut, size_t size) const;
+
+    int32_t GetInt32(int address) const;
+
     virtual int8_t GetInt8(int address) override;
     virtual void SetInt8(int address, int8_t value) override;
 
@@ -37,28 +49,17 @@ public:
 
     virtual int GetSize() const override
     {
-        return RegSize;
+        return MemorySize;
     }
 
-    void ProcessCycle();
+    // Constants
+    static const int MemoryAddrWidth = 26;
+    static const int MemoryAddrMask = (1 << MemoryAddrWidth) - 1;
+    static const int MemorySize = 1 << MemoryAddrWidth;
+
+    // for Dump
+    static const int32_t LineSize = 64;
 
 private:
-    static const int RegSize = 32;
-    static const int InitialRxCycle = 100;
-    static const int RxCycle = 50;
-
-    int32_t Read(int address, int size);
-    void Write(int address, int32_t value, int size);
-
-    void UpdateRx();
-    void PrintTx();
-
-    InterruptEnable m_InterruptEnable;
-    InterruptPending m_InterruptPending;
-
-    std::vector<char> m_TxChars;
-    char m_RxChar {'\0'};
-
-    int m_Cycle {0};
-    size_t m_PrintCount {0};
+	char* m_pBody;
 };
