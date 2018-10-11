@@ -24,6 +24,8 @@
 
 using namespace rvtrace;
 
+namespace rafi {
+
 struct CsrReadEvent
 {
     csr_addr_t address;
@@ -62,3 +64,5 @@ struct TrapEvent
     PrivilegeLevel to;
     int32_t trapValue;
 };
+
+}

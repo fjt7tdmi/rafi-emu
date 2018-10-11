@@ -17,11 +17,13 @@
 #include <cassert>
 #include <cstdint>
 
-#include <emu/Macro.h>
+#include <rafi/Macro.h>
 
 #include "TrapProcessor.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 void TrapProcessor::ProcessException(const Trap& trap)
 {
@@ -179,3 +181,5 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
     m_TrapEvent.trapCause = exceptionCode;
     m_TrapEvent.trapValue = trapValue;
 }
+
+}}

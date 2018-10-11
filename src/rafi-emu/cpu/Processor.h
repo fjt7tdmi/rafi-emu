@@ -26,13 +26,15 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-#include <emu/Event.h>
+#include <rafi/Event.h>
+
+namespace rafi { namespace cpu {
 
 class Processor
 {
 public:
     // Setup
-    Processor(Bus* pBus, int32_t initialPc)
+    Processor(bus::Bus* pBus, int32_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
         , m_InterruptController(&m_Csr)
@@ -94,3 +96,5 @@ private:
 
     OpEvent m_OpEvent;
 };
+
+}}

@@ -17,12 +17,14 @@
 #include <cstdint>
 #include <fstream>
 
-#include <emu/Exception.h>
-#include <emu/Macro.h>
+#include <rafi/Exception.h>
+#include <rafi/Macro.h>
 
 #include "MemoryAccessUnit.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 namespace {
     const int PageSize = 1 << 12;
@@ -353,3 +355,5 @@ void MemoryAccessUnit::UpdateEntry(PhysicalAddress entryAddress, bool isWrite)
     }
     m_pBus->SetInt32(entryAddress, entry.GetInt32());
 }
+
+}}

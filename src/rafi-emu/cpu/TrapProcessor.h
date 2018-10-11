@@ -18,14 +18,16 @@
 
 #include <cstring>
 
-#include <emu/BitField.h>
-#include <emu/Event.h>
+#include <rafi/BitField.h>
+#include <rafi/Event.h>
 
 #include "Csr.h"
 #include "CsrTypes.h"
 #include "Trap.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 class TrapProcessor
 {
@@ -53,3 +55,5 @@ private:
 
     TrapEvent m_TrapEvent;
 };
+
+}}

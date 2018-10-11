@@ -17,9 +17,11 @@
 #include <cassert>
 #include <cstdio>
 
-#include <emu/Macro.h>
+#include <rafi/Macro.h>
 
 #include "Uart.h"
+
+namespace rafi { namespace uart {
 
 int8_t Uart::GetInt8(int address)
 {
@@ -135,3 +137,5 @@ void Uart::PrintTx()
 
     m_PrintCount = m_TxChars.size();
 }
+
+}}

@@ -19,13 +19,15 @@
 #include <cstdint>
 #include <cstring>
 
-#include <emu/BitField.h>
+#include <rafi/BitField.h>
 
 #include "../bus/Bus.h"
 
 #include "Csr.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 class PageTableEntry : public BitField
 {
@@ -57,7 +59,7 @@ public:
         std::memset(&m_Event, 0, sizeof(m_Event));
     }
 
-    void Initialize(Bus* pBus, Csr* pCsr)
+    void Initialize(bus::Bus* pBus, Csr* pCsr)
     {
         m_pBus = pBus;
         m_pCsr = pCsr;
@@ -94,10 +96,12 @@ private:
     PhysicalAddress ProcessTranslation(int32_t virtualAddress, bool isWrite);
     void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
 
-    Bus* m_pBus = nullptr;
+    bus::Bus* m_pBus = nullptr;
     Csr* m_pCsr = nullptr;
 
     bool m_EventValid = false;
 
     MemoryAccessEvent m_Event;
 };
+
+}}

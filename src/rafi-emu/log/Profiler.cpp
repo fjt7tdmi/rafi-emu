@@ -22,6 +22,8 @@
 
 #include "Profiler.h"
 
+namespace rafi { namespace log {
+
 #ifdef WIN32
 #pragma warning (disable: 4996)
 
@@ -48,7 +50,7 @@ void Profiler::Dump()
 {
     std::cout << std::dec
         << "[Profiler] process=" << m_Times[Phase_Process]
-        << ", dump=" << m_Times[Phase_Dump] 
+        << ", dump=" << m_Times[Phase_Dump]
         << std::endl;
 }
 
@@ -76,3 +78,5 @@ Profiler::Profiler()
     }
     SwitchPhase(Phase_None);
 }
+
+}}

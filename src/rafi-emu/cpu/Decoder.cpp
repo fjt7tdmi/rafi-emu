@@ -27,6 +27,8 @@
 using namespace std;
 using namespace rvtrace;
 
+namespace rafi { namespace cpu {
+
 namespace
 {
     inline int32_t sext(int32_t value, int msb)
@@ -518,3 +520,5 @@ void Decoder::DumpOperand(std::fstream& file, const Op& op) const
 		<< " rs2=" << std::dec << op.rs2
 		<< " imm=0x" << std::hex << op.imm;
 }
+
+}}

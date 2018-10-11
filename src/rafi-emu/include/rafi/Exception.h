@@ -32,34 +32,7 @@
         } \
     } while(0)
 
-class CommandLineOptionException
-{
-public:
-    explicit CommandLineOptionException(const char *pArgument)
-        : CommandLineOptionException(pArgument, nullptr)
-    {
-    }
-
-    CommandLineOptionException(const char *pArgument, const char* pMessage)
-        : m_pArgument(pArgument)
-        , m_pMessage(pMessage)
-    {
-    }
-
-    virtual void PrintMessage() const
-    {
-        std::cout << "[CommandLineOptionException] " << m_pArgument;
-        if (m_pMessage != nullptr)
-        {
-            std::cout << " (" << m_pMessage << ")";
-        }
-        std::cout << std::endl;
-    }
-
-private:
-    const char* m_pArgument;
-    const char* m_pMessage;
-};
+namespace rafi {
 
 class NotImplementedException
 {
@@ -115,3 +88,5 @@ public:
 private:
     PhysicalAddress m_Address;
 };
+
+}

@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rafi { namespace bus {
+
 class IBusSlave
 {
 public:
@@ -32,3 +34,5 @@ public:
 
     virtual int GetSize() const = 0;
 };
+
+}}

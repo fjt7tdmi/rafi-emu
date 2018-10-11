@@ -18,4 +18,8 @@
 
 #include <cstdint>
 
+namespace rafi {
+
 using PhysicalAddress = uint64_t;
+
+}

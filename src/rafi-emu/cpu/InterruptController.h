@@ -19,9 +19,11 @@
 #include <cassert>
 #include <cstdint>
 
-#include <emu/IInterruptSource.h>
+#include <rafi/IInterruptSource.h>
 
 #include "Csr.h"
+
+namespace rafi { namespace cpu {
 
 class InterruptController
 {
@@ -38,3 +40,5 @@ private:
     bool m_IsRequested;
     InterruptType m_InterruptType;
 };
+
+}}

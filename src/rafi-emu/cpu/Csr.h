@@ -19,13 +19,15 @@
 #include <cstring>
 #include <optional>
 
-#include <emu/BitField.h>
-#include <emu/Event.h>
+#include <rafi/BitField.h>
+#include <rafi/Event.h>
 
 #include "CsrTypes.h"
 #include "Trap.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 class Csr
 {
@@ -134,3 +136,5 @@ private:
     int32_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
 };
+
+}}

@@ -20,10 +20,12 @@
 
 #include <rvtrace/common.h>
 
-#include <emu/Exception.h>
-#include <emu/Macro.h>
+#include <rafi/Exception.h>
+#include <rafi/Macro.h>
 
 #include "Memory.h"
+
+namespace rafi { namespace mem {
 
 Memory::Memory()
 {
@@ -104,3 +106,5 @@ void Memory::SetInt32(int address, int32_t value)
     assert(0 <= address && address + sizeof(int32_t) <= MemorySize);
     *reinterpret_cast<int32_t*>(&m_pBody[address]) = value;
 }
+
+}}

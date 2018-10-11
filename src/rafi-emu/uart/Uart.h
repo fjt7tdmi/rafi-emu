@@ -18,13 +18,15 @@
 
 #include <vector>
 
-#include <emu/BasicTypes.h>
+#include <rafi/BasicTypes.h>
 
 #include "../bus/IBusSlave.h"
 
 #include "UartTypes.h"
 
-class Uart : public IBusSlave
+namespace rafi { namespace uart {
+
+class Uart : public bus::IBusSlave
 {
 public:
     virtual int8_t GetInt8(int address) override;
@@ -63,3 +65,5 @@ private:
     int m_Cycle {0};
     size_t m_PrintCount {0};
 };
+
+}}

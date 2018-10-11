@@ -18,6 +18,8 @@
 
 #include "IntRegFile.h"
 
+namespace rafi { namespace cpu {
+
 IntRegFile::IntRegFile()
 {
     std::memset(m_Body, 0, sizeof(m_Body));
@@ -46,3 +48,5 @@ void IntRegFile::Write(int regId, int32_t value)
         m_Body[regId] = value;
     }
 }
+
+}}

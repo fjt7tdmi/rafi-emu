@@ -18,11 +18,13 @@
 
 #include <cstring>
 
-#include <emu/BitField.h>
+#include <rafi/BitField.h>
 
 #include "Trap.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 enum XLEN
 {
@@ -219,3 +221,5 @@ struct satp_t : BitField
         Sv32 = 1,
     };
 };
+
+}}

@@ -25,6 +25,8 @@
 using namespace std;
 using namespace rvtrace;
 
+namespace rafi { namespace cpu {
+
 void Processor::SetIntReg(int regId, int32_t regValue)
 {
     m_IntRegFile.Write(regId, regValue);
@@ -192,3 +194,5 @@ void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_
 
     m_OpCount++;
 }
+
+}}

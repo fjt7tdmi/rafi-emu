@@ -26,6 +26,8 @@
 
 using namespace rvtrace;
 
+namespace rafi { namespace log {
+
 TraceDumper::TraceDumper(const char* path, const System* pSystem)
     : m_FileTraceWriter(path)
     , m_pSystem(pSystem)
@@ -174,3 +176,5 @@ void TraceDumper::DumpOneCycle(int cycle)
 
     m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
 }
+
+}}

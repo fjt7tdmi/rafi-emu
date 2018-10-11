@@ -19,6 +19,8 @@
 
 #include "InterruptController.h"
 
+namespace rafi { namespace cpu {
+
 namespace {
     int32_t CountBits(int32_t value)
     {
@@ -67,3 +69,5 @@ InterruptType InterruptController::GetInterruptType() const
 
     return m_InterruptType;
 }
+
+}}

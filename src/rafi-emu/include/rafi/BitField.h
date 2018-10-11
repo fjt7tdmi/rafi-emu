@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rafi {
+
 template <int msb, int lsb = msb>
 class BitFieldMember
 {
@@ -110,3 +112,5 @@ public:
 private:
     uint32_t m_Value;
 };
+
+}

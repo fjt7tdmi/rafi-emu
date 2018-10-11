@@ -18,12 +18,14 @@
 
 #include <cstring>
 
-#include <emu/BitField.h>
-#include <emu/Event.h>
+#include <rafi/BitField.h>
+#include <rafi/Event.h>
 
 #include "Csr.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 class CsrAccessor
 {
@@ -53,3 +55,5 @@ private:
     CsrReadEvent m_ReadEvent;
     CsrWriteEvent m_WriteEvent;
 };
+
+}}

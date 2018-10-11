@@ -21,7 +21,9 @@
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
 
-#include <emu/Event.h>
+#include <rafi/Event.h>
+
+namespace rafi {
 
 class System
 {
@@ -61,8 +63,10 @@ private:
     // dtb address register is a1(x11)
     const int DtbAddressRegId = 11;
 
-    Uart m_Uart;
-    Memory m_Memory;
-    Bus m_Bus;
-    Processor m_Processor;
+    uart::Uart m_Uart;
+    mem::Memory m_Memory;
+    bus::Bus m_Bus;
+    cpu::Processor m_Processor;
 };
+
+}

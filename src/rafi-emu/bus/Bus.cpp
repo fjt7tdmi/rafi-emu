@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include <emu/Exception.h>
+#include <rafi/Exception.h>
 
 #include "Bus.h"
 
 //#define IGNORE_CONVERSION_ERROR
+
+namespace rafi { namespace bus {
 
 int8_t Bus::GetInt8(PhysicalAddress address)
 {
@@ -166,3 +168,5 @@ int Bus::ConvertToMemoryOffset(PhysicalAddress address) const
         throw InvalidAccessException(address);
     }
 }
+
+}}

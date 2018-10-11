@@ -18,6 +18,8 @@
 
 #include <cstdint>
 
+namespace rafi { namespace log {
+
 class Profiler
 {
 public:
@@ -41,3 +43,5 @@ private:
     // Total time for each phase
     int64_t m_Times[Phase_MaxCount];
 };
+
+}}

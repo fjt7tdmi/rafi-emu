@@ -123,12 +123,12 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
-    src/rafi-emu/include/emu/BasicTypes.h
-    src/rafi-emu/include/emu/BitField.h
-    src/rafi-emu/include/emu/Event.h
-    src/rafi-emu/include/emu/Exception.h
-    src/rafi-emu/include/emu/IInterruptSource.h
-    src/rafi-emu/include/emu/Macro.h
+    src/rafi-emu/include/rafi/BasicTypes.h
+    src/rafi-emu/include/rafi/BitField.h
+    src/rafi-emu/include/rafi/Event.h
+    src/rafi-emu/include/rafi/Exception.h
+    src/rafi-emu/include/rafi/IInterruptSource.h
+    src/rafi-emu/include/rafi/Macro.h
     src/rafi-emu/log/Profiler.cpp
     src/rafi-emu/log/Profiler.h
     src/rafi-emu/log/TraceDumper.cpp

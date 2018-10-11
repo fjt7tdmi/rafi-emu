@@ -21,7 +21,9 @@
 
 #include "../bus/IBusSlave.h"
 
-class Memory : public IBusSlave
+namespace rafi { namespace mem {
+
+class Memory : public bus::IBusSlave
 {
     Memory(const Memory&) = delete;
     Memory(Memory&&) = delete;
@@ -63,3 +65,5 @@ public:
 private:
 	char* m_pBody;
 };
+
+}}

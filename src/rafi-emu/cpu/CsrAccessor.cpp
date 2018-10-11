@@ -21,6 +21,8 @@
 
 using namespace rvtrace;
 
+namespace rafi { namespace cpu {
+
 int32_t CsrAccessor::Read(int addr)
 {
     const auto csrAddr = static_cast<csr_addr_t>(addr);
@@ -72,3 +74,5 @@ bool CsrAccessor::IsWriteEventExist() const
 {
     return m_WriteEventValid;
 }
+
+}}

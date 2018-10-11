@@ -19,7 +19,9 @@
 #include <cassert>
 #include <cstdint>
 
-#include <emu/Exception.h>
+#include <rafi/Exception.h>
+
+namespace rafi { namespace cpu {
 
 class IntRegFile
 {
@@ -37,3 +39,5 @@ public:
 private:
 	int32_t m_Body[IntRegCount];
 };
+
+}}

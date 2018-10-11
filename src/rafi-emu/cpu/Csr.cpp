@@ -17,12 +17,14 @@
 #include <cassert>
 #include <cstdint>
 
-#include <emu/Exception.h>
+#include <rafi/Exception.h>
 
 #include "Trap.h"
 #include "Csr.h"
 
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 namespace {
 
@@ -697,3 +699,5 @@ void Csr::CopyRegisterFile(void* pOut, size_t size) const
         p[i] = Read(static_cast<csr_addr_t>(i));
     }
 }
+
+}}

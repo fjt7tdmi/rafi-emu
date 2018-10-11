@@ -16,8 +16,12 @@
 
 #pragma once
 
+namespace rafi {
+
 class IInterruptSource
 {
 public:
     virtual bool IsRequested() const = 0;
 };
+
+}

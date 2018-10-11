@@ -26,6 +26,8 @@
 
 using namespace rvtrace;
 
+namespace rafi { namespace cpu {
+
 struct Trap
 {
     ExceptionType type;
@@ -46,3 +48,5 @@ Trap MakeEnvironmentCallFromMachineException(int32_t pc);
 Trap MakeInstructionPageFaultException(int32_t pc);
 Trap MakeLoadPageFaultException(int32_t pc, int32_t address);
 Trap MakeStorePageFaultException(int32_t pc, int32_t address);
+
+}}

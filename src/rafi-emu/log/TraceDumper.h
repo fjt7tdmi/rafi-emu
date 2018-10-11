@@ -22,6 +22,8 @@
 
 #include "../System.h"
 
+namespace rafi { namespace log {
+
 class TraceDumper final
 {
 public:
@@ -53,3 +55,5 @@ private:
     bool m_EnableDumpCsr = false;
     bool m_EnableDumpMemory = false;
 };
+
+}}

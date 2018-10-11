@@ -20,12 +20,14 @@
 #include <fstream>
 #include <iostream>
 
-#include <emu/Macro.h>
+#include <rafi/Macro.h>
 
 #include "Executor.h"
 
 using namespace std;
 using namespace rvtrace;
+
+namespace rafi { namespace cpu {
 
 std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const
 {
@@ -508,3 +510,5 @@ void Executor::ProcessRV32A(const Op& op)
         throw NotImplementedException(__FILE__, __LINE__);
     }
 }
+
+}}

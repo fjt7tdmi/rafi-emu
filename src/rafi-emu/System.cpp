@@ -16,6 +16,8 @@
 
 #include "System.h"
 
+namespace rafi {
+
 System::System(int32_t initialPc)
     : m_Uart()
     , m_Memory()
@@ -53,7 +55,7 @@ int System::GetMemorySize() const
 
 int32_t System::GetHostIoValue() const
 {
-    int offset = m_Bus.ConvertToMemoryOffset(Bus::HostIoAddr);
+    int offset = m_Bus.ConvertToMemoryOffset(bus::Bus::HostIoAddr);
     return m_Memory.GetInt32(offset);
 }
 
@@ -120,4 +122,6 @@ bool System::IsOpEventExist() const
 bool System::IsTrapEventExist() const
 {
     return m_Processor.IsTrapEventExist();
+}
+
 }

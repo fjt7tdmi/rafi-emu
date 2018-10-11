@@ -18,17 +18,19 @@
 
 #include <utility>
 
-#include <emu/BasicTypes.h>
+#include <rafi/BasicTypes.h>
 
 #include "IBusSlave.h"
 
 #include "../mem/Memory.h"
 #include "../uart/Uart.h"
 
+namespace rafi { namespace bus {
+
 class Bus
 {
 public:
-    Bus(Memory* pMemory, Uart* pUart)
+    Bus(mem::Memory* pMemory, uart::Uart* pUart)
         : m_pMemory(pMemory)
         , m_pUart(pUart)
     {
@@ -57,6 +59,8 @@ private:
 
     Location Convert(PhysicalAddress address, int accessSize) const;
 
-    Memory* m_pMemory;
-    Uart* m_pUart;
+    mem::Memory* m_pMemory;
+    uart::Uart* m_pUart;
 };
+
+}}

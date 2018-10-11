@@ -16,9 +16,11 @@
 
 #pragma once
 
-#include <emu/BitField.h>
+#include <rafi/BitField.h>
 
-#include "../Bus/IBusSlave.h"
+#include "../bus/IBusSlave.h"
+
+namespace rafi { namespace uart {
 
 enum Address
 {
@@ -55,3 +57,5 @@ struct InterruptPending : BitField
     using TXIP = BitFieldMember<1>;
     using RXIP = BitFieldMember<2>;
 };
+
+}}
