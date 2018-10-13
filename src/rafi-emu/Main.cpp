@@ -25,6 +25,7 @@
 #include <rafi/Exception.h>
 
 #include "bus/Bus.h"
+#include "bus/MemoryMap.h"
 
 #include "log/Profiler.h"
 #include "log/TraceDumper.h"
@@ -107,7 +108,7 @@ public:
     }
 
 private:
-    static const rafi::PhysicalAddress DefaultAddress{ rafi::bus::Bus::MemoryAddr };
+    static const rafi::PhysicalAddress DefaultAddress{ rafi::bus::MemoryAddr };
 
     std::string m_Path;
     rafi::PhysicalAddress m_Address;

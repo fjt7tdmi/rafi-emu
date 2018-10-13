@@ -16,16 +16,17 @@
 
 #pragma once
 
-#include <rafi/BitField.h>
+#include <utility>
 
-namespace rafi { namespace timer {
+#include <rafi/BasicTypes.h>
 
-enum Address
-{
-    Address_TimeLow = 0,
-    Address_TimeHigh = 4,
-    Address_TimeCmpLow = 8,
-    Address_TimeCmpHigh = 12,
-};
+namespace rafi { namespace bus {
+
+// Memory Map
+const PhysicalAddress MemoryAddr = 0x80000000;
+const PhysicalAddress MemoryMirrorAddr = 0xc0000000;
+const PhysicalAddress UartAddr = 0x40002000;
+const PhysicalAddress TimerAddr = 0x40000000;
+const PhysicalAddress HostIoAddr = 0x80001000;
 
 }}

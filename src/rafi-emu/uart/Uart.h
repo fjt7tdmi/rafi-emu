@@ -20,13 +20,13 @@
 
 #include <rafi/BasicTypes.h>
 
-#include "../bus/IBusSlave.h"
+#include "../bus/IIo.h"
 
 #include "UartTypes.h"
 
 namespace rafi { namespace uart {
 
-class Uart : public bus::IBusSlave
+class Uart : public bus::IIo
 {
 public:
     virtual int8_t GetInt8(int address) override;
@@ -42,6 +42,8 @@ public:
     {
         return RegSize;
     }
+
+    virtual bool IsInterruptRequested() const override;
 
     void ProcessCycle();
 

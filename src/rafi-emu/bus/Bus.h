@@ -21,6 +21,7 @@
 #include <rafi/BasicTypes.h>
 
 #include "IBusSlave.h"
+#include "IIo.h"
 
 #include "../mem/Memory.h"
 #include "../uart/Uart.h"
@@ -47,20 +48,14 @@ public:
     int32_t GetInt32(PhysicalAddress address);
     void SetInt32(PhysicalAddress address, int32_t value);
 
-    // Memory Map
-    static const PhysicalAddress MemoryAddr = 0x80000000;
-    static const PhysicalAddress MemoryMirrorAddr = 0xc0000000;
-    static const PhysicalAddress UartAddr = 0x40002000;
-    static const PhysicalAddress TimerAddr = 0x40000000;
-
-    static const PhysicalAddress HostIoAddr = 0x80001000;
-
     int ConvertToMemoryOffset(PhysicalAddress address) const;
+    bool IsMemoryAddress(PhysicalAddress address, int accessSize) const;
 
 private:
-    using Location = std::pair<IBusSlave*, int>;
+    using Location = std::pair<IIo*, int>;
 
-    Location Convert(PhysicalAddress address, int accessSize) const;
+    Location ConvertToIoOffset(PhysicalAddress address) const;
+    bool IsIoAddress(PhysicalAddress address, int accessSize) const;
 
     mem::Memory* m_pMemory;
     uart::Uart* m_pUart;

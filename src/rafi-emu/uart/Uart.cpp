@@ -53,6 +53,11 @@ void Uart::SetInt32(int address, int32_t value)
     Write(address, static_cast<int32_t>(value), sizeof(int32_t));
 }
 
+bool Uart::IsInterruptRequested() const
+{
+    return false;
+}
+
 void Uart::ProcessCycle()
 {
     //UpdateRx();

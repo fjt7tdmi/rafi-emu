@@ -18,8 +18,6 @@
 
 #include <rafi/BitField.h>
 
-#include "../bus/IBusSlave.h"
-
 namespace rafi { namespace uart {
 
 enum Address

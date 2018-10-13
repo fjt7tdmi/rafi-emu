@@ -77,6 +77,11 @@ void Timer::SetInt32(int address, int32_t value)
     }
 }
 
+bool Timer::IsInterruptRequested() const
+{
+    return m_Time >= m_TimeCmp;
+}
+
 void Timer::ProcessCycle()
 {
     m_Time++;

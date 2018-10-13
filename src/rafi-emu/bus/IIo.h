@@ -16,16 +16,25 @@
 
 #pragma once
 
-#include <rafi/BitField.h>
+#include <cstdint>
 
-namespace rafi { namespace timer {
+namespace rafi { namespace bus {
 
-enum Address
+class IIo
 {
-    Address_TimeLow = 0,
-    Address_TimeHigh = 4,
-    Address_TimeCmpLow = 8,
-    Address_TimeCmpHigh = 12,
+public:
+    virtual int8_t GetInt8(int address) = 0;
+    virtual void SetInt8(int address, int8_t value) = 0;
+
+    virtual int16_t GetInt16(int address) = 0;
+    virtual void SetInt16(int address, int16_t value) = 0;
+
+    virtual int32_t GetInt32(int address) = 0;
+    virtual void SetInt32(int address, int32_t value) = 0;
+
+    virtual int GetSize() const = 0;
+
+    virtual bool IsInterruptRequested() const = 0;
 };
 
 }}
