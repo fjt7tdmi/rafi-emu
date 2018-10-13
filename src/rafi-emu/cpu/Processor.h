@@ -41,8 +41,6 @@ public:
         , m_TrapProcessor(&m_Csr)
         , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_MemAccessUnit)
     {
-        std::memset(&m_OpEvent, 0, sizeof(m_OpEvent));
-
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
     }
 
@@ -76,8 +74,8 @@ public:
 private:
     void ClearOpEvent();
 
-    void SetOpEvent(int32_t virtualPc);
-    void SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode);
+    void SetOpEvent(int32_t virtualPc, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
 
     // TODO: refactor and remove this def
     const int32_t InvalidValue = 0xcdcdcdcd;

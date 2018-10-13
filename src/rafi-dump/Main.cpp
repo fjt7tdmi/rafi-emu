@@ -38,10 +38,12 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
         "    cycle: 0x%08x\n"
         "    opId:  0x%08x\n"
         "    insn:  0x%08x\n"
+        "    priv:  %s\n"
         "  }\n",
         node->cycle,
         node->opId,
-        node->insn
+        node->insn,
+        GetString(node->privilegeLevel)
     );
 }
 

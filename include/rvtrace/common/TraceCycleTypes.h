@@ -93,7 +93,7 @@ struct BasicInfoNode
     int32_t cycle;
     int32_t opId;
     int32_t insn;
-    int8_t reserved[4];
+    PrivilegeLevel privilegeLevel;
 };
 
 struct Pc32Node

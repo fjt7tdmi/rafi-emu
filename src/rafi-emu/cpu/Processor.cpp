@@ -48,6 +48,7 @@ void Processor::ProcessOneCycle()
     m_TrapProcessor.ClearEvent();
     m_MemAccessUnit.ClearEvent();
 
+    const auto privilegeLevel = m_Csr.GetPrivilegeLevel();
     const auto pc = m_Csr.GetProgramCounter();
 
     // Check interrupt
@@ -59,7 +60,7 @@ void Processor::ProcessOneCycle()
 
         m_TrapProcessor.ProcessInterrupt(interruptType, pc);
 
-        SetOpEvent(pc);
+        SetOpEvent(pc, privilegeLevel);
         return;
     }
 
@@ -73,7 +74,7 @@ void Processor::ProcessOneCycle()
     {
         m_TrapProcessor.ProcessException(fetchTrap.value());
 
-        SetOpEvent(pc);
+        SetOpEvent(pc, privilegeLevel);
         return;
     }
 
@@ -87,7 +88,7 @@ void Processor::ProcessOneCycle()
 
         m_TrapProcessor.ProcessException(decodeTrap);
 
-        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
 
@@ -97,7 +98,7 @@ void Processor::ProcessOneCycle()
     {
         m_TrapProcessor.ProcessException(preExecuteTrap.value());
 
-        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
 
@@ -110,11 +111,11 @@ void Processor::ProcessOneCycle()
     {
         m_TrapProcessor.ProcessException(postExecuteTrap.value());
 
-        SetOpEvent(pc, physicalPc, insn, op.opCode);
+        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
 
-    SetOpEvent(pc, physicalPc, insn, op.opCode);
+    SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
 }
 
 int Processor::GetCsrCount() const
@@ -187,18 +188,19 @@ void Processor::ClearOpEvent()
     m_OpEventValid = false;
 }
 
-void Processor::SetOpEvent(int32_t virtualPc)
+void Processor::SetOpEvent(int32_t virtualPc, PrivilegeLevel privilegeLevel)
 {
-    SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown);
+    SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown, privilegeLevel);
 }
 
-void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode)
+void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
 {
     m_OpEvent.insn = insn;
     m_OpEvent.opCode = opCode;
     m_OpEvent.opId = m_OpCount;
     m_OpEvent.virtualPc = virtualPc;
     m_OpEvent.physicalPc = physicalPc;
+    m_OpEvent.privilegeLevel = privilegeLevel;
 
     m_OpEventValid = true;
 

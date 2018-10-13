@@ -99,7 +99,7 @@ void TraceDumper::DumpOneCycle(int cycle)
         cycle,
         opEvent.opId,
         opEvent.insn,
-        {0, 0, 0, 0},
+        opEvent.privilegeLevel,
     };
     builder.SetNode(basicInfoNode);
 

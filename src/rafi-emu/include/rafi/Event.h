@@ -54,6 +54,7 @@ struct OpEvent
     PhysicalAddress physicalPc;
     int32_t insn;
     OpCode opCode;
+    PrivilegeLevel privilegeLevel;
 };
 
 struct TrapEvent
