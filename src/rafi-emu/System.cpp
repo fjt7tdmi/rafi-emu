@@ -50,9 +50,9 @@ void System::ProcessOneCycle()
     m_Processor.ProcessOneCycle();
 }
 
-int System::GetCsrSize() const
+int System::GetCsrCount() const
 {
-    return m_Processor.GetCsrSize();
+    return m_Processor.GetCsrCount();
 }
 
 int System::GetMemorySize() const

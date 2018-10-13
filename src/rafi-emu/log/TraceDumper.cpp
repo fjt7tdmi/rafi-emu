@@ -83,7 +83,9 @@ void TraceDumper::DumpOneCycle(int cycle)
         flags |= NodeFlag_Memory;
     }
 
-    TraceCycleBuilder builder(flags);
+    const int csrCount = m_pSystem->GetCsrCount();
+
+    TraceCycleBuilder builder(flags, csrCount);
 
     // OpEvent
     assert(m_pSystem->IsOpEventExist());
@@ -118,7 +120,6 @@ void TraceDumper::DumpOneCycle(int cycle)
     builder.SetNode(intRegNode);
 
     // Trap32Node
-    // TODO: optimize (values are double copied now)
     if (m_pSystem->IsTrapEventExist())
     {
         TrapEvent trapEvent;
@@ -157,7 +158,10 @@ void TraceDumper::DumpOneCycle(int cycle)
     // Csr32Node
     if (m_EnableDumpCsr)
     {
-        throw NotImplementedException(__FILE__, __LINE__);
+        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Csr32));
+        auto buffer = builder.GetPointerToNode(NodeType::Csr32);
+
+        m_pSystem->CopyCsr(buffer, size);
     }
 
     // Memory

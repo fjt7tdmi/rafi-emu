@@ -89,16 +89,16 @@ const IntReg64Node* TraceCycleReaderImpl::GetIntReg64Node() const
     return reinterpret_cast<const IntReg64Node*>(GetNode(NodeType::IntReg64));
 }
 
-const Csr32NodeHeader* TraceCycleReaderImpl::GetCsr32Node() const
+const Csr32Node* TraceCycleReaderImpl::GetCsr32Node() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Csr32, sizeof(Csr32NodeHeader));
-    return reinterpret_cast<const Csr32NodeHeader*>(GetNode(NodeType::Csr32));
+    CheckNodeSizeGreaterThan(NodeType::Csr32, sizeof(Csr32Node));
+    return reinterpret_cast<const Csr32Node*>(GetNode(NodeType::Csr32));
 }
 
-const Csr64NodeHeader* TraceCycleReaderImpl::GetCsr64Node() const
+const Csr64Node* TraceCycleReaderImpl::GetCsr64Node() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Csr64, sizeof(Csr64NodeHeader));
-    return reinterpret_cast<const Csr64NodeHeader*>(GetNode(NodeType::Csr64));
+    CheckNodeSizeGreaterThan(NodeType::Csr64, sizeof(Csr64Node));
+    return reinterpret_cast<const Csr64Node*>(GetNode(NodeType::Csr64));
 }
 
 const Trap32Node* TraceCycleReaderImpl::GetTrap32Node() const

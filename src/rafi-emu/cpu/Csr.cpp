@@ -26,6 +26,95 @@ using namespace rvtrace;
 
 namespace rafi { namespace cpu {
 
+namespace {
+
+const csr_addr_t DumpAddresses[] = {
+    csr_addr_t::ustatus,
+    csr_addr_t::uie,
+    csr_addr_t::utvec,
+
+    // User Trap Handling
+    csr_addr_t::uscratch,
+    csr_addr_t::uepc,
+    csr_addr_t::ucause,
+    csr_addr_t::utval,
+    csr_addr_t::uip,
+
+    // User Floating-Point CSRs (Unimplemented)
+#if defined(DUMP_USER_FP_CSR)
+    csr_addr_t::fflags,
+    csr_addr_t::frm,
+    csr_addr_t::fcsr,
+#endif
+
+    // Supervisor Trap Setup
+    csr_addr_t::sstatus,
+    csr_addr_t::sedeleg,
+    csr_addr_t::sideleg,
+    csr_addr_t::sie,
+    csr_addr_t::stvec,
+    csr_addr_t::scounteren,
+
+    // Supervisor Trap Handling
+    csr_addr_t::sscratch,
+    csr_addr_t::sepc,
+    csr_addr_t::scause,
+    csr_addr_t::stval,
+    csr_addr_t::sip,
+
+    // Supervisor Protection and Translation
+    csr_addr_t::satp,
+
+    // Machine Trap Setup
+    csr_addr_t::mstatus,
+    csr_addr_t::misa,
+    csr_addr_t::medeleg,
+    csr_addr_t::mideleg,
+    csr_addr_t::mie,
+    csr_addr_t::mtvec,
+    csr_addr_t::mcounteren,
+
+    // Machine Trap Handling
+    csr_addr_t::mscratch,
+    csr_addr_t::mepc,
+    csr_addr_t::mcause,
+    csr_addr_t::mtval,
+    csr_addr_t::mip,
+
+    // Machine Protection and Translation
+#if defined(DUMP_PMP_CSR)
+    csr_addr_t::pmpcfg0,
+    csr_addr_t::pmpcfg1,
+    csr_addr_t::pmpcfg2,
+    csr_addr_t::pmpcfg3,
+#endif
+
+    // Debug Trace Registers (Unimplemented)
+#if defined(DUMP_TRACE_CSR)
+    csr_addr_t::tselect,
+    csr_addr_t::tdata1,
+    csr_addr_t::tdata2,
+    csr_addr_t::tdata3,
+#endif
+
+    // Debug Mode Registers (Unimplemented)
+#if defined(DUMP_DEBUG_CSR)
+    csr_addr_t::dcsr,
+    csr_addr_t::dpc,
+    csr_addr_t::dscratch,
+#endif
+
+    // Machine Information Registers
+#if defined(DUMP_MACHINE_INFO_CSR)
+    csr_addr_t::mvendorid,
+    csr_addr_t::marchid,
+    csr_addr_t::mimpid,
+    csr_addr_t::mhartid,
+#endif
+};
+
+}
+
 Csr::Csr(int32_t initialPc)
     : m_ProgramCounter(initialPc)
 {
@@ -558,124 +647,24 @@ void Csr::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
     printf("Detect unimplemented CSR access (addr=0x%03x).\n", static_cast<int>(addr));
 }
 
-size_t Csr::GetRegisterFileSize() const
+int Csr::GetRegisterCount() const
 {
-    return NumberOfRegister * sizeof(int32_t);
+    return sizeof(DumpAddresses) / sizeof(DumpAddresses[0]);
 }
 
-void Csr::CopyRegisterFile(void* pOut, size_t size) const
+void Csr::Copy(void* pOut, size_t size) const
 {
-    if (size != GetRegisterFileSize())
+    if (size != GetRegisterCount() * sizeof(Csr32Node))
     {
-        abort();
+        ABORT();
     }
 
-    std::memset(pOut, 0, size);
+    auto nodes = reinterpret_cast<Csr32Node*>(pOut);
 
-    auto p = reinterpret_cast<int32_t*>(pOut);
-
-    const csr_addr_t addrs[] = {
-        csr_addr_t::ustatus,
-        csr_addr_t::uie,
-        csr_addr_t::utvec,
-
-        // User Trap Handling
-        csr_addr_t::uscratch,
-        csr_addr_t::uepc,
-        csr_addr_t::ucause,
-        csr_addr_t::utval,
-        csr_addr_t::uip,
-
-        // User Floating-Point CSRs (Unimplemented)
-        csr_addr_t::fflags,
-        csr_addr_t::frm,
-        csr_addr_t::fcsr,
-
-        // Supervisor Trap Setup
-        csr_addr_t::sstatus,
-        csr_addr_t::sedeleg,
-        csr_addr_t::sideleg,
-        csr_addr_t::sie,
-        csr_addr_t::stvec,
-        csr_addr_t::scounteren,
-
-        // Supervisor Trap Handling
-        csr_addr_t::sscratch,
-        csr_addr_t::sepc,
-        csr_addr_t::scause,
-        csr_addr_t::stval,
-        csr_addr_t::sip,
-
-        // Supervisor Protection and Translation
-        csr_addr_t::satp,
-
-        // Machine Trap Setup
-        csr_addr_t::mstatus,
-        csr_addr_t::misa,
-        csr_addr_t::medeleg,
-        csr_addr_t::mideleg,
-        csr_addr_t::mie,
-        csr_addr_t::mtvec,
-        csr_addr_t::mcounteren,
-
-        // Machine Trap Handling
-        csr_addr_t::mscratch,
-        csr_addr_t::mepc,
-        csr_addr_t::mcause,
-        csr_addr_t::mtval,
-        csr_addr_t::mip,
-
-        // Machine Protection and Translation
-        csr_addr_t::pmpcfg0,
-        csr_addr_t::pmpcfg1,
-        csr_addr_t::pmpcfg2,
-        csr_addr_t::pmpcfg3,
-
-        csr_addr_t::pmpaddr_begin,
-        csr_addr_t::pmpaddr_end,
-
-        // Debug Trace Registers (Unimplemented)
-        csr_addr_t::tselect,
-        csr_addr_t::tdata1,
-        csr_addr_t::tdata2,
-        csr_addr_t::tdata3,
-
-        // Debug Mode Registers (Unimplemented)
-        csr_addr_t::dcsr,
-        csr_addr_t::dpc,
-        csr_addr_t::dscratch,
-
-        // Machine Information Registers
-        csr_addr_t::mvendorid,
-        csr_addr_t::marchid,
-        csr_addr_t::mimpid,
-        csr_addr_t::mhartid,
-    };
-
-    for (const auto& addr: addrs)
+    for (int i = 0; i < GetRegisterCount(); i++)
     {
-        p[static_cast<int>(addr)] = Read(addr);
-    }
-
-    // User Counter / Timers
-    for (int i = static_cast<int>(csr_addr_t::hpmcounter_begin); i < static_cast<int>(csr_addr_t::hpmcounter_end); i++)
-    {
-        p[i] = Read(static_cast<csr_addr_t>(i));
-    }
-
-    for (int i = static_cast<int>(csr_addr_t::hpmcounterh_begin); i < static_cast<int>(csr_addr_t::hpmcounterh_end); i++)
-    {
-        p[i] = Read(static_cast<csr_addr_t>(i));
-    }
-
-    for (int i = static_cast<int>(csr_addr_t::mhpmcounter_begin); i < static_cast<int>(csr_addr_t::mhpmcounter_end); i++)
-    {
-        p[i] = Read(static_cast<csr_addr_t>(i));
-    }
-
-    for (int i = static_cast<int>(csr_addr_t::mhpmcounterh_begin); i < static_cast<int>(csr_addr_t::mhpmcounterh_end); i++)
-    {
-        p[i] = Read(static_cast<csr_addr_t>(i));
+        nodes[i].address = static_cast<int32_t>(DumpAddresses[i]);
+        nodes[i].value = static_cast<int32_t>(Read(DumpAddresses[i]));
     }
 }
 

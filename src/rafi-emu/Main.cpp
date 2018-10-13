@@ -153,7 +153,7 @@ int main(int argc, char** argv)
         ("dtb-address", po::value<std::string>(), "dtb physical address")
         ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
-        ("enable-dump-memory", "output memory contents to dump file")
+        ("enable-dump-csr", "output csr contents to dump file")
         ("pc", po::value<std::string>(), "initial program counter value")
         ("stop-by-host-io", "stop emulation when host io value is changed")
         ("help", "show help");
@@ -220,9 +220,9 @@ int main(int argc, char** argv)
     {
         dumper->EnableDump();
     }
-    if (optionMap.count("enable-dump-memory"))
+    if (optionMap.count("enable-dump-csr"))
     {
-        dumper->EnableDumpMemory();
+        dumper->EnableDumpCsr();
     }
 
     dumper->DumpHeader();

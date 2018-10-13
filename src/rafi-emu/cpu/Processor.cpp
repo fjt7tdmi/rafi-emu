@@ -117,14 +117,14 @@ void Processor::ProcessOneCycle()
     SetOpEvent(pc, physicalPc, insn, op.opCode);
 }
 
-int Processor::GetCsrSize() const
+int Processor::GetCsrCount() const
 {
-    return m_Csr.GetRegisterFileSize();
+    return m_Csr.GetRegisterCount();
 }
 
 void Processor::CopyCsr(void* pOut, size_t size) const
 {
-    m_Csr.CopyRegisterFile(pOut, size);
+    m_Csr.Copy(pOut, size);
 }
 
 void Processor::CopyIntRegs(void* pOut, size_t size) const

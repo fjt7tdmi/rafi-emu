@@ -33,16 +33,18 @@ public:
     // compare
     bool IsPc32NodeMatched(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
     bool IsIntReg32NodeMatched(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
-    bool IsCsr32NodeMatched(const rvtrace::Csr32NodeHeader* pExpect, const rvtrace::Csr32NodeHeader* pActual) const;
     bool IsMemoryNodeMatched(const rvtrace::MemoryNodeHeader* pExpect, const rvtrace::MemoryNodeHeader* pActual) const;
+
+    bool AreCsr32NodesMatched(const rvtrace::Csr32Node* pExpectNodes, int expectNodeCount, const rvtrace::Csr32Node* pActualNodes, int actualNodeCount) const;
 
     bool AreMatched(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
 
     // print diff
     void PrintPc32Diff(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
     void PrintIntReg32Diff(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
-    void PrintCsr32Diff(const rvtrace::Csr32NodeHeader* pExpect, const rvtrace::Csr32NodeHeader* pActual) const;
     void PrintMemoryDiff(const rvtrace::MemoryNodeHeader* pExpect, const rvtrace::MemoryNodeHeader* pActual) const;
+
+    void PrintCsr32Diff(const rvtrace::Csr32Node* pExpectNodes, int expectNodeCount, const rvtrace::Csr32Node* pActualNodes, int actualNodeCount) const;
 
     void PrintDiff(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
 

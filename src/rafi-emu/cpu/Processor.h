@@ -56,7 +56,7 @@ public:
     void ProcessOneCycle();
 
     // for Dump
-    int GetCsrSize() const;
+    int GetCsrCount() const;
 
     void CopyCsr(void* pOut, size_t size) const;
     void CopyIntRegs(void* pOut, size_t size) const;

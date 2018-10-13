@@ -26,7 +26,12 @@ namespace rvtrace {
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 {
-    m_pImpl = new TraceCycleBuilderImpl(flags);
+    m_pImpl = new TraceCycleBuilderImpl(flags, 0);
+}
+
+TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount)
+{
+    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount);
 }
 
 TraceCycleBuilder::~TraceCycleBuilder()
@@ -42,6 +47,16 @@ void* TraceCycleBuilder::GetData()
 int64_t TraceCycleBuilder::GetDataSize()
 {
     return m_pImpl->GetDataSize();
+}
+
+int64_t TraceCycleBuilder::GetNodeSize(NodeType nodeType)
+{
+    return m_pImpl->GetNodeSize(nodeType);
+}
+
+void* TraceCycleBuilder::GetPointerToNode(NodeType nodeType)
+{
+    return m_pImpl->GetPointerToNode(nodeType);
 }
 
 void TraceCycleBuilder::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
