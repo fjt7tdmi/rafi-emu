@@ -65,8 +65,8 @@ public:
     void WriteInterruptPending(const xip_t& value);
 
     // for Dump
-    size_t GetRegisterFileSize() const;
-    void CopyRegisterFile(void* pOut, size_t size) const;
+    int GetRegisterCount() const;
+    void Copy(void* pOut, size_t size) const;
 
 private:
     static const int RegisterAddrWidth = 12;

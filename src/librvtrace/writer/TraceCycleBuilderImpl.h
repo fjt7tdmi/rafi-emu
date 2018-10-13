@@ -23,8 +23,7 @@ namespace rvtrace {
 class TraceCycleBuilderImpl final
 {
 public:
-    explicit TraceCycleBuilderImpl(int32_t flags);
-
+    explicit TraceCycleBuilderImpl(int32_t flags, int csrCount);
     ~TraceCycleBuilderImpl();
 
     // Get pointer to raw data
@@ -32,6 +31,10 @@ public:
 
     // Get size of raw data
     int64_t GetDataSize();
+
+    int64_t GetNodeSize(NodeType nodeType);
+
+    void* GetPointerToNode(NodeType nodeType);
 
     void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
 
@@ -48,15 +51,15 @@ public:
     void SetNode(const IoNode& node);
 
 private:
-    int64_t CalculateDataSize(int32_t flags);
+    int64_t CalculateDataSize(int32_t flags, int csrCount);
 
     int32_t CountValidFlags(int32_t flags);
 
-    void InitializeMetaNodes(int32_t flags);
+    void InitializeMetaNodes(int32_t flags, int csrCount);
 
-    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset);
+    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset, int csrCount = 0);
 
-    int64_t GetProperNodeSize(NodeType nodeType);
+    int64_t GetProperNodeSize(NodeType nodeType, int csrCount = 0);
 
     TraceCycleHeader* GetPointerToHeader();
 
@@ -65,8 +68,6 @@ private:
     TraceCycleMetaNode* GetPointerToMeta(int32_t index);
 
     TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
-
-    void* GetPointerToNode(NodeType nodeType);
 
     void* m_pData;
 

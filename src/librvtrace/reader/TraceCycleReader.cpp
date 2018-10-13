@@ -74,12 +74,12 @@ const IntReg64Node* TraceCycleReader::GetIntReg64Node() const
     return m_pImpl->GetIntReg64Node();
 }
 
-const Csr32NodeHeader* TraceCycleReader::GetCsr32Node() const
+const Csr32Node* TraceCycleReader::GetCsr32Node() const
 {
     return m_pImpl->GetCsr32Node();
 }
 
-const Csr64NodeHeader* TraceCycleReader::GetCsr64Node() const
+const Csr64Node* TraceCycleReader::GetCsr64Node() const
 {
     return m_pImpl->GetCsr64Node();
 }

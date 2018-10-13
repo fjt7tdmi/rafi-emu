@@ -42,15 +42,19 @@ def InitializeDirectory(path):
 def PrintCommand(cmd):
     print(f"[cmd] {' '.join(cmd)}")
 
-def MakeEmulatorCommand(testname, cycle):
+def MakeEmulatorCommand(testname, cycle, enable_dump_csr):
     binary_path = f"{BinaryDirPath}/{testname}.bin"
     trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
-    return [
+
+    cmd = [
         EmulatorPath,
         "--cycle", str(cycle),
         "--binary", binary_path,
         "--dump-path", trace_bin_path,
     ]
+    if enable_dump_csr:
+        cmd.append("--enable-dump-csr")     
+    return cmd
 
 def MakeDumpCommand(testname):
     trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
@@ -74,7 +78,7 @@ def MakeAddrToLineCommand(testname):
     ]
 
 def RunEmulator(config):
-    cmd = MakeEmulatorCommand(config['name'], config['cycle'])
+    cmd = MakeEmulatorCommand(config['name'], config['cycle'], config['enable_dump_csr'])
     PrintCommand(cmd)
 
     return subprocess.run(cmd).returncode
@@ -115,10 +119,11 @@ if __name__ == '__main__':
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
+    parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
 
     (options, args) = parser.parse_args()
 
-    config = {'name': "philosophers", 'cycle': options.cycle}
+    config = {'name': "philosophers", 'cycle': options.cycle, 'enable_dump_csr': options.enable_dump_csr}
 
     InitializeDirectory(TraceDirPath)
 

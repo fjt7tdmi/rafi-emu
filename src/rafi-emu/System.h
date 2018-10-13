@@ -40,7 +40,7 @@ public:
     void ProcessOneCycle();
 
     // for Dump
-    int GetCsrSize() const;
+    int GetCsrCount() const;
     int GetMemorySize() const;
 
     int32_t GetHostIoValue() const;

@@ -38,10 +38,12 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
         "    cycle: 0x%08x\n"
         "    opId:  0x%08x\n"
         "    insn:  0x%08x\n"
+        "    priv:  %s\n"
         "  }\n",
         node->cycle,
         node->opId,
-        node->insn
+        node->insn,
+        GetString(node->privilegeLevel)
     );
 }
 
@@ -175,6 +177,19 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
     );
 }
 
+void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
+{
+    printf("  Csr32 {\n");
+    
+    for (int i = 0; i < nodeCount; i++)
+    {
+        const auto address = static_cast<csr_addr_t>(pNodes[i].address);
+        printf("%16s: 0x%08x\n", GetString(address), pNodes[i].value);
+    }
+
+    printf("  }\n");
+}
+
 void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
@@ -203,8 +218,12 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
     {
         PrintMemoryAccess32Node(cycle.GetMemoryAccess32Node());
     }
+    if (cycle.IsNodeExist(NodeType::Csr32))
+    {
+        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+    }
 
-    // TODO: implement PrintCsr() and PrintMemory()
+    // TODO: implement PrintMemory()
 
     printf("}\n");
 }

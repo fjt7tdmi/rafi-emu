@@ -93,7 +93,7 @@ struct BasicInfoNode
     int32_t cycle;
     int32_t opId;
     int32_t insn;
-    int8_t reserved[4];
+    PrivilegeLevel privilegeLevel;
 };
 
 struct Pc32Node
@@ -118,14 +118,17 @@ struct IntReg64Node
     int64_t regs[32];
 };
 
-struct Csr32NodeHeader
+struct Csr32Node
 {
-    int64_t bodySize;
+    int32_t address;
+    int32_t value;
 };
 
-struct Csr64NodeHeader
+struct Csr64Node
 {
-    int64_t bodySize;
+    int32_t address;
+    int32_t reserved;
+    int64_t value;
 };
 
 struct Trap32Node

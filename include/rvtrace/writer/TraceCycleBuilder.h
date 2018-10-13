@@ -26,7 +26,7 @@ class TraceCycleBuilder final
 {
 public:
     explicit TraceCycleBuilder(int32_t flags);
-
+    TraceCycleBuilder(int32_t flags, int csrCount);
     ~TraceCycleBuilder();
 
     // Get pointer to raw data
@@ -34,6 +34,10 @@ public:
 
     // Get size of raw data
     int64_t GetDataSize();
+
+    int64_t GetNodeSize(NodeType nodeType);
+
+    void* GetPointerToNode(NodeType nodeType);
 
     void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
 
