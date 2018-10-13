@@ -20,8 +20,7 @@
 
 #include <rafi/BasicTypes.h>
 
-#include "IIo.h"
-
+#include "../io/IIo.h"
 #include "../mem/Memory.h"
 #include "../uart/Uart.h"
 #include "../timer/Timer.h"
@@ -51,7 +50,7 @@ public:
     bool IsMemoryAddress(PhysicalAddress address, int accessSize) const;
 
 private:
-    using Location = std::pair<IIo*, int>;
+    using Location = std::pair<io::IIo*, int>;
 
     Location ConvertToIoOffset(PhysicalAddress address) const;
     bool IsIoAddress(PhysicalAddress address, int accessSize) const;

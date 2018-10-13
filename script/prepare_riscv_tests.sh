@@ -9,6 +9,7 @@ fi
 pushd `dirname $0`
 cd ..
 
-python ./tool/prepare_riscv_tests.py -i ./test/riscv_tests.config.json ${OPTION}
+source script/common.sh.inc
+${RAFI_PYTHON} ./tool/prepare_riscv_tests.py -i ./test/riscv_tests.config.json ${OPTION}
 
 popd

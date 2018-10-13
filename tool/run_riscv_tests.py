@@ -25,7 +25,7 @@ from operator import or_
 CheckIoPath = "./build/Release/rafi-check-io.exe"
 EmulatorPath = "./build/Release/rafi-emu.exe"
 BinaryDirPath = "./work/riscv_tests"
-TraceDirPath = "./work/trace"
+TraceDirPath = "./work/riscv_tests/trace"
 
 #
 # Functions
@@ -53,8 +53,6 @@ def MakeEmulatorCommand(testname, cycle):
 
 def VerifyTraces(paths):
     cmd = MakeCheckIoCommand(paths)
-    print(f"Run {' '.join(cmd)}")
-
     subprocess.run(cmd)
 
 def RunEmulator(config):

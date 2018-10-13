@@ -27,6 +27,16 @@ using namespace rvtrace;
 
 namespace rafi { namespace cpu {
 
+void Processor::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)
+{
+    m_InterruptController.RegisterExternalInterruptSource(pInterruptSource);
+}
+
+void Processor::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
+{
+    m_InterruptController.RegisterTimerInterruptSource(pInterruptSource);
+}
+    
 void Processor::SetIntReg(int regId, int32_t regValue)
 {
     m_IntRegFile.Write(regId, regValue);

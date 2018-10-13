@@ -98,12 +98,12 @@ int32_t Bus::GetInt32(PhysicalAddress address)
     if (IsMemoryAddress(address, sizeof(int32_t)))
     {
         auto offset = ConvertToMemoryOffset(address);
-        return m_pMemory->GetInt8(offset);
+        return m_pMemory->GetInt32(offset);
     }
     else if (IsIoAddress(address, sizeof(int32_t)))
     {
         const auto location = ConvertToIoOffset(address);
-        return location.first->GetInt8(location.second);
+        return location.first->GetInt32(location.second);
     }
     else
     {
@@ -150,11 +150,11 @@ bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
     const auto low = address;
     const auto high = address + accessSize - 1;
 
-    if (MemoryAddr <= low && high < MemoryAddr + m_pUart->GetSize())
+    if (MemoryAddr <= low && high < MemoryAddr + m_pMemory->GetSize())
     {
         return true;
     }
-    else if (MemoryMirrorAddr <= low && high < MemoryMirrorAddr + m_pTimer->GetSize())
+    else if (MemoryMirrorAddr <= low && high < MemoryMirrorAddr + m_pMemory->GetSize())
     {
         return true;
     }

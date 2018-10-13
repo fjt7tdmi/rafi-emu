@@ -20,13 +20,13 @@
 
 #include <rafi/BasicTypes.h>
 
-#include "../bus/IIo.h"
+#include "../io/IIo.h"
 
 #include "UartTypes.h"
 
 namespace rafi { namespace uart {
 
-class Uart : public bus::IIo
+class Uart : public io::IIo
 {
 public:
     virtual int8_t GetInt8(int address) override;
