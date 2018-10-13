@@ -17,8 +17,7 @@
 #include <cstdint>
 #include <fstream>
 
-#include <rafi/Exception.h>
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "MemoryAccessUnit.h"
 

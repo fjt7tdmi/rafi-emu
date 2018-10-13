@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include <rafi/Exception.h>
+#include <rafi/Common.h>
 
 #include "Trap.h"
 #include "Csr.h"
@@ -25,32 +25,6 @@
 using namespace rvtrace;
 
 namespace rafi { namespace cpu {
-
-namespace {
-
-int32_t GetHigh32(int64_t value)
-{
-    return static_cast<int32_t>(value >> 32);
-}
-
-int32_t GetLow32(int64_t value)
-{
-    return static_cast<int32_t>(value & 0xffffffff);
-}
-
-void SetHigh32(int64_t* pOut, int32_t value)
-{
-    (*pOut) &= 0xffffffff00000000LL;
-    (*pOut) |= value;
-}
-
-void SetLow32(int64_t* pOut, int32_t value)
-{
-    (*pOut) &= 0x00000000ffffffffLL;
-    (*pOut) |= (static_cast<int64_t>(value) << 32);
-}
-
-}
 
 Csr::Csr(int32_t initialPc)
     : m_ProgramCounter(initialPc)

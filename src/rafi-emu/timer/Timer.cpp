@@ -17,37 +17,11 @@
 #include <cassert>
 #include <cstdio>
 
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "Timer.h"
 
 namespace rafi { namespace timer {
-
-namespace {
-
-int32_t GetHigh32(uint64_t value)
-{
-    return static_cast<int32_t>(value >> 32);
-}
-
-int32_t GetLow32(uint64_t value)
-{
-    return static_cast<int32_t>(value & 0xffffffff);
-}
-
-void SetHigh32(uint64_t* pOut, int32_t value)
-{
-    (*pOut) &= 0xffffffff00000000LL;
-    (*pOut) |= value;
-}
-
-void SetLow32(uint64_t* pOut, int32_t value)
-{
-    (*pOut) &= 0x00000000ffffffffLL;
-    (*pOut) |= (static_cast<int64_t>(value) << 32);
-}
-
-}
 
 int8_t Timer::GetInt8(int)
 {

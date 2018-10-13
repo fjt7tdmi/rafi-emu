@@ -20,8 +20,7 @@
 
 #include <rvtrace/common.h>
 
-#include <rafi/Exception.h>
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "Memory.h"
 

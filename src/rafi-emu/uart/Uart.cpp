@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "Uart.h"
 
