@@ -15,7 +15,7 @@
  */
 
 #include "System.h"
-#include "Bus/MemoryMap.h"
+#include "bus/MemoryMap.h"
 
 namespace rafi {
 

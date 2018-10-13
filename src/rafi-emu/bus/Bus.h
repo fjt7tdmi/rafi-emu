@@ -20,7 +20,6 @@
 
 #include <rafi/BasicTypes.h>
 
-#include "IBusSlave.h"
 #include "IIo.h"
 
 #include "../mem/Memory.h"

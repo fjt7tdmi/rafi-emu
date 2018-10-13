@@ -100,7 +100,8 @@ add_executable(rafi-dump
 add_executable(rafi-emu
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
-    src/rafi-emu/bus/IBusSlave.h
+    src/rafi-emu/bus/IIo.h
+    src/rafi-emu/bus/MemoryMap.h
     src/rafi-emu/cpu/Csr.cpp
     src/rafi-emu/cpu/Csr.h
     src/rafi-emu/cpu/CsrAccessor.cpp
