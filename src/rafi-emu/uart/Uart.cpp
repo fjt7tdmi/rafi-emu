@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "Uart.h"
 
@@ -51,6 +51,11 @@ int32_t Uart::GetInt32(int address)
 void Uart::SetInt32(int address, int32_t value)
 {
     Write(address, static_cast<int32_t>(value), sizeof(int32_t));
+}
+
+bool Uart::IsInterruptRequested() const
+{
+    return false;
 }
 
 void Uart::ProcessCycle()

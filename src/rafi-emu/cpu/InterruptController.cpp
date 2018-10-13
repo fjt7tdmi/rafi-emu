@@ -46,8 +46,22 @@ InterruptController::InterruptController(Csr* pCsr)
 {
 }
 
+InterruptType InterruptController::GetInterruptType() const
+{
+    assert(m_IsRequested);
+
+    return m_InterruptType;
+}
+
+bool InterruptController::IsRequested() const
+{
+    return m_IsRequested;
+}
+
 void InterruptController::Update()
 {
+    UpdateCsr();
+
     xie_t enable = m_pCsr->ReadInterruptEnable();
     xip_t pending = m_pCsr->ReadInterruptPending();
 
@@ -58,16 +72,51 @@ void InterruptController::Update()
     m_InterruptType = static_cast<InterruptType>(NumberOfTrainingZero(value));
 }
 
-bool InterruptController::IsRequested() const
+void InterruptController::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)
 {
-    return m_IsRequested;
+    assert(m_pExternalInterruptSource == nullptr);
+
+    m_pExternalInterruptSource = pInterruptSource;
 }
 
-InterruptType InterruptController::GetInterruptType() const
+void InterruptController::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
 {
-    assert(m_IsRequested);
+    assert(m_pTimerInterruptSource == nullptr);
 
-    return m_InterruptType;
+    m_pTimerInterruptSource = pInterruptSource;
+}
+
+void InterruptController::UpdateCsr()
+{
+    xip_t pending = m_pCsr->ReadInterruptPending();
+
+    if (m_pTimerInterruptSource->IsRequested())
+    {
+        pending.SetMember<xip_t::UTIP>(1);
+        pending.SetMember<xip_t::STIP>(1);
+        pending.SetMember<xip_t::MTIP>(1);
+    }
+    else
+    {
+        pending.SetMember<xip_t::UTIP>(0);
+        pending.SetMember<xip_t::STIP>(0);
+        pending.SetMember<xip_t::MTIP>(0);
+    }
+
+    if (m_pExternalInterruptSource->IsRequested())
+    {
+        pending.SetMember<xip_t::UEIP>(1);
+        pending.SetMember<xip_t::SEIP>(1);
+        pending.SetMember<xip_t::MEIP>(1);
+    }
+    else
+    {
+        pending.SetMember<xip_t::UTIP>(0);
+        pending.SetMember<xip_t::STIP>(0);
+        pending.SetMember<xip_t::MTIP>(0);
+    }
+
+    m_pCsr->WriteInterruptPending(pending);
 }
 
 }}

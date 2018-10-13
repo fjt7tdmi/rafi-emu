@@ -20,7 +20,7 @@
 #include <fstream>
 #include <iostream>
 
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "Executor.h"
 

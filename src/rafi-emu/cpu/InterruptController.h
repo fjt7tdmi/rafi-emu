@@ -30,14 +30,23 @@ class InterruptController
 public:
     InterruptController(Csr* pCsr);
 
-    void Update();
-
-    bool IsRequested() const;
     InterruptType GetInterruptType() const;
 
+    bool IsRequested() const;
+
+    void Update();
+
+    void RegisterExternalInterruptSource(IInterruptSource* pInterruptSource);
+    void RegisterTimerInterruptSource(IInterruptSource* pInterruptSource);
+
 private:
-    Csr* m_pCsr;
-    bool m_IsRequested;
+    void UpdateCsr();
+
+    Csr* m_pCsr { nullptr };
+    IInterruptSource* m_pExternalInterruptSource { nullptr };
+    IInterruptSource* m_pTimerInterruptSource { nullptr };
+
+    bool m_IsRequested { false };
     InterruptType m_InterruptType;
 };
 

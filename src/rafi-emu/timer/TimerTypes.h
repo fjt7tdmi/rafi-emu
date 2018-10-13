@@ -18,42 +18,14 @@
 
 #include <rafi/BitField.h>
 
-namespace rafi { namespace uart {
+namespace rafi { namespace timer {
 
 enum Address
 {
-    Address_TxData = 0,
-    Address_RxData = 4,
-    Address_InterruptEnable = 16,
-    Address_InterruptPending = 24,
-};
-
-struct InterruptEnable : BitField
-{
-    InterruptEnable() : BitField(0)
-    {
-    }
-
-    InterruptEnable(int32_t value) : BitField(value)
-    {
-    }
-
-    using TXIE = BitFieldMember<1>;
-    using RXIE = BitFieldMember<2>;
-};
-
-struct InterruptPending : BitField
-{
-    InterruptPending() : BitField(0)
-    {
-    }
-
-    InterruptPending(int32_t value) : BitField(value)
-    {
-    }
-
-    using TXIP = BitFieldMember<1>;
-    using RXIP = BitFieldMember<2>;
+    Address_TimeLow = 0,
+    Address_TimeHigh = 4,
+    Address_TimeCmpLow = 8,
+    Address_TimeCmpHigh = 12,
 };
 
 }}

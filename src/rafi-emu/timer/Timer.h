@@ -22,11 +22,11 @@
 
 #include "../bus/IIo.h"
 
-#include "UartTypes.h"
+#include "TimerTypes.h"
 
-namespace rafi { namespace uart {
+namespace rafi { namespace timer {
 
-class Uart : public bus::IIo
+class Timer : public bus::IIo
 {
 public:
     virtual int8_t GetInt8(int address) override;
@@ -48,24 +48,10 @@ public:
     void ProcessCycle();
 
 private:
-    static const int RegSize = 32;
-    static const int InitialRxCycle = 100;
-    static const int RxCycle = 50;
+    static const int RegSize = 16;
 
-    int32_t Read(int address, int size);
-    void Write(int address, int32_t value, int size);
-
-    void UpdateRx();
-    void PrintTx();
-
-    InterruptEnable m_InterruptEnable;
-    InterruptPending m_InterruptPending;
-
-    std::vector<char> m_TxChars;
-    char m_RxChar {'\0'};
-
-    int m_Cycle {0};
-    size_t m_PrintCount {0};
+    uint64_t m_Time;
+    uint64_t m_TimeCmp;
 };
 
 }}

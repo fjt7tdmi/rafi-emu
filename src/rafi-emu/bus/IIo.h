@@ -20,7 +20,7 @@
 
 namespace rafi { namespace bus {
 
-class IBusSlave
+class IIo
 {
 public:
     virtual int8_t GetInt8(int address) = 0;
@@ -33,6 +33,8 @@ public:
     virtual void SetInt32(int address, int32_t value) = 0;
 
     virtual int GetSize() const = 0;
+
+    virtual bool IsInterruptRequested() const = 0;
 };
 
 }}

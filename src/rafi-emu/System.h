@@ -17,6 +17,7 @@
 #pragma once
 
 #include "uart/Uart.h"
+#include "timer/Timer.h"
 #include "mem/Memory.h"
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
@@ -63,8 +64,10 @@ private:
     // dtb address register is a1(x11)
     const int DtbAddressRegId = 11;
 
-    uart::Uart m_Uart;
     mem::Memory m_Memory;
+    uart::Uart m_Uart;
+    timer::Timer m_Timer;
+
     bus::Bus m_Bus;
     cpu::Processor m_Processor;
 };

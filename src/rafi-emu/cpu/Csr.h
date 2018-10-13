@@ -62,6 +62,8 @@ public:
     xstatus_t ReadStatus() const;
     satp_t ReadSatp() const;
 
+    void WriteInterruptPending(const xip_t& value);
+
     // for Dump
     size_t GetRegisterFileSize() const;
     void CopyRegisterFile(void* pOut, size_t size) const;

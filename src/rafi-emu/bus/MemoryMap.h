@@ -16,7 +16,17 @@
 
 #pragma once
 
-#include <cstdio>
-#include <cstdlib>
+#include <utility>
 
-#define ABORT() do { fprintf(stderr, "ABORT (%s:%d)\n", __FILE__, __LINE__); std::abort(); } while (0)
+#include <rafi/BasicTypes.h>
+
+namespace rafi { namespace bus {
+
+// Memory Map
+const PhysicalAddress MemoryAddr = 0x80000000;
+const PhysicalAddress MemoryMirrorAddr = 0xc0000000;
+const PhysicalAddress UartAddr = 0x40002000;
+const PhysicalAddress TimerAddr = 0x40000000;
+const PhysicalAddress HostIoAddr = 0x80001000;
+
+}}

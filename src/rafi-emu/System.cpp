@@ -15,13 +15,15 @@
  */
 
 #include "System.h"
+#include "bus/MemoryMap.h"
 
 namespace rafi {
 
 System::System(int32_t initialPc)
-    : m_Uart()
-    , m_Memory()
-    , m_Bus(&m_Memory, &m_Uart)
+    : m_Memory()
+    , m_Uart()
+    , m_Timer()
+    , m_Bus(&m_Memory, &m_Uart, &m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
 }
@@ -40,6 +42,7 @@ void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 void System::ProcessOneCycle()
 {
     m_Uart.ProcessCycle();
+    m_Timer.ProcessCycle();
     m_Processor.ProcessOneCycle();
 }
 
@@ -55,7 +58,7 @@ int System::GetMemorySize() const
 
 int32_t System::GetHostIoValue() const
 {
-    int offset = m_Bus.ConvertToMemoryOffset(bus::Bus::HostIoAddr);
+    int offset = m_Bus.ConvertToMemoryOffset(bus::HostIoAddr);
     return m_Memory.GetInt32(offset);
 }
 

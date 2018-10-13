@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include <rafi/Macro.h>
+#include <rafi/Common.h>
 
 #include "TrapProcessor.h"
 
