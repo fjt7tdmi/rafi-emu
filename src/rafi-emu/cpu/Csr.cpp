@@ -193,6 +193,11 @@ satp_t Csr::ReadSatp() const
     return m_SupervisorAddressTranslationProtection;
 }
 
+void Csr::WriteInterruptPending(const xip_t& value)
+{
+    m_InterruptPending = value;
+}
+
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
 {
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b00;

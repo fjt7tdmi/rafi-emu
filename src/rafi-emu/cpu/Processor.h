@@ -48,6 +48,10 @@ public:
 
     void SetIntReg(int regId, int32_t regValue);
 
+    // Interrupt source
+    void RegisterExternalInterruptSource(IInterruptSource* pInterruptSource);
+    void RegisterTimerInterruptSource(IInterruptSource* pInterruptSource);
+
     // Process
     void ProcessOneCycle();
 
