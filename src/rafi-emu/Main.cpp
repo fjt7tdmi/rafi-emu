@@ -21,30 +21,57 @@
 
 #include <boost/program_options.hpp>
 
-#include "Common/BasicTypes.h"
-#include "Common/Exception.h"
+#include <rafi/BasicTypes.h>
+#include <rafi/Exception.h>
 
-#include "Profiler/Profiler.h"
+#include "bus/Bus.h"
 
-#include "System/System.h"
-#include "System/Bus/Bus.h"
+#include "log/Profiler.h"
+#include "log/TraceDumper.h"
 
-#include "TraceDumper.h"
-
-using namespace std;
+#include "System.h"
 
 namespace po = boost::program_options;
 
 namespace {
 
+class CommandLineOptionException
+{
+public:
+    explicit CommandLineOptionException(const char *pArgument)
+        : CommandLineOptionException(pArgument, nullptr)
+    {
+    }
+
+    CommandLineOptionException(const char *pArgument, const char* pMessage)
+        : m_pArgument(pArgument)
+        , m_pMessage(pMessage)
+    {
+    }
+
+    virtual void PrintMessage() const
+    {
+        std::cout << "[CommandLineOptionException] " << m_pArgument;
+        if (m_pMessage != nullptr)
+        {
+            std::cout << " (" << m_pMessage << ")";
+        }
+        std::cout << std::endl;
+    }
+
+private:
+    const char* m_pArgument;
+    const char* m_pMessage;
+};
+
 class BinaryOption
 {
 public:
-    explicit BinaryOption(const string& arg)
+    explicit BinaryOption(const std::string& arg)
     {
         const auto delimPos = arg.find(':');
 
-        if (delimPos == string::npos)
+        if (delimPos == std::string::npos)
         {
             m_Path = arg;
             m_Address = DefaultAddress;
@@ -55,9 +82,9 @@ public:
 
             try
             {
-                m_Address = strtoull(arg.substr(delimPos + 1).c_str(), nullptr, 16);
+                m_Address = std::strtoull(arg.substr(delimPos + 1).c_str(), nullptr, 16);
             }
-            catch (out_of_range&)
+            catch (std::out_of_range&)
             {
                 throw CommandLineOptionException(arg.c_str(), "Failed to parse address.");
             }
@@ -69,21 +96,21 @@ public:
         }
     }
 
-    const string& GetPath() const
+    const std::string& GetPath() const
     {
         return m_Path;
     }
 
-    PhysicalAddress GetAddress() const
+    rafi::PhysicalAddress GetAddress() const
     {
         return m_Address;
     }
 
 private:
-    static const PhysicalAddress DefaultAddress{ Bus::MemoryAddr };
+    static const rafi::PhysicalAddress DefaultAddress{ rafi::bus::Bus::MemoryAddr };
 
-    string m_Path;
-    PhysicalAddress m_Address;
+    std::string m_Path;
+    rafi::PhysicalAddress m_Address;
 };
 
 uint32_t GetHexProgramOption(const po::variables_map& vm, const char* optionName, uint32_t defaultValue)
@@ -92,18 +119,18 @@ uint32_t GetHexProgramOption(const po::variables_map& vm, const char* optionName
     {
         if (vm.count(optionName))
         {
-            return stoul(vm[optionName].as<string>(), 0, 16);
+            return stoul(vm[optionName].as<std::string>(), 0, 16);
         }
         else
         {
             return defaultValue;
         }
     }
-    catch (const invalid_argument&)
+    catch (const std::invalid_argument&)
     {
         throw CommandLineOptionException(optionName, "invalid argument");
     }
-    catch (const out_of_range&)
+    catch (const std::out_of_range&)
     {
         throw CommandLineOptionException(optionName, "out of range");
     }
@@ -120,13 +147,13 @@ int main(int argc, char** argv)
 
     po::options_description optionDesc("options");
     optionDesc.add_options()
-        ("binary", po::value<vector<string>>(), "path of binary file which is loaded to memory")
+        ("binary", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("cycle", po::value<int>(&cycle)->default_value(0), "number of emulation cycles")
-        ("dtb-address", po::value<string>(), "dtb physical address")
-        ("dump-path", po::value<string>(), "path of dump file")
+        ("dtb-address", po::value<std::string>(), "dtb physical address")
+        ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-memory", "output memory contents to dump file")
-        ("pc", po::value<string>(), "initial program counter value")
+        ("pc", po::value<std::string>(), "initial program counter value")
         ("stop-by-host-io", "stop emulation when host io value is changed")
         ("help", "show help");
 
@@ -161,21 +188,21 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    auto pProfiler = new Profiler();
-    auto pSystem = new System(initialPc);
+    auto pProfiler = new rafi::log::Profiler();
+    auto pSystem = new rafi::System(initialPc);
 
     pSystem->SetupDtbAddress(static_cast<int32_t>(dtbAddress));
 
-    TraceDumper* dumper;
+    rafi::log::TraceDumper* dumper;
     try
     {
-        for (auto& arg: optionMap["binary"].as<vector<string>>())
+        for (auto& arg: optionMap["binary"].as<std::vector<std::string>>())
         {
             BinaryOption binaryOption(arg);
             pSystem->LoadFileToMemory(binaryOption.GetPath().c_str(), binaryOption.GetAddress());
         }
 
-        dumper = new TraceDumper(optionMap["dump-path"].as<string>().c_str(), pSystem);
+        dumper = new rafi::log::TraceDumper(optionMap["dump-path"].as<std::string>().c_str(), pSystem);
     }
     catch (CommandLineOptionException e)
     {
@@ -203,13 +230,13 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < optionMap["cycle"].as<int>(); cycle++)
         {
-            pProfiler->SwitchPhase(Profiler::Phase_Process);
+            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Process);
             pSystem->ProcessOneCycle();
 
-            pProfiler->SwitchPhase(Profiler::Phase_Dump);
+            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Dump);
             dumper->DumpOneCycle(cycle);
 
-            pProfiler->SwitchPhase(Profiler::Phase_None);
+            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_None);
             if (optionMap.count("stop-by-host-io"))
             {
                 const auto hostIoValue = pSystem->GetHostIoValue();
@@ -220,15 +247,15 @@ int main(int argc, char** argv)
             }
         }
     }
-    catch (NotImplementedException e)
+    catch (rafi::NotImplementedException e)
     {
         e.PrintMessage();
     }
-    catch (FatalException e)
+    catch (rafi::FatalException e)
     {
         e.PrintMessage();
     }
-    catch (InvalidAccessException e)
+    catch (rafi::InvalidAccessException e)
     {
         e.PrintMessage();
     }

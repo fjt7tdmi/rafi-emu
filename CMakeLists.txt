@@ -98,45 +98,48 @@ add_executable(rafi-dump
 )
 
 add_executable(rafi-emu
-    src/rafi-emu/Common/BasicTypes.h
-    src/rafi-emu/Common/BitField.h
-    src/rafi-emu/Common/Exception.h
-    src/rafi-emu/Profiler/Profiler.cpp
-    src/rafi-emu/Profiler/Profiler.h
-    src/rafi-emu/System/Bus/Bus.cpp
-    src/rafi-emu/System/Bus/Bus.h
-    src/rafi-emu/System/Bus/IBusSlave.h
-    src/rafi-emu/System/Memory/Memory.cpp
-    src/rafi-emu/System/Memory/Memory.h
-    src/rafi-emu/System/Processor/Csr.cpp
-    src/rafi-emu/System/Processor/Csr.h
-    src/rafi-emu/System/Processor/CsrAccessor.cpp
-    src/rafi-emu/System/Processor/CsrAccessor.h
-    src/rafi-emu/System/Processor/CsrTypes.h
-    src/rafi-emu/System/Processor/Decoder.cpp
-    src/rafi-emu/System/Processor/Decoder.h
-    src/rafi-emu/System/Processor/Executor.cpp
-    src/rafi-emu/System/Processor/Executor.h
-    src/rafi-emu/System/Processor/InterruptController.cpp
-    src/rafi-emu/System/Processor/InterruptController.h
-    src/rafi-emu/System/Processor/IntRegFile.cpp
-    src/rafi-emu/System/Processor/IntRegFile.h
-    src/rafi-emu/System/Processor/MemoryAccessUnit.cpp
-    src/rafi-emu/System/Processor/MemoryAccessUnit.h
-    src/rafi-emu/System/Processor/OpTypes.h
-    src/rafi-emu/System/Processor/Processor.cpp
-    src/rafi-emu/System/Processor/Processor.h
-    src/rafi-emu/System/Processor/Trap.cpp
-    src/rafi-emu/System/Processor/Trap.h
-    src/rafi-emu/System/Processor/TrapProcessor.cpp
-    src/rafi-emu/System/Processor/TrapProcessor.h
-    src/rafi-emu/System/Uart/Uart.cpp
-    src/rafi-emu/System/Uart/Uart.h
-    src/rafi-emu/System/System.cpp
-    src/rafi-emu/System/System.h
+    src/rafi-emu/bus/Bus.cpp
+    src/rafi-emu/bus/Bus.h
+    src/rafi-emu/bus/IBusSlave.h
+    src/rafi-emu/cpu/Csr.cpp
+    src/rafi-emu/cpu/Csr.h
+    src/rafi-emu/cpu/CsrAccessor.cpp
+    src/rafi-emu/cpu/CsrAccessor.h
+    src/rafi-emu/cpu/CsrTypes.h
+    src/rafi-emu/cpu/Decoder.cpp
+    src/rafi-emu/cpu/Decoder.h
+    src/rafi-emu/cpu/Executor.cpp
+    src/rafi-emu/cpu/Executor.h
+    src/rafi-emu/cpu/InterruptController.cpp
+    src/rafi-emu/cpu/InterruptController.h
+    src/rafi-emu/cpu/IntRegFile.cpp
+    src/rafi-emu/cpu/IntRegFile.h
+    src/rafi-emu/cpu/MemoryAccessUnit.cpp
+    src/rafi-emu/cpu/MemoryAccessUnit.h
+    src/rafi-emu/cpu/OpTypes.h
+    src/rafi-emu/cpu/Processor.cpp
+    src/rafi-emu/cpu/Processor.h
+    src/rafi-emu/cpu/Trap.cpp
+    src/rafi-emu/cpu/Trap.h
+    src/rafi-emu/cpu/TrapProcessor.cpp
+    src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/include/rafi/BasicTypes.h
+    src/rafi-emu/include/rafi/BitField.h
+    src/rafi-emu/include/rafi/Event.h
+    src/rafi-emu/include/rafi/Exception.h
+    src/rafi-emu/include/rafi/IInterruptSource.h
+    src/rafi-emu/include/rafi/Macro.h
+    src/rafi-emu/log/Profiler.cpp
+    src/rafi-emu/log/Profiler.h
+    src/rafi-emu/log/TraceDumper.cpp
+    src/rafi-emu/log/TraceDumper.h
+    src/rafi-emu/mem/Memory.cpp
+    src/rafi-emu/mem/Memory.h
+    src/rafi-emu/uart/Uart.cpp
+    src/rafi-emu/uart/Uart.h
+    src/rafi-emu/System.cpp
+    src/rafi-emu/System.h
     src/rafi-emu/Main.cpp
-    src/rafi-emu/TraceDumper.cpp
-    src/rafi-emu/TraceDumper.h
 )
 
 add_executable(test-trace
@@ -151,7 +154,7 @@ include_directories(rafi-check-io include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-dump-pc include)
-include_directories(rafi-emu include)
+include_directories(rafi-emu include src/rafi-emu/include)
 include_directories(test-trace include)
 
 target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
