@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo $@
-
 # Move to project top directory
 pushd `dirname $0`
 cd ..

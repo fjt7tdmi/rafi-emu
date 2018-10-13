@@ -17,9 +17,11 @@ import os
 import subprocess
 
 if os.name == "nt":
+    DumpPath = "./build/Debug/rafi-dump.exe"
     DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
     EmulatorPath = "./build/Debug/rafi-emu.exe"
 else:
+    DumpPath = "./build/rafi-dump"
     DumpPcPath = "./build/rafi-dump-pc"
     EmulatorPath = "./build/rafi-emu"
 
@@ -42,17 +44,27 @@ def PrintCommand(cmd):
 
 def MakeEmulatorCommand(testname, cycle):
     binary_path = f"{BinaryDirPath}/{testname}.bin"
-    trace_path = f"{TraceDirPath}/{testname}.trace.bin"
+    trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
     return [
         EmulatorPath,
         "--cycle", str(cycle),
         "--binary", binary_path,
-        "--dump-path", trace_path,
+        "--dump-path", trace_bin_path,
+    ]
+
+def MakeDumpCommand(testname):
+    trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
+    return [
+        DumpPath,
+        trace_bin_path
     ]
 
 def MakeDumpPcCommand(testname):
-    trace_path = f"{TraceDirPath}/{testname}.trace.bin"
-    return [DumpPcPath, trace_path]
+    trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
+    return [
+        DumpPcPath,
+        trace_bin_path
+    ]
 
 def MakeAddrToLineCommand(testname):
     elf_path = os.path.join(ZephyrDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.elf")
@@ -67,25 +79,33 @@ def RunEmulator(config):
 
     return subprocess.run(cmd).returncode
 
-def RunDumpPc(config):
-    out_path = f"{TraceDirPath}/{config['name']}.pc.txt"
+def RunDump(config):
+    trace_txt_path = f"{TraceDirPath}/{config['name']}.trace.txt"
 
-    cmd = MakeDumpPcCommand(config['name'])
+    cmd = MakeDumpCommand(config['name'])
     PrintCommand(cmd)
 
-    with open(out_path, 'w') as f:
+    with open(trace_txt_path, 'w') as f:
         return subprocess.run(cmd, stdout=f).returncode
 
-def RunAddrToLine(config):
-    in_path = f"{TraceDirPath}/{config['name']}.pc.txt"
-    out_path = f"{TraceDirPath}/{config['name']}.line.txt"
+    return subprocess.run(cmd).returncode
 
-    cmd = MakeAddrToLineCommand(config['name'])
-    PrintCommand(cmd)
+def RunDumpPc(config):
+    pc_txt_path = f"{TraceDirPath}/{config['name']}.pc.txt"
+    line_txt_path = f"{TraceDirPath}/{config['name']}.line.txt"
 
-    with open(in_path, 'r') as in_file:
-        with open(out_path, 'w') as out_file:
-            return subprocess.run(cmd, stdin=in_file, stdout=out_file).returncode
+    cmd_dump_pc = MakeDumpPcCommand(config['name'])
+    PrintCommand(cmd_dump_pc)
+
+    with open(pc_txt_path, 'w') as f:
+        return subprocess.run(cmd_dump_pc, stdout=f).returncode
+
+    cmd_addr2line = MakeAddrToLineCommand(config['name'])
+    PrintCommand(cmd_addr2line)
+
+    with open(pc_txt_path, 'r') as in_file:
+        with open(line_txt_path, 'w') as out_file:
+            return subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
 
 #
 # Entry point
@@ -93,7 +113,8 @@ def RunAddrToLine(config):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
-    parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Enable pc dump.")
+    parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
+    parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
 
     (options, args) = parser.parse_args()
 
@@ -105,13 +126,8 @@ if __name__ == '__main__':
     if result != 0:
         exit(result)
     
-    if not options.dump_pc:
-        exit(result)
+    if options.dump:
+        RunDump(config)
 
-    result = RunDumpPc(config)
-    if result != 0:
-        exit(result)
-
-    result = RunAddrToLine(config)
-    if result != 0:
-        exit(result)
+    if options.dump_pc:
+        RunDumpPc(config)
