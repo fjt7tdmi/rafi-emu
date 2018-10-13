@@ -17,14 +17,15 @@ import os
 import subprocess
 
 if os.name == "nt":
-    CheckIoPath = "./build/Debug/rafi-check-io.exe"
+    DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
     EmulatorPath = "./build/Debug/rafi-emu.exe"
 else:
-    CheckIoPath = "./build/rafi-check-io"
+    DumpPcPath = "./build/rafi-dump-pc"
     EmulatorPath = "./build/rafi-emu"
 
 BinaryDirPath = "./work/zephyr"
 TraceDirPath = "./work/zephyr/trace"
+ZephyrDirPath = os.environ["ZEPHYR_BASE"]
 
 DefaultCycle = 10000
 
@@ -36,6 +37,9 @@ def InitializeDirectory(path):
     for filename in os.listdir(f"{TraceDirPath}"):
         os.remove(f"{TraceDirPath}/{filename}")
 
+def PrintCommand(cmd):
+    print(f"[cmd] {' '.join(cmd)}")
+
 def MakeEmulatorCommand(testname, cycle):
     binary_path = f"{BinaryDirPath}/{testname}.bin"
     trace_path = f"{TraceDirPath}/{testname}.trace.bin"
@@ -46,11 +50,42 @@ def MakeEmulatorCommand(testname, cycle):
         "--dump-path", trace_path,
     ]
 
+def MakeDumpPcCommand(testname):
+    trace_path = f"{TraceDirPath}/{testname}.trace.bin"
+    return [DumpPcPath, trace_path]
+
+def MakeAddrToLineCommand(testname):
+    elf_path = os.path.join(ZephyrDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.elf")
+    return [
+        "riscv64-unknown-elf-addr2line",
+        "-e", elf_path,
+    ]
+
 def RunEmulator(config):
     cmd = MakeEmulatorCommand(config['name'], config['cycle'])
-    print(f"Run {' '.join(cmd)}")
+    PrintCommand(cmd)
 
     return subprocess.run(cmd).returncode
+
+def RunDumpPc(config):
+    out_path = f"{TraceDirPath}/{config['name']}.pc.txt"
+
+    cmd = MakeDumpPcCommand(config['name'])
+    PrintCommand(cmd)
+
+    with open(out_path, 'w') as f:
+        return subprocess.run(cmd, stdout=f).returncode
+
+def RunAddrToLine(config):
+    in_path = f"{TraceDirPath}/{config['name']}.pc.txt"
+    out_path = f"{TraceDirPath}/{config['name']}.line.txt"
+
+    cmd = MakeAddrToLineCommand(config['name'])
+    PrintCommand(cmd)
+
+    with open(in_path, 'r') as in_file:
+        with open(out_path, 'w') as out_file:
+            return subprocess.run(cmd, stdin=in_file, stdout=out_file).returncode
 
 #
 # Entry point
@@ -58,10 +93,25 @@ def RunEmulator(config):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
+    parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Enable pc dump.")
 
     (options, args) = parser.parse_args()
 
+    config = {'name': "philosophers", 'cycle': options.cycle}
+
     InitializeDirectory(TraceDirPath)
 
-    result = RunEmulator({'name': "philosophers", 'cycle': options.cycle})
-    exit(result)
+    result = RunEmulator(config)
+    if result != 0:
+        exit(result)
+    
+    if not options.dump_pc:
+        exit(result)
+
+    result = RunDumpPc(config)
+    if result != 0:
+        exit(result)
+
+    result = RunAddrToLine(config)
+    if result != 0:
+        exit(result)
