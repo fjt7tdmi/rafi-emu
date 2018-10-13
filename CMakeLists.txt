@@ -137,6 +137,10 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Memory.h
     src/rafi-emu/uart/Uart.cpp
     src/rafi-emu/uart/Uart.h
+    src/rafi-emu/uart/UartTypes.h
+    src/rafi-emu/timer/Timer.cpp
+    src/rafi-emu/timer/Timer.h
+    src/rafi-emu/timer/TimerTypes.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
     src/rafi-emu/Main.cpp

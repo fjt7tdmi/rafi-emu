@@ -139,6 +139,10 @@ Bus::Location Bus::Convert(PhysicalAddress address, int accessSize) const
     {
         return std::make_pair(m_pUart, static_cast<int>(address - UartAddr));
     }
+    else if (TimerAddr <= low && high < TimerAddr + m_pTimer->GetSize())
+    {
+        return std::make_pair(m_pTimer, static_cast<int>(address - TimerAddr));
+    }
     else if (MemoryAddr <= low && high < MemoryAddr + m_pMemory->GetSize())
     {
         return std::make_pair(m_pMemory, static_cast<int>(address - MemoryAddr));

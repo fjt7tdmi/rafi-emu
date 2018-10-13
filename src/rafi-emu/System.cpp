@@ -19,9 +19,10 @@
 namespace rafi {
 
 System::System(int32_t initialPc)
-    : m_Uart()
-    , m_Memory()
-    , m_Bus(&m_Memory, &m_Uart)
+    : m_Memory()
+    , m_Uart()
+    , m_Timer()
+    , m_Bus(&m_Memory, &m_Uart, &m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
 }
@@ -40,6 +41,7 @@ void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 void System::ProcessOneCycle()
 {
     m_Uart.ProcessCycle();
+    m_Timer.ProcessCycle();
     m_Processor.ProcessOneCycle();
 }
 
