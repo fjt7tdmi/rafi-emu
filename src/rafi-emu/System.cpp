@@ -23,9 +23,13 @@ System::System(int32_t initialPc)
     : m_Memory()
     , m_Uart()
     , m_Timer()
+    , m_ExternalInterruptSource(&m_Uart)
+    , m_TimerInterruptSource(&m_Timer)
     , m_Bus(&m_Memory, &m_Uart, &m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
+    m_Processor.RegisterExternalInterruptSource(&m_ExternalInterruptSource);
+    m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
 }
 
 void System::SetupDtbAddress(int32_t address)

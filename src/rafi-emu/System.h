@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "io/IoInterruptSource.h"
 #include "uart/Uart.h"
 #include "timer/Timer.h"
 #include "mem/Memory.h"
@@ -67,6 +68,9 @@ private:
     mem::Memory m_Memory;
     uart::Uart m_Uart;
     timer::Timer m_Timer;
+
+    io::IoInterruptSource m_ExternalInterruptSource;
+    io::IoInterruptSource m_TimerInterruptSource;
 
     bus::Bus m_Bus;
     cpu::Processor m_Processor;

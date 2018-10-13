@@ -100,7 +100,6 @@ add_executable(rafi-dump
 add_executable(rafi-emu
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
-    src/rafi-emu/bus/IIo.h
     src/rafi-emu/bus/MemoryMap.h
     src/rafi-emu/cpu/Csr.cpp
     src/rafi-emu/cpu/Csr.h
@@ -131,6 +130,9 @@ add_executable(rafi-emu
     src/rafi-emu/include/rafi/Exception.h
     src/rafi-emu/include/rafi/IInterruptSource.h
     src/rafi-emu/include/rafi/Util.h
+    src/rafi-emu/io/IIo.h
+    src/rafi-emu/io/IoInterruptSource.cpp
+    src/rafi-emu/io/IoInterruptSource.h
     src/rafi-emu/log/Profiler.cpp
     src/rafi-emu/log/Profiler.h
     src/rafi-emu/log/TraceDumper.cpp

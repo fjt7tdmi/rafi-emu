@@ -111,9 +111,9 @@ void InterruptController::UpdateCsr()
     }
     else
     {
-        pending.SetMember<xip_t::UTIP>(0);
-        pending.SetMember<xip_t::STIP>(0);
-        pending.SetMember<xip_t::MTIP>(0);
+        pending.SetMember<xip_t::UEIP>(0);
+        pending.SetMember<xip_t::SEIP>(0);
+        pending.SetMember<xip_t::MEIP>(0);
     }
 
     m_pCsr->WriteInterruptPending(pending);

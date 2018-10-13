@@ -20,13 +20,13 @@
 
 #include <rafi/BasicTypes.h>
 
-#include "../bus/IIo.h"
+#include "../io/IIo.h"
 
 #include "TimerTypes.h"
 
 namespace rafi { namespace timer {
 
-class Timer : public bus::IIo
+class Timer : public io::IIo
 {
 public:
     virtual int8_t GetInt8(int address) override;
