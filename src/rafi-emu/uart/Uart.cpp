@@ -15,6 +15,7 @@
  */
 
 #include <cassert>
+#include <cctype>
 #include <cstdio>
 
 #include <rafi/Common.h>
@@ -137,7 +138,16 @@ void Uart::PrintTx()
 {
     for (size_t i = m_PrintCount; i < m_TxChars.size(); i++)
     {
-        putchar(m_TxChars[i]);
+        char c = m_TxChars[i];
+
+        if (std::isprint(c) || c == '\r' || c == '\n')
+        {
+            putchar(m_TxChars[i]);
+        }
+        else
+        {
+            printf("\\x%02x", c);
+        }
     }
 
     m_PrintCount = m_TxChars.size();
