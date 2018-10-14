@@ -19,44 +19,36 @@
 #include <cstdint>
 #include <cstring>
 
+#include "IMemory.h"
+
 namespace rafi { namespace mem {
 
-class Memory
+class Ram : public IMemory
 {
-    Memory(const Memory&) = delete;
-    Memory(Memory&&) = delete;
-    Memory& operator=(const Memory&) = delete;
-    Memory& operator=(Memory&&) = delete;
+    Ram(const Ram&) = delete;
+    Ram(Ram&&) = delete;
+    Ram& operator=(const Ram&) = delete;
+    Ram& operator=(Ram&&) = delete;
 
 public:
-    Memory();
-    ~Memory();
+    Ram();
+    ~Ram();
 
     void LoadFile(const char* path, int offset = 0);
 
     void Copy(void* pOut, size_t size) const;
 
-    int8_t GetInt8(int address) const;
-    void SetInt8(int address, int8_t value);
+    virtual int8_t GetInt8(int address) const override;
+    virtual void SetInt8(int address, int8_t value) override;
 
-    int16_t GetInt16(int address) const;
-    void SetInt16(int address, int16_t value);
+    virtual int16_t GetInt16(int address) const override;
+    virtual void SetInt16(int address, int16_t value) override;
 
-    int32_t GetInt32(int address) const;
-    void SetInt32(int address, int32_t value);
-
-    virtual int GetSize() const
-    {
-        return MemorySize;
-    }
+    virtual int32_t GetInt32(int address) const override;
+    virtual void SetInt32(int address, int32_t value) override;
 
     // Constants
-    static const int MemoryAddrWidth = 26;
-    static const int MemoryAddrMask = (1 << MemoryAddrWidth) - 1;
-    static const int MemorySize = 1 << MemoryAddrWidth;
-
-    // for Dump
-    static const int32_t LineSize = 64;
+    static const int Capacity = 64 * 1024 * 1024;
 
 private:
 	char* m_pBody;

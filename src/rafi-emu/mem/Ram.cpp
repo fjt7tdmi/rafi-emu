@@ -22,24 +22,24 @@
 
 #include <rafi/Common.h>
 
-#include "Memory.h"
+#include "Ram.h"
 
 namespace rafi { namespace mem {
 
-Memory::Memory()
+Ram::Ram()
 {
-    m_pBody = new char[MemorySize];
-    std::memset(m_pBody, 0, MemorySize);
+    m_pBody = new char[Capacity];
+    std::memset(m_pBody, 0, Capacity);
 }
 
-Memory::~Memory()
+Ram::~Ram()
 {
     delete[] m_pBody;
 }
 
-void Memory::LoadFile(const char* path, int offset)
+void Ram::LoadFile(const char* path, int offset)
 {
-    if (!(0 <= offset && offset < MemorySize))
+    if (!(0 <= offset && offset < Capacity))
     {
         ABORT();
     }
@@ -50,13 +50,13 @@ void Memory::LoadFile(const char* path, int offset)
     {
         ABORT();
     }
-    f.read(&m_pBody[offset], MemorySize - offset);
+    f.read(&m_pBody[offset], Capacity - offset);
     f.close();
 }
 
-void Memory::Copy(void* pOut, size_t size) const
+void Ram::Copy(void* pOut, size_t size) const
 {
-    if (size > MemorySize)
+    if (size > Capacity)
     {
         ABORT();
     }
@@ -64,39 +64,39 @@ void Memory::Copy(void* pOut, size_t size) const
     std::memcpy(pOut, m_pBody, size);
 }
 
-int8_t Memory::GetInt8(int address) const
+int8_t Ram::GetInt8(int address) const
 {
-    assert(0 <= address && address + sizeof(int8_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int8_t) <= Capacity);
     return *reinterpret_cast<int8_t*>(&m_pBody[address]);
 }
 
-void Memory::SetInt8(int address, int8_t value)
+void Ram::SetInt8(int address, int8_t value)
 {
-    assert(0 <= address && address + sizeof(int8_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int8_t) <= Capacity);
     *reinterpret_cast<int8_t*>(&m_pBody[address]) = value;
 }
 
-int16_t Memory::GetInt16(int address) const
+int16_t Ram::GetInt16(int address) const
 {
-    assert(0 <= address && address + sizeof(int16_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int16_t) <= Capacity);
     return *reinterpret_cast<int16_t*>(&m_pBody[address]);
 }
 
-void Memory::SetInt16(int address, int16_t value)
+void Ram::SetInt16(int address, int16_t value)
 {
-    assert(0 <= address && address + sizeof(int16_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int16_t) <= Capacity);
     *reinterpret_cast<int16_t*>(&m_pBody[address]) = value;
 }
 
-int32_t Memory::GetInt32(int address) const
+int32_t Ram::GetInt32(int address) const
 {
-    assert(0 <= address && address + sizeof(int32_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int32_t) <= Capacity);
     return *reinterpret_cast<int32_t*>(&m_pBody[address]);
 }
 
-void Memory::SetInt32(int address, int32_t value)
+void Ram::SetInt32(int address, int32_t value)
 {
-    assert(0 <= address && address + sizeof(int32_t) <= MemorySize);
+    assert(0 <= address && address + sizeof(int32_t) <= Capacity);
     *reinterpret_cast<int32_t*>(&m_pBody[address]) = value;
 }
 

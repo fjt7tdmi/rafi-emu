@@ -142,8 +142,9 @@ add_executable(rafi-emu
     src/rafi-emu/log/Profiler.h
     src/rafi-emu/log/TraceDumper.cpp
     src/rafi-emu/log/TraceDumper.h
-    src/rafi-emu/mem/Memory.cpp
-    src/rafi-emu/mem/Memory.h
+    src/rafi-emu/mem/IMemory.h
+    src/rafi-emu/mem/Ram.cpp
+    src/rafi-emu/mem/Ram.h
     src/rafi-emu/uart/Uart.cpp
     src/rafi-emu/uart/Uart.h
     src/rafi-emu/uart/UartTypes.h

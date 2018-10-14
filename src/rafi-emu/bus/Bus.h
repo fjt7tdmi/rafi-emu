@@ -21,7 +21,7 @@
 #include <rafi/BasicTypes.h>
 
 #include "../io/IIo.h"
-#include "../mem/Memory.h"
+#include "../mem/Ram.h"
 #include "../uart/Uart.h"
 #include "../timer/Timer.h"
 
@@ -29,7 +29,7 @@ namespace rafi { namespace bus {
 
 struct MemoryInfo
 {
-    mem::Memory* pMemory;
+    mem::IMemory* pMemory;
     PhysicalAddress address;
     int size;
 };
@@ -43,7 +43,7 @@ struct IoInfo
 
 struct MemoryLocation
 {
-    mem::Memory* pMemory;
+    mem::IMemory* pMemory;
     int offset;
 };
 
@@ -65,7 +65,7 @@ public:
     int32_t GetInt32(PhysicalAddress address);
     void SetInt32(PhysicalAddress address, int32_t value);
 
-    void RegisterMemory(mem::Memory* pMemory, PhysicalAddress address, int size);
+    void RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size);
     void RegisterIo(io::IIo* pIo, PhysicalAddress address, int size);
 
     MemoryLocation ConvertToMemoryLocation(PhysicalAddress address) const;
