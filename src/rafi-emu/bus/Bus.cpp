@@ -25,13 +25,13 @@ int8_t Bus::GetInt8(PhysicalAddress address)
 {
     if (IsMemoryAddress(address, sizeof(int8_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        return m_pMemory->GetInt8(offset);
+        const auto location = ConvertToMemoryLocation(address);
+        return location.pMemory->GetInt8(location.offset);
     }
     else if (IsIoAddress(address, sizeof(int8_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        return location.first->GetInt8(location.second);
+        const auto location = ConvertToIoLocation(address);
+        return location.pIo->GetInt8(location.offset);
     }
     else
     {
@@ -43,13 +43,13 @@ void Bus::SetInt8(PhysicalAddress address, int8_t value)
 {
     if (IsMemoryAddress(address, sizeof(int8_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        m_pMemory->SetInt8(offset, value);
+        const auto location = ConvertToMemoryLocation(address);
+        location.pMemory->SetInt8(location.offset, value);
     }
     else if (IsIoAddress(address, sizeof(int8_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        location.first->SetInt8(location.second, value);
+        const auto location = ConvertToIoLocation(address);
+        location.pIo->SetInt8(location.offset, value);
     }
     else
     {
@@ -61,13 +61,13 @@ int16_t Bus::GetInt16(PhysicalAddress address)
 {
     if (IsMemoryAddress(address, sizeof(int16_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        return m_pMemory->GetInt16(offset);
+        const auto location = ConvertToMemoryLocation(address);
+        return location.pMemory->GetInt16(location.offset);
     }
     else if (IsIoAddress(address, sizeof(int16_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        return location.first->GetInt16(location.second);
+        const auto location = ConvertToIoLocation(address);
+        return location.pIo->GetInt16(location.offset);
     }
     else
     {
@@ -79,13 +79,13 @@ void Bus::SetInt16(PhysicalAddress address, int16_t value)
 {
     if (IsMemoryAddress(address, sizeof(int16_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        m_pMemory->SetInt16(offset, value);
+        const auto location = ConvertToMemoryLocation(address);
+        location.pMemory->SetInt16(location.offset, value);
     }
     else if (IsIoAddress(address, sizeof(int16_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        location.first->SetInt16(location.second, value);
+        const auto location = ConvertToIoLocation(address);
+        location.pIo->SetInt16(location.offset, value);
     }
     else
     {
@@ -97,13 +97,13 @@ int32_t Bus::GetInt32(PhysicalAddress address)
 {
     if (IsMemoryAddress(address, sizeof(int32_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        return m_pMemory->GetInt32(offset);
+        const auto location = ConvertToMemoryLocation(address);
+        return location.pMemory->GetInt32(location.offset);
     }
     else if (IsIoAddress(address, sizeof(int32_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        return location.first->GetInt32(location.second);
+        const auto location = ConvertToIoLocation(address);
+        return location.pIo->GetInt32(location.offset);
     }
     else
     {
@@ -115,13 +115,13 @@ void Bus::SetInt32(PhysicalAddress address, int32_t value)
 {
     if (IsMemoryAddress(address, sizeof(int32_t)))
     {
-        auto offset = ConvertToMemoryOffset(address);
-        m_pMemory->SetInt32(offset, value);
+        const auto location = ConvertToMemoryLocation(address);
+        location.pMemory->SetInt32(location.offset, value);
     }
     else if (IsIoAddress(address, sizeof(int32_t)))
     {
-        const auto location = ConvertToIoOffset(address);
-        location.first->SetInt32(location.second, value);
+        const auto location = ConvertToIoLocation(address);
+        location.pIo->SetInt32(location.offset, value);
     }
     else
     {
@@ -129,20 +129,34 @@ void Bus::SetInt32(PhysicalAddress address, int32_t value)
     }
 }
 
-int Bus::ConvertToMemoryOffset(PhysicalAddress address) const
+void Bus::RegisterMemory(mem::Memory* pMemory, PhysicalAddress address, int size)
 {
-    if (MemoryAddr <= address && address < MemoryAddr + m_pMemory->GetSize())
+    MemoryInfo info { pMemory, address, size };
+    m_MemoryList.push_back(info);
+}
+
+void Bus::RegisterIo(io::IIo* pIo, PhysicalAddress address, int size)
+{
+    IoInfo info { pIo, address, size };
+    m_IoList.push_back(info);
+}
+
+MemoryLocation Bus::ConvertToMemoryLocation(PhysicalAddress address) const
+{
+    for (const auto& location: m_MemoryList)
     {
-        return static_cast<int>(address - MemoryAddr);
+        if (location.address <= address && address < location.address + location.size)
+        {
+            MemoryLocation ret;
+
+            ret.pMemory = location.pMemory;
+            ret.offset = static_cast<int>(address - location.address);
+
+            return ret;
+        }
     }
-    else if (MemoryMirrorAddr <= address && address < MemoryMirrorAddr + m_pMemory->GetSize())
-    {
-        return static_cast<int>(address - MemoryMirrorAddr);
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+
+    throw InvalidAccessException(address);
 }
 
 bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
@@ -150,34 +164,33 @@ bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
     const auto low = address;
     const auto high = address + accessSize - 1;
 
-    if (MemoryAddr <= low && high < MemoryAddr + m_pMemory->GetSize())
+    for (const auto& location: m_MemoryList)
     {
-        return true;
+        if (location.address <= low && high < location.address + location.size)
+        {
+            return true;
+        }
     }
-    else if (MemoryMirrorAddr <= low && high < MemoryMirrorAddr + m_pMemory->GetSize())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
-Bus::Location Bus::ConvertToIoOffset(PhysicalAddress address) const
+IoLocation Bus::ConvertToIoLocation(PhysicalAddress address) const
 {
-    if (UartAddr <= address && address < UartAddr + m_pUart->GetSize())
+    for (const auto& location: m_IoList)
     {
-        return std::make_pair(m_pUart, static_cast<int>(address - UartAddr));
+        if (location.address <= address && address < location.address + location.size)
+        {
+            IoLocation ret;
+
+            ret.pIo = location.pIo;
+            ret.offset = static_cast<int>(address - location.address);
+
+            return ret;
+        }
     }
-    else if (TimerAddr <= address && address < TimerAddr + m_pTimer->GetSize())
-    {
-        return std::make_pair(m_pTimer, static_cast<int>(address - TimerAddr));
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+
+    throw InvalidAccessException(address);
 }
 
 bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const
@@ -185,18 +198,15 @@ bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const
     const auto low = address;
     const auto high = address + accessSize - 1;
 
-    if (UartAddr <= low && high < UartAddr + m_pUart->GetSize())
+    for (const auto& location: m_IoList)
     {
-        return true;
+        if (location.address <= low && high < location.address + location.size)
+        {
+            return true;
+        }
     }
-    else if (TimerAddr <= low && high < TimerAddr + m_pTimer->GetSize())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 }}

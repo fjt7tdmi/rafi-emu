@@ -20,14 +20,19 @@
 namespace rafi {
 
 System::System(int32_t initialPc)
-    : m_Memory()
+    : m_Bus()
+    , m_Memory()
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
     , m_TimerInterruptSource(&m_Timer)
-    , m_Bus(&m_Memory, &m_Uart, &m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
+    m_Bus.RegisterMemory(&m_Memory, MemoryAddr, m_Memory.GetSize());
+    m_Bus.RegisterMemory(&m_Memory, MemoryMirrorAddr, m_Memory.GetSize());
+    m_Bus.RegisterIo(&m_Uart, UartAddr, m_Uart.GetSize());
+    m_Bus.RegisterIo(&m_Timer, TimerAddr, m_Timer.GetSize());
+
     m_Processor.RegisterExternalInterruptSource(&m_ExternalInterruptSource);
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
 }
@@ -39,8 +44,8 @@ void System::SetupDtbAddress(int32_t address)
 
 void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 {
-    int offset = m_Bus.ConvertToMemoryOffset(address);
-    m_Memory.LoadFile(path, offset);
+    auto location = m_Bus.ConvertToMemoryLocation(address);
+    m_Memory.LoadFile(path, location.offset);
 }
 
 void System::ProcessOneCycle()
@@ -62,8 +67,8 @@ int System::GetMemorySize() const
 
 int32_t System::GetHostIoValue() const
 {
-    int offset = m_Bus.ConvertToMemoryOffset(HostIoAddr);
-    return m_Memory.GetInt32(offset);
+    auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
+    return m_Memory.GetInt32(location.offset);
 }
 
 void System::CopyCsr(void* pOut, size_t size) const
