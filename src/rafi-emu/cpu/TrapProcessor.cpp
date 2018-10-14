@@ -45,18 +45,29 @@ void TrapProcessor::ProcessException(const Trap& trap)
 
 void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
 {
-    const auto delegMask = 1 << static_cast<int32_t>(type);
+    PrivilegeLevel nextPrivilegeLevel;
 
-    PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
-    if ((m_pCsr->Read(csr_addr_t::mideleg) & delegMask) != 0)
+    switch (type)
     {
+    case InterruptType::MachineExternal:
+    case InterruptType::MachineTimer:
+    case InterruptType::MachineSoftware:
+        nextPrivilegeLevel = PrivilegeLevel::Machine;
+        break;
+    case InterruptType::SupervisorExternal:
+    case InterruptType::SupervisorTimer:
+    case InterruptType::SupervisorSoftware:
         nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        if ((m_pCsr->Read(csr_addr_t::sideleg) & delegMask) != 0)
-        {
-            nextPrivilegeLevel = PrivilegeLevel::User;
-        }
+        break;
+    case InterruptType::UserExternal:
+    case InterruptType::UserTimer:
+    case InterruptType::UserSoftware:
+        nextPrivilegeLevel = PrivilegeLevel::User;
+        break;
+    default:
+        ABORT();
     }
-
+    
     ProcessTrapEnter(true, static_cast<int32_t>(type), 0, pc, nextPrivilegeLevel);
 }
 
@@ -133,7 +144,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
 
     m_pCsr->SetPrivilegeLevel(nextPrivilegeLevel);
 
-    const int32_t cause = (isInterrupt << (XLEN32 - 1)) | exceptionCode;
+    const int32_t cause = (isInterrupt ? 0x80000000 : 0) | exceptionCode;
 
     xtvec_t trapVector;
     xstatus_t status;
