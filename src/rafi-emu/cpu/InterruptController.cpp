@@ -17,6 +17,7 @@
 #include <cassert>
 #include <cstring>
 
+#include <rafi/Common.h>
 #include "InterruptController.h"
 
 namespace rafi { namespace cpu {
@@ -62,13 +63,34 @@ void InterruptController::Update()
 {
     UpdateCsr();
 
-    xie_t enable = m_pCsr->ReadInterruptEnable();
-    xip_t pending = m_pCsr->ReadInterruptPending();
+    bool enableInStatus;
+    xie_t enable;
+    xip_t pending;
 
-    const int32_t mask = enable.GetInt32();
-    const int32_t value = static_cast<int32_t>(pending.GetWithMask(mask));
+    switch (m_pCsr->GetPrivilegeLevel())
+    {
+    case PrivilegeLevel::Machine:
+        enableInStatus = m_pCsr->ReadStatus().GetMember<xstatus_t::MIE>();
+        enable = m_pCsr->ReadInterruptEnable().GetWithMask(xie_t::MachineMask);
+        pending = m_pCsr->ReadInterruptPending().GetWithMask(xie_t::MachineMask);
+        break;
+    case PrivilegeLevel::Supervisor:
+        enableInStatus = m_pCsr->ReadStatus().GetMember<xstatus_t::SIE>();
+        enable = m_pCsr->ReadInterruptEnable().GetWithMask(xie_t::SupervisorMask);
+        pending = m_pCsr->ReadInterruptPending().GetWithMask(xie_t::SupervisorMask);
+        break;
+    case PrivilegeLevel::User:
+        enableInStatus = m_pCsr->ReadStatus().GetMember<xstatus_t::UIE>();
+        enable = m_pCsr->ReadInterruptEnable().GetWithMask(xie_t::UserMask);
+        pending = m_pCsr->ReadInterruptPending().GetWithMask(xie_t::UserMask);
+        break;
+    default:
+        ABORT();
+    }
 
-    m_IsRequested = (value != 0);
+    const int32_t value = enable.GetInt32() & pending.GetInt32();
+
+    m_IsRequested = enableInStatus && (value != 0);
     m_InterruptType = static_cast<InterruptType>(NumberOfTrainingZero(value));
 }
 
