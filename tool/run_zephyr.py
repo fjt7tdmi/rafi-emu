@@ -43,14 +43,17 @@ def PrintCommand(cmd):
     print(f"[cmd] {' '.join(cmd)}")
 
 def MakeEmulatorCommand(testname, cycle, enable_dump_csr):
-    binary_path = f"{BinaryDirPath}/{testname}.bin"
+    ram_bin_path = f"{BinaryDirPath}/{testname}.ram.bin"
+    rom_bin_path = f"{BinaryDirPath}/{testname}.rom.bin"
     trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
 
     cmd = [
         EmulatorPath,
         "--cycle", str(cycle),
-        "--binary", binary_path,
         "--dump-path", trace_bin_path,
+        "--load", f"{ram_bin_path}:0x80000000",
+        "--load", f"{rom_bin_path}:0x00001000",
+        "--pc", "0x00001000",
     ]
     if enable_dump_csr:
         cmd.append("--enable-dump-csr")     

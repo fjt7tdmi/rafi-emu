@@ -65,35 +65,32 @@ private:
     const char* m_pMessage;
 };
 
-class BinaryOption
+class LoadOption
 {
 public:
-    explicit BinaryOption(const std::string& arg)
+    explicit LoadOption(const std::string& arg)
     {
         const auto delimPos = arg.find(':');
 
         if (delimPos == std::string::npos)
         {
-            m_Path = arg;
-            m_Address = DefaultAddress;
+            throw CommandLineOptionException(arg.c_str(), "Failed to parse <file:address> pair.");
         }
-        else
+
+        m_Path = arg.substr(0, delimPos);
+
+        try
         {
-            m_Path = arg.substr(0, delimPos);
+            m_Address = std::strtoull(arg.substr(delimPos + 1).c_str(), nullptr, 16);
+        }
+        catch (std::out_of_range&)
+        {
+            throw CommandLineOptionException(arg.c_str(), "Failed to parse address.");
+        }
 
-            try
-            {
-                m_Address = std::strtoull(arg.substr(delimPos + 1).c_str(), nullptr, 16);
-            }
-            catch (std::out_of_range&)
-            {
-                throw CommandLineOptionException(arg.c_str(), "Failed to parse address.");
-            }
-
-            if (m_Address == 0)
-            {
-                throw CommandLineOptionException(arg.c_str(), "Failed to parse address or address is 0.");
-            }
+        if (m_Address == 0)
+        {
+            throw CommandLineOptionException(arg.c_str(), "Failed to parse address or address is 0.");
         }
     }
 
@@ -108,8 +105,6 @@ public:
     }
 
 private:
-    static const rafi::PhysicalAddress DefaultAddress{ rafi::RamAddr };
-
     std::string m_Path;
     rafi::PhysicalAddress m_Address;
 };
@@ -141,19 +136,17 @@ uint32_t GetHexProgramOption(const po::variables_map& vm, const char* optionName
 
 int main(int argc, char** argv)
 {
-    const uint32_t DefaultInitialPc = 0x80000000;
-
     int cycle;
     int dumpSkipCycle;
 
     po::options_description optionDesc("options");
     optionDesc.add_options()
-        ("binary", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("cycle", po::value<int>(&cycle)->default_value(0), "number of emulation cycles")
         ("dtb-address", po::value<std::string>(), "dtb physical address")
         ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
+        ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("pc", po::value<std::string>(), "initial program counter value")
         ("stop-by-host-io", "stop emulation when host io value is changed")
         ("help", "show help");
@@ -180,7 +173,7 @@ int main(int argc, char** argv)
     uint32_t dtbAddress;
     try
     {
-        initialPc = GetHexProgramOption(optionMap, "pc", DefaultInitialPc);
+        initialPc = GetHexProgramOption(optionMap, "pc", 0);
         dtbAddress = GetHexProgramOption(optionMap, "dtb-address", 0);
     }
     catch (CommandLineOptionException e)
@@ -197,10 +190,10 @@ int main(int argc, char** argv)
     rafi::log::TraceDumper* dumper;
     try
     {
-        for (auto& arg: optionMap["binary"].as<std::vector<std::string>>())
+        for (auto& arg: optionMap["load"].as<std::vector<std::string>>())
         {
-            BinaryOption binaryOption(arg);
-            pSystem->LoadFileToMemory(binaryOption.GetPath().c_str(), binaryOption.GetAddress());
+            LoadOption loadOption(arg);
+            pSystem->LoadFileToMemory(loadOption.GetPath().c_str(), loadOption.GetAddress());
         }
 
         dumper = new rafi::log::TraceDumper(optionMap["dump-path"].as<std::string>().c_str(), pSystem);
