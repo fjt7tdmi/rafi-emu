@@ -136,7 +136,6 @@ struct op_lhu_t
 
 struct op_sb_t
 {
-    int rd;
     int rs1;
     int rs2;
     int32_t imm;
@@ -144,7 +143,6 @@ struct op_sb_t
 
 struct op_sh_t
 {
-    int rd;
     int rs1;
     int rs2;
     int32_t imm;
@@ -152,7 +150,6 @@ struct op_sh_t
 
 struct op_sw_t
 {
-    int rd;
     int rs1;
     int rs2;
     int32_t imm;
