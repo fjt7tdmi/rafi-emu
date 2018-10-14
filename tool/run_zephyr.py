@@ -29,7 +29,7 @@ BinaryDirPath = "./work/zephyr"
 TraceDirPath = "./work/zephyr/trace"
 ZephyrDirPath = os.environ["ZEPHYR_BASE"]
 
-DefaultCycle = 10000
+DefaultCycle = 32768
 
 #
 # Functions
@@ -105,14 +105,14 @@ def RunDumpPc(config):
     PrintCommand(cmd_dump_pc)
 
     with open(pc_txt_path, 'w') as f:
-        return subprocess.run(cmd_dump_pc, stdout=f).returncode
+        subprocess.run(cmd_dump_pc, stdout=f).returncode
 
     cmd_addr2line = MakeAddrToLineCommand(config['name'])
     PrintCommand(cmd_addr2line)
 
     with open(pc_txt_path, 'r') as in_file:
         with open(line_txt_path, 'w') as out_file:
-            return subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
+            subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
 
 #
 # Entry point
