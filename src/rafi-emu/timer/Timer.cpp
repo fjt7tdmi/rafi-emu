@@ -25,22 +25,22 @@ namespace rafi { namespace timer {
 
 int8_t Timer::GetInt8(int)
 {
-    ABORT();
+    throw FatalException(__FILE__, __LINE__);
 }
 
 void Timer::SetInt8(int, int8_t)
 {
-    ABORT();
+    throw FatalException(__FILE__, __LINE__);
 }
 
 int16_t Timer::GetInt16(int)
 {
-    ABORT();
+    throw FatalException(__FILE__, __LINE__);
 }
 
 void Timer::SetInt16(int, int16_t)
 {
-    ABORT();
+    throw FatalException(__FILE__, __LINE__);
 }
 
 int32_t Timer::GetInt32(int address)
@@ -56,7 +56,7 @@ int32_t Timer::GetInt32(int address)
     case Address_TimeCmpHigh:
         return GetHigh32(m_TimeCmp);
     default:
-        ABORT();
+        throw FatalException(__FILE__, __LINE__);
     }
 }
 
@@ -66,14 +66,18 @@ void Timer::SetInt32(int address, int32_t value)
     {
     case Address_TimeLow:
         SetLow32(&m_Time, value);
+        break;
     case Address_TimeHigh:
         SetHigh32(&m_Time, value);
+        break;
     case Address_TimeCmpLow:
         SetLow32(&m_TimeCmp, value);
+        break;
     case Address_TimeCmpHigh:
         SetHigh32(&m_TimeCmp, value);
+        break;
     default:
-        ABORT();
+        throw FatalException(__FILE__, __LINE__);
     }
 }
 

@@ -20,8 +20,6 @@ import subprocess
 import sys
 
 ObjcopyCmd = "riscv64-unknown-elf-objcopy"
-StartAddr = "0x8000000"
-EndAddr = "0x80008000"
 InDirPath = os.environ["ZEPHYR_BASE"]
 OutDirPath = "./work/zephyr"
 
@@ -33,26 +31,43 @@ def InitializeDirectory(path):
     for filename in os.listdir(f"{path}"):
         os.remove(f"{path}/{filename}")
 
-def MakeObjcopyCommand(config):
+def MakeRamObjcopyCommand(config):
     in_path = os.path.join(InDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.strip")
-    out_path = os.path.join(OutDirPath, f"{config['name']}.bin")
+    out_path = os.path.join(OutDirPath, f"{config['name']}.ram.bin")
 
     return [
         ObjcopyCmd,
         "-O", "binary",
         "--remove-section", "vector",
-        f"--set-start={StartAddr}",
-        f"--pad-to={EndAddr}",
+        f"--set-start=0x80000000",
+        f"--pad-to=0x80008000",
+        in_path,
+        out_path,
+    ]
+
+def MakeRomObjcopyCommand(config):
+    in_path = os.path.join(InDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.strip")
+    out_path = os.path.join(OutDirPath, f"{config['name']}.rom.bin")
+
+    return [
+        ObjcopyCmd,
+        "-O", "binary",
+        "--only-section", "vector",
+        f"--set-start=0x00001000",
+        f"--pad-to=0x00002000",
         in_path,
         out_path,
     ]
 
 def RunObjcopy(configs):
     for config in configs:
-        cmd = MakeObjcopyCommand(config)
-        print(' '.join(cmd))
+        cmdRam = MakeRamObjcopyCommand(config)
+        print(' '.join(cmdRam))
+        subprocess.run(cmdRam)
 
-        subprocess.run(cmd)
+        cmdRom = MakeRomObjcopyCommand(config)
+        print(' '.join(cmdRom))
+        subprocess.run(cmdRom)
 
 #
 # Entry point

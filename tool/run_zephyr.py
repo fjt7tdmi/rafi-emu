@@ -29,7 +29,7 @@ BinaryDirPath = "./work/zephyr"
 TraceDirPath = "./work/zephyr/trace"
 ZephyrDirPath = os.environ["ZEPHYR_BASE"]
 
-DefaultCycle = 10000
+DefaultCycle = 120000
 
 #
 # Functions
@@ -42,17 +42,21 @@ def InitializeDirectory(path):
 def PrintCommand(cmd):
     print(f"[cmd] {' '.join(cmd)}")
 
-def MakeEmulatorCommand(testname, cycle, enable_dump_csr):
-    binary_path = f"{BinaryDirPath}/{testname}.bin"
-    trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
+def MakeEmulatorCommand(config):
+    ram_bin_path = f"{BinaryDirPath}/{config['name']}.ram.bin"
+    rom_bin_path = f"{BinaryDirPath}/{config['name']}.rom.bin"
+    trace_bin_path = f"{TraceDirPath}/{config['name']}.trace.bin"
 
     cmd = [
         EmulatorPath,
-        "--cycle", str(cycle),
-        "--binary", binary_path,
+        "--cycle", str(config['cycle']),
+        "--dump-skip-cycle", str(config['dump_skip_cycle']),
         "--dump-path", trace_bin_path,
+        "--load", f"{ram_bin_path}:0x80000000",
+        "--load", f"{rom_bin_path}:0x00001000",
+        "--pc", "0x00001000",
     ]
-    if enable_dump_csr:
+    if config['enable_dump_csr']:
         cmd.append("--enable-dump-csr")     
     return cmd
 
@@ -78,7 +82,7 @@ def MakeAddrToLineCommand(testname):
     ]
 
 def RunEmulator(config):
-    cmd = MakeEmulatorCommand(config['name'], config['cycle'], config['enable_dump_csr'])
+    cmd = MakeEmulatorCommand(config)
     PrintCommand(cmd)
 
     return subprocess.run(cmd).returncode
@@ -102,14 +106,14 @@ def RunDumpPc(config):
     PrintCommand(cmd_dump_pc)
 
     with open(pc_txt_path, 'w') as f:
-        return subprocess.run(cmd_dump_pc, stdout=f).returncode
+        subprocess.run(cmd_dump_pc, stdout=f).returncode
 
     cmd_addr2line = MakeAddrToLineCommand(config['name'])
     PrintCommand(cmd_addr2line)
 
     with open(pc_txt_path, 'r') as in_file:
         with open(line_txt_path, 'w') as out_file:
-            return subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
+            subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
 
 #
 # Entry point
@@ -119,11 +123,17 @@ if __name__ == '__main__':
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
+    parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
 
     (options, args) = parser.parse_args()
 
-    config = {'name': "philosophers", 'cycle': options.cycle, 'enable_dump_csr': options.enable_dump_csr}
+    config = {
+        'name': "philosophers",
+        'cycle': options.cycle,
+        'dump_skip_cycle': options.dump_skip_cycle,
+        'enable_dump_csr': options.enable_dump_csr
+    }
 
     InitializeDirectory(TraceDirPath)
 

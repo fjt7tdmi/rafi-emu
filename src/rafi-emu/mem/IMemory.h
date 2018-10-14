@@ -16,17 +16,23 @@
 
 #pragma once
 
-#include <utility>
+#include <cstdint>
 
-#include <rafi/BasicTypes.h>
+namespace rafi { namespace mem {
 
-namespace rafi {
+class IMemory
+{
+public:
+    virtual void LoadFile(const char* path, int offset) = 0;
 
-// Memory Map
-const PhysicalAddress RomAddr = 0x00001000;
-const PhysicalAddress RamAddr = 0x80000000;
-const PhysicalAddress UartAddr = 0x40002000;
-const PhysicalAddress TimerAddr = 0x40000000;
-const PhysicalAddress HostIoAddr = 0x80001000;
+    virtual int8_t GetInt8(int address) const = 0;
+    virtual void SetInt8(int address, int8_t value) = 0;
 
-}
+    virtual int16_t GetInt16(int address) const = 0;
+    virtual void SetInt16(int address, int16_t value) = 0;
+
+    virtual int32_t GetInt32(int address) const = 0;
+    virtual void SetInt32(int address, int32_t value) = 0;
+};
+
+}}

@@ -22,8 +22,8 @@ import subprocess
 from functools import reduce
 from operator import or_
 
-CheckIoPath = "./build/Release/rafi-check-io.exe"
-EmulatorPath = "./build/Release/rafi-emu.exe"
+CheckIoPath = "./build/Debug/rafi-check-io.exe"
+EmulatorPath = "./build/Debug/rafi-emu.exe"
 BinaryDirPath = "./work/riscv_tests"
 TraceDirPath = "./work/riscv_tests/trace"
 
@@ -46,8 +46,9 @@ def MakeEmulatorCommand(testname, cycle):
     return [
         EmulatorPath,
         "--cycle", str(cycle),
-        "--binary", binary_path,
+        "--load", f"{binary_path}:0x80000000",
         "--dump-path", trace_path,
+        "--pc", "0x80000000",
         "--stop-by-host-io",
     ]
 

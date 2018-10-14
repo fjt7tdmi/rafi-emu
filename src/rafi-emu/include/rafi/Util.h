@@ -44,8 +44,8 @@ inline int32_t GetLow32(int64_t value)
 
 inline void SetHigh32(uint64_t* pOut, int32_t value)
 {
-    (*pOut) &= 0xffffffff00000000LL;
-    (*pOut) |= value;
+    (*pOut) &= 0x00000000ffffffffLL;
+    (*pOut) |= (static_cast<int64_t>(value) << 32);
 }
 
 inline void SetHigh32(int64_t* pOut, int32_t value)
@@ -55,8 +55,8 @@ inline void SetHigh32(int64_t* pOut, int32_t value)
 
 inline void SetLow32(uint64_t* pOut, int32_t value)
 {
-    (*pOut) &= 0x00000000ffffffffLL;
-    (*pOut) |= (static_cast<int64_t>(value) << 32);
+    (*pOut) &= 0xffffffff00000000LL;
+    (*pOut) |= value;
 }
 
 inline void SetLow32(int64_t* pOut, int32_t value)

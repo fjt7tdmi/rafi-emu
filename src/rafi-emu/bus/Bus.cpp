@@ -129,7 +129,7 @@ void Bus::SetInt32(PhysicalAddress address, int32_t value)
     }
 }
 
-void Bus::RegisterMemory(mem::Memory* pMemory, PhysicalAddress address, int size)
+void Bus::RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size)
 {
     MemoryInfo info { pMemory, address, size };
     m_MemoryList.push_back(info);

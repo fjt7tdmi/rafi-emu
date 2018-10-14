@@ -19,7 +19,8 @@
 #include "io/IoInterruptSource.h"
 #include "uart/Uart.h"
 #include "timer/Timer.h"
-#include "mem/Memory.h"
+#include "mem/Ram.h"
+#include "mem/Rom.h"
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
 
@@ -41,13 +42,13 @@ public:
 
     // for Dump
     int GetCsrCount() const;
-    int GetMemorySize() const;
+    int GetRamSize() const;
 
     int32_t GetHostIoValue() const;
 
     void CopyCsr(void* pOut, size_t size) const;
     void CopyIntRegs(void* pOut, size_t size) const;
-    void CopyMemory(void* pOut, size_t size) const;
+    void CopyRam(void* pOut, size_t size) const;
 
     void CopyCsrReadEvent(CsrReadEvent* pOut) const;
     void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
@@ -66,7 +67,8 @@ private:
     const int DtbAddressRegId = 11;
 
     bus::Bus m_Bus;
-    mem::Memory m_Memory;
+    mem::Ram m_Ram;
+    mem::Rom m_Rom;
     uart::Uart m_Uart;
     timer::Timer m_Timer;
 

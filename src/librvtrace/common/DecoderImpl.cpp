@@ -164,15 +164,15 @@ const op_t DecoderImpl::DecodeRV32I(int32_t insn) const
     case 0b0100011:
         if (funct3 == 0)
         {
-            op = op_sb_t { rd, rs1, rs2, imm_store };
+            op = op_sb_t { rs1, rs2, imm_store };
         }
         else if (funct3 == 1)
         {
-            op = op_sh_t { rd, rs1, rs2, imm_store };
+            op = op_sh_t { rs1, rs2, imm_store };
         }
         else if (funct3 == 2)
         {
-            op = op_sw_t { rd, rs1, rs2, imm_store };
+            op = op_sw_t { rs1, rs2, imm_store };
         }
         break;
     case 0b0010011:

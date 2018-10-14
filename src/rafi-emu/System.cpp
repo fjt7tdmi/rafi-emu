@@ -21,15 +21,15 @@ namespace rafi {
 
 System::System(int32_t initialPc)
     : m_Bus()
-    , m_Memory()
+    , m_Ram()
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
     , m_TimerInterruptSource(&m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
-    m_Bus.RegisterMemory(&m_Memory, MemoryAddr, m_Memory.GetSize());
-    m_Bus.RegisterMemory(&m_Memory, MemoryMirrorAddr, m_Memory.GetSize());
+    m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.Capacity);
+    m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.Capacity);
     m_Bus.RegisterIo(&m_Uart, UartAddr, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, TimerAddr, m_Timer.GetSize());
 
@@ -45,7 +45,7 @@ void System::SetupDtbAddress(int32_t address)
 void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);
-    m_Memory.LoadFile(path, location.offset);
+    location.pMemory->LoadFile(path, location.offset);
 }
 
 void System::ProcessOneCycle()
@@ -60,15 +60,15 @@ int System::GetCsrCount() const
     return m_Processor.GetCsrCount();
 }
 
-int System::GetMemorySize() const
+int System::GetRamSize() const
 {
-    return m_Memory.GetSize();
+    return m_Ram.Capacity;
 }
 
 int32_t System::GetHostIoValue() const
 {
     auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
-    return m_Memory.GetInt32(location.offset);
+    return m_Ram.GetInt32(location.offset);
 }
 
 void System::CopyCsr(void* pOut, size_t size) const
@@ -81,9 +81,9 @@ void System::CopyIntRegs(void* pOut, size_t size) const
     m_Processor.CopyIntRegs(pOut, size);
 }
 
-void System::CopyMemory(void* pOut, size_t size) const
+void System::CopyRam(void* pOut, size_t size) const
 {
-    m_Memory.Copy(pOut, size);
+    m_Ram.Copy(pOut, size);
 }
 
 void System::CopyCsrReadEvent(CsrReadEvent* pOut) const
