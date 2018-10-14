@@ -100,7 +100,6 @@ add_executable(rafi-dump
 add_executable(rafi-emu
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
-    src/rafi-emu/bus/MemoryMap.h
     src/rafi-emu/cpu/Csr.cpp
     src/rafi-emu/cpu/Csr.h
     src/rafi-emu/cpu/CsrAccessor.cpp
@@ -145,9 +144,10 @@ add_executable(rafi-emu
     src/rafi-emu/timer/Timer.cpp
     src/rafi-emu/timer/Timer.h
     src/rafi-emu/timer/TimerTypes.h
+    src/rafi-emu/Main.cpp
+    src/rafi-emu/MemoryMap.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
-    src/rafi-emu/Main.cpp
 )
 
 add_executable(test-trace

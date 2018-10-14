@@ -27,16 +27,35 @@
 
 namespace rafi { namespace bus {
 
+struct MemoryInfo
+{
+    mem::Memory* pMemory;
+    PhysicalAddress address;
+    int size;
+};
+
+struct IoInfo
+{
+    io::IIo* pIo;
+    PhysicalAddress address;
+    int size;
+};
+
+struct MemoryLocation
+{
+    mem::Memory* pMemory;
+    int offset;
+};
+
+struct IoLocation
+{
+    io::IIo* pIo;
+    int offset;
+};
+
 class Bus
 {
 public:
-    Bus(mem::Memory* pMemory, uart::Uart* pUart, timer::Timer* pTimer)
-        : m_pMemory(pMemory)
-        , m_pUart(pUart)
-        , m_pTimer(pTimer)
-    {
-    }
-
     int8_t GetInt8(PhysicalAddress address);
     void SetInt8(PhysicalAddress address, int8_t value);
 
@@ -46,18 +65,18 @@ public:
     int32_t GetInt32(PhysicalAddress address);
     void SetInt32(PhysicalAddress address, int32_t value);
 
-    int ConvertToMemoryOffset(PhysicalAddress address) const;
+    void RegisterMemory(mem::Memory* pMemory, PhysicalAddress address, int size);
+    void RegisterIo(io::IIo* pIo, PhysicalAddress address, int size);
+
+    MemoryLocation ConvertToMemoryLocation(PhysicalAddress address) const;
     bool IsMemoryAddress(PhysicalAddress address, int accessSize) const;
 
-private:
-    using Location = std::pair<io::IIo*, int>;
-
-    Location ConvertToIoOffset(PhysicalAddress address) const;
+    IoLocation ConvertToIoLocation(PhysicalAddress address) const;
     bool IsIoAddress(PhysicalAddress address, int accessSize) const;
 
-    mem::Memory* m_pMemory;
-    uart::Uart* m_pUart;
-    timer::Timer* m_pTimer;
+private:
+    std::vector<MemoryInfo> m_MemoryList;
+    std::vector<IoInfo> m_IoList;
 };
 
 }}

@@ -65,6 +65,7 @@ private:
     // dtb address register is a1(x11)
     const int DtbAddressRegId = 11;
 
+    bus::Bus m_Bus;
     mem::Memory m_Memory;
     uart::Uart m_Uart;
     timer::Timer m_Timer;
@@ -72,7 +73,6 @@ private:
     io::IoInterruptSource m_ExternalInterruptSource;
     io::IoInterruptSource m_TimerInterruptSource;
 
-    bus::Bus m_Bus;
     cpu::Processor m_Processor;
 };
 
