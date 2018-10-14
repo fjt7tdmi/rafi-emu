@@ -108,7 +108,7 @@ public:
     }
 
 private:
-    static const rafi::PhysicalAddress DefaultAddress{ rafi::MemoryAddr };
+    static const rafi::PhysicalAddress DefaultAddress{ rafi::RamAddr };
 
     std::string m_Path;
     rafi::PhysicalAddress m_Address;

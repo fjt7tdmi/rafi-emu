@@ -23,18 +23,16 @@
 
 namespace rafi { namespace mem {
 
-class Ram : public IMemory
+class Rom : public IMemory
 {
-    Ram(const Ram&) = delete;
-    Ram(Ram&&) = delete;
-    Ram& operator=(const Ram&) = delete;
-    Ram& operator=(Ram&&) = delete;
+    Rom(const Rom&) = delete;
+    Rom(Rom&&) = delete;
+    Rom& operator=(const Rom&) = delete;
+    Rom& operator=(Rom&&) = delete;
 
 public:
-    Ram();
-    ~Ram();
-
-    void Copy(void* pOut, size_t size) const;
+    Rom();
+    ~Rom();
 
     virtual void LoadFile(const char* path, int offset) override;
 
@@ -48,7 +46,7 @@ public:
     virtual void SetInt32(int address, int32_t value) override;
 
     // Constants
-    static const int Capacity = 64 * 1024 * 1024;
+    static const int Capacity = 4 * 1024;
 
 private:
 	char* m_pBody;

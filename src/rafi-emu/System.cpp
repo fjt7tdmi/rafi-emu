@@ -28,8 +28,8 @@ System::System(int32_t initialPc)
     , m_TimerInterruptSource(&m_Timer)
     , m_Processor(&m_Bus, initialPc)
 {
-    m_Bus.RegisterMemory(&m_Ram, MemoryAddr, m_Ram.Capacity);
-    m_Bus.RegisterMemory(&m_Ram, MemoryMirrorAddr, m_Ram.Capacity);
+    m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.Capacity);
+    m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.Capacity);
     m_Bus.RegisterIo(&m_Uart, UartAddr, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, TimerAddr, m_Timer.GetSize());
 
@@ -45,7 +45,7 @@ void System::SetupDtbAddress(int32_t address)
 void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);
-    m_Ram.LoadFile(path, location.offset);
+    location.pMemory->LoadFile(path, location.offset);
 }
 
 void System::ProcessOneCycle()

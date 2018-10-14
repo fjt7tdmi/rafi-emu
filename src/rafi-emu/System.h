@@ -20,6 +20,7 @@
 #include "uart/Uart.h"
 #include "timer/Timer.h"
 #include "mem/Ram.h"
+#include "mem/Rom.h"
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
 
@@ -67,6 +68,7 @@ private:
 
     bus::Bus m_Bus;
     mem::Ram m_Ram;
+    mem::Rom m_Rom;
     uart::Uart m_Uart;
     timer::Timer m_Timer;
 
