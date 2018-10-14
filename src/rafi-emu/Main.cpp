@@ -227,8 +227,11 @@ int main(int argc, char** argv)
             pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Process);
             pSystem->ProcessOneCycle();
 
-            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Dump);
-            dumper->DumpOneCycle(cycle);
+            if (cycle > dumpSkipCycle)
+            {
+                pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Dump);
+                dumper->DumpOneCycle(cycle);
+            }
 
             pProfiler->SwitchPhase(rafi::log::Profiler::Phase_None);
             if (optionMap.count("stop-by-host-io"))
