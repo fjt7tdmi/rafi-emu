@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <cstdlib>
+#include <cstring>
+#include <memory>
 
-#include "common/Decoder.h"
-#include "common/Exception.h"
-#include "common/Op.h"
-#include "common/RvTypes.h"
-#include "common/TraceCycleTypes.h"
+#include <gtest/gtest.h>
+
+#include <rvtrace/common.h>
+
+using namespace rvtrace;
+
+TEST(OpTest, GetString)
+{
+    Decoder decoder;
+
+    op_t auipc = op_auipc_t { 3, 10 };
+    op_t lui = decoder.Decode(0xfffff8b7);
+
+    printf("%s\n", GetString(auipc).c_str());
+    printf("%s\n", GetString(lui).c_str());
+}
+

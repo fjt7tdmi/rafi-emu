@@ -45,7 +45,9 @@ link_directories(${GoogleTest_LIBRARY_DIRS})
 
 add_library(librvtrace
     include/rvtrace/common.h
+    include/rvtrace/common/Decoder.h
     include/rvtrace/common/Exception.h
+    include/rvtrace/common/Op.h
     include/rvtrace/common/RvTypes.h
     include/rvtrace/common/TraceCycleTypes.h
     include/rvtrace/reader.h
@@ -58,6 +60,10 @@ add_library(librvtrace
     include/rvtrace/writer/ITraceWriter.h
     include/rvtrace/writer/MemoryTraceWriter.h
     include/rvtrace/writer/TraceCycleBuilder.h
+    src/librvtrace/common/Decoder.cpp
+    src/librvtrace/common/DecoderImpl.cpp
+    src/librvtrace/common/DecoderImpl.h
+    src/librvtrace/common/Op.cpp
     src/librvtrace/common/RvTypes.cpp
     src/librvtrace/reader/FileTraceReader.cpp
     src/librvtrace/reader/FileTraceReaderImpl.cpp
@@ -150,6 +156,10 @@ add_executable(rafi-emu
     src/rafi-emu/System.h
 )
 
+add_executable(test-op
+    test/test-op/test_OpGetString.cpp
+)
+
 add_executable(test-trace
     test/test-trace/test_TraceCycle.cpp
     test/test-trace/test_TraceReader.cpp
@@ -163,6 +173,7 @@ include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-dump-pc include)
 include_directories(rafi-emu include src/rafi-emu/include)
+include_directories(test-op include)
 include_directories(test-trace include)
 
 target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
@@ -170,4 +181,5 @@ target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test-op librvtrace ${GoogleTest_LIBRARIES})
 target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})

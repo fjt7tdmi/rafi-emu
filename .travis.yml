@@ -20,4 +20,5 @@ script:
   - cd build
   - cmake ..
   - cmake --build .
+  - ./test-op
   - ./test-trace

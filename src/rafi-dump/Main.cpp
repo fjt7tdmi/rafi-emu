@@ -33,16 +33,20 @@ namespace {
 
 void PrintBasicInfoNode(const BasicInfoNode* node)
 {
+    Decoder decoder;
+    auto op = decoder.Decode(node->insn);
+
     printf(
         "  Basic {\n"
         "    cycle: 0x%08x\n"
         "    opId:  0x%08x\n"
-        "    insn:  0x%08x\n"
+        "    insn:  0x%08x // %s\n"
         "    priv:  %s\n"
         "  }\n",
         node->cycle,
         node->opId,
         node->insn,
+        GetString(op).c_str(),
         GetString(node->privilegeLevel)
     );
 }
