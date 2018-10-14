@@ -15,7 +15,7 @@
  */
 
 #include "System.h"
-#include "bus/MemoryMap.h"
+#include "MemoryMap.h"
 
 namespace rafi {
 
@@ -62,7 +62,7 @@ int System::GetMemorySize() const
 
 int32_t System::GetHostIoValue() const
 {
-    int offset = m_Bus.ConvertToMemoryOffset(bus::HostIoAddr);
+    int offset = m_Bus.ConvertToMemoryOffset(HostIoAddr);
     return m_Memory.GetInt32(offset);
 }
 

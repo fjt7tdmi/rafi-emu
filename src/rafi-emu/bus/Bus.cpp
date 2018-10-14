@@ -17,7 +17,7 @@
 #include <rafi/Exception.h>
 
 #include "Bus.h"
-#include "MemoryMap.h"
+#include "../MemoryMap.h"
 
 namespace rafi { namespace bus {
 
