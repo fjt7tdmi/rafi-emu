@@ -16,8 +16,21 @@
 
 #pragma once
 
-#include "common/Decoder.h"
-#include "common/Exception.h"
-#include "common/Op.h"
-#include "common/RvTypes.h"
-#include "common/TraceCycleTypes.h"
+#include <string>
+
+#include "Op.h"
+
+namespace rvtrace {
+
+class DecoderImpl;
+
+class Decoder
+{
+public:
+    const op_t Decode(int32_t insn) const;
+
+private:
+    DecoderImpl* m_pImpl;
+};
+
+}
