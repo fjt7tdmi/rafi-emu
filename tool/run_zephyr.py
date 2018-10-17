@@ -30,6 +30,7 @@ TraceDirPath = "./work/zephyr/trace"
 ZephyrDirPath = os.environ["ZEPHYR_BASE"]
 
 DefaultCycle = 120000
+DefaultTestName = "philosophers"
 
 #
 # Functions
@@ -121,6 +122,7 @@ def RunDumpPc(config):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
+    parser.add_option("-n", dest="name", default=DefaultTestName, help="Test name.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
@@ -129,7 +131,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     config = {
-        'name': "philosophers",
+        'name': options.name,
         'cycle': options.cycle,
         'dump_skip_cycle': options.dump_skip_cycle,
         'enable_dump_csr': options.enable_dump_csr
