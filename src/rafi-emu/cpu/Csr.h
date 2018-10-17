@@ -40,11 +40,14 @@ public:
     void Update();
 
     // Special register access
+    int32_t GetProgramCounter() const;
+    void SetProgramCounter(int32_t value);
+
     PrivilegeLevel GetPrivilegeLevel() const;
     void SetPrivilegeLevel(PrivilegeLevel level);
 
-    int32_t GetProgramCounter() const;
-    void SetProgramCounter(int32_t value);
+    bool GetHaltFlag() const;
+    void SetHaltFlag(bool flag);
 
     // Register access
     int32_t Read(csr_addr_t addr) const;
@@ -137,6 +140,7 @@ private:
     // Special registers
     int32_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
+    bool m_HaltFlag {false};
 };
 
 }}

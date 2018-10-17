@@ -74,7 +74,8 @@ def RunObjcopy(configs):
 #
 if __name__ == '__main__':
     configs = [
-        {'name': "philosophers"}
+        {'name': "philosophers"},
+        {'name': "synchronization"},
     ]
 
     InitializeDirectory(OutDirPath)

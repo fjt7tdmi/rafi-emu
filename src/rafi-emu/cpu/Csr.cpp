@@ -120,6 +120,16 @@ Csr::Csr(int32_t initialPc)
 {
 }
 
+int32_t Csr::GetProgramCounter() const
+{
+    return m_ProgramCounter;
+}
+
+void Csr::SetProgramCounter(int32_t value)
+{
+    m_ProgramCounter = value;
+}
+
 PrivilegeLevel Csr::GetPrivilegeLevel() const
 {
     return m_PrivilegeLevel;
@@ -130,14 +140,14 @@ void Csr::SetPrivilegeLevel(PrivilegeLevel level)
     m_PrivilegeLevel = level;
 }
 
-int32_t Csr::GetProgramCounter() const
+bool Csr::GetHaltFlag() const
 {
-    return m_ProgramCounter;
+    return m_HaltFlag;
 }
 
-void Csr::SetProgramCounter(int32_t value)
+void Csr::SetHaltFlag(bool flag)
 {
-    m_ProgramCounter = value;
+    m_HaltFlag = flag;
 }
 
 void Csr::Update()
