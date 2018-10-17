@@ -60,6 +60,11 @@ void TraceDumper::DumpOneCycle(int cycle)
         return;
     }
 
+    if (!m_pSystem->IsOpEventExist())
+    {
+        return;
+    }
+
     // TraceHeader
     int32_t flags = NodeFlag_BasicInfo | NodeFlag_Pc32 | NodeFlag_IntReg32 | NodeFlag_Io;
 
@@ -88,8 +93,6 @@ void TraceDumper::DumpOneCycle(int cycle)
     TraceCycleBuilder builder(flags, csrCount);
 
     // OpEvent
-    assert(m_pSystem->IsOpEventExist());
-
     OpEvent opEvent;
     m_pSystem->CopyOpEvent(&opEvent);
 

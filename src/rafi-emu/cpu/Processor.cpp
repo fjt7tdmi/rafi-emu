@@ -56,11 +56,18 @@ void Processor::ProcessOneCycle()
 
     if (m_InterruptController.IsRequested())
     {
+        m_Csr.SetHaltFlag(false);
+
         const auto interruptType = m_InterruptController.GetInterruptType();
 
         m_TrapProcessor.ProcessInterrupt(interruptType, pc);
 
         SetOpEvent(pc, privilegeLevel);
+        return;
+    }
+
+    if (m_Csr.GetHaltFlag())
+    {
         return;
     }
 

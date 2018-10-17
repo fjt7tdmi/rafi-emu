@@ -347,7 +347,7 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
-        // Interrupt is not implemented.
+        m_pCsr->SetHaltFlag(true);
         break;
     case OpCode::sfence_vma:
         // Do nothing for memory fence instructions.
