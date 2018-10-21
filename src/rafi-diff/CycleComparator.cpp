@@ -258,7 +258,7 @@ void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const Mem
 
     if (pExpect->bodySize != pActual->bodySize)
     {
-        printf("    - MemoryNode body size is not matched (expect:0x%016I64x, actual:0x%016I64x).\n", pExpect->bodySize, pActual->bodySize);
+        printf("    - MemoryNode body size is not matched (expect:0x%016lx, actual:0x%016lx).\n", pExpect->bodySize, pActual->bodySize);
         return;
     }
 
@@ -278,7 +278,7 @@ void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const Mem
         const auto offset = i * unitSize;
         if (std::memcmp(&expectBody[offset], &actualBody[offset], unitSize) != 0)
         {
-            printf("    - memory value is not matched (offset=0x%16I64x).\n", offset);
+            printf("    - memory value is not matched (offset=0x%16lx).\n", offset);
             printf("      expect: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
                 expectBody[offset +  0], expectBody[offset +  1], expectBody[offset +  2], expectBody[offset +  3],
                 expectBody[offset +  4], expectBody[offset +  5], expectBody[offset +  6], expectBody[offset +  7],
