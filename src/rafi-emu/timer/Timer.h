@@ -24,7 +24,7 @@
 
 #include "TimerTypes.h"
 
-namespace rafi { namespace timer {
+namespace rafi { namespace emu { namespace timer {
 
 class Timer : public io::IIo
 {
@@ -54,4 +54,4 @@ private:
     uint64_t m_TimeCmp;
 };
 
-}}
+}}}

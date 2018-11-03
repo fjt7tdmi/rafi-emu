@@ -21,7 +21,7 @@
 
 #include <rafi/Exception.h>
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class IntRegFile
 {
@@ -40,4 +40,4 @@ private:
 	int32_t m_Body[IntRegCount];
 };
 
-}}
+}}}

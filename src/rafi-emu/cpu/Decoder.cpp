@@ -27,7 +27,7 @@
 using namespace std;
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 namespace
 {
@@ -521,4 +521,4 @@ void Decoder::DumpOperand(std::fstream& file, const Op& op) const
 		<< " imm=0x" << std::hex << op.imm;
 }
 
-}}
+}}}

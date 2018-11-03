@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 template <int msb, int lsb = msb>
 class BitFieldMember
@@ -113,4 +113,4 @@ private:
     uint32_t m_Value;
 };
 
-}
+}}

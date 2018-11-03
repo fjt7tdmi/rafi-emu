@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace rafi { namespace log {
+namespace rafi { namespace emu { namespace log {
 
 class Profiler
 {
@@ -44,4 +44,4 @@ private:
     int64_t m_Times[Phase_MaxCount];
 };
 
-}}
+}}}

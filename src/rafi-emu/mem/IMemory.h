@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace rafi { namespace mem {
+namespace rafi { namespace emu { namespace mem {
 
 class IMemory
 {
@@ -35,4 +35,4 @@ public:
     virtual void SetInt32(int address, int32_t value) = 0;
 };
 
-}}
+}}}

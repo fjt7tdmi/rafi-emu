@@ -22,6 +22,8 @@
 
 #define ABORT() do { fprintf(stderr, "ABORT (%s:%d)\n", __FILE__, __LINE__); std::abort(); } while (0)
 
+namespace rafi { namespace emu {
+
 inline int32_t GetHigh32(uint64_t value)
 {
     return static_cast<int32_t>(value >> 32);
@@ -63,3 +65,5 @@ inline void SetLow32(int64_t* pOut, int32_t value)
 {
     SetLow32(reinterpret_cast<uint64_t*>(pOut), value);
 }
+
+}}

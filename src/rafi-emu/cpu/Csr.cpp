@@ -24,7 +24,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 namespace {
 
@@ -678,4 +678,4 @@ void Csr::Copy(void* pOut, size_t size) const
     }
 }
 
-}}
+}}}

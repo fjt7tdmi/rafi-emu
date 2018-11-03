@@ -22,7 +22,7 @@
 
 #include "Uart.h"
 
-namespace rafi { namespace uart {
+namespace rafi { namespace emu { namespace uart {
 
 int8_t Uart::GetInt8(int address)
 {
@@ -153,4 +153,4 @@ void Uart::PrintTx()
     m_PrintCount = m_TxChars.size();
 }
 
-}}
+}}}

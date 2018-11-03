@@ -27,7 +27,7 @@
 using namespace std;
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const
 {
@@ -511,4 +511,4 @@ void Executor::ProcessRV32A(const Op& op)
     }
 }
 
-}}
+}}}

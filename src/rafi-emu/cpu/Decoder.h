@@ -18,7 +18,7 @@
 
 #include "OpTypes.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class Decoder
 {
@@ -33,4 +33,4 @@ private:
     void DecodeRV32A(Op* out, int32_t insn) const;
 };
 
-}}
+}}}

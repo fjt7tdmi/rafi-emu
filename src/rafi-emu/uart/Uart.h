@@ -24,7 +24,7 @@
 
 #include "UartTypes.h"
 
-namespace rafi { namespace uart {
+namespace rafi { namespace emu { namespace uart {
 
 class Uart : public io::IIo
 {
@@ -68,4 +68,4 @@ private:
     size_t m_PrintCount {0};
 };
 
-}}
+}}}

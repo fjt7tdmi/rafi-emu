@@ -24,7 +24,7 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class Executor
 {
@@ -65,4 +65,4 @@ private:
     int32_t m_ReserveAddress = 0;
 };
 
-}}
+}}}

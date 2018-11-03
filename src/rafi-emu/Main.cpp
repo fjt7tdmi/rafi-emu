@@ -99,14 +99,14 @@ public:
         return m_Path;
     }
 
-    rafi::PhysicalAddress GetAddress() const
+    rafi::emu::PhysicalAddress GetAddress() const
     {
         return m_Address;
     }
 
 private:
     std::string m_Path;
-    rafi::PhysicalAddress m_Address;
+    rafi::emu::PhysicalAddress m_Address;
 };
 
 uint32_t GetHexProgramOption(const po::variables_map& vm, const char* optionName, uint32_t defaultValue)
@@ -182,12 +182,12 @@ int main(int argc, char** argv)
         exit(1);
     }
 
-    auto pProfiler = new rafi::log::Profiler();
-    auto pSystem = new rafi::System(initialPc);
+    auto pProfiler = new rafi::emu::log::Profiler();
+    auto pSystem = new rafi::emu::System(initialPc);
 
     pSystem->SetupDtbAddress(static_cast<int32_t>(dtbAddress));
 
-    rafi::log::TraceDumper* dumper;
+    rafi::emu::log::TraceDumper* dumper;
     try
     {
         for (auto& arg: optionMap["load"].as<std::vector<std::string>>())
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
             pSystem->LoadFileToMemory(loadOption.GetPath().c_str(), loadOption.GetAddress());
         }
 
-        dumper = new rafi::log::TraceDumper(optionMap["dump-path"].as<std::string>().c_str(), pSystem);
+        dumper = new rafi::emu::log::TraceDumper(optionMap["dump-path"].as<std::string>().c_str(), pSystem);
     }
     catch (CommandLineOptionException e)
     {
@@ -224,16 +224,16 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < optionMap["cycle"].as<int>(); cycle++)
         {
-            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Process);
+            pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_Process);
             pSystem->ProcessOneCycle();
 
             if (cycle > dumpSkipCycle)
             {
-                pProfiler->SwitchPhase(rafi::log::Profiler::Phase_Dump);
+                pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_Dump);
                 dumper->DumpOneCycle(cycle);
             }
 
-            pProfiler->SwitchPhase(rafi::log::Profiler::Phase_None);
+            pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_None);
             if (optionMap.count("stop-by-host-io"))
             {
                 const auto hostIoValue = pSystem->GetHostIoValue();
@@ -244,15 +244,15 @@ int main(int argc, char** argv)
             }
         }
     }
-    catch (rafi::NotImplementedException e)
+    catch (rafi::emu::NotImplementedException e)
     {
         e.PrintMessage();
     }
-    catch (rafi::FatalException e)
+    catch (rafi::emu::FatalException e)
     {
         e.PrintMessage();
     }
-    catch (rafi::InvalidAccessException e)
+    catch (rafi::emu::InvalidAccessException e)
     {
         e.PrintMessage();
     }

@@ -22,7 +22,7 @@
 
 #include "Profiler.h"
 
-namespace rafi { namespace log {
+namespace rafi { namespace emu { namespace log {
 
 #ifdef WIN32
 #pragma warning (disable: 4996)
@@ -79,4 +79,4 @@ Profiler::Profiler()
     SwitchPhase(Phase_None);
 }
 
-}}
+}}}

@@ -23,7 +23,7 @@
 
 #include "Csr.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class InterruptController
 {
@@ -50,4 +50,4 @@ private:
     InterruptType m_InterruptType;
 };
 
-}}
+}}}

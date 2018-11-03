@@ -20,7 +20,7 @@
 #include <rafi/Common.h>
 #include "InterruptController.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 namespace {
     int32_t CountBits(int32_t value)
@@ -211,4 +211,4 @@ void InterruptController::UpdateCsr()
     m_pCsr->WriteInterruptPending(pending);
 }
 
-}}
+}}}

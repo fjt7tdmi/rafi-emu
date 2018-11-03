@@ -18,7 +18,7 @@
 
 #include <rvtrace/common.h>
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 struct Op
 {
@@ -37,4 +37,4 @@ struct Op
     bool rl;
 };
 
-}}
+}}}

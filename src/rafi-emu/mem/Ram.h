@@ -21,7 +21,7 @@
 
 #include "IMemory.h"
 
-namespace rafi { namespace mem {
+namespace rafi { namespace emu { namespace mem {
 
 class Ram : public IMemory
 {
@@ -54,4 +54,4 @@ private:
 	char* m_pBody;
 };
 
-}}
+}}}

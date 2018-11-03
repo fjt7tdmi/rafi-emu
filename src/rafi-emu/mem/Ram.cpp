@@ -24,7 +24,7 @@
 
 #include "Ram.h"
 
-namespace rafi { namespace mem {
+namespace rafi { namespace emu { namespace mem {
 
 Ram::Ram()
 {
@@ -100,4 +100,4 @@ void Ram::SetInt32(int address, int32_t value)
     *reinterpret_cast<int32_t*>(&m_pBody[address]) = value;
 }
 
-}}
+}}}
