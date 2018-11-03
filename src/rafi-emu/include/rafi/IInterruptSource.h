@@ -16,7 +16,7 @@
 
 #pragma once
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 class IInterruptSource
 {
@@ -24,4 +24,4 @@ public:
     virtual bool IsRequested() const = 0;
 };
 
-}
+}}

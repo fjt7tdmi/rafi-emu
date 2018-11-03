@@ -21,7 +21,7 @@
 
 #include "IoInterruptSource.h"
 
-namespace rafi { namespace io {
+namespace rafi { namespace emu { namespace io {
 
 IoInterruptSource::IoInterruptSource(const IIo* pIo)
     : m_pIo(pIo)
@@ -33,4 +33,4 @@ bool IoInterruptSource::IsRequested() const
     return m_pIo->IsInterruptRequested();
 }
 
-}}
+}}}

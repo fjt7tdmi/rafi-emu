@@ -18,7 +18,7 @@
 
 #include <rafi/BitField.h>
 
-namespace rafi { namespace uart {
+namespace rafi { namespace emu { namespace uart {
 
 enum Address
 {
@@ -56,4 +56,4 @@ struct InterruptPending : BitField
     using RXIP = BitFieldMember<2>;
 };
 
-}}
+}}}

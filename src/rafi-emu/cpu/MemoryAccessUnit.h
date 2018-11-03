@@ -27,7 +27,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class PageTableEntry : public BitField
 {
@@ -104,4 +104,4 @@ private:
     MemoryAccessEvent m_Event;
 };
 
-}}
+}}}

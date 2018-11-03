@@ -25,7 +25,7 @@
 #include "../uart/Uart.h"
 #include "../timer/Timer.h"
 
-namespace rafi { namespace bus {
+namespace rafi { namespace emu { namespace bus {
 
 struct MemoryInfo
 {
@@ -79,4 +79,4 @@ private:
     std::vector<IoInfo> m_IoList;
 };
 
-}}
+}}}

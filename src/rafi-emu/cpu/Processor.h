@@ -28,7 +28,7 @@
 
 #include <rafi/Event.h>
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class Processor
 {
@@ -99,4 +99,4 @@ private:
     OpEvent m_OpEvent;
 };
 
-}}
+}}}

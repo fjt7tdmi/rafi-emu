@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace rafi { namespace io {
+namespace rafi { namespace emu { namespace io {
 
 class IIo
 {
@@ -37,4 +37,4 @@ public:
     virtual bool IsInterruptRequested() const = 0;
 };
 
-}}
+}}}

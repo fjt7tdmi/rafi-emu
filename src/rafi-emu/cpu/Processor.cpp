@@ -25,7 +25,7 @@
 using namespace std;
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 void Processor::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)
 {
@@ -36,7 +36,7 @@ void Processor::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
 {
     m_InterruptController.RegisterTimerInterruptSource(pInterruptSource);
 }
-    
+
 void Processor::SetIntReg(int regId, int32_t regValue)
 {
     m_IntRegFile.Write(regId, regValue);
@@ -214,4 +214,4 @@ void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_
     m_OpCount++;
 }
 
-}}
+}}}

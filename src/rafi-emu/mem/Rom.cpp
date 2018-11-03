@@ -24,7 +24,7 @@
 
 #include "Rom.h"
 
-namespace rafi { namespace mem {
+namespace rafi { namespace emu { namespace mem {
 
 Rom::Rom()
 {
@@ -93,4 +93,4 @@ void Rom::SetInt32(int address, int32_t value)
     ABORT();
 }
 
-}}
+}}}

@@ -18,7 +18,7 @@
 
 #include "IntRegFile.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 IntRegFile::IntRegFile()
 {
@@ -49,4 +49,4 @@ void IntRegFile::Write(int regId, int32_t value)
     }
 }
 
-}}
+}}}

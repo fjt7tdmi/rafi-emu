@@ -27,7 +27,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class TrapProcessor
 {
@@ -56,4 +56,4 @@ private:
     TrapEvent m_TrapEvent;
 };
 
-}}
+}}}

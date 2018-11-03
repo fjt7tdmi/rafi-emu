@@ -22,7 +22,7 @@
 
 #include "IIo.h"
 
-namespace rafi { namespace io {
+namespace rafi { namespace emu { namespace io {
 
 class IoInterruptSource : public IInterruptSource
 {
@@ -35,4 +35,4 @@ private:
     const IIo* m_pIo;
 };
 
-}}
+}}}

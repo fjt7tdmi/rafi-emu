@@ -23,7 +23,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 void TrapProcessor::ProcessException(const Trap& trap)
 {
@@ -67,7 +67,7 @@ void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
     default:
         ABORT();
     }
-    
+
     ProcessTrapEnter(true, static_cast<int32_t>(type), 0, pc, nextPrivilegeLevel);
 }
 
@@ -217,4 +217,4 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
     m_TrapEvent.trapValue = trapValue;
 }
 
-}}
+}}}

@@ -21,7 +21,7 @@
 
 #include "Timer.h"
 
-namespace rafi { namespace timer {
+namespace rafi { namespace emu { namespace timer {
 
 int8_t Timer::GetInt8(int)
 {
@@ -91,4 +91,4 @@ void Timer::ProcessCycle()
     m_Time++;
 }
 
-}}
+}}}

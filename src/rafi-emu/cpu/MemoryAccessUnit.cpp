@@ -23,7 +23,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 namespace {
     const int PageSize = 1 << 12;
@@ -355,4 +355,4 @@ void MemoryAccessUnit::UpdateEntry(PhysicalAddress entryAddress, bool isWrite)
     m_pBus->SetInt32(entryAddress, entry.GetInt32());
 }
 
-}}
+}}}

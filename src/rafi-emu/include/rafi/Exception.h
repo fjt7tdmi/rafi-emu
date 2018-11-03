@@ -32,7 +32,7 @@
         } \
     } while(0)
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 class NotImplementedException
 {
@@ -89,4 +89,4 @@ private:
     PhysicalAddress m_Address;
 };
 
-}
+}}

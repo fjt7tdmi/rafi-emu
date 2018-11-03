@@ -21,7 +21,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 int32_t CsrAccessor::Read(int addr)
 {
@@ -75,4 +75,4 @@ bool CsrAccessor::IsWriteEventExist() const
     return m_WriteEventValid;
 }
 
-}}
+}}}

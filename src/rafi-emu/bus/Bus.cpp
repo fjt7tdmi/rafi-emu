@@ -19,7 +19,7 @@
 #include "Bus.h"
 #include "../MemoryMap.h"
 
-namespace rafi { namespace bus {
+namespace rafi { namespace emu { namespace bus {
 
 int8_t Bus::GetInt8(PhysicalAddress address)
 {
@@ -209,4 +209,4 @@ bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const
     return false;
 }
 
-}}
+}}}

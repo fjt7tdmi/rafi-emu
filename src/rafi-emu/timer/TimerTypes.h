@@ -18,7 +18,7 @@
 
 #include <rafi/BitField.h>
 
-namespace rafi { namespace timer {
+namespace rafi { namespace emu { namespace timer {
 
 enum Address
 {
@@ -28,4 +28,4 @@ enum Address
     Address_TimeCmpHigh = 12,
 };
 
-}}
+}}}

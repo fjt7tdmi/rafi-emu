@@ -27,7 +27,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class Csr
 {
@@ -143,4 +143,4 @@ private:
     bool m_HaltFlag {false};
 };
 
-}}
+}}}

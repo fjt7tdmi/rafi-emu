@@ -26,7 +26,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 struct Trap
 {
@@ -49,4 +49,4 @@ Trap MakeInstructionPageFaultException(int32_t pc);
 Trap MakeLoadPageFaultException(int32_t pc, int32_t address);
 Trap MakeStorePageFaultException(int32_t pc, int32_t address);
 
-}}
+}}}

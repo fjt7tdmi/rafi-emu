@@ -25,7 +25,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 class CsrAccessor
 {
@@ -56,4 +56,4 @@ private:
     CsrWriteEvent m_WriteEvent;
 };
 
-}}
+}}}

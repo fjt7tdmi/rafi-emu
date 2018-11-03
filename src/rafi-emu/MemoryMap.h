@@ -20,7 +20,7 @@
 
 #include <rafi/BasicTypes.h>
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 // Memory Map
 const PhysicalAddress RomAddr = 0x00001000;
@@ -29,4 +29,4 @@ const PhysicalAddress UartAddr = 0x40002000;
 const PhysicalAddress TimerAddr = 0x40000000;
 const PhysicalAddress HostIoAddr = 0x80001000;
 
-}
+}}

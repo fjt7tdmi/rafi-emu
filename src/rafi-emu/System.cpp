@@ -17,7 +17,7 @@
 #include "System.h"
 #include "MemoryMap.h"
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 System::System(int32_t initialPc)
     : m_Bus()
@@ -136,4 +136,4 @@ bool System::IsTrapEventExist() const
     return m_Processor.IsTrapEventExist();
 }
 
-}
+}}

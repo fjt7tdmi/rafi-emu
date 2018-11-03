@@ -18,7 +18,7 @@
 
 #include "Trap.h"
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 Trap MakeInstructionAddressMisalignedException(int32_t pc)
 {
@@ -85,4 +85,4 @@ Trap MakeStorePageFaultException(int32_t pc, int32_t address)
     return Trap { ExceptionType::StorePageFault, pc, address };
 }
 
-}}
+}}}

@@ -24,7 +24,7 @@
 
 using namespace rvtrace;
 
-namespace rafi {
+namespace rafi { namespace emu {
 
 struct CsrReadEvent
 {
@@ -66,4 +66,4 @@ struct TrapEvent
     int32_t trapValue;
 };
 
-}
+}}

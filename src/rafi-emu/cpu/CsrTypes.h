@@ -24,7 +24,7 @@
 
 using namespace rvtrace;
 
-namespace rafi { namespace cpu {
+namespace rafi { namespace emu { namespace cpu {
 
 enum XLEN
 {
@@ -222,4 +222,4 @@ struct satp_t : BitField
     };
 };
 
-}}
+}}}
