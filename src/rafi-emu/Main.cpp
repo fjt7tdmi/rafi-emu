@@ -227,7 +227,7 @@ int main(int argc, char** argv)
             pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_Process);
             pSystem->ProcessOneCycle();
 
-            if (cycle > dumpSkipCycle)
+            if (cycle >= dumpSkipCycle)
             {
                 pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_Dump);
                 dumper->DumpOneCycle(cycle);
