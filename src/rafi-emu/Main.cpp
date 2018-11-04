@@ -142,7 +142,6 @@ int main(int argc, char** argv)
     po::options_description optionDesc("options");
     optionDesc.add_options()
         ("cycle", po::value<int>(&cycle)->default_value(0), "number of emulation cycles")
-        ("dtb-address", po::value<std::string>(), "dtb physical address")
         ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
@@ -170,11 +169,9 @@ int main(int argc, char** argv)
     }
 
     uint32_t initialPc;
-    uint32_t dtbAddress;
     try
     {
         initialPc = GetHexProgramOption(optionMap, "pc", 0);
-        dtbAddress = GetHexProgramOption(optionMap, "dtb-address", 0);
     }
     catch (CommandLineOptionException e)
     {
@@ -184,8 +181,6 @@ int main(int argc, char** argv)
 
     auto pProfiler = new rafi::emu::log::Profiler();
     auto pSystem = new rafi::emu::System(initialPc);
-
-    pSystem->SetupDtbAddress(static_cast<int32_t>(dtbAddress));
 
     rafi::emu::log::TraceDumper* dumper;
     try

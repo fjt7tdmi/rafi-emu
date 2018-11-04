@@ -35,7 +35,6 @@ public:
 
     // Setup
     void LoadFileToMemory(const char* path, PhysicalAddress address);
-    void SetupDtbAddress(int32_t address);
 
     // Process
     void ProcessOneCycle();
@@ -63,9 +62,6 @@ public:
     bool IsTrapEventExist() const;
 
 private:
-    // dtb address register is a1(x11)
-    const int DtbAddressRegId = 11;
-
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;

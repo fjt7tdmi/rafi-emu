@@ -37,11 +37,6 @@ System::System(int32_t initialPc)
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
 }
 
-void System::SetupDtbAddress(int32_t address)
-{
-    m_Processor.SetIntReg(DtbAddressRegId, address);
-}
-
 void System::LoadFileToMemory(const char* path, PhysicalAddress address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);
