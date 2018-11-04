@@ -23,6 +23,8 @@ namespace rafi { namespace emu { namespace mem {
 class IMemory
 {
 public:
+    virtual int GetCapacity() const = 0;
+
     virtual void LoadFile(const char* path, int offset) = 0;
 
     virtual int8_t GetInt8(int address) const = 0;

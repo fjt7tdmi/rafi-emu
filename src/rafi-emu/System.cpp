@@ -19,17 +19,17 @@
 
 namespace rafi { namespace emu {
 
-System::System(int32_t initialPc)
+System::System(int32_t pc, int ramSize)
     : m_Bus()
-    , m_Ram()
+    , m_Ram(ramSize)
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
     , m_TimerInterruptSource(&m_Timer)
-    , m_Processor(&m_Bus, initialPc)
+    , m_Processor(&m_Bus, pc)
 {
-    m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.Capacity);
-    m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.Capacity);
+    m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.GetCapacity());
+    m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.GetCapacity());
     m_Bus.RegisterIo(&m_Uart, UartAddr, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, TimerAddr, m_Timer.GetSize());
 
@@ -57,7 +57,7 @@ int System::GetCsrCount() const
 
 int System::GetRamSize() const
 {
-    return m_Ram.Capacity;
+    return m_Ram.GetCapacity();
 }
 
 int32_t System::GetHostIoValue() const

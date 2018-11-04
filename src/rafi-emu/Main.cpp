@@ -36,6 +36,8 @@ namespace po = boost::program_options;
 
 namespace {
 
+const int DefaultRamSize = 64 * 1024 * 1024;
+
 class CommandLineOptionException
 {
 public:
@@ -138,6 +140,7 @@ int main(int argc, char** argv)
 {
     int cycle;
     int dumpSkipCycle;
+    int ramSize;
 
     po::options_description optionDesc("options");
     optionDesc.add_options()
@@ -149,6 +152,7 @@ int main(int argc, char** argv)
         ("enable-monitor-host-io", "stop emulation when host io value is changed")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("pc", po::value<std::string>(), "initial program counter value")
+        ("ram-size", po::value<int>(&ramSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("help", "show help");
 
     po::variables_map optionMap;
@@ -169,10 +173,10 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    uint32_t initialPc;
+    uint32_t pc;
     try
     {
-        initialPc = GetHexProgramOption(optionMap, "pc", 0);
+        pc = GetHexProgramOption(optionMap, "pc", 0);
     }
     catch (CommandLineOptionException e)
     {
@@ -181,7 +185,7 @@ int main(int argc, char** argv)
     }
 
     auto pProfiler = new rafi::emu::log::Profiler();
-    auto pSystem = new rafi::emu::System(initialPc);
+    auto pSystem = new rafi::emu::System(pc, ramSize);
 
     rafi::emu::log::TraceDumper* dumper;
     try

@@ -34,6 +34,8 @@ public:
     Rom();
     ~Rom();
 
+    virtual int GetCapacity() const;
+
     virtual void LoadFile(const char* path, int offset) override;
 
     virtual int8_t GetInt8(int address) const override;
@@ -45,10 +47,10 @@ public:
     virtual int32_t GetInt32(int address) const override;
     virtual void SetInt32(int address, int32_t value) override;
 
+private:
     // Constants
     static const int Capacity = 4 * 1024;
 
-private:
 	char* m_pBody;
 };
 

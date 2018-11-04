@@ -31,7 +31,7 @@ namespace rafi { namespace emu {
 class System
 {
 public:
-    explicit System(int32_t initialPc);
+    explicit System(int32_t pc, int ramSize);
 
     // Setup
     void LoadFileToMemory(const char* path, PhysicalAddress address);
