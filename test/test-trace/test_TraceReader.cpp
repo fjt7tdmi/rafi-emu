@@ -89,8 +89,8 @@ TEST(TraceReaderTest, OutOfRangeAccess)
 
     MemoryTraceReader reader(buffer, builder->GetDataSize());
 
-    ASSERT_DEATH_IF_SUPPORTED(reader.MoveToPreviousCycle(), "");
+    ASSERT_THROW(reader.MoveToPreviousCycle(), TraceException);
 
     reader.MoveToNextCycle();
-    ASSERT_DEATH_IF_SUPPORTED(reader.MoveToNextCycle(), "");
+    ASSERT_THROW(reader.MoveToNextCycle(), TraceException);
 }
