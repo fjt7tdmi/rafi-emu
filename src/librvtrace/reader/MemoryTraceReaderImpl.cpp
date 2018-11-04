@@ -34,6 +34,7 @@ MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
 
 const void* MemoryTraceReaderImpl::GetCurrentCycleData()
 {
+    CheckBufferSize();
     CheckOffset(m_CurrentOffset);
 
     return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
@@ -41,11 +42,13 @@ const void* MemoryTraceReaderImpl::GetCurrentCycleData()
 
 int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
 {
+    CheckBufferSize();
+
     const auto size = GetCurrentCycleHeader()->footerOffset + sizeof(TraceCycleFooter);
 
     if (size < sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter))
     {
-        throw TraceException("detect data corruption.");
+        throw TraceException("detect data corruption. (Trace cycle size is too small)", m_CurrentOffset);
     }
 
     return size;
@@ -53,16 +56,21 @@ int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
 
 bool MemoryTraceReaderImpl::IsBegin()
 {
+    CheckBufferSize();
+
     return m_CurrentOffset == 0;
 }
 
 bool MemoryTraceReaderImpl::IsEnd()
 {
+    CheckBufferSize();
+
     return m_CurrentOffset == m_BufferSize;
 }
 
 void MemoryTraceReaderImpl::MoveToNextCycle()
 {
+    CheckBufferSize();
     CheckOffset(m_CurrentOffset);
 
     m_CurrentOffset += GetCurrentCycleDataSize();
@@ -75,6 +83,8 @@ void MemoryTraceReaderImpl::MoveToNextCycle()
 
 void MemoryTraceReaderImpl::MoveToPreviousCycle()
 {
+    CheckBufferSize();
+
     if (!IsEnd())
     {
         CheckOffset(m_CurrentOffset);
@@ -91,7 +101,15 @@ void MemoryTraceReaderImpl::CheckOffset(int64_t offset)
 {
     if (!(0 <= offset && offset < m_BufferSize))
     {
-        std::abort();
+        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
+    }
+}
+
+void MemoryTraceReaderImpl::CheckBufferSize()
+{
+    if (m_BufferSize < sizeof(TraceCycleHeader))
+    {
+        throw TraceException("detect data corruption. (Data size is too small)");
     }
 }
 

@@ -53,13 +53,29 @@ public:
     {
     }
 
+    TraceException(const char *pMessage, int64_t offset)
+        : m_pMessage(pMessage)
+        , m_Offset(offset)
+        , m_OffsetValid(true)
+    {
+    }
+
     virtual void PrintMessage() const
     {
-        std::cout << "[TraceException] " << m_pMessage << std::endl;
+        if (m_OffsetValid)
+        {
+            std::cout << "[TraceException] " << m_pMessage << " (offset:0x" << std::hex << m_Offset << ")" << std::endl;
+        }
+        else
+        {
+            std::cout << "[TraceException] " << m_pMessage << std::endl;
+        }
     }
 
 private:
-    const char* m_pMessage;
+    const char* m_pMessage {nullptr};
+    int64_t m_Offset {0};
+    bool m_OffsetValid {false};
 };
 
 class TraceCycleException
