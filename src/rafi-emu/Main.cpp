@@ -145,9 +145,9 @@ int main(int argc, char** argv)
         ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
+        ("enable-monitor-host-io", "stop emulation when host io value is changed")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("pc", po::value<std::string>(), "initial program counter value")
-        ("stop-by-host-io", "stop emulation when host io value is changed")
         ("help", "show help");
 
     po::variables_map optionMap;
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
             }
 
             pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_None);
-            if (optionMap.count("stop-by-host-io"))
+            if (optionMap.count("enable-monitor-host-io"))
             {
                 const auto hostIoValue = pSystem->GetHostIoValue();
                 if (hostIoValue != 0)
