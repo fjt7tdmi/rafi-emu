@@ -31,10 +31,12 @@ class Ram : public IMemory
     Ram& operator=(Ram&&) = delete;
 
 public:
-    Ram();
+    explicit Ram(int capacity);
     ~Ram();
 
     void Copy(void* pOut, size_t size) const;
+
+    int GetCapacity() const;
 
     virtual void LoadFile(const char* path, int offset) override;
 
@@ -47,10 +49,8 @@ public:
     virtual int32_t GetInt32(int address) const override;
     virtual void SetInt32(int address, int32_t value) override;
 
-    // Constants
-    static const int Capacity = 64 * 1024 * 1024;
-
 private:
+    int m_Capacity;
 	char* m_pBody;
 };
 

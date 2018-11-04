@@ -15,9 +15,9 @@
  */
 
 #include <rafi/Exception.h>
+#include <rafi/MemoryMap.h>
 
 #include "Bus.h"
-#include "../MemoryMap.h"
 
 namespace rafi { namespace emu { namespace bus {
 

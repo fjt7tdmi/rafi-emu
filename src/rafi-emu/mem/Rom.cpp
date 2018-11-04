@@ -37,6 +37,11 @@ Rom::~Rom()
     delete[] m_pBody;
 }
 
+int Rom::GetCapacity() const
+{
+    return Capacity;
+}
+
 void Rom::LoadFile(const char* path, int offset)
 {
     if (!(0 <= offset && offset < Capacity))

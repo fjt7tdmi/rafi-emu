@@ -23,7 +23,8 @@ namespace rvtrace {
 class TraceCycleBuilderImpl final
 {
 public:
-    explicit TraceCycleBuilderImpl(int32_t flags, int csrCount);
+    explicit TraceCycleBuilderImpl(int32_t flags, int csrCount, int ramSize);
+
     ~TraceCycleBuilderImpl();
 
     // Get pointer to raw data
@@ -51,15 +52,15 @@ public:
     void SetNode(const IoNode& node);
 
 private:
-    int64_t CalculateDataSize(int32_t flags, int csrCount);
+    int64_t CalculateDataSize(int32_t flags, int csrCount, int ramSize);
 
     int32_t CountValidFlags(int32_t flags);
 
-    void InitializeMetaNodes(int32_t flags, int csrCount);
+    void InitializeMetaNodes(int32_t flags, int csrCount, int ramSize);
 
-    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset, int csrCount = 0);
+    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset, int csrCount, int ramSize);
 
-    int64_t GetProperNodeSize(NodeType nodeType, int csrCount = 0);
+    int64_t GetProperNodeSize(NodeType nodeType, int csrCount, int ramSize);
 
     TraceCycleHeader* GetPointerToHeader();
 

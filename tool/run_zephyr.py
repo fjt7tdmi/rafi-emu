@@ -29,7 +29,7 @@ BinaryDirPath = "./work/zephyr"
 TraceDirPath = "./work/zephyr/trace"
 ZephyrDirPath = os.environ["ZEPHYR_BASE"]
 
-DefaultCycle = 120000
+DefaultCycle = 5000
 DefaultTestName = "philosophers"
 
 #
@@ -56,9 +56,12 @@ def MakeEmulatorCommand(config):
         "--load", f"{ram_bin_path}:0x80000000",
         "--load", f"{rom_bin_path}:0x00001000",
         "--pc", "0x00001000",
+        "--ram-size", "32768",
     ]
     if config['enable_dump_csr']:
-        cmd.append("--enable-dump-csr")     
+        cmd.append("--enable-dump-csr")
+    if config['enable_dump_memory']:
+        cmd.append("--enable-dump-memory")
     return cmd
 
 def MakeDumpCommand(testname):
@@ -127,6 +130,7 @@ if __name__ == '__main__':
     parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
+    parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
 
     (options, args) = parser.parse_args()
 
@@ -134,7 +138,8 @@ if __name__ == '__main__':
         'name': options.name,
         'cycle': options.cycle,
         'dump_skip_cycle': options.dump_skip_cycle,
-        'enable_dump_csr': options.enable_dump_csr
+        'enable_dump_csr': options.enable_dump_csr,
+        'enable_dump_memory': options.enable_dump_memory,
     }
 
     InitializeDirectory(TraceDirPath)
@@ -142,7 +147,7 @@ if __name__ == '__main__':
     result = RunEmulator(config)
     if result != 0:
         exit(result)
-    
+
     if options.dump:
         RunDump(config)
 

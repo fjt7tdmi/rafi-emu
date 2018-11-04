@@ -54,7 +54,7 @@ def MakeEmulatorCommand(testname, cycle):
         "--load", f"{binary_path}:0x80000000",
         "--dump-path", trace_path,
         "--pc", "0x80000000",
-        "--stop-by-host-io",
+        "enable-monitor-host-io",
     ]
 
 def VerifyTraces(paths):

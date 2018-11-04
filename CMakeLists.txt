@@ -134,6 +134,7 @@ add_executable(rafi-emu
     src/rafi-emu/include/rafi/Event.h
     src/rafi-emu/include/rafi/Exception.h
     src/rafi-emu/include/rafi/IInterruptSource.h
+    src/rafi-emu/include/rafi/MemoryMap.h
     src/rafi-emu/include/rafi/Util.h
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
@@ -154,7 +155,6 @@ add_executable(rafi-emu
     src/rafi-emu/timer/Timer.h
     src/rafi-emu/timer/TimerTypes.h
     src/rafi-emu/Main.cpp
-    src/rafi-emu/MemoryMap.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
 )

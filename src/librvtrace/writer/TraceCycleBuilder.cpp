@@ -26,12 +26,17 @@ namespace rvtrace {
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 {
-    m_pImpl = new TraceCycleBuilderImpl(flags, 0);
+    m_pImpl = new TraceCycleBuilderImpl(flags, 0, 0);
 }
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount)
 {
-    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount);
+    m_pImpl = new TraceCycleBuilderImpl(flags, 0, 0);
+}
+
+TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount, int ramSize)
+{
+    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount, ramSize);
 }
 
 TraceCycleBuilder::~TraceCycleBuilder()
