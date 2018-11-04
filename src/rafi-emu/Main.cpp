@@ -23,9 +23,9 @@
 
 #include <rafi/BasicTypes.h>
 #include <rafi/Exception.h>
+#include <rafi/MemoryMap.h>
 
 #include "bus/Bus.h"
-#include "MemoryMap.h"
 
 #include "log/Profiler.h"
 #include "log/TraceDumper.h"
