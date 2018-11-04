@@ -129,7 +129,14 @@ int main(int argc, char** argv)
     const bool cmpCsr = optionMap.count("cmp-csr") != 0;
     const bool cmpMemory = optionMap.count("cmp-memory") != 0;
 
-    CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+    try
+    {
+        CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+    }
+    catch (const rvtrace::TraceException& e)
+    {
+        e.PrintMessage();
+    }
 
     return 0;
 }
