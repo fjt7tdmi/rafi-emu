@@ -40,6 +40,7 @@ private:
     const TraceCycleHeader* GetCurrentCycleHeader();
     const TraceCycleFooter* GetPreviousCycleFooter();
 
+    void CheckBufferSize();
     void CheckOffset(int64_t offset);
 
     const void* m_pBuffer;
