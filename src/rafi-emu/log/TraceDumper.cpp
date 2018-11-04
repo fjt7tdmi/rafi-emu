@@ -89,8 +89,9 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     const int csrCount = m_pSystem->GetCsrCount();
+    const int ramSize = m_pSystem->GetRamSize();
 
-    TraceCycleBuilder builder(flags, csrCount);
+    TraceCycleBuilder builder(flags, csrCount, ramSize);
 
     // OpEvent
     OpEvent opEvent;
@@ -170,7 +171,10 @@ void TraceDumper::DumpOneCycle(int cycle)
     // Memory
     if (m_EnableDumpMemory)
     {
-        throw NotImplementedException(__FILE__, __LINE__);
+        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Memory));
+        auto buffer = builder.GetPointerToNode(NodeType::Memory);
+
+        m_pSystem->CopyRam(buffer, size);
     }
 
     // IoNode

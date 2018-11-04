@@ -145,6 +145,7 @@ int main(int argc, char** argv)
         ("dump-path", po::value<std::string>(), "path of dump file")
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
+        ("enable-dump-memory", "output memory contents to dump file")
         ("enable-monitor-host-io", "stop emulation when host io value is changed")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("pc", po::value<std::string>(), "initial program counter value")
@@ -211,6 +212,10 @@ int main(int argc, char** argv)
     if (optionMap.count("enable-dump-csr"))
     {
         dumper->EnableDumpCsr();
+    }
+    if (optionMap.count("enable-dump-memory"))
+    {
+        dumper->EnableDumpMemory();
     }
 
     dumper->DumpHeader();

@@ -27,6 +27,8 @@ class TraceCycleBuilder final
 public:
     explicit TraceCycleBuilder(int32_t flags);
     TraceCycleBuilder(int32_t flags, int csrCount);
+    TraceCycleBuilder(int32_t flags, int csrCount, int ramSize);
+
     ~TraceCycleBuilder();
 
     // Get pointer to raw data
