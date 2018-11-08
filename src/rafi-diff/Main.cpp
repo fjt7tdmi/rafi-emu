@@ -46,7 +46,7 @@ void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPh
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    while (!expectReader.IsEnd() || !actualReader.IsEnd())
+    while (!expectReader.IsEnd() && !actualReader.IsEnd())
     {
         TraceCycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
         TraceCycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
