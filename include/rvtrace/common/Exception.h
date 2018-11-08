@@ -91,7 +91,7 @@ public:
     {
     }
 
-    const char* GetMessage()
+    const char* GetMessage() const
     {
         return m_pMessage;
     }

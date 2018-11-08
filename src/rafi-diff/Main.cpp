@@ -137,6 +137,10 @@ int main(int argc, char** argv)
     {
         e.PrintMessage();
     }
+    catch (const rvtrace::TraceCycleException& e)
+    {
+        std::cout << e.GetMessage() << std::endl;
+    }
 
     return 0;
 }
