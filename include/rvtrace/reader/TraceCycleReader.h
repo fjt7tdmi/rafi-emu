@@ -53,7 +53,7 @@ public:
     const MemoryAccess32Node* GetMemoryAccess32Node() const;
     const MemoryAccess64Node* GetMemoryAccess64Node() const;
     const IoNode* GetIoNode() const;
-    const MemoryNodeHeader* GetMemoryNode() const;
+    const void* GetMemoryNode() const;
 
 private:
     TraceCycleReaderImpl* m_pImpl;

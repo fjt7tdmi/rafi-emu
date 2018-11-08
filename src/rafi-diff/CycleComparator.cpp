@@ -74,35 +74,31 @@ bool CycleComparator::AreCsr32NodesMatched(const Csr32Node* pExpect, int expectC
     return std::memcmp(pExpect, pActual, expectCsr32Count * sizeof(Csr32Node)) == 0;
 }
 
-bool CycleComparator::IsMemoryNodeMatched(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const
+bool CycleComparator::IsMemoryNodeMatched(const void* pExpect, size_t expectSize, const void* pActual, size_t actualSize) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
         return false;
     }
 
-    if (pExpect->bodySize != pActual->bodySize)
+    if (expectSize != actualSize)
     {
         return false;
     }
 
-    if (pExpect->bodySize < 0)
+    if (expectSize < 0)
     {
         throw TraceException("Detect minus node size.");
     }
 
 #if INT64_MAX > SIZE_MAX
-    if (pExpect->bodySize > SIZE_MAX)
+    if (expectSize > SIZE_MAX)
     {
         throw TraceException("Detect too big node size.");
     }
 #endif
 
-    const size_t bodySize = static_cast<size_t>(pExpect->bodySize);
-    const void* expectBody = &pExpect[1];
-    const void* actualBody = &pActual[1];
-
-    return std::memcmp(expectBody, actualBody, bodySize) == 0;
+    return std::memcmp(pExpect, pActual, expectSize) == 0;
 }
 
 bool CycleComparator::AreMatched(const TraceCycleReader& expect, const TraceCycleReader& actual) const
@@ -125,7 +121,7 @@ bool CycleComparator::AreMatched(const TraceCycleReader& expect, const TraceCycl
             return false;
         }
     }
-    if (m_CmpMemory && !IsMemoryNodeMatched(expect.GetMemoryNode(), actual.GetMemoryNode()))
+    if (m_CmpMemory && !IsMemoryNodeMatched(expect.GetMemoryNode(), expect.GetNodeSize(rvtrace::NodeType::Memory), actual.GetMemoryNode(), actual.GetNodeSize(rvtrace::NodeType::Memory)))
     {
         return false;
     }
@@ -241,7 +237,7 @@ void CycleComparator::PrintCsr32Diff(const Csr32Node* expectNodes, int expectNod
     }
 }
 
-void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const MemoryNodeHeader* pActual) const
+void CycleComparator::PrintMemoryDiff(const void* pExpect, size_t expectSize, const void* pActual, size_t actualSize) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -256,22 +252,22 @@ void CycleComparator::PrintMemoryDiff(const MemoryNodeHeader* pExpect, const Mem
         return;
     }
 
-    if (pExpect->bodySize != pActual->bodySize)
+    if (expectSize != actualSize)
     {
-        printf("    - MemoryNode body size is not matched (expect:0x%016lx, actual:0x%016lx).\n", pExpect->bodySize, pActual->bodySize);
+        printf("    - MemoryNode body size is not matched (expect:0x%016lx, actual:0x%016lx).\n", expectSize, actualSize);
         return;
     }
 
     const int64_t unitSize = 16;
-    if (pExpect->bodySize % unitSize != 0)
+    if (expectSize % unitSize != 0)
     {
         throw TraceException("MemoryNode body size must be multiple of 16.");
     }
 
-    const auto count = pExpect->bodySize / unitSize;
+    const auto count = expectSize / unitSize;
 
-    const auto expectBody = reinterpret_cast<const uint8_t*>(&pExpect[1]);
-    const auto actualBody = reinterpret_cast<const uint8_t*>(&pActual[1]);
+    const auto expectBody = reinterpret_cast<const uint8_t*>(pExpect);
+    const auto actualBody = reinterpret_cast<const uint8_t*>(pActual);
 
     for (int64_t i = 0; i < count; i++)
     {
@@ -312,7 +308,7 @@ void CycleComparator::PrintDiff(const TraceCycleReader& expect, const TraceCycle
     const auto pExpectCsr32 = expect.GetCsr32Node();
     const auto pActualCsr32 = actual.GetCsr32Node();
     const auto expectCsr32Count = static_cast<int>(expect.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
-    const auto actualCsr32Count = static_cast<int>(expect.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+    const auto actualCsr32Count = static_cast<int>(actual.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
     if (m_CmpCsr && !AreCsr32NodesMatched(pExpectCsr32, expectCsr32Count, pActualCsr32, actualCsr32Count))
     {
         PrintCsr32Diff(pExpectCsr32, expectCsr32Count, pActualCsr32, actualCsr32Count);
@@ -320,8 +316,10 @@ void CycleComparator::PrintDiff(const TraceCycleReader& expect, const TraceCycle
 
     const auto pExpectMemory = expect.GetMemoryNode();
     const auto pActualMemory = actual.GetMemoryNode();
-    if (m_CmpMemory && !IsMemoryNodeMatched(pExpectMemory, pActualMemory))
+    const auto expectMemorySize = static_cast<size_t>(expect.GetNodeSize(NodeType::Memory));
+    const auto actualMemorySize = static_cast<size_t>(actual.GetNodeSize(NodeType::Memory));
+    if (m_CmpMemory && !IsMemoryNodeMatched(pExpectMemory, expectMemorySize, pActualMemory, actualMemorySize))
     {
-        PrintMemoryDiff(pExpectMemory, pActualMemory);
+        PrintMemoryDiff(pExpectMemory, expectMemorySize, pActualMemory, actualMemorySize);
     }
 }
