@@ -99,7 +99,7 @@ void MemoryTraceReaderImpl::MoveToPreviousCycle()
 
 void MemoryTraceReaderImpl::CheckOffset(int64_t offset)
 {
-    if (!(0 <= offset && offset < m_BufferSize))
+    if (!(0 <= offset && offset <= m_BufferSize))
     {
         throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
     }
