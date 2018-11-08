@@ -46,7 +46,7 @@ void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPh
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    while (!expectReader.IsEnd() || !actualReader.IsEnd())
+    while (!expectReader.IsEnd() && !actualReader.IsEnd())
     {
         TraceCycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
         TraceCycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
@@ -129,7 +129,18 @@ int main(int argc, char** argv)
     const bool cmpCsr = optionMap.count("cmp-csr") != 0;
     const bool cmpMemory = optionMap.count("cmp-memory") != 0;
 
-    CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+    try
+    {
+        CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+    }
+    catch (const rvtrace::TraceException& e)
+    {
+        e.PrintMessage();
+    }
+    catch (const rvtrace::TraceCycleException& e)
+    {
+        std::cout << e.GetMessage() << std::endl;
+    }
 
     return 0;
 }

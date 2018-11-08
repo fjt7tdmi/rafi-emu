@@ -131,10 +131,10 @@ const IoNode* TraceCycleReaderImpl::GetIoNode() const
     return reinterpret_cast<const IoNode*>(GetNode(NodeType::Io));
 }
 
-const MemoryNodeHeader* TraceCycleReaderImpl::GetMemoryNode() const
+const void* TraceCycleReaderImpl::GetMemoryNode() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Memory, sizeof(MemoryNodeHeader));
-    return reinterpret_cast<const MemoryNodeHeader*>(GetNode(NodeType::Memory));
+    CheckNodeSizeGreaterThan(NodeType::Memory, 0);
+    return GetNode(NodeType::Memory);
 }
 
 void TraceCycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const

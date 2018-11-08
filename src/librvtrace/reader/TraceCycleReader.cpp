@@ -109,7 +109,7 @@ const IoNode* TraceCycleReader::GetIoNode() const
     return m_pImpl->GetIoNode();
 }
 
-const MemoryNodeHeader* TraceCycleReader::GetMemoryNode() const
+const void* TraceCycleReader::GetMemoryNode() const
 {
     return m_pImpl->GetMemoryNode();
 }
