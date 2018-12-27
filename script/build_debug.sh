@@ -2,6 +2,7 @@
 
 # Move to project top directory
 pushd `dirname $0`
+source script/common.sh.inc
 cd ..
 
 mkdir -p build

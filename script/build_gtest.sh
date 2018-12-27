@@ -2,6 +2,7 @@
 
 # Move to project top directory
 pushd `dirname $0`
+source script/common.sh.inc
 cd ../third_party/googletest
 
 mkdir -p build
