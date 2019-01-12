@@ -18,6 +18,8 @@
 
 #include "common/Decoder.h"
 #include "common/Exception.h"
-#include "common/Op.h"
+#include "common/OpTypes.h"
+#include "common/OpApi.h"
 #include "common/RvTypes.h"
+#include "common/RvApi.h"
 #include "common/TraceCycleTypes.h"

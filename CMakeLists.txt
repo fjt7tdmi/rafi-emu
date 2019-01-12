@@ -47,7 +47,9 @@ add_library(librvtrace
     include/rvtrace/common.h
     include/rvtrace/common/Decoder.h
     include/rvtrace/common/Exception.h
-    include/rvtrace/common/Op.h
+    include/rvtrace/common/OpApi.h
+    include/rvtrace/common/OpTypes.h
+    include/rvtrace/common/RvApi.h
     include/rvtrace/common/RvTypes.h
     include/rvtrace/common/TraceCycleTypes.h
     include/rvtrace/reader.h
@@ -63,8 +65,8 @@ add_library(librvtrace
     src/librvtrace/common/Decoder.cpp
     src/librvtrace/common/DecoderImpl.cpp
     src/librvtrace/common/DecoderImpl.h
-    src/librvtrace/common/Op.cpp
-    src/librvtrace/common/RvTypes.cpp
+    src/librvtrace/common/OpApi.cpp
+    src/librvtrace/common/RvApi.cpp
     src/librvtrace/reader/FileTraceReader.cpp
     src/librvtrace/reader/FileTraceReaderImpl.cpp
     src/librvtrace/reader/FileTraceReaderImpl.h

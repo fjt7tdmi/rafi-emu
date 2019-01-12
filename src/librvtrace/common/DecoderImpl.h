@@ -23,12 +23,24 @@ namespace rvtrace {
 class DecoderImpl
 {
 public:
-    const op_t Decode(int32_t insn) const;
+    Op Decode(int32_t insn) const;
 
 private:
-    const op_t DecodeRV32I(int32_t insn) const;
-    const op_t DecodeRV32M(int32_t insn) const;
-    const op_t DecodeRV32A(int32_t insn) const;
+    Op DecodeRV32I(int32_t insn) const;
+    Op DecodeRV32M(int32_t insn) const;
+    Op DecodeRV32A(int32_t insn) const;
+
+    Operand DecodeOperandR(int32_t insn) const;
+    Operand DecodeOperandR4(int32_t insn) const;
+    Operand DecodeOperandI(int32_t insn) const;
+    Operand DecodeOperandS(int32_t insn) const;
+    Operand DecodeOperandB(int32_t insn) const;
+    Operand DecodeOperandU(int32_t insn) const;
+    Operand DecodeOperandJ(int32_t insn) const;
+    Operand DecodeOperandShiftImm(int32_t insn) const;
+    Operand DecodeOperandCsr(int32_t insn) const;
+    Operand DecodeOperandCsrImm(int32_t insn) const;
+    Operand DecodeOperandFence(int32_t insn) const;
 };
 
 }

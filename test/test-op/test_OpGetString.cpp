@@ -28,10 +28,15 @@ TEST(OpTest, GetString)
 {
     Decoder decoder;
 
-    op_t auipc = op_auipc_t { 3, 10 };
-    op_t lui = decoder.Decode(0xfffff8b7);
+    const Op& auipc = Op{ OpClass::RV32I, OpCode::auipc, OperandI {10, 3} };
+    const Op& lui = decoder.Decode(0xfffff8b7);
 
-    printf("%s\n", GetString(auipc).c_str());
-    printf("%s\n", GetString(lui).c_str());
+    char buffer[64];
+
+    SNPrintOp(buffer, sizeof(buffer), auipc);
+    printf("%s\n", buffer);
+
+    SNPrintOp(buffer, sizeof(buffer), auipc);
+    printf("%s\n", buffer);
 }
 

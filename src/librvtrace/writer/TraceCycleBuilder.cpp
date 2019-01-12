@@ -31,7 +31,7 @@ TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount)
 {
-    m_pImpl = new TraceCycleBuilderImpl(flags, 0, 0);
+    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount, 0);
 }
 
 TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount, int ramSize)
