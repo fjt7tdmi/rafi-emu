@@ -29,8 +29,8 @@ else:
     CheckIoPath = "./build/rafi-check-io"
     EmulatorPath = "./build/rafi-emu"
 
-BinaryDirPath = "./work/riscv_tests"
-TraceDirPath = "./work/riscv_tests/trace"
+BinaryDirPath = "./share/work/riscv-tests"
+TraceDirPath = "./work/riscv-tests/trace"
 
 #
 # Functions
