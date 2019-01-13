@@ -156,6 +156,62 @@ const char* GetString(const OpCode& opCode)
         GET_OP_NAME_CASE(amomax_w);
         GET_OP_NAME_CASE(amominu_w);
         GET_OP_NAME_CASE(amomaxu_w);
+
+        // RV32F
+        GET_OP_NAME_CASE(flw);
+        GET_OP_NAME_CASE(fsw);
+        GET_OP_NAME_CASE(fmadd_s);
+        GET_OP_NAME_CASE(fmsub_s);
+        GET_OP_NAME_CASE(fnmsub_s);
+        GET_OP_NAME_CASE(fnmadd_s);
+        GET_OP_NAME_CASE(fadd_s);
+        GET_OP_NAME_CASE(fsub_s);
+        GET_OP_NAME_CASE(fmul_s);
+        GET_OP_NAME_CASE(fdiv_s);
+        GET_OP_NAME_CASE(fsqrt_s);
+        GET_OP_NAME_CASE(fsgnj_s);
+        GET_OP_NAME_CASE(fsgnjn_s);
+        GET_OP_NAME_CASE(fsgnjx_s);
+        GET_OP_NAME_CASE(fmin_s);
+        GET_OP_NAME_CASE(fmax_s);
+        GET_OP_NAME_CASE(fcvt_w_s);
+        GET_OP_NAME_CASE(fcvt_wu_s);
+        GET_OP_NAME_CASE(fmv_x_w);
+        GET_OP_NAME_CASE(feq_s);
+        GET_OP_NAME_CASE(flt_s);
+        GET_OP_NAME_CASE(fle_s);
+        GET_OP_NAME_CASE(fclass_s);
+        GET_OP_NAME_CASE(fcvt_s_w);
+        GET_OP_NAME_CASE(fcvt_s_wu);
+        GET_OP_NAME_CASE(fmv_w_x);
+
+        // RV32D
+        GET_OP_NAME_CASE(fld);
+        GET_OP_NAME_CASE(fsd);
+        GET_OP_NAME_CASE(fmadd_d);
+        GET_OP_NAME_CASE(fmsub_d);
+        GET_OP_NAME_CASE(fnmsub_d);
+        GET_OP_NAME_CASE(fnmadd_d);
+        GET_OP_NAME_CASE(fadd_d);
+        GET_OP_NAME_CASE(fsub_d);
+        GET_OP_NAME_CASE(fmul_d);
+        GET_OP_NAME_CASE(fdiv_d);
+        GET_OP_NAME_CASE(fsqrt_d);
+        GET_OP_NAME_CASE(fsgnj_d);
+        GET_OP_NAME_CASE(fsgnjn_d);
+        GET_OP_NAME_CASE(fsgnjx_d);
+        GET_OP_NAME_CASE(fmin_d);
+        GET_OP_NAME_CASE(fmax_d);
+        GET_OP_NAME_CASE(fcvt_s_d);
+        GET_OP_NAME_CASE(fcvt_d_s);
+        GET_OP_NAME_CASE(feq_d);
+        GET_OP_NAME_CASE(flt_d);
+        GET_OP_NAME_CASE(fle_d);
+        GET_OP_NAME_CASE(fclass_d);
+        GET_OP_NAME_CASE(fcvt_w_d);
+        GET_OP_NAME_CASE(fcvt_wu_d);
+        GET_OP_NAME_CASE(fcvt_d_w);
+        GET_OP_NAME_CASE(fcvt_d_wu);
     default:
         return "unknown";
     }

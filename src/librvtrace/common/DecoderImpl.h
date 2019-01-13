@@ -29,6 +29,8 @@ private:
     Op DecodeRV32I(int32_t insn) const;
     Op DecodeRV32M(int32_t insn) const;
     Op DecodeRV32A(int32_t insn) const;
+    Op DecodeRV32F(int32_t insn) const;
+    Op DecodeRV32D(int32_t insn) const;
 
     Operand DecodeOperandR(int32_t insn) const;
     Operand DecodeOperandR4(int32_t insn) const;
