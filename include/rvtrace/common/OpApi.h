@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include <rvtrace/common/Decoder.h>
+#pragma once
 
-#include "DecoderImpl.h"
+#include "OpTypes.h"
 
 namespace rvtrace {
 
-Op Decoder::Decode(int32_t insn) const
-{
-    return m_pImpl->Decode(insn);
-}
+const char* GetString(const OpClass& op);
+const char* GetString(const OpCode& op);
+
+int SNPrintOp(char* buffer, int bufferSize, const Op& op);
 
 }

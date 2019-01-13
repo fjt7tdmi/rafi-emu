@@ -36,6 +36,9 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
     Decoder decoder;
     auto op = decoder.Decode(node->insn);
 
+    char opStr[64];
+    SNPrintOp(opStr, sizeof(opStr), op);
+
     printf(
         "  Basic {\n"
         "    cycle: 0x%08x\n"
@@ -46,7 +49,7 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
         node->cycle,
         node->opId,
         node->insn,
-        GetString(op).c_str(),
+        opStr,
         GetString(node->privilegeLevel)
     );
 }

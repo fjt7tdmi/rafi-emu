@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-#include <rvtrace/common/Decoder.h>
+#pragma once
 
-#include "DecoderImpl.h"
+#include "RvTypes.h"
 
 namespace rvtrace {
 
-Op Decoder::Decode(int32_t insn) const
-{
-    return m_pImpl->Decode(insn);
-}
+const char* GetString(MemoryAccessType accessType);
+const char* GetString(MemoryAccessSize accessSize);
+const char* GetString(PrivilegeLevel level);
+const char* GetString(TrapType trapType);
+const char* GetString(ExceptionType exceptionType);
+const char* GetString(InterruptType interruptType);
+const char* GetString(csr_addr_t addr);
+const char* GetString(csr_addr_t addr, const char* defaultValue);
 
 }

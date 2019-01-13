@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "Op.h"
+#include "OpTypes.h"
 
 namespace rvtrace {
 
@@ -27,7 +27,7 @@ class DecoderImpl;
 class Decoder
 {
 public:
-    const op_t Decode(int32_t insn) const;
+    Op Decode(int32_t insn) const;
 
 private:
     DecoderImpl* m_pImpl;

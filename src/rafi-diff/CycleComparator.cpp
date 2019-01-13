@@ -74,7 +74,7 @@ bool CycleComparator::AreCsr32NodesMatched(const Csr32Node* pExpect, int expectC
     return std::memcmp(pExpect, pActual, expectCsr32Count * sizeof(Csr32Node)) == 0;
 }
 
-bool CycleComparator::IsMemoryNodeMatched(const void* pExpect, size_t expectSize, const void* pActual, size_t actualSize) const
+bool CycleComparator::IsMemoryNodeMatched(const void* pExpect, int64_t expectSize, const void* pActual, int64_t actualSize) const
 {
     if (pExpect == nullptr || pActual == nullptr)
     {
@@ -98,7 +98,7 @@ bool CycleComparator::IsMemoryNodeMatched(const void* pExpect, size_t expectSize
     }
 #endif
 
-    return std::memcmp(pExpect, pActual, expectSize) == 0;
+    return std::memcmp(pExpect, pActual, static_cast<size_t>(expectSize)) == 0;
 }
 
 bool CycleComparator::AreMatched(const TraceCycleReader& expect, const TraceCycleReader& actual) const

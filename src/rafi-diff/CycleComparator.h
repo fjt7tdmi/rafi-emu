@@ -33,7 +33,7 @@ public:
     // compare
     bool IsPc32NodeMatched(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
     bool IsIntReg32NodeMatched(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
-    bool IsMemoryNodeMatched(const void* pExpect, size_t expectSize, const void* pActual, size_t actualSize) const;
+    bool IsMemoryNodeMatched(const void* pExpect, int64_t expectSize, const void* pActual, int64_t actualSize) const;
 
     bool AreCsr32NodesMatched(const rvtrace::Csr32Node* pExpectNodes, int expectNodeCount, const rvtrace::Csr32Node* pActualNodes, int actualNodeCount) const;
 

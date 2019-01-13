@@ -1,9 +1,9 @@
 #!/bin/bash
 
 if [[ "$(uname)" =~ ^MINGW ]]; then
-    RAFI_PYTHON=python
+    export RAFI_PYTHON=python
 else
-    RAFI_PYTHON=python3
+    export RAFI_PYTHON=python3
 fi
 
 if [[ "$(uname)" =~ Darwin ]]; then

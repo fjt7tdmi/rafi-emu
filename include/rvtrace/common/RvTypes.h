@@ -312,96 +312,6 @@ enum class counter_addr_t
     instret = 2,
 };
 
-enum class OpClass
-{
-    RV32I,
-    RV32M,
-    RV32A,
-};
-
-enum class OpCode
-{
-    // Default
-    unknown,
-
-    // RV32I
-    lui,
-    auipc,
-    jal,
-    jalr,
-    beq,
-    bne,
-    blt,
-    bge,
-    bltu,
-    bgeu,
-    lb,
-    lh,
-    lw,
-    lbu,
-    lhu,
-    sb,
-    sh,
-    sw,
-    addi,
-    slti,
-    sltiu,
-    xori,
-    ori,
-    andi,
-    slli,
-    srli,
-    srai,
-    add,
-    sub,
-    sll,
-    slt,
-    sltu,
-    xor_,
-    srl,
-    sra,
-    or_,
-    and_,
-    fence,
-    fence_i,
-    ecall,
-    ebreak,
-    csrrw,
-    csrrs,
-    csrrc,
-    csrrwi,
-    csrrsi,
-    csrrci,
-    mret,
-    sret,
-    uret,
-    wfi,
-    sfence_vma,
-
-    // RV32M
-    mul,
-    mulh,
-    mulhsu,
-    mulhu,
-    div,
-    divu,
-    rem,
-    remu,
-
-    // RV32A
-    lr_w,
-    sc_w,
-    amoswap_w,
-    amoadd_w,
-    amoxor_w,
-    amoand_w,
-    amoor_w,
-    amomin_w,
-    amomax_w,
-    amominu_w,
-    amomaxu_w,
-};
-
 const char* GetString(MemoryAccessType accessType);
 const char* GetString(MemoryAccessSize accessSize);
 const char* GetString(PrivilegeLevel level);
@@ -410,6 +320,5 @@ const char* GetString(ExceptionType exceptionType);
 const char* GetString(InterruptType interruptType);
 const char* GetString(csr_addr_t addr);
 const char* GetString(csr_addr_t addr, const char* defaultValue);
-const char* GetString(OpCode opCode);
 
 }
