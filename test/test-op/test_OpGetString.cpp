@@ -36,7 +36,7 @@ TEST(OpTest, GetString)
     SNPrintOp(buffer, sizeof(buffer), auipc);
     printf("%s\n", buffer);
 
-    SNPrintOp(buffer, sizeof(buffer), auipc);
+    SNPrintOp(buffer, sizeof(buffer), lui);
     printf("%s\n", buffer);
 }
 
