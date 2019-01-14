@@ -23,7 +23,7 @@ ObjcopyCmd = "riscv64-unknown-elf-objcopy"
 StartAddr = "0x8000000"
 EndAddr = "0x80008000"
 InDirPath = os.environ["RISCV_TESTS"]
-OutDirPath = "./work/riscv_tests"
+OutDirPath = "./work/riscv-tests"
 
 #
 # Functions

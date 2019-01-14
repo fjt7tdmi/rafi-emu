@@ -54,6 +54,7 @@ Op DecoderImpl::Decode(int32_t insn) const
     const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
     const auto funct7 = Pick(insn, 25, 7);
+    const auto funct2 = Pick(insn, 25, 2);
 
     if (opcode == 0b0110011 && funct7 == 0b0000001)
     {
@@ -62,6 +63,27 @@ Op DecoderImpl::Decode(int32_t insn) const
     else if (opcode == 0b0101111 && funct3 == 0b010)
     {
         return DecodeRV32A(insn);
+    }
+    else if ((opcode == 0b0000111 && funct3 == 0b010) ||
+             (opcode == 0b0100111 && funct3 == 0b010) ||
+             (opcode == 0b1000011 && funct2 == 0b00) ||
+             (opcode == 0b1000111 && funct2 == 0b00) ||
+             (opcode == 0b1001011 && funct2 == 0b00) ||
+             (opcode == 0b1001111 && funct2 == 0b00) ||
+             (opcode == 0b1010011 && funct2 == 0b00 && !(funct7 == 0b0100000)))
+    {
+        return DecodeRV32F(insn);
+    }
+    else if ((opcode == 0b0000111 && funct3 == 0b011) ||
+             (opcode == 0b0100111 && funct3 == 0b011) ||             
+             (opcode == 0b1000011 && funct2 == 0b01) ||
+             (opcode == 0b1000111 && funct2 == 0b01) ||
+             (opcode == 0b1001011 && funct2 == 0b01) ||
+             (opcode == 0b1001111 && funct2 == 0b01) ||
+             (opcode == 0b1010011 && funct2 == 0b01) ||
+             (opcode == 0b1010011 && funct7 == 0b0100000))
+    {
+        return DecodeRV32D(insn);
     }
     else
     {
@@ -410,6 +432,283 @@ Op DecoderImpl::DecodeRV32A(int32_t insn) const
         return Op{ OpClass::RV32A, OpCode::amomaxu_w, DecodeOperandR(insn) };
     default:
         return Op{ OpClass::RV32A, OpCode::unknown, OperandNone() };
+    }
+}
+
+Op DecoderImpl::DecodeRV32F(int32_t insn) const
+{
+    const auto opcode = Pick(insn, 0, 7);
+    const auto funct3 = Pick(insn, 12, 3);
+    const auto funct7 = Pick(insn, 25, 7);
+    const auto funct2 = Pick(insn, 25, 2);
+    const auto rs2 = Pick(insn, 20, 5);
+
+    switch (opcode)
+    {
+    case 0b0000111:
+        switch (funct3)
+        {
+        case 0b010:
+            return Op{ OpClass::RV32F, OpCode::flw, DecodeOperandI(insn) };
+        default:
+            return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+        }
+    case 0b0100111:
+        switch (funct3)
+        {
+        case 0b010:
+            return Op{ OpClass::RV32F, OpCode::fsw, DecodeOperandS(insn) };
+        default:
+            return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+        }
+    case 0b1000011:
+        return Op{ OpClass::RV32F, OpCode::fmadd_s, DecodeOperandR4(insn) };
+    case 0b1000111:
+        return Op{ OpClass::RV32F, OpCode::fmsub_s, DecodeOperandR4(insn) };
+    case 0b1001011:
+        return Op{ OpClass::RV32F, OpCode::fnmsub_s, DecodeOperandR4(insn) };
+    case 0b1001111:
+        return Op{ OpClass::RV32F, OpCode::fnmadd_s, DecodeOperandR4(insn) };
+    case 0b1010011:
+        switch (funct7)
+        {
+        case 0b0000000:
+            return Op{ OpClass::RV32F, OpCode::fadd_s, DecodeOperandR(insn) };
+        case 0b0000100:
+            return Op{ OpClass::RV32F, OpCode::fsub_s, DecodeOperandR(insn) };
+        case 0b0001000:
+            return Op{ OpClass::RV32F, OpCode::fmul_s, DecodeOperandR(insn) };
+        case 0b0001100:
+            return Op{ OpClass::RV32F, OpCode::fdiv_s, DecodeOperandR(insn) };
+        case 0b0101100:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32F, OpCode::fsqrt_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b0010000:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32F, OpCode::fsgnj_s, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32F, OpCode::fsgnjn_s, DecodeOperandR(insn) };
+            case 0b010:
+                return Op{ OpClass::RV32F, OpCode::fsgnjx_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b0010100:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32F, OpCode::fmin_s, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32F, OpCode::fmax_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b1100000:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32F, OpCode::fcvt_w_s, DecodeOperandR(insn) };
+            case 0b00001:
+                return Op{ OpClass::RV32F, OpCode::fcvt_wu_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b1110000:
+            if (rs2 == 0b00000 && funct3 == 0b000)
+            {
+                return Op{ OpClass::RV32F, OpCode::fmv_x_w, DecodeOperandR(insn) };
+            }
+            else if (rs2 == 0b00000 && funct3 == 0b001)
+            {
+                return Op{ OpClass::RV32F, OpCode::fclass_s, DecodeOperandR(insn) };
+            }
+            else
+            {
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }        
+        case 0b1010000:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32F, OpCode::fle_s, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32F, OpCode::flt_s, DecodeOperandR(insn) };
+            case 0b010:
+                return Op{ OpClass::RV32F, OpCode::feq_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b1101000:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32F, OpCode::fcvt_s_w, DecodeOperandR(insn) };
+            case 0b00001:
+                return Op{ OpClass::RV32F, OpCode::fcvt_s_wu, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        case 0b1111000:
+            if (rs2 == 0b00000 && funct3 == 0b000)
+            {
+                return Op{ OpClass::RV32F, OpCode::fmv_w_x, DecodeOperandR(insn) };
+            }
+            else
+            {
+                return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+            }
+        default:
+            return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+        }
+    default:
+        return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
+    }
+}
+
+Op DecoderImpl::DecodeRV32D(int32_t insn) const
+{
+    const auto opcode = Pick(insn, 0, 7);
+    const auto funct3 = Pick(insn, 12, 3);
+    const auto funct7 = Pick(insn, 25, 7);
+    const auto funct2 = Pick(insn, 25, 2);
+    const auto rs2 = Pick(insn, 20, 5);
+
+    switch (opcode)
+    {
+    case 0b0000111:
+        switch (funct3)
+        {
+        case 0b010:
+            return Op{ OpClass::RV32D, OpCode::fld, DecodeOperandI(insn) };
+        default:
+            return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+        }
+    case 0b0100111:
+        switch (funct3)
+        {
+        case 0b010:
+            return Op{ OpClass::RV32D, OpCode::fsd, DecodeOperandS(insn) };
+        default:
+            return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+        }
+    case 0b1000011:
+        return Op{ OpClass::RV32D, OpCode::fmadd_d, DecodeOperandR4(insn) };
+    case 0b1000111:
+        return Op{ OpClass::RV32D, OpCode::fmsub_d, DecodeOperandR4(insn) };
+    case 0b1001011:
+        return Op{ OpClass::RV32D, OpCode::fnmsub_d, DecodeOperandR4(insn) };
+    case 0b1001111:
+        return Op{ OpClass::RV32D, OpCode::fnmadd_d, DecodeOperandR4(insn) };
+    case 0b1010011:
+        switch (funct7)
+        {
+        case 0b0000001:
+            return Op{ OpClass::RV32D, OpCode::fadd_d, DecodeOperandR(insn) };
+        case 0b0000101:
+            return Op{ OpClass::RV32D, OpCode::fsub_d, DecodeOperandR(insn) };
+        case 0b0001001:
+            return Op{ OpClass::RV32D, OpCode::fmul_d, DecodeOperandR(insn) };
+        case 0b0001101:
+            return Op{ OpClass::RV32D, OpCode::fdiv_d, DecodeOperandR(insn) };
+        case 0b0101101:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32D, OpCode::fsqrt_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b0010001:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32D, OpCode::fsgnj_d, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32D, OpCode::fsgnjn_d, DecodeOperandR(insn) };
+            case 0b010:
+                return Op{ OpClass::RV32D, OpCode::fsgnjx_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b0010101:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32D, OpCode::fmin_d, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32D, OpCode::fmax_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b0100000:
+            switch (rs2)
+            {
+            case 0b00001:
+                return Op{ OpClass::RV32D, OpCode::fcvt_s_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b0100001:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32D, OpCode::fcvt_d_s, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b1010001:
+            switch (funct3)
+            {
+            case 0b000:
+                return Op{ OpClass::RV32D, OpCode::fle_d, DecodeOperandR(insn) };
+            case 0b001:
+                return Op{ OpClass::RV32D, OpCode::flt_d, DecodeOperandR(insn) };
+            case 0b010:
+                return Op{ OpClass::RV32D, OpCode::feq_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b1110001:
+            if (rs2 == 0b00000 && funct3 == 0b001)
+            {
+                return Op{ OpClass::RV32D, OpCode::fclass_d, DecodeOperandR(insn) };
+            }
+            else
+            {
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b1100001:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32D, OpCode::fcvt_w_d, DecodeOperandR(insn) };
+            case 0b00001:
+                return Op{ OpClass::RV32D, OpCode::fcvt_wu_d, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        case 0b1101001:
+            switch (rs2)
+            {
+            case 0b00000:
+                return Op{ OpClass::RV32D, OpCode::fcvt_d_w, DecodeOperandR(insn) };
+            case 0b00001:
+                return Op{ OpClass::RV32D, OpCode::fcvt_d_wu, DecodeOperandR(insn) };
+            default:
+                return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+            }
+        default:
+            return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
+        }
+    default:
+        return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
     }
 }
 
