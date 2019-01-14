@@ -20,6 +20,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <rvtrace/common.h>
 #include <rafi/Common.h>
 
 #include "Executor.h"
@@ -38,23 +39,24 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t ins
     case OpCode::lw:
     case OpCode::lbu:
     case OpCode::lhu:
-        return PreCheckTrapForLoad(pc, m_pIntRegFile->Read(op.rs1) + op.imm);
+        return PreCheckTrapForLoad(op, pc);
     case OpCode::sb:
     case OpCode::sh:
     case OpCode::sw:
-        return PreCheckTrapForStore(pc, m_pIntRegFile->Read(op.rs1) + op.imm);
+        return PreCheckTrapForStore(op, pc);
     case OpCode::csrrw:
     case OpCode::csrrs:
     case OpCode::csrrc:
+        return PreCheckTrapForCsr(op, pc, insn);
     case OpCode::csrrwi:
     case OpCode::csrrsi:
     case OpCode::csrrci:
-        return PreCheckTrapForCsr(op, pc, insn);
+        return PreCheckTrapForCsrImm(op, pc, insn);
     case OpCode::lr_w:
-        return PreCheckTrapForLoad(pc, m_pIntRegFile->Read(op.rs1));
+        return PreCheckTrapForLoadReserved(op, pc);
         break;
     case OpCode::sc_w:
-        return PreCheckTrapForStore(pc, m_pIntRegFile->Read(op.rs1));
+        return PreCheckTrapForStoreConditional(op, pc);
     case OpCode::amoswap_w:
     case OpCode::amoadd_w:
     case OpCode::amoxor_w:
@@ -64,7 +66,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, int32_t pc, int32_t ins
     case OpCode::amomax_w:
     case OpCode::amominu_w:
     case OpCode::amomaxu_w:
-        return PreCheckTrapForAtomic(pc, m_pIntRegFile->Read(op.rs1));
+        return PreCheckTrapForAtomic(op, pc);
     default:
         return std::nullopt;
     }
@@ -101,25 +103,56 @@ void Executor::ProcessOp(const Op& op, int32_t pc)
     }
 }
 
-std::optional<Trap> Executor::PreCheckTrapForLoad(int32_t pc, int32_t address) const
+std::optional<Trap> Executor::PreCheckTrapForLoad(const Op& op, int32_t pc) const
 {
+    const auto& operand = std::get<OperandI>(op.operand);
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
+
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForStore(int32_t pc, int32_t address) const
+std::optional<Trap> Executor::PreCheckTrapForLoadReserved(const Op& op, int32_t pc) const
 {
+    const auto& operand = std::get<OperandR>(op.operand);
+    const auto address = m_pIntRegFile->Read(operand.rs1);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapForStore(const Op& op, int32_t pc) const
+{
+    const auto& operand = std::get<OperandI>(op.operand);
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapForStoreConditional(const Op& op, int32_t pc) const
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+    const auto address = m_pIntRegFile->Read(operand.rs1);
+
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
 std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const
 {
-    return m_pCsr->CheckTrap(op.csr, op.rs1 != 0, pc, insn);
+    const auto& operand = std::get<OperandCsr>(op.operand);
+    return m_pCsr->CheckTrap(static_cast<int>(operand.csr), operand.rd != 0, pc, insn);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForAtomic(int32_t pc, int32_t address) const
+std::optional<Trap> Executor::PreCheckTrapForCsrImm(const Op& op, int32_t pc, int32_t insn) const
 {
-    const auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+    const auto& operand = std::get<OperandCsrImm>(op.operand);
+    return m_pCsr->CheckTrap(static_cast<int>(operand.csr), operand.rd != 0, pc, insn);
+}
 
+std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, int32_t pc) const
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+    const int32_t address = m_pIntRegFile->Read(operand.rs1);
+
+    const auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
     if (trap)
     {
         return trap;
@@ -147,134 +180,63 @@ std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc) const
 
 void Executor::ProcessRV32I(const Op& op, int32_t pc)
 {
-    int32_t address;
-    int32_t tmp;
-
-    const int32_t rs1 = m_pIntRegFile->Read(op.rs1);
-
     switch (op.opCode)
     {
-        // RV32I
     case OpCode::lui:
-        m_pIntRegFile->Write(op.rd, op.imm);
-        break;
+        ProcessLui(op);
+        return;
     case OpCode::auipc:
-        m_pIntRegFile->Write(op.rd, pc + op.imm);
-        break;
+        ProcessAuipc(op, pc);
+        return;
     case OpCode::jal:
-        m_pIntRegFile->Write(op.rd, pc + 4);
-        m_pCsr->SetProgramCounter(pc + op.imm);
-        break;
+        ProcessJal(op, pc);
+        return;
     case OpCode::jalr:
-        m_pIntRegFile->Write(op.rd, pc + 4);
-        m_pCsr->SetProgramCounter(rs1 + op.imm);
-        break;
+        ProcessJalr(op, pc);
+        return;
     case OpCode::beq:
-        if (m_pIntRegFile->Read(op.rs1) == m_pIntRegFile->Read(op.rs2))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
     case OpCode::bne:
-        if (m_pIntRegFile->Read(op.rs1) != m_pIntRegFile->Read(op.rs2))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
     case OpCode::blt:
-        if (m_pIntRegFile->Read(op.rs1) < m_pIntRegFile->Read(op.rs2))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
     case OpCode::bge:
-        if (m_pIntRegFile->Read(op.rs1) >= m_pIntRegFile->Read(op.rs2))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
     case OpCode::bltu:
-        if (static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) < static_cast<uint32_t>(m_pIntRegFile->Read(op.rs2)))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
     case OpCode::bgeu:
-        if (static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) >= static_cast<uint32_t>(m_pIntRegFile->Read(op.rs2)))
-        {
-            m_pCsr->SetProgramCounter(pc + op.imm);
-        }
-        break;
+        ProcessBranch(op, pc);
+        return;
     case OpCode::lb:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pIntRegFile->Write(op.rd, m_pMemAccessUnit->LoadInt8(address));
-        break;
     case OpCode::lh:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pIntRegFile->Write(op.rd, m_pMemAccessUnit->LoadInt16(address));
-        break;
     case OpCode::lw:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pIntRegFile->Write(op.rd, m_pMemAccessUnit->LoadInt32(address));
-        break;
     case OpCode::lbu:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pIntRegFile->Write(op.rd, m_pMemAccessUnit->LoadInt8(address) & 0x000000ff);
-        break;
     case OpCode::lhu:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        m_pIntRegFile->Write(op.rd, m_pMemAccessUnit->LoadInt16(address) & 0x0000ffff);
-        break;
+        ProcessLoad(op);
+        return;
     case OpCode::sb:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        tmp = m_pIntRegFile->Read(op.rs2);
-        m_pMemAccessUnit->StoreInt8(address, static_cast<int8_t>(tmp));
-        break;
     case OpCode::sh:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        tmp = m_pIntRegFile->Read(op.rs2);
-        m_pMemAccessUnit->StoreInt16(address, static_cast<int16_t>(tmp));
-        break;
     case OpCode::sw:
-        address = m_pIntRegFile->Read(op.rs1) + op.imm;
-        tmp = m_pIntRegFile->Read(op.rs2);
-        m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(tmp));
-        break;
+        ProcessStore(op);
+        return;
     case OpCode::addi:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) + op.imm);
-        break;
     case OpCode::slti:
-        m_pIntRegFile->Write(op.rd, (m_pIntRegFile->Read(op.rs1) < op.imm) ? 1 : 0);
-        break;
     case OpCode::sltiu:
-        m_pIntRegFile->Write(op.rd, (static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) < static_cast<uint32_t>(op.imm)) ? 1 : 0);
-        break;
     case OpCode::xori:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) ^ op.imm);
-        break;
     case OpCode::ori:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) | op.imm);
-        break;
     case OpCode::andi:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) & op.imm);
-        break;
+        ProcessAluImm(op);
+        return;
+    case OpCode::sll:
+    case OpCode::srl:
+    case OpCode::sra:
+        ProcessShift(op);
+        return;
     case OpCode::slli:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) << op.rs2);
-        break;
     case OpCode::srli:
-        m_pIntRegFile->Write(op.rd, static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) >> op.rs2);
-        break;
     case OpCode::srai:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) >> op.rs2);
-        break;
+        ProcessShiftImm(op);
+        return;
     case OpCode::add:
         m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) + m_pIntRegFile->Read(op.rs2));
         break;
     case OpCode::sub:
         m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) - m_pIntRegFile->Read(op.rs2));
-        break;
-    case OpCode::sll:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) << m_pIntRegFile->Read(op.rs2));
         break;
     case OpCode::slt:
         m_pIntRegFile->Write(op.rd, (m_pIntRegFile->Read(op.rs1) < m_pIntRegFile->Read(op.rs2)) ? 1 : 0);
@@ -285,57 +247,309 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::xor_:
         m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) ^ m_pIntRegFile->Read(op.rs2));
         break;
-    case OpCode::srl:
-        m_pIntRegFile->Write(op.rd, static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) >> m_pIntRegFile->Read(op.rs2));
-        break;
-    case OpCode::sra:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) >> m_pIntRegFile->Read(op.rs2));
-        break;
     case OpCode::or_:
         m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) | m_pIntRegFile->Read(op.rs2));
         break;
     case OpCode::and_:
         m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) & m_pIntRegFile->Read(op.rs2));
         break;
+    case OpCode::ecall:
+    case OpCode::ebreak:
+    case OpCode::mret:
+    case OpCode::sret:
+    case OpCode::uret:
+    case OpCode::wfi:
+        ProcessPriv(op);
+        return;
     case OpCode::fence:
-        // Do nothing for memory fence instructions.
-        break;
     case OpCode::fence_i:
+    case OpCode::sfence_vma:
         // Do nothing for memory fence instructions.
+        return;
+    case OpCode::csrrw:
+    case OpCode::csrrs:
+    case OpCode::csrrc:
+        ProcessCsr(op);
+        return;
+    case OpCode::csrrwi:
+    case OpCode::csrrsi:
+    case OpCode::csrrci:
+        ProcessCsrImm(op);
+        return;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+}
+
+void Executor::ProcessLui(const Op& op)
+{
+    const auto& operand = std::get<OperandU>(op.operand);
+
+    m_pIntRegFile->Write(operand.rd, operand.imm);
+}
+
+void Executor::ProcessAuipc(const Op& op, int32_t pc)
+{
+    const auto& operand = std::get<OperandU>(op.operand);
+
+    m_pIntRegFile->Write(operand.rd, pc + operand.imm);
+}
+
+void Executor::ProcessJal(const Op& op, int32_t pc)
+{
+    const auto& operand = std::get<OperandJ>(op.operand);
+
+    m_pIntRegFile->Write(operand.rd, pc + 4);
+    m_pCsr->SetProgramCounter(pc + operand.imm);
+}
+
+void Executor::ProcessJalr(const Op& op, int32_t pc)
+{
+    const auto& operand = std::get<OperandI>(op.operand);
+
+    const auto src = m_pIntRegFile->Read(operand.rs1);
+
+    m_pIntRegFile->Write(operand.rd, pc + 4);
+    m_pCsr->SetProgramCounter(src + operand.imm);
+}
+
+void Executor::ProcessBranch(const Op& op, int32_t pc)
+{
+    const auto& operand = std::get<OperandB>(op.operand);
+
+    const auto src1 = m_pIntRegFile->Read(operand.rs1);
+    const auto src2 = m_pIntRegFile->Read(operand.rs2);
+
+    const auto src1_u = static_cast<uint32_t>(src1);
+    const auto src2_u = static_cast<uint32_t>(src2);
+
+    bool jump;
+
+    switch (op.opCode)
+    {
+    case OpCode::beq:
+        jump = (src1 == src2);
         break;
+    case OpCode::bne:
+        jump = (src1 != src2);
+        break;
+    case OpCode::blt:
+        jump = (src1 < src2);
+        break;
+    case OpCode::bge:
+        jump = (src1 >= src2);
+        break;
+    case OpCode::bltu:
+        jump = (src1_u < src2_u);
+        break;
+    case OpCode::bgeu:
+        jump = (src1_u >= src2_u);
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    if (jump)
+    {
+        m_pCsr->SetProgramCounter(pc + operand.imm);
+    }
+}
+
+void Executor::ProcessLoad(const Op& op)
+{
+    const auto& operand = std::get<OperandI>(op.operand);
+
+    const auto address = m_pIntRegFile->Read(operand.rs1) + op.imm;
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::lb:
+        value = m_pMemAccessUnit->LoadInt8(address);
+        break;
+    case OpCode::lh:
+        value = m_pMemAccessUnit->LoadInt16(address);
+        break;
+    case OpCode::lw:
+        value = m_pMemAccessUnit->LoadInt32(address);
+        break;
+    case OpCode::lbu:
+        value = m_pMemAccessUnit->LoadInt8(address) & 0x000000ff;
+        break;
+    case OpCode::lhu:
+        value = m_pMemAccessUnit->LoadInt16(address) & 0x0000ffff;
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessStore(const Op& op)
+{
+    const auto& operand = std::get<OperandS>(op.operand);
+
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
+    const auto value = m_pIntRegFile->Read(operand.rs2);
+
+    switch (op.opCode)
+    {
+    case OpCode::sb:
+        m_pMemAccessUnit->StoreInt8(address, static_cast<int8_t>(value));
+        break;
+    case OpCode::sh:
+        m_pMemAccessUnit->StoreInt16(address, static_cast<int16_t>(value));
+        break;
+    case OpCode::sw:
+        m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(value));
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+}
+
+void Executor::ProcessAlu(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pIntRegFile->Read(operand.rs1);
+    const auto src2 = m_pIntRegFile->Read(operand.rs2);
+
+    const auto src1_u = static_cast<uint32_t>(src1);
+    const auto src2_u = static_cast<uint32_t>(src2);
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::add:
+        value = src1 + src2;
+        break;
+    case OpCode::sub:
+        value = src1 - src2;
+        break;
+    case OpCode::slt:
+        value = (src1 < src2) ? 1 : 0;
+        break;
+    case OpCode::sltu:
+        value = (src1_u < src2_u) ? 1 : 0;
+        break;
+    case OpCode::xor_:
+        value = src1 ^ src2;
+        break;
+    case OpCode::or_:
+        value = src1 | src2;
+        break;
+    case OpCode::and_:
+        value = src1 & src2;
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessAluImm(const Op& op)
+{
+    const auto& operand = std::get<OperandI>(op.operand);
+
+    const auto src1 = m_pIntRegFile->Read(operand.rs1);
+    const auto src1_u = static_cast<uint32_t>(src1);
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::addi:
+        value = src1 + operand.imm;
+        break;
+    case OpCode::slti:
+        value = (src1 < operand.imm) ? 1 : 0;
+        break;
+    case OpCode::sltiu:
+        value = (src1 < static_cast<uint32_t>(operand.imm)) ? 1 : 0;
+        break;
+    case OpCode::xori:
+        value = src1 ^ operand.imm;
+        break;
+    case OpCode::ori:
+        value = src1 | operand.imm;
+        break;
+    case OpCode::andi:
+        value = src1 & operand.imm;
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessShift(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pIntRegFile->Read(operand.rs1);
+    const auto src2 = m_pIntRegFile->Read(operand.rs2);
+    const auto src1_u = static_cast<uint32_t>(src1);
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::sll:
+        value = src1 << src2;
+        break;
+    case OpCode::srl:
+        value = src1_u >> src2;
+        break;
+    case OpCode::sra:
+        value = src1 >> src2;
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessShiftImm(const Op& op)
+{
+    const auto& operand = std::get<OperandShiftImm>(op.operand);
+
+    const auto src1 = m_pIntRegFile->Read(operand.rs1);
+    const auto src1_u = static_cast<uint32_t>(src1);
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::slli:
+        value = src1 << operand.shamt;
+        break;
+    case OpCode::srli:
+        value = src1_u >> operand.shamt;
+        break;
+    case OpCode::srai:
+        value = src1 >> operand.shamt;
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessPriv(const Op& op)
+{
+    switch (op.opCode)
+    {
     case OpCode::ecall:
         break;
     case OpCode::ebreak:
-        break;
-    case OpCode::csrrw:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, m_pIntRegFile->Read(op.rs1));
-        m_pIntRegFile->Write(op.rd, tmp);
-        break;
-    case OpCode::csrrs:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, tmp | m_pIntRegFile->Read(op.rs1));
-        m_pIntRegFile->Write(op.rd, tmp);
-        break;
-    case OpCode::csrrc:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, tmp & ~m_pIntRegFile->Read(op.rs1));
-        m_pIntRegFile->Write(op.rd, tmp);
-        break;
-    case OpCode::csrrwi:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, op.zimm);
-        m_pIntRegFile->Write(op.rd, tmp);
-        break;
-    case OpCode::csrrsi:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, tmp | op.zimm);
-        m_pIntRegFile->Write(op.rd, tmp);
-        break;
-    case OpCode::csrrci:
-        tmp = m_pCsrAccessor->Read(op.csr);
-        m_pCsrAccessor->Write(op.csr, tmp & ~op.zimm);
-        m_pIntRegFile->Write(op.rd, tmp);
         break;
     case OpCode::mret:
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::Machine);
@@ -349,23 +563,72 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
     case OpCode::wfi:
         m_pCsr->SetHaltFlag(true);
         break;
-    case OpCode::sfence_vma:
-        // Do nothing for memory fence instructions.
-        break;
     default:
         throw NotImplementedException(__FILE__, __LINE__);
     }
 }
 
+void Executor::ProcessCsr(const Op& op)
+{
+    const auto& operand = std::get<OperandCsr>(op.operand);
+
+    const auto srcCsr = m_pCsrAccessor->Read(static_cast<int>(operand.csr));
+    const auto srcIntReg = m_pIntRegFile->Read(operand.rs1);
+
+    switch (op.opCode)
+    {
+    case OpCode::csrrwi:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcIntReg);
+        break;
+    case OpCode::csrrsi:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr | srcIntReg);
+        break;
+    case OpCode::csrrci:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~srcIntReg);
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, srcCsr);
+}
+
+void Executor::ProcessCsrImm(const Op& op)
+{
+    const auto& operand = std::get<OperandCsrImm>(op.operand);
+    const auto srcCsr = m_pCsrAccessor->Read(static_cast<int>(operand.csr));
+
+    switch (op.opCode)
+    {
+    case OpCode::csrrwi:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), operand.zimm);
+        break;
+    case OpCode::csrrsi:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr | operand.zimm);
+        break;
+    case OpCode::csrrci:
+        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~operand.zimm);
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(operand.rd, srcCsr);
+}
+
 void Executor::ProcessRV32M(const Op& op)
 {
+    const int rs1 = std::get<OperandR>(op.operand).rs1;
+    const int rs2 = std::get<OperandR>(op.operand).rs2;
+    const int rd = std::get<OperandR>(op.operand).rd;
+
+    const int32_t src1 = m_pIntRegFile->Read(rs1);
+    const int32_t src2 = m_pIntRegFile->Read(rs2);
+
+    const uint32_t src1_u = static_cast<uint32_t>(src1);
+    const uint32_t src2_u = static_cast<uint32_t>(src2);
+
     int32_t dst;
-
-    int32_t src1 = m_pIntRegFile->Read(op.rs1);
-    int32_t src2 = m_pIntRegFile->Read(op.rs2);
-
-    uint32_t src1_u = static_cast<uint32_t>(src1);
-    uint32_t src2_u = static_cast<uint32_t>(src2);
 
     switch (op.opCode)
     {
@@ -433,78 +696,82 @@ void Executor::ProcessRV32M(const Op& op)
         throw NotImplementedException(__FILE__, __LINE__);
     }
 
-    m_pIntRegFile->Write(op.rd, dst);
+    m_pIntRegFile->Write(std::get<OperandR>(op.operand).rd, dst);
 }
 
 void Executor::ProcessRV32A(const Op& op)
 {
-    int32_t mem;
+    const int rs1 = std::get<OperandR>(op.operand).rs1;
+    const int rs2 = std::get<OperandR>(op.operand).rs2;
+    const int rd = std::get<OperandR>(op.operand).rd;
 
-    int32_t src1 = m_pIntRegFile->Read(op.rs1);
-    int32_t src2 = m_pIntRegFile->Read(op.rs2);
+    const int32_t src1 = m_pIntRegFile->Read(rs1);
+    const int32_t src2 = m_pIntRegFile->Read(rs2);
+
+    int32_t mem;
 
     switch (op.opCode)
     {
     case OpCode::lr_w:
         m_ReserveAddress = src1;
         mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::sc_w:
         if (m_ReserveAddress == src1)
         {
             m_pMemAccessUnit->StoreInt32(src1, src2);
-            m_pIntRegFile->Write(op.rd, 0);
+            m_pIntRegFile->Write(rd, 0);
         }
         else
         {
-            m_pIntRegFile->Write(op.rd, 1);
+            m_pIntRegFile->Write(rd, 1);
         }
         break;
     case OpCode::amoswap_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, src2);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amoadd_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, mem + src2);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amoxor_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, mem ^ src2);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amoand_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, mem & src2);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amoor_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, mem | src2);
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amomax_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, std::max(mem, src2));
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amomin_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, std::min(mem, src2));
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amomaxu_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, std::max(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     case OpCode::amominu_w:
         mem = m_pMemAccessUnit->LoadInt32(src1);
         m_pMemAccessUnit->StoreInt32(src1, std::min(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
-        m_pIntRegFile->Write(op.rd, mem);
+        m_pIntRegFile->Write(rd, mem);
         break;
     default:
         throw NotImplementedException(__FILE__, __LINE__);

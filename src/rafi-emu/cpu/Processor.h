@@ -18,7 +18,6 @@
 
 #include "Csr.h"
 #include "CsrAccessor.h"
-#include "Decoder.h"
 #include "Executor.h"
 #include "InterruptController.h"
 #include "IntRegFile.h"
@@ -26,6 +25,7 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
+#include <rvtrace/common.h>
 #include <rafi/Event.h>
 
 namespace rafi { namespace emu { namespace cpu {
