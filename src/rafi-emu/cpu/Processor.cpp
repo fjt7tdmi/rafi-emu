@@ -20,6 +20,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <rvtrace/common.h>
+
 #include "Processor.h"
 
 using namespace std;
@@ -88,7 +90,7 @@ void Processor::ProcessOneCycle()
     const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
     // Decode
-    m_Decoder.Decode(&op, insn);
+    const auto& op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
     {
         const auto decodeTrap = MakeIllegalInstructionException(pc, insn);

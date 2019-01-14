@@ -24,6 +24,8 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
+using namespace rvtrace;
+
 namespace rafi { namespace emu { namespace cpu {
 
 class Executor
@@ -45,16 +47,36 @@ public:
     void ProcessOp(const Op& op, int32_t pc);
 
 private:
-    std::optional<Trap> PreCheckTrapForLoad(int32_t pc, int32_t address) const;
-    std::optional<Trap> PreCheckTrapForStore(int32_t pc, int32_t address) const;
+    std::optional<Trap> PreCheckTrapForLoad(const Op& op, int32_t pc) const;
+    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, int32_t pc) const;
+    std::optional<Trap> PreCheckTrapForStore(const Op& op, int32_t pc) const;
+    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, int32_t pc) const;
     std::optional<Trap> PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const;
-    std::optional<Trap> PreCheckTrapForAtomic(int32_t pc, int32_t address) const;
+    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, int32_t pc, int32_t insn) const;
+    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, int32_t pc) const;
 
     std::optional<Trap> PostCheckTrapForEcall(int32_t pc) const;
 
     void ProcessRV32I(const Op& op, int32_t pc);
     void ProcessRV32M(const Op& op);
     void ProcessRV32A(const Op& op);
+
+    // RV32I
+    void ProcessLui(const Op& op);
+    void ProcessAuipc(const Op& op, int32_t pc);
+    void ProcessJal(const Op& op, int32_t pc);
+    void ProcessJalr(const Op& op, int32_t pc);
+    void ProcessBranch(const Op& op, int32_t pc);
+    void ProcessLoad(const Op& op);
+    void ProcessStore(const Op& op);
+    void ProcessAlu(const Op& op);
+    void ProcessAluImm(const Op& op);
+    void ProcessShift(const Op& op);
+    void ProcessShiftImm(const Op& op);
+    void ProcessFence(const Op& op);
+    void ProcessPriv(const Op& op);
+    void ProcessCsr(const Op& op);
+    void ProcessCsrImm(const Op& op);
 
     Csr* m_pCsr;
     CsrAccessor* m_pCsrAccessor;
