@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
+#include <cfenv>
 #include <fstream>
 #include <iostream>
 
@@ -24,6 +25,7 @@
 #include <rafi/Common.h>
 
 #include "Executor.h"
+#include "FpRound.h"
 
 using namespace std;
 using namespace rvtrace;
@@ -97,6 +99,12 @@ void Executor::ProcessOp(const Op& op, int32_t pc)
         break;
     case OpClass::RV32A:
         ProcessRV32A(op);
+        break;
+    case OpClass::RV32F:
+        ProcessRV32F(op);
+        break;
+    case OpClass::RV32D:
+        ProcessRV32D(op);
         break;
     default:
         throw NotImplementedException(__FILE__, __LINE__);
@@ -233,26 +241,14 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
         ProcessShiftImm(op);
         return;
     case OpCode::add:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) + m_pIntRegFile->Read(op.rs2));
-        break;
     case OpCode::sub:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) - m_pIntRegFile->Read(op.rs2));
-        break;
     case OpCode::slt:
-        m_pIntRegFile->Write(op.rd, (m_pIntRegFile->Read(op.rs1) < m_pIntRegFile->Read(op.rs2)) ? 1 : 0);
-        break;
     case OpCode::sltu:
-        m_pIntRegFile->Write(op.rd, (static_cast<uint32_t>(m_pIntRegFile->Read(op.rs1)) < static_cast<uint32_t>(m_pIntRegFile->Read(op.rs2))) ? 1 : 0);
-        break;
     case OpCode::xor_:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) ^ m_pIntRegFile->Read(op.rs2));
-        break;
     case OpCode::or_:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) | m_pIntRegFile->Read(op.rs2));
-        break;
     case OpCode::and_:
-        m_pIntRegFile->Write(op.rd, m_pIntRegFile->Read(op.rs1) & m_pIntRegFile->Read(op.rs2));
-        break;
+        ProcessAlu(op);
+        return;
     case OpCode::ecall:
     case OpCode::ebreak:
     case OpCode::mret:
@@ -278,6 +274,212 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
         return;
     default:
         throw NotImplementedException(__FILE__, __LINE__);
+    }
+}
+
+void Executor::ProcessRV32M(const Op& op)
+{
+    const int rs1 = std::get<OperandR>(op.operand).rs1;
+    const int rs2 = std::get<OperandR>(op.operand).rs2;
+    const int rd = std::get<OperandR>(op.operand).rd;
+
+    const int32_t src1 = m_pIntRegFile->Read(rs1);
+    const int32_t src2 = m_pIntRegFile->Read(rs2);
+
+    const uint32_t src1_u = static_cast<uint32_t>(src1);
+    const uint32_t src2_u = static_cast<uint32_t>(src2);
+
+    int32_t dst;
+
+    switch (op.opCode)
+    {
+    case OpCode::mul:
+        dst = src1 * src2;
+        break;
+    case OpCode::mulh:
+        dst = static_cast<int32_t>((static_cast<int64_t>(src1) * static_cast<int64_t>(src2)) >> 32);
+        break;
+    case OpCode::mulhsu:
+        dst = static_cast<int32_t>((static_cast<int64_t>(src1) * static_cast<uint64_t>(src2_u)) >> 32);
+        break;
+    case OpCode::mulhu:
+        dst = static_cast<int32_t>((static_cast<uint64_t>(src1_u) * static_cast<uint64_t>(src2_u)) >> 32);
+        break;
+    case OpCode::div:
+        if (src1_u == 0x80000000 && src2 == -1)
+        {
+            dst = 0x80000000;
+        }
+        else if (src2 == 0)
+        {
+            dst = -1;
+        }
+        else
+        {
+            dst = src1 / src2;
+        }
+        break;
+    case OpCode::divu:
+        if (src2 == 0)
+        {
+            dst = -1;
+        }
+        else
+        {
+            dst = static_cast<int32_t>(src1_u / src2_u);
+        }
+        break;
+    case OpCode::rem:
+        if (src1_u == 0x80000000 && src2 == -1)
+        {
+            dst = 0;
+        }
+        else if (src2 == 0)
+        {
+            dst = src1;
+        }
+        else
+        {
+            dst = src1 % src2;
+        }
+        break;
+    case OpCode::remu:
+        if (src2 == 0)
+        {
+            dst = src1;
+        }
+        else
+        {
+            dst = static_cast<int32_t>(src1_u % src2_u);
+        }
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+
+    m_pIntRegFile->Write(std::get<OperandR>(op.operand).rd, dst);
+}
+
+void Executor::ProcessRV32A(const Op& op)
+{
+    const int rs1 = std::get<OperandR>(op.operand).rs1;
+    const int rs2 = std::get<OperandR>(op.operand).rs2;
+    const int rd = std::get<OperandR>(op.operand).rd;
+
+    const int32_t src1 = m_pIntRegFile->Read(rs1);
+    const int32_t src2 = m_pIntRegFile->Read(rs2);
+
+    int32_t mem;
+
+    switch (op.opCode)
+    {
+    case OpCode::lr_w:
+        m_ReserveAddress = src1;
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::sc_w:
+        if (m_ReserveAddress == src1)
+        {
+            m_pMemAccessUnit->StoreInt32(src1, src2);
+            m_pIntRegFile->Write(rd, 0);
+        }
+        else
+        {
+            m_pIntRegFile->Write(rd, 1);
+        }
+        break;
+    case OpCode::amoswap_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, src2);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amoadd_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, mem + src2);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amoxor_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, mem ^ src2);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amoand_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, mem & src2);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amoor_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, mem | src2);
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amomax_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, std::max(mem, src2));
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amomin_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, std::min(mem, src2));
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amomaxu_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, std::max(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    case OpCode::amominu_w:
+        mem = m_pMemAccessUnit->LoadInt32(src1);
+        m_pMemAccessUnit->StoreInt32(src1, std::min(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
+        m_pIntRegFile->Write(rd, mem);
+        break;
+    default:
+        throw NotImplementedException(__FILE__, __LINE__);
+    }
+}
+
+void Executor::ProcessRV32F(const Op& op)
+{
+    switch (op.opCode)
+    {
+    case OpCode::flw:
+        ProcessFloatLoad(op);
+        return;
+    case OpCode::fsw:
+        ProcessFloatStore(op);
+        return;
+    case OpCode::fmadd_s:
+    case OpCode::fmsub_s:
+    case OpCode::fnmadd_s:
+    case OpCode::fnmsub_s:
+        ProcessFloatR4(op);
+        return;
+    default:
+        ProcessFloatR(op);
+        return;
+    }
+}
+
+void Executor::ProcessRV32D(const Op& op)
+{
+    switch (op.opCode)
+    {
+    case OpCode::fld:
+        ProcessDoubleLoad(op);
+        return;
+    case OpCode::fsd:
+        ProcessDoubleStore(op);
+        return;
+    case OpCode::fmadd_d:
+    case OpCode::fmsub_d:
+    case OpCode::fnmadd_d:
+    case OpCode::fnmsub_d:
+        ProcessDoubleR4(op);
+        return;
+    default:
+        ProcessDoubleR(op);
+        return;
     }
 }
 
@@ -359,7 +561,7 @@ void Executor::ProcessLoad(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
-    const auto address = m_pIntRegFile->Read(operand.rs1) + op.imm;
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
 
     int32_t value;
 
@@ -616,166 +818,90 @@ void Executor::ProcessCsrImm(const Op& op)
     m_pIntRegFile->Write(operand.rd, srcCsr);
 }
 
-void Executor::ProcessRV32M(const Op& op)
+void Executor::ProcessFloatLoad(const Op& op)
 {
-    const int rs1 = std::get<OperandR>(op.operand).rs1;
-    const int rs2 = std::get<OperandR>(op.operand).rs2;
-    const int rd = std::get<OperandR>(op.operand).rd;
+    const auto& operand = std::get<OperandI>(op.operand);
 
-    const int32_t src1 = m_pIntRegFile->Read(rs1);
-    const int32_t src2 = m_pIntRegFile->Read(rs2);
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
+    const auto value = static_cast<uint32_t>(m_pMemAccessUnit->LoadInt32(address));
 
-    const uint32_t src1_u = static_cast<uint32_t>(src1);
-    const uint32_t src2_u = static_cast<uint32_t>(src2);
+    m_pFpRegFile->WriteUInt32(operand.rd, value);
+}
 
-    int32_t dst;
+void Executor::ProcessFloatStore(const Op& op)
+{
+    const auto& operand = std::get<OperandS>(op.operand);
+
+    const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt32(address);
+
+    m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(value));
+}
+
+void Executor::ProcessFloatR(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::ProcessFloatR4(const Op& op)
+{
+    const auto& operand = std::get<OperandR4>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
+    const auto src3 = m_pFpRegFile->ReadFloat(operand.rs3);
+
+    int mode = operand.funct3;
+    if (mode == 7)
+    {
+        // TODO: read mode from FP register
+        ABORT();
+    }
+
+    ScopedFpRound scopedFpRound(mode);
+
+    float value;
 
     switch (op.opCode)
     {
-    case OpCode::mul:
-        dst = src1 * src2;
+    case OpCode::fmadd_s:
+        value = src1 * src2 + src3;
         break;
-    case OpCode::mulh:
-        dst = static_cast<int32_t>((static_cast<int64_t>(src1) * static_cast<int64_t>(src2)) >> 32);
+    case OpCode::fmsub_s:
+        value = src1 * src2 - src3;
         break;
-    case OpCode::mulhsu:
-        dst = static_cast<int32_t>((static_cast<int64_t>(src1) * static_cast<uint64_t>(src2_u)) >> 32);
+    case OpCode::fnmadd_s:
+        value = - src1 * src2 + src3;
         break;
-    case OpCode::mulhu:
-        dst = static_cast<int32_t>((static_cast<uint64_t>(src1_u) * static_cast<uint64_t>(src2_u)) >> 32);
-        break;
-    case OpCode::div:
-        if (src1_u == 0x80000000 && src2 == -1)
-        {
-            dst = 0x80000000;
-        }
-        else if (src2 == 0)
-        {
-            dst = -1;
-        }
-        else
-        {
-            dst = src1 / src2;
-        }
-        break;
-    case OpCode::divu:
-        if (src2 == 0)
-        {
-            dst = -1;
-        }
-        else
-        {
-            dst = static_cast<int32_t>(src1_u / src2_u);
-        }
-        break;
-    case OpCode::rem:
-        if (src1_u == 0x80000000 && src2 == -1)
-        {
-            dst = 0;
-        }
-        else if (src2 == 0)
-        {
-            dst = src1;
-        }
-        else
-        {
-            dst = src1 % src2;
-        }
-        break;
-    case OpCode::remu:
-        if (src2 == 0)
-        {
-            dst = src1;
-        }
-        else
-        {
-            dst = static_cast<int32_t>(src1_u % src2_u);
-        }
+    case OpCode::fnmsub_s:
+        value = - src1 * src2 - src3;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        ABORT();
     }
 
-    m_pIntRegFile->Write(std::get<OperandR>(op.operand).rd, dst);
+    m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessRV32A(const Op& op)
+void Executor::ProcessDoubleLoad(const Op& op)
 {
-    const int rs1 = std::get<OperandR>(op.operand).rs1;
-    const int rs2 = std::get<OperandR>(op.operand).rs2;
-    const int rd = std::get<OperandR>(op.operand).rd;
-
-    const int32_t src1 = m_pIntRegFile->Read(rs1);
-    const int32_t src2 = m_pIntRegFile->Read(rs2);
-
-    int32_t mem;
-
-    switch (op.opCode)
-    {
-    case OpCode::lr_w:
-        m_ReserveAddress = src1;
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::sc_w:
-        if (m_ReserveAddress == src1)
-        {
-            m_pMemAccessUnit->StoreInt32(src1, src2);
-            m_pIntRegFile->Write(rd, 0);
-        }
-        else
-        {
-            m_pIntRegFile->Write(rd, 1);
-        }
-        break;
-    case OpCode::amoswap_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, src2);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amoadd_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, mem + src2);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amoxor_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, mem ^ src2);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amoand_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, mem & src2);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amoor_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, mem | src2);
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amomax_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, std::max(mem, src2));
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amomin_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, std::min(mem, src2));
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amomaxu_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, std::max(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    case OpCode::amominu_w:
-        mem = m_pMemAccessUnit->LoadInt32(src1);
-        m_pMemAccessUnit->StoreInt32(src1, std::min(static_cast<uint32_t>(mem), static_cast<uint32_t>(src2)));
-        m_pIntRegFile->Write(rd, mem);
-        break;
-    default:
-        throw NotImplementedException(__FILE__, __LINE__);
-    }
+    ABORT();
 }
+
+void Executor::ProcessDoubleStore(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::ProcessDoubleR(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::ProcessDoubleR4(const Op& op)
+{
+    ABORT();
+}
+
 
 }}}

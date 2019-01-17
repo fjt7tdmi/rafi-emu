@@ -19,6 +19,7 @@
 #include "Csr.h"
 #include "CsrAccessor.h"
 #include "Executor.h"
+#include "FpRegFile.h"
 #include "InterruptController.h"
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
@@ -39,7 +40,7 @@ public:
         , m_CsrAccessor(&m_Csr)
         , m_InterruptController(&m_Csr)
         , m_TrapProcessor(&m_Csr)
-        , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_MemAccessUnit)
+        , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
     {
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
     }
@@ -86,6 +87,7 @@ private:
     TrapProcessor m_TrapProcessor;
 
     Decoder m_Decoder;
+    FpRegFile m_FpRegFile;
     IntRegFile m_IntRegFile;
     MemoryAccessUnit m_MemAccessUnit;
 
