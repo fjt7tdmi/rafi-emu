@@ -140,12 +140,108 @@
         "cycle": 256000
     },
     {
-        "name": "rv32ui-p-add",
+        "name": "rv32uf-p-fadd",
         "cycle": 32000
     },
     {
-        "name": "rv32ui-p-addi",
+        "name": "rv32uf-p-fclass",
         "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fcmp",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fcvt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fcvt_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fdiv",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fmadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-fmin",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-ldst",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-move",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-p-recoding",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uf-v-fadd",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fclass",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fadd",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fcmp",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fcvt",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fcvt_w",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fdiv",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fmadd",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-fmin",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-ldst",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-move",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uf-v-recoding",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-p-add",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32ui-p-addi",
+        "cycle": 256000
     },
     {
         "name": "rv32ui-p-and",
