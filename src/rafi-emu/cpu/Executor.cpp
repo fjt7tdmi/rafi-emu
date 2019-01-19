@@ -445,20 +445,47 @@ void Executor::ProcessRV32F(const Op& op)
     {
     case OpCode::flw:
         ProcessFloatLoad(op);
-        return;
+        break;
     case OpCode::fsw:
         ProcessFloatStore(op);
-        return;
+        break;
     case OpCode::fmadd_s:
     case OpCode::fmsub_s:
     case OpCode::fnmadd_s:
     case OpCode::fnmsub_s:
-        ProcessFloatR4(op);
-        return;
+        ProcessFloatMulAdd(op);
+        break;
+    case OpCode::fadd_s:
+    case OpCode::fsub_s:
+    case OpCode::fmul_s:
+    case OpCode::fdiv_s:
+    case OpCode::fsqrt_s:
+    case OpCode::fmin_s:
+    case OpCode::fmax_s:
+    case OpCode::fcvt_s_w:
+    case OpCode::fcvt_s_wu:
+        ProcessFloatCompute(op);
+        break;
+    case OpCode::feq_s:
+    case OpCode::flt_s:
+    case OpCode::fle_s:
+        ProcessFloatCompare(op);
+        break;
+    case OpCode::fcvt_w_s:
+    case OpCode::fcvt_wu_s:
+        ProcessFloatConvertToInt(op);
+        break;
+    case OpCode::fsgnj_s:
+    case OpCode::fsgnjn_s:
+    case OpCode::fsgnjx_s:
+        ProcessFloatSignConversion(op);
+        break;
     default:
         ProcessFloatR(op);
-        return;
+        break;
     }
+
+    UpdateFpCsr();
 }
 
 void Executor::ProcessRV32D(const Op& op)
@@ -838,12 +865,7 @@ void Executor::ProcessFloatStore(const Op& op)
     m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(value));
 }
 
-void Executor::ProcessFloatR(const Op& op)
-{
-    ABORT();
-}
-
-void Executor::ProcessFloatR4(const Op& op)
+void Executor::ProcessFloatMulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
@@ -851,14 +873,13 @@ void Executor::ProcessFloatR4(const Op& op)
     const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
     const auto src3 = m_pFpRegFile->ReadFloat(operand.rs3);
 
-    int mode = operand.funct3;
-    if (mode == 7)
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
     {
-        // TODO: read mode from FP register
-        ABORT();
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
     }
 
-    ScopedFpRound scopedFpRound(mode);
+    ScopedFpRound scopedFpRound(roundMode);
 
     float value;
 
@@ -880,6 +901,135 @@ void Executor::ProcessFloatR4(const Op& op)
         ABORT();
     }
 
+    m_pFpRegFile->WriteFloat(operand.rd, value);
+}
+
+void Executor::ProcessFloatCompute(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto fpSrc1 = m_pFpRegFile->ReadFloat(operand.rs1);
+    const auto fpSrc2 = m_pFpRegFile->ReadFloat(operand.rs2);
+
+    const auto intSrc = m_pIntRegFile->Read(operand.rs1);
+    const auto uintSrc = static_cast<uint32_t>(intSrc);
+
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    ScopedFpRound scopedFpRound(mode);
+
+    float value;
+
+    switch (op.opCode)
+    {
+    case OpCode::fadd_s:
+        value = fpSrc1 + fpSrc2;
+        break;
+    case OpCode::fsub_s:
+        value = fpSrc1 - fpSrc2;
+        break;
+    case OpCode::fmul_s:
+        value = fpSrc1 * fpSrc2;
+        break;
+    case OpCode::fdiv_s:
+        value = fpSrc1 / fpSrc2;
+        break;
+    case OpCode::fsqrt_s:
+        value = std::sqrt(fpSrc1);
+        break;
+    case OpCode::fmin_s:
+        value = std::min(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fmax_s:
+        value = std::max(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fcvt_s_w:
+        value = static_cast<float>(intSrc);
+        break;
+    case OpCode::fcvt_s_wu:
+        value = static_cast<float>(uintSrc);
+        break;
+    default:
+        ABORT();
+    }
+
+    m_pFpRegFile->WriteFloat(operand.rd, value);
+}
+
+void Executor::ProcessFloatCompare(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
+
+    int32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::feq_s:
+        value = (src1 == src2) ? 1 : 0;
+        break;
+    case OpCode::flt_s:
+        value = (src1 < src2) ? 1 : 0;
+        break;
+    case OpCode::fle_s:
+        value = (src1 <= src2) ? 1 : 0;
+        break;
+    default:
+        ABORT();
+    }
+
+    m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessFloatConvertToInt(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadFloat(operand.rs1);
+
+    switch (op.opCode)
+    {
+    case OpCode::fcvt_w_s:
+        m_pIntRegFile->Write(operand.rd, static_cast<int32_t>(src));
+        break;
+    case OpCode::fcvt_wu_s:
+        m_pIntRegFile->Write(operand.rd, static_cast<int32_t>(static_cast<uint32_t>(src)));
+        break;
+    default:
+        ABORT();
+    }
+}
+
+void Executor::ProcessFloatSignConversion(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    uint32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::fsgnj_s:
+        value = (src1 & 0x7fffffff) | (src2 & 0x80000000);
+        break;
+    case OpCode::fsgnjn_s:
+        value = (src1 & 0x7fffffff) | ~(src2 & 0x80000000);
+        break;
+    case OpCode::fsgnjx_s:
+        value = src1 ^ (src2 & 0x80000000);
+        break;
+    default:
+        ABORT();
+    }
+
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -893,15 +1043,38 @@ void Executor::ProcessDoubleStore(const Op& op)
     ABORT();
 }
 
-void Executor::ProcessDoubleR(const Op& op)
+void Executor::ProcessDoubleMulAdd(const Op& op)
 {
     ABORT();
 }
 
-void Executor::ProcessDoubleR4(const Op& op)
+void Executor::ProcessDoubleCompute(const Op& op)
 {
     ABORT();
 }
 
+void Executor::ProcessDoubleCompare(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::ProcessDoubleConvertToInt(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::ProcessDoubleSignConversion(const Op& op)
+{
+    ABORT();
+}
+
+void Executor::UpdateFpCsr()
+{
+    const auto value = m_pCsr->ReadFpCsr();
+
+    value.SetMember<fcsr_t::AE>(GetRvFpExceptFlags());
+
+    m_pCsr->WriteFpCsr(value);
+}
 
 }}}

@@ -22,72 +22,74 @@ namespace rafi { namespace emu { namespace cpu {
 
 FpRegFile::FpRegFile()
 {
-    std::memset(m_Body, 0, sizeof(m_Body));
+    std::memset(m_Entries, 0, sizeof(m_Entries));
 }
 
 void FpRegFile::Copy(void* pOut, size_t size) const
 {
-    if (size > sizeof(m_Body))
+    if (size > sizeof(m_Entries))
     {
         abort();
     }
-    std::memcpy(pOut, m_Body, size);
+    std::memcpy(pOut, m_Entries, size);
 }
 
 uint32_t FpRegFile::ReadUInt32(int regId) const
 {
     CHECK_RANGE(0, regId, RegCount);
 
-    auto p = reinterpret_cast<const uint32_t*>(&m_Body[regId]);
-    return *p;
+    return m_Entries[regId].u32.value;
 }
 
 uint64_t FpRegFile::ReadUInt64(int regId) const
 {
     CHECK_RANGE(0, regId, RegCount);
 
-    auto p = reinterpret_cast<const uint64_t*>(&m_Body[regId]);
-    return *p;
+    return m_Entries[regId].u64.value;
 }
 
 float FpRegFile::ReadFloat(int regId) const
 {
     CHECK_RANGE(0, regId, RegCount);
 
-    auto p = reinterpret_cast<const float*>(&m_Body[regId]);
-    return *p;
+    return m_Entries[regId].f.value;
 }
 
 double FpRegFile::ReadDouble(int regId) const
 {
     CHECK_RANGE(0, regId, RegCount);
 
-    auto p = reinterpret_cast<const double*>(&m_Body[regId]);
-    return *p;
+    return m_Entries[regId].d.value;
 }
 
 void FpRegFile::WriteUInt32(int regId, uint32_t value)
 {
     CHECK_RANGE(0, regId, RegCount);
-    m_Body[regId] = *reinterpret_cast<uint32_t*>(&value);
+
+    m_Entries[regId].u32.value = value;
+    m_Entries[regId].u32.zero = 0;
 }
 
 void FpRegFile::WriteUInt64(int regId, uint64_t value)
 {
     CHECK_RANGE(0, regId, RegCount);
-    m_Body[regId] = *reinterpret_cast<uint64_t*>(&value);
+
+    m_Entries[regId].u64.value = value;
 }
 
 void FpRegFile::WriteFloat(int regId, float value)
 {
     CHECK_RANGE(0, regId, RegCount);
-    m_Body[regId] = *reinterpret_cast<uint32_t*>(&value);
+
+    m_Entries[regId].f.value = value;
+    m_Entries[regId].f.zero = 0;
 }
 
 void FpRegFile::WriteDouble(int regId, double value)
 {
     CHECK_RANGE(0, regId, RegCount);
-    m_Body[regId] = *reinterpret_cast<uint64_t*>(&value);
+
+    m_Entries[regId].d.value = value;
 }
 
 }}}

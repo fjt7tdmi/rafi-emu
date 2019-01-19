@@ -96,7 +96,7 @@ enum class csr_addr_t : int32_t
     utval = 0x043,
     uip = 0x044,
 
-    // User Floating-Point CSRs (Unimplemented)
+    // User Floating-Point CSRs
     fflags = 0x001,
     frm = 0x002,
     fcsr = 0x003,

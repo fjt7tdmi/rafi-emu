@@ -117,8 +117,8 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Executor.h
     src/rafi-emu/cpu/FpRegFile.cpp
     src/rafi-emu/cpu/FpRegFile.h
-    src/rafi-emu/cpu/FpRound.cpp
-    src/rafi-emu/cpu/FpRound.h
+    src/rafi-emu/cpu/FpUtil.cpp
+    src/rafi-emu/cpu/FpUtil.h
     src/rafi-emu/cpu/InterruptController.cpp
     src/rafi-emu/cpu/InterruptController.h
     src/rafi-emu/cpu/IntRegFile.cpp

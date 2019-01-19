@@ -43,7 +43,29 @@ public:
     void WriteDouble(int regId, double value);
 
 private:
-	uint64_t m_Body[RegCount];
+    union Entry
+    {
+        struct
+        {
+            uint32_t value;
+            uint32_t zero;
+        } u32;
+        struct
+        {
+            uint64_t value;
+        } u64;
+        struct
+        {
+            float value;
+            uint32_t zero;
+        } f;
+        struct
+        {
+            double value;
+        } d;
+    };
+
+	Entry m_Entries[RegCount];
 };
 
 }}}

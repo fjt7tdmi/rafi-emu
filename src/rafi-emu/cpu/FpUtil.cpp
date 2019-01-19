@@ -14,15 +14,31 @@
  * limitations under the License.
  */
 
+#pragma fenv_access (on)
+
 #include <Exception.h>
 
-#include "FpRound.h"
+#include "FpUtil.h"
 
 namespace rafi { namespace emu {
 
-int ConvertRoundingMode(int mode)
+ScopedFpRound::ScopedFpRound(int rvRound);
 {
-    switch(mode)
+    m_OriginalHostRound = std::fegetround();
+
+    const auto hostRound = ConvertToHostRoundingMode(rvRound);
+
+    std::fesetround(hostRound);
+}
+
+ScopedFpRound::~ScopedFpRound();
+{
+    std::fesetround(m_Original);
+}
+
+int ScopedFpRound::ConvertToHostRoundingMode(int rvRound)
+{
+    switch(rvRound)
     {
     case 0:
         // ties to even
@@ -39,6 +55,37 @@ int ConvertRoundingMode(int mode)
     default:
         throw NotImplementedException();
     }
+}
+
+uint32_t GetRvFpExceptFlags()
+{
+    std::fexcept_t hostFlags = 0;
+    std::fegetexceptflag(&hostFlags, FE_ALL_EXCEPT);
+
+    uint32_t rvFlags = 0;
+
+    if (hostFlags & FE_INEXACT)
+    {
+        rvFlags |= 0x01;
+    }
+    if (hostFlags & FE_UNDERFLOW)
+    {
+        rvFlags |= 0x02;
+    }
+    if (hostFlags & FE_OVERFLOW)
+    {
+        rvFlags |= 0x04;
+    }
+    if (hostFlags & FE_DIVBYZERO)
+    {
+        rvFlags |= 0x08;
+    }
+    if (hostFlags & FE_INVALID)
+    {
+        rvFlags |= 0x10;
+    }
+
+    return rvFlags;
 }
 
 }}

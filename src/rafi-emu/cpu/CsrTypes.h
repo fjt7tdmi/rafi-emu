@@ -85,6 +85,27 @@ struct mimpid
     static const int NotImplemented = 0;
 };
 
+// fcsr
+struct fcsr_t : BitField
+{
+    fcsr_t() : BitField(0)
+    {
+    }
+
+    fcsr_t(int32_t value) : BitField(value)
+    {
+    }
+
+    using RM    = BitFieldMember<7, 5>; // Rounding Mode
+    using AE    = BitFieldMember<4, 0>; // Accrued Exceptions
+
+    using NV    = BitFieldMember<4>;    // Invalid Operation
+    using DZ    = BitFieldMember<3>;    // Divide by Zero
+    using OF    = BitFieldMember<2>;    // Overflow
+    using UF    = BitFieldMember<1>;    // Underflow
+    using NX    = BitFieldMember<0>;    // Inexact
+};
+
 // mstatus, sstatus, ustatus
 struct xstatus_t : BitField
 {

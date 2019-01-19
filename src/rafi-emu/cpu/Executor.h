@@ -85,14 +85,23 @@ private:
     // RV32F
     void ProcessFloatLoad(const Op& op);
     void ProcessFloatStore(const Op& op);
-    void ProcessFloatR(const Op& op);
-    void ProcessFloatR4(const Op& op);
+    void ProcessFloatMulAdd(const Op& op);
+    void ProcessFloatCompute(const Op& op);
+    void ProcessFloatCompare(const Op& op);
+    void ProcessFloatConvertToInt(const Op& op);
+    void ProcessFloatSignConversion(const Op& op);
 
     // RV32D
     void ProcessDoubleLoad(const Op& op);
     void ProcessDoubleStore(const Op& op);
-    void ProcessDoubleR(const Op& op);
-    void ProcessDoubleR4(const Op& op);
+    void ProcessDoubleMulAdd(const Op& op);
+    void ProcessDoubleCompute(const Op& op);
+    void ProcessDoubleCompare(const Op& op);
+    void ProcessDoubleConvertToInt(const Op& op);
+    void ProcessDoubleSignConversion(const Op& op);
+
+    // Common
+    void UpdateFpCsr();
 
     Csr* m_pCsr;
     CsrAccessor* m_pCsrAccessor;

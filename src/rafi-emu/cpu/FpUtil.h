@@ -26,22 +26,16 @@ namespace rafi { namespace emu {
 class ScopedFpRound
 {
 public:
-    ScopedFpRound(int mode)
-    {
-        m_Original = std::fegetround();
+    explicit ScopedFpRound(int rvRound);
 
-        std::fesetround(mode);
-    }
-
-    ~ScopedFpRound()
-    {
-        std::fesetround(m_Original);
-    }
+    ~ScopedFpRound();
 
 private:
-    int m_Original;
+    int ConvertToHostRoundingMode(int rvRound);
+
+    int m_OriginalHostRound;
 };
 
-int ConvertRoundingMode(int mode);
+uint32_t GetRvFpExceptFlags();
 
 }}

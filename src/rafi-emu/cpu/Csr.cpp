@@ -272,6 +272,11 @@ void Csr::Write(csr_addr_t addr, int32_t value)
     }
 }
 
+fcsr_t Csr::ReadFpCsr() const
+{
+    return m_FpCsr;
+}
+
 xip_t Csr::ReadInterruptPending() const
 {
     return m_InterruptPending;
@@ -290,6 +295,11 @@ xstatus_t Csr::ReadStatus() const
 satp_t Csr::ReadSatp() const
 {
     return m_SupervisorAddressTranslationProtection;
+}
+
+void Csr::WriteFpCsr(const fcsr_t& value)
+{
+    m_FpCsr = value;
 }
 
 void Csr::WriteInterruptPending(const xip_t& value)
@@ -424,6 +434,12 @@ int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     {
     case csr_addr_t::ustatus:
         return m_Status.GetWithMask(xstatus_t::UserMask);
+    case csr_addr_t::fflags:
+        return m_FpCsr.GetMember<fcsr_t::AE>();
+    case csr_addr_t::frm:
+        return m_FpCsr.GetMember<fcsr_t::RM>();
+    case csr_addr_t::fcsr:
+        return m_FpCsr;
     case csr_addr_t::uie:
         return m_InterruptEnable.GetWithMask(xie_t::UserMask);
     case csr_addr_t::utvec:
@@ -578,6 +594,15 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
     {
     case csr_addr_t::ustatus:
         m_Status.SetWithMask(value, xstatus_t::UserMask);
+        return;
+    case csr_addr_t::fflags:
+        m_FpCsr.SetMember<fcsr_t::AE>(value);
+        return;
+    case csr_addr_t::frm:
+        m_FpCsr.SetMember<fcsr_t::RM>(value);
+        return;
+    case csr_addr_t::fcsr:
+        m_FpCsr.Set(value);
         return;
     case csr_addr_t::uie:
         m_InterruptEnable.SetWithMask(value, xie_t::UserMask);
