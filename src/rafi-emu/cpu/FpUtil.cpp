@@ -16,13 +16,13 @@
 
 #pragma fenv_access (on)
 
-#include <Exception.h>
+#include <rafi/Common.h>
 
 #include "FpUtil.h"
 
 namespace rafi { namespace emu {
 
-ScopedFpRound::ScopedFpRound(int rvRound);
+ScopedFpRound::ScopedFpRound(int rvRound)
 {
     m_OriginalHostRound = std::fegetround();
 
@@ -31,9 +31,9 @@ ScopedFpRound::ScopedFpRound(int rvRound);
     std::fesetround(hostRound);
 }
 
-ScopedFpRound::~ScopedFpRound();
+ScopedFpRound::~ScopedFpRound()
 {
-    std::fesetround(m_Original);
+    std::fesetround(m_OriginalHostRound);
 }
 
 int ScopedFpRound::ConvertToHostRoundingMode(int rvRound)
@@ -53,7 +53,7 @@ int ScopedFpRound::ConvertToHostRoundingMode(int rvRound)
         // ties to max magnitude
         return FE_TONEAREST;
     default:
-        throw NotImplementedException();
+        ABORT();
     }
 }
 

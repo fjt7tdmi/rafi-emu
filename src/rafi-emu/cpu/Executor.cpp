@@ -25,7 +25,7 @@
 #include <rafi/Common.h>
 
 #include "Executor.h"
-#include "FpRound.h"
+#include "FpUtil.h"
 
 using namespace std;
 using namespace rvtrace;
@@ -481,8 +481,7 @@ void Executor::ProcessRV32F(const Op& op)
         ProcessFloatSignConversion(op);
         break;
     default:
-        ProcessFloatR(op);
-        break;
+        ABORT();
     }
 
     UpdateFpCsr();
@@ -502,11 +501,35 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fmsub_d:
     case OpCode::fnmadd_d:
     case OpCode::fnmsub_d:
-        ProcessDoubleR4(op);
-        return;
+        ProcessDoubleMulAdd(op);
+        break;
+    case OpCode::fadd_d:
+    case OpCode::fsub_d:
+    case OpCode::fmul_d:
+    case OpCode::fdiv_d:
+    case OpCode::fsqrt_d:
+    case OpCode::fmin_d:
+    case OpCode::fmax_d:
+    case OpCode::fcvt_d_w:
+    case OpCode::fcvt_d_wu:
+        ProcessDoubleCompute(op);
+        break;
+    case OpCode::feq_d:
+    case OpCode::flt_d:
+    case OpCode::fle_d:
+        ProcessDoubleCompare(op);
+        break;
+    case OpCode::fcvt_w_s:
+    case OpCode::fcvt_wu_s:
+        ProcessDoubleConvertToInt(op);
+        break;
+    case OpCode::fsgnj_s:
+    case OpCode::fsgnjn_s:
+    case OpCode::fsgnjx_s:
+        ProcessDoubleSignConversion(op);
+        break;
     default:
-        ProcessDoubleR(op);
-        return;
+        ABORT();
     }
 }
 
@@ -699,7 +722,7 @@ void Executor::ProcessAluImm(const Op& op)
         value = (src1 < operand.imm) ? 1 : 0;
         break;
     case OpCode::sltiu:
-        value = (src1 < static_cast<uint32_t>(operand.imm)) ? 1 : 0;
+        value = (src1_u < static_cast<uint32_t>(operand.imm)) ? 1 : 0;
         break;
     case OpCode::xori:
         value = src1 ^ operand.imm;
@@ -920,7 +943,7 @@ void Executor::ProcessFloatCompute(const Op& op)
         roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
     }
 
-    ScopedFpRound scopedFpRound(mode);
+    ScopedFpRound scopedFpRound(roundMode);
 
     float value;
 
@@ -1035,42 +1058,49 @@ void Executor::ProcessFloatSignConversion(const Op& op)
 
 void Executor::ProcessDoubleLoad(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleStore(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleMulAdd(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleCompute(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleCompare(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleConvertToInt(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::ProcessDoubleSignConversion(const Op& op)
 {
+    (void)op;
     ABORT();
 }
 
 void Executor::UpdateFpCsr()
 {
-    const auto value = m_pCsr->ReadFpCsr();
+    auto value = m_pCsr->ReadFpCsr();
 
     value.SetMember<fcsr_t::AE>(GetRvFpExceptFlags());
 

@@ -23,6 +23,9 @@
 
 #include "CycleComparator.h"
 
+// Suppress VC warning for printf "%16lx"
+#pragma warning(disable:4477)
+
 using namespace rvtrace;
 
 bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const

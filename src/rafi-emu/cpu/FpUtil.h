@@ -19,7 +19,7 @@
 #include <cfenv>
 #include <cstdlib>
 
-#include <Exception.h>
+#include <rafi/Exception.h>
 
 namespace rafi { namespace emu {
 

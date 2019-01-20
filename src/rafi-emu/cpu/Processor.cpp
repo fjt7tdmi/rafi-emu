@@ -74,8 +74,6 @@ void Processor::ProcessOneCycle()
     }
 
     // Fetch
-    Op op { OpClass::RV32I, OpCode::unknown };
-
     PhysicalAddress physicalPc = InvalidValue;
 
     const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
@@ -90,7 +88,7 @@ void Processor::ProcessOneCycle()
     const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
     // Decode
-    const auto& op = m_Decoder.Decode(insn);
+    const auto op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
     {
         const auto decodeTrap = MakeIllegalInstructionException(pc, insn);
@@ -115,7 +113,7 @@ void Processor::ProcessOneCycle()
 
     m_Executor.ProcessOp(op, pc);
 
-    const auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
+    auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
     if (postExecuteTrap)
     {
         m_TrapProcessor.ProcessException(postExecuteTrap.value());

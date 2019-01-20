@@ -16,12 +16,13 @@
 
 #pragma once
 
+#include <rvtrace/common.h>
+
 #include "Csr.h"
 #include "CsrAccessor.h"
 #include "FpRegFile.h"
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
-#include "OpTypes.h"
 #include "Trap.h"
 #include "TrapProcessor.h"
 
