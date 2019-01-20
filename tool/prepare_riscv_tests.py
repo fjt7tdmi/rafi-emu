@@ -17,6 +17,7 @@ import json
 import os
 import optparse
 import subprocess
+import shutil
 import sys
 
 ObjcopyCmd = "riscv64-unknown-elf-objcopy"
@@ -29,9 +30,8 @@ OutDirPath = "./work/riscv-tests"
 # Functions
 #
 def InitializeDirectory(path):
-    os.makedirs(path, exist_ok=True)
-    for filename in os.listdir(f"{path}"):
-        os.remove(f"{path}/{filename}")
+    shutil.rmtree(path, ignore_errors=True)
+    os.makedirs(path)
 
 def MakeObjcopyCommand(testname):
     in_path = os.path.join(InDirPath, f"build/isa/{testname}")
