@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include <cstdint>
 
-#define ABORT() do { fprintf(stderr, "ABORT (%s:%d)\n", __FILE__, __LINE__); std::abort(); } while (0)
+#define ABORT() do { fprintf(stderr, "ABORT (%s:%d)\n", __FILE__, __LINE__); std::exit(1); } while (0)
 
 namespace rafi { namespace emu {
 

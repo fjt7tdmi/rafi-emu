@@ -129,7 +129,7 @@ std::optional<Trap> Executor::PreCheckTrapForLoadReserved(const Op& op, int32_t 
 
 std::optional<Trap> Executor::PreCheckTrapForStore(const Op& op, int32_t pc) const
 {
-    const auto& operand = std::get<OperandI>(op.operand);
+    const auto& operand = std::get<OperandS>(op.operand);
     const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
@@ -829,13 +829,13 @@ void Executor::ProcessCsr(const Op& op)
 
     switch (op.opCode)
     {
-    case OpCode::csrrwi:
+    case OpCode::csrrw:
         m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcIntReg);
         break;
-    case OpCode::csrrsi:
+    case OpCode::csrrs:
         m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr | srcIntReg);
         break;
-    case OpCode::csrrci:
+    case OpCode::csrrc:
         m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~srcIntReg);
         break;
     default:
