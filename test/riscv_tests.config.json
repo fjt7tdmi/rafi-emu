@@ -148,10 +148,6 @@
         "cycle": 32000
     },
     {
-        "name": "rv32uf-p-fadd",
-        "cycle": 32000
-    },
-    {
         "name": "rv32uf-p-fcmp",
         "cycle": 32000
     },
@@ -193,10 +189,6 @@
     },
     {
         "name": "rv32uf-v-fclass",
-        "cycle": 256000
-    },
-    {
-        "name": "rv32uf-v-fadd",
         "cycle": 256000
     },
     {

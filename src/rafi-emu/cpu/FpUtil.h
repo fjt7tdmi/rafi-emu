@@ -36,6 +36,10 @@ private:
     int m_OriginalHostRound;
 };
 
-uint32_t GetRvFpExceptFlags();
+uint32_t GetRvFpExceptFlags(const fexcept_t& except);
+uint32_t GetRvFpClass(uint32_t value);
+
+bool IsSignalingNan(uint32_t value);
+bool IsQuietNan(uint32_t value);
 
 }}

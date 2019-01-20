@@ -104,6 +104,8 @@ struct fcsr_t : BitField
     using OF    = BitFieldMember<2>;    // Overflow
     using UF    = BitFieldMember<1>;    // Underflow
     using NX    = BitFieldMember<0>;    // Inexact
+
+    static const int32_t UserMask = RM::Mask | AE::Mask;
 };
 
 // mstatus, sstatus, ustatus

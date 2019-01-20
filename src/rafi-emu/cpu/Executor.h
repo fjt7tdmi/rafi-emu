@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cfenv>
 #include <rvtrace/common.h>
 
 #include "Csr.h"
@@ -89,8 +90,11 @@ private:
     void ProcessFloatMulAdd(const Op& op);
     void ProcessFloatCompute(const Op& op);
     void ProcessFloatCompare(const Op& op);
+    void ProcessFloatClass(const Op& op);
+    void ProcessFloatMoveToInt(const Op& op);
+    void ProcessFloatMoveToFp(const Op& op);
     void ProcessFloatConvertToInt(const Op& op);
-    void ProcessFloatSignConversion(const Op& op);
+    void ProcessFloatConvertToFp(const Op& op);
 
     // RV32D
     void ProcessDoubleLoad(const Op& op);
@@ -98,11 +102,13 @@ private:
     void ProcessDoubleMulAdd(const Op& op);
     void ProcessDoubleCompute(const Op& op);
     void ProcessDoubleCompare(const Op& op);
+    void ProcessDoubleClass(const Op& op);
     void ProcessDoubleConvertToInt(const Op& op);
-    void ProcessDoubleSignConversion(const Op& op);
+    void ProcessDoubleConvertToFp(const Op& op);
 
     // Common
-    void UpdateFpCsr();
+    void UpdateFpCsr(const std::fexcept_t& value);
+    [[noreturn]] void Error(const Op& op);
 
     Csr* m_pCsr;
     CsrAccessor* m_pCsrAccessor;

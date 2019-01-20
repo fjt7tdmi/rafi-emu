@@ -439,7 +439,7 @@ int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     case csr_addr_t::frm:
         return m_FpCsr.GetMember<fcsr_t::RM>();
     case csr_addr_t::fcsr:
-        return m_FpCsr;
+        return m_FpCsr.GetWithMask(fcsr_t::UserMask);
     case csr_addr_t::uie:
         return m_InterruptEnable.GetWithMask(xie_t::UserMask);
     case csr_addr_t::utvec:
@@ -602,7 +602,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
         m_FpCsr.SetMember<fcsr_t::RM>(value);
         return;
     case csr_addr_t::fcsr:
-        m_FpCsr.Set(value);
+        m_FpCsr.SetWithMask(value, fcsr_t::UserMask);
         return;
     case csr_addr_t::uie:
         m_InterruptEnable.SetWithMask(value, xie_t::UserMask);

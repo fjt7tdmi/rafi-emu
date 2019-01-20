@@ -18,14 +18,18 @@
 #include <cstdint>
 #include <cstdio>
 #include <cfenv>
+#include <cmath>
 #include <fstream>
 #include <iostream>
+#include <limits>
 
 #include <rvtrace/common.h>
 #include <rafi/Common.h>
 
 #include "Executor.h"
 #include "FpUtil.h"
+
+#pragma fenv_access (on)
 
 using namespace std;
 using namespace rvtrace;
@@ -107,7 +111,7 @@ void Executor::ProcessOp(const Op& op, int32_t pc)
         ProcessRV32D(op);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 }
 
@@ -273,7 +277,7 @@ void Executor::ProcessRV32I(const Op& op, int32_t pc)
         ProcessCsrImm(op);
         return;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 }
 
@@ -354,7 +358,7 @@ void Executor::ProcessRV32M(const Op& op)
         }
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(std::get<OperandR>(op.operand).rd, dst);
@@ -435,7 +439,7 @@ void Executor::ProcessRV32A(const Op& op)
         m_pIntRegFile->Write(rd, mem);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 }
 
@@ -445,16 +449,16 @@ void Executor::ProcessRV32F(const Op& op)
     {
     case OpCode::flw:
         ProcessFloatLoad(op);
-        break;
+        return;
     case OpCode::fsw:
         ProcessFloatStore(op);
-        break;
+        return;
     case OpCode::fmadd_s:
     case OpCode::fmsub_s:
     case OpCode::fnmadd_s:
     case OpCode::fnmsub_s:
         ProcessFloatMulAdd(op);
-        break;
+        return;
     case OpCode::fadd_s:
     case OpCode::fsub_s:
     case OpCode::fmul_s:
@@ -465,26 +469,33 @@ void Executor::ProcessRV32F(const Op& op)
     case OpCode::fcvt_s_w:
     case OpCode::fcvt_s_wu:
         ProcessFloatCompute(op);
-        break;
+        return;
     case OpCode::feq_s:
     case OpCode::flt_s:
     case OpCode::fle_s:
         ProcessFloatCompare(op);
-        break;
+        return;
+    case OpCode::fclass_s:
+        ProcessFloatClass(op);
+        return;
+    case OpCode::fmv_x_w:
+        ProcessFloatMoveToInt(op);
+        return;
+    case OpCode::fmv_w_x:
+        ProcessFloatMoveToFp(op);
+        return;
     case OpCode::fcvt_w_s:
     case OpCode::fcvt_wu_s:
         ProcessFloatConvertToInt(op);
-        break;
+        return;
     case OpCode::fsgnj_s:
     case OpCode::fsgnjn_s:
     case OpCode::fsgnjx_s:
-        ProcessFloatSignConversion(op);
-        break;
+        ProcessFloatConvertToFp(op);
+        return;
     default:
-        ABORT();
+        Error(op);
     }
-
-    UpdateFpCsr();
 }
 
 void Executor::ProcessRV32D(const Op& op)
@@ -502,7 +513,7 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fnmadd_d:
     case OpCode::fnmsub_d:
         ProcessDoubleMulAdd(op);
-        break;
+        return;
     case OpCode::fadd_d:
     case OpCode::fsub_d:
     case OpCode::fmul_d:
@@ -513,23 +524,26 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fcvt_d_w:
     case OpCode::fcvt_d_wu:
         ProcessDoubleCompute(op);
-        break;
+        return;
     case OpCode::feq_d:
     case OpCode::flt_d:
     case OpCode::fle_d:
         ProcessDoubleCompare(op);
-        break;
+        return;
+    case OpCode::fclass_s:
+        ProcessFloatClass(op);
+        return;
     case OpCode::fcvt_w_s:
     case OpCode::fcvt_wu_s:
         ProcessDoubleConvertToInt(op);
-        break;
+        return;
     case OpCode::fsgnj_s:
     case OpCode::fsgnjn_s:
     case OpCode::fsgnjx_s:
-        ProcessDoubleSignConversion(op);
-        break;
+        ProcessDoubleConvertToFp(op);
+        return;
     default:
-        ABORT();
+        Error(op);
     }
 }
 
@@ -598,7 +612,7 @@ void Executor::ProcessBranch(const Op& op, int32_t pc)
         jump = (src1_u >= src2_u);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     if (jump)
@@ -633,7 +647,7 @@ void Executor::ProcessLoad(const Op& op)
         value = m_pMemAccessUnit->LoadInt16(address) & 0x0000ffff;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, value);
@@ -658,7 +672,7 @@ void Executor::ProcessStore(const Op& op)
         m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(value));
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 }
 
@@ -698,7 +712,7 @@ void Executor::ProcessAlu(const Op& op)
         value = src1 & src2;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, value);
@@ -734,7 +748,7 @@ void Executor::ProcessAluImm(const Op& op)
         value = src1 & operand.imm;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, value);
@@ -762,7 +776,7 @@ void Executor::ProcessShift(const Op& op)
         value = src1 >> src2;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, value);
@@ -789,7 +803,7 @@ void Executor::ProcessShiftImm(const Op& op)
         value = src1 >> operand.shamt;
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, value);
@@ -816,7 +830,7 @@ void Executor::ProcessPriv(const Op& op)
         m_pCsr->SetHaltFlag(true);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 }
 
@@ -839,7 +853,7 @@ void Executor::ProcessCsr(const Op& op)
         m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~srcIntReg);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, srcCsr);
@@ -862,7 +876,7 @@ void Executor::ProcessCsrImm(const Op& op)
         m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~operand.zimm);
         break;
     default:
-        throw NotImplementedException(__FILE__, __LINE__);
+        Error(op);
     }
 
     m_pIntRegFile->Write(operand.rd, srcCsr);
@@ -883,7 +897,7 @@ void Executor::ProcessFloatStore(const Op& op)
     const auto& operand = std::get<OperandS>(op.operand);
 
     const auto address = m_pIntRegFile->Read(operand.rs1) + operand.imm;
-    const auto value = m_pFpRegFile->ReadUInt32(address);
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
 
     m_pMemAccessUnit->StoreInt32(address, static_cast<int32_t>(value));
 }
@@ -921,7 +935,7 @@ void Executor::ProcessFloatMulAdd(const Op& op)
         value = - src1 * src2 - src3;
         break;
     default:
-        ABORT();
+        Error(op);
     }
 
     m_pFpRegFile->WriteFloat(operand.rd, value);
@@ -934,8 +948,11 @@ void Executor::ProcessFloatCompute(const Op& op)
     const auto fpSrc1 = m_pFpRegFile->ReadFloat(operand.rs1);
     const auto fpSrc2 = m_pFpRegFile->ReadFloat(operand.rs2);
 
-    const auto intSrc = m_pIntRegFile->Read(operand.rs1);
-    const auto uintSrc = static_cast<uint32_t>(intSrc);
+    const auto intSrc1 = m_pIntRegFile->Read(operand.rs1);
+    const auto uintSrc1 = static_cast<uint32_t>(intSrc1);
+
+    const auto srcSign1 = m_pFpRegFile->ReadUInt32(operand.rs1) >> 31;
+    const auto srcSign2 = m_pFpRegFile->ReadUInt32(operand.rs2) >> 31;
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -945,40 +962,64 @@ void Executor::ProcessFloatCompute(const Op& op)
 
     ScopedFpRound scopedFpRound(roundMode);
 
+    std::feclearexcept(FE_ALL_EXCEPT);
+
+    fexcept_t except;
     float value;
 
     switch (op.opCode)
     {
     case OpCode::fadd_s:
         value = fpSrc1 + fpSrc2;
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+
+        if (std::isinf(fpSrc1) && std::isinf(fpSrc2) && srcSign1 != srcSign2)
+        {
+            value = std::numeric_limits<float>::quiet_NaN();
+        }
         break;
     case OpCode::fsub_s:
         value = fpSrc1 - fpSrc2;
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+
+        if (std::isinf(fpSrc1) && std::isinf(fpSrc2) && srcSign1 == srcSign2)
+        {
+            value = std::numeric_limits<float>::quiet_NaN();
+        }
         break;
     case OpCode::fmul_s:
         value = fpSrc1 * fpSrc2;
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fdiv_s:
         value = fpSrc1 / fpSrc2;
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fsqrt_s:
         value = std::sqrt(fpSrc1);
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fmin_s:
         value = std::min(fpSrc1, fpSrc2);
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fmax_s:
         value = std::max(fpSrc1, fpSrc2);
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fcvt_s_w:
-        value = static_cast<float>(intSrc);
+        value = static_cast<float>(intSrc1);
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     case OpCode::fcvt_s_wu:
-        value = static_cast<float>(uintSrc);
+        value = static_cast<float>(uintSrc1);
+        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
         break;
     default:
-        ABORT();
+        Error(op);
     }
+
+    UpdateFpCsr(except);
 
     m_pFpRegFile->WriteFloat(operand.rd, value);
 }
@@ -990,24 +1031,86 @@ void Executor::ProcessFloatCompare(const Op& op)
     const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
     const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
 
+    const auto src1_u32 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src2_u32 = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    fexcept_t except;
     int32_t value;
 
     switch (op.opCode)
     {
     case OpCode::feq_s:
+        if (IsSignalingNan(src1_u32) || IsSignalingNan(src2_u32))
+        {
+            except = FE_INVALID;
+        }
+        else
+        {
+            except = 0;
+        }
+
         value = (src1 == src2) ? 1 : 0;
         break;
     case OpCode::flt_s:
+        if (std::isnan(src1) || std::isnan(src2))
+        {
+            except = FE_INVALID;
+        }
+        else
+        {
+            except = 0;
+        }
+
         value = (src1 < src2) ? 1 : 0;
         break;
     case OpCode::fle_s:
+        if (std::isnan(src1) || std::isnan(src2))
+        {
+            except = FE_INVALID;
+        }
+        else
+        {
+            except = 0;
+        }
+
         value = (src1 <= src2) ? 1 : 0;
         break;
     default:
-        ABORT();
+        Error(op);
     }
 
+    UpdateFpCsr(except);
+
     m_pIntRegFile->Write(operand.rd, value);
+}
+
+void Executor::ProcessFloatClass(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    const auto value = GetRvFpClass(src);
+
+    m_pIntRegFile->Write(operand.rd, static_cast<int32_t>(value));
+}
+
+void Executor::ProcessFloatMoveToInt(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    m_pIntRegFile->Write(operand.rd, static_cast<int32_t>(value));
+}
+
+void Executor::ProcessFloatMoveToFp(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto value = m_pIntRegFile->Read(operand.rs1);
+
+    m_pFpRegFile->WriteUInt32(operand.rd, static_cast<uint32_t>(value));
 }
 
 void Executor::ProcessFloatConvertToInt(const Op& op)
@@ -1015,6 +1118,8 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
     const auto& operand = std::get<OperandR>(op.operand);
 
     const auto src = m_pFpRegFile->ReadFloat(operand.rs1);
+
+    std::feclearexcept(FE_ALL_EXCEPT);
 
     switch (op.opCode)
     {
@@ -1025,11 +1130,16 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
         m_pIntRegFile->Write(operand.rd, static_cast<int32_t>(static_cast<uint32_t>(src)));
         break;
     default:
-        ABORT();
+        Error(op);
     }
+
+    fexcept_t except;
+    std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+
+    UpdateFpCsr(except);
 }
 
-void Executor::ProcessFloatSignConversion(const Op& op)
+void Executor::ProcessFloatConvertToFp(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1038,73 +1148,84 @@ void Executor::ProcessFloatSignConversion(const Op& op)
 
     uint32_t value;
 
+    std::feclearexcept(FE_ALL_EXCEPT);
+
     switch (op.opCode)
     {
     case OpCode::fsgnj_s:
         value = (src1 & 0x7fffffff) | (src2 & 0x80000000);
         break;
     case OpCode::fsgnjn_s:
-        value = (src1 & 0x7fffffff) | ~(src2 & 0x80000000);
+        value = (src1 & 0x7fffffff) | ((~src2) & 0x80000000);
         break;
     case OpCode::fsgnjx_s:
         value = src1 ^ (src2 & 0x80000000);
         break;
     default:
-        ABORT();
+        Error(op);
     }
+
+    fexcept_t except;
+    std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+
+    UpdateFpCsr(except);
 
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessDoubleLoad(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
 void Executor::ProcessDoubleStore(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
 void Executor::ProcessDoubleMulAdd(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
 void Executor::ProcessDoubleCompute(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
 void Executor::ProcessDoubleCompare(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
 void Executor::ProcessDoubleConvertToInt(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
-void Executor::ProcessDoubleSignConversion(const Op& op)
+void Executor::ProcessDoubleConvertToFp(const Op& op)
 {
-    (void)op;
-    ABORT();
+    Error(op);
 }
 
-void Executor::UpdateFpCsr()
+void Executor::UpdateFpCsr(const fexcept_t& value)
 {
-    auto value = m_pCsr->ReadFpCsr();
+    auto fpCsr = m_pCsr->ReadFpCsr();
+    
+    fpCsr.SetMember<fcsr_t::AE>(GetRvFpExceptFlags(value));
+    
+    m_pCsr->WriteFpCsr(fpCsr);
+}
 
-    value.SetMember<fcsr_t::AE>(GetRvFpExceptFlags());
+[[noreturn]]
+void Executor::Error(const Op& op)
+{
+    char opDescription[1024];
+    SNPrintOp(opDescription, sizeof(opDescription), op);
 
-    m_pCsr->WriteFpCsr(value);
+    fprintf(stderr, "[Executor::Error] Unable to handle Op: %s\n", opDescription);
+
+    std::exit(1);
 }
 
 }}}
