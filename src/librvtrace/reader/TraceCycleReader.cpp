@@ -114,4 +114,9 @@ const void* TraceCycleReader::GetMemoryNode() const
     return m_pImpl->GetMemoryNode();
 }
 
+const FpRegNode* TraceCycleReader::GetFpRegNode() const
+{
+    return m_pImpl->GetFpRegNode();
+}
+
 }

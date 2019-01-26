@@ -18,6 +18,17 @@
 
 namespace rvtrace {
 
+namespace {
+    const char* FpRegNames[32] =
+    {
+        "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7",
+        "fs0", "fs1",
+        "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7",
+        "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "fs9", "fs10", "fs11",
+        "ft8", "ft9", "ft10", "ft11",
+    };
+}
+
 const char* GetString(MemoryAccessType accessType)
 {
 #define GET_STRING_CASE(arg) case MemoryAccessType::arg: return #arg
@@ -221,6 +232,16 @@ const char* GetString(csr_addr_t addr, const char* defaultValue)
         return defaultValue;
     }
 #undef GET_STRING_CASE
+}
+
+const char* GetFpRegName(int index)
+{
+    if (!(0 <= index && index < 32))
+    {
+        return nullptr;
+    }
+
+    return FpRegNames[index];
 }
 
 }

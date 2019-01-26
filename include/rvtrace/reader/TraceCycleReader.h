@@ -29,7 +29,7 @@ class TraceCycleReader
 public:
     TraceCycleReader(const void* buffer, int64_t bufferSize);
     ~TraceCycleReader();
-    
+
     int64_t GetOffsetOfPreviousCycle() const;
 
     int64_t GetOffsetOfNextCycle() const;
@@ -54,6 +54,7 @@ public:
     const MemoryAccess64Node* GetMemoryAccess64Node() const;
     const IoNode* GetIoNode() const;
     const void* GetMemoryNode() const;
+    const FpRegNode* GetFpRegNode() const;
 
 private:
     TraceCycleReaderImpl* m_pImpl;

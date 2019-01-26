@@ -38,6 +38,7 @@ enum class NodeType : int32_t
     MemoryAccess64 = 11,
     Io = 12,
     Memory = 13,
+    FpReg = 14,
 };
 
 enum NodeFlag : int32_t
@@ -55,6 +56,7 @@ enum NodeFlag : int32_t
     NodeFlag_MemoryAccess64 = 1 << static_cast<int32_t>(NodeType::MemoryAccess64),
     NodeFlag_Io             = 1 << static_cast<int32_t>(NodeType::Io),
     NodeFlag_Memory         = 1 << static_cast<int32_t>(NodeType::Memory),
+    NodeFlag_FpReg          = 1 << static_cast<int32_t>(NodeType::FpReg),
 };
 
 struct TraceCycleHeader
@@ -175,6 +177,28 @@ struct IoNode
 {
     int32_t hostIoValue;
     int32_t reserved;
+};
+
+union FpRegNodeUnion
+{
+    struct
+    {
+        uint64_t value;
+    } u64;
+    struct
+    {
+        float value;
+        uint32_t zero;
+    } f32;
+    struct
+    {
+        double value;
+    } f64;
+};
+
+struct FpRegNode
+{
+    FpRegNodeUnion regs[32];
 };
 
 }

@@ -29,4 +29,6 @@ const char* GetString(InterruptType interruptType);
 const char* GetString(csr_addr_t addr);
 const char* GetString(csr_addr_t addr, const char* defaultValue);
 
+const char* GetFpRegName(int index);
+
 }

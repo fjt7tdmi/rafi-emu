@@ -187,11 +187,30 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
 void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
 {
     printf("  Csr32 {\n");
-    
+
     for (int i = 0; i < nodeCount; i++)
     {
         const auto address = static_cast<csr_addr_t>(pNodes[i].address);
         printf("%16s: 0x%08x\n", GetString(address), pNodes[i].value);
+    }
+
+    printf("  }\n");
+}
+
+void PrintFpRegNode(const FpRegNode* node)
+{
+    printf("  FpReg: {\n");
+
+    for (int i = 0; i < 32; i++)
+    {
+        printf(
+            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
+            i,
+            node->regs[0].u64.value,
+            node->regs[0].f32.value,
+            node->regs[0].f64.value,
+            GetFpRegName(i)
+        );
     }
 
     printf("  }\n");
@@ -228,6 +247,10 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
     if (cycle.IsNodeExist(NodeType::Csr32))
     {
         PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+    }
+    if (cycle.IsNodeExist(NodeType::FpReg))
+    {
+        PrintFpRegNode(cycle.GetFpRegNode());
     }
 
     // TODO: implement PrintMemory()

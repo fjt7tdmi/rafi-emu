@@ -160,6 +160,11 @@ void TraceCycleBuilderImpl::SetNode(const IoNode& node)
     SetNode(NodeType::Io, &node, sizeof(node));
 }
 
+void TraceCycleBuilderImpl::SetNode(const FpRegNode& node)
+{
+    SetNode(NodeType::FpReg, &node, sizeof(node));
+}
+
 int64_t TraceCycleBuilderImpl::CalculateDataSize(int32_t flags, int csrCount, int ramSize)
 {
     int64_t size = sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter);
