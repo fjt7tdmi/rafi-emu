@@ -66,7 +66,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     // TraceHeader
-    int32_t flags = NodeFlag_BasicInfo | NodeFlag_Pc32 | NodeFlag_IntReg32 | NodeFlag_Io;
+    int32_t flags = NodeFlag_BasicInfo | NodeFlag_Pc32 | NodeFlag_IntReg32 | NodeFlag_FpReg | NodeFlag_Io;
 
     if (m_pSystem->IsTrapEventExist())
     {
@@ -119,9 +119,17 @@ void TraceDumper::DumpOneCycle(int cycle)
     // TODO: optimize (values are double copied now)
     IntReg32Node intRegNode;
 
-    m_pSystem->CopyIntRegs(&intRegNode.regs, sizeof(intRegNode.regs));
+    m_pSystem->CopyIntReg(&intRegNode, sizeof(intRegNode));
 
     builder.SetNode(intRegNode);
+
+    // FpRegNode
+    // TODO: optimize (values are double copied now)
+    FpRegNode fpRegNode;
+
+    m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
+
+    builder.SetNode(fpRegNode);
 
     // Trap32Node
     if (m_pSystem->IsTrapEventExist())

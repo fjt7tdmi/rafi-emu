@@ -16,6 +16,8 @@
 
 #include <cstring>
 
+#include <rafi/Common.h>
+
 #include "FpRegFile.h"
 
 namespace rafi { namespace emu { namespace cpu {
@@ -29,7 +31,7 @@ void FpRegFile::Copy(void* pOut, size_t size) const
 {
     if (size > sizeof(m_Entries))
     {
-        abort();
+        ABORT();
     }
     std::memcpy(pOut, m_Entries, size);
 }

@@ -206,9 +206,9 @@ void PrintFpRegNode(const FpRegNode* node)
         printf(
             "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
             i,
-            node->regs[0].u64.value,
-            node->regs[0].f32.value,
-            node->regs[0].f64.value,
+            node->regs[i].u64.value,
+            node->regs[i].f32.value,
+            node->regs[i].f64.value,
             GetFpRegName(i)
         );
     }
@@ -236,6 +236,10 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
     {
         PrintIntReg32Node(cycle.GetIntReg32Node());
     }
+    if (cycle.IsNodeExist(NodeType::FpReg))
+    {
+        PrintFpRegNode(cycle.GetFpRegNode());
+    }
     if (cycle.IsNodeExist(NodeType::Trap32))
     {
         PrintTrap32Node(cycle.GetTrap32Node());
@@ -247,10 +251,6 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
     if (cycle.IsNodeExist(NodeType::Csr32))
     {
         PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
-    }
-    if (cycle.IsNodeExist(NodeType::FpReg))
-    {
-        PrintFpRegNode(cycle.GetFpRegNode());
     }
 
     // TODO: implement PrintMemory()

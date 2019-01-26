@@ -58,7 +58,8 @@ public:
     int GetCsrCount() const;
 
     void CopyCsr(void* pOut, size_t size) const;
-    void CopyIntRegs(void* pOut, size_t size) const;
+    void CopyIntReg(void* pOut, size_t size) const;
+    void CopyFpReg(void* pOut, size_t size) const;
 
     void CopyCsrReadEvent(CsrReadEvent* pOut) const;
     void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;

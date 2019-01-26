@@ -139,7 +139,7 @@ const void* TraceCycleReaderImpl::GetMemoryNode() const
 
 const FpRegNode* TraceCycleReaderImpl::GetFpRegNode() const
 {
-    CheckNodeSizeEqualTo(NodeType::FpReg, 0);
+    CheckNodeSizeEqualTo(NodeType::FpReg, sizeof(FpRegNode));
     return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg));
 }
 
