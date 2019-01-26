@@ -41,7 +41,7 @@ void Processor::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
 
 void Processor::SetIntReg(int regId, int32_t regValue)
 {
-    m_IntRegFile.Write(regId, regValue);
+    m_IntRegFile.WriteInt32(regId, regValue);
 }
 
 void Processor::ProcessOneCycle()

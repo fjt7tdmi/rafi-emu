@@ -16,36 +16,53 @@
 
 #include <cstring>
 
+#include <rafi/Common.h>
+
 #include "IntRegFile.h"
 
 namespace rafi { namespace emu { namespace cpu {
 
 IntRegFile::IntRegFile()
 {
-    std::memset(m_Body, 0, sizeof(m_Body));
+    std::memset(m_Entries, 0, sizeof(m_Entries));
 }
 
 void IntRegFile::Copy(void* pOut, size_t size) const
 {
-    if (size > sizeof(m_Body))
+    if (size > sizeof(m_Entries))
     {
-        abort();
+        ABORT();
     }
-    std::memcpy(pOut, m_Body, size);
+    std::memcpy(pOut, m_Entries, size);
 }
 
-int32_t IntRegFile::Read(int regId) const
+int32_t IntRegFile::ReadInt32(int regId) const
 {
-    CHECK_RANGE(0, regId, IntRegCount);
-    return m_Body[regId];
+    CHECK_RANGE(0, regId, RegCount);
+    return m_Entries[regId].s32.value;
 }
 
-void IntRegFile::Write(int regId, int32_t value)
+uint32_t IntRegFile::ReadUInt32(int regId) const
 {
-    CHECK_RANGE(0, regId, IntRegCount);
+    CHECK_RANGE(0, regId, RegCount);
+    return m_Entries[regId].u32.value;
+}
+
+void IntRegFile::WriteInt32(int regId, int32_t value)
+{
+    CHECK_RANGE(0, regId, RegCount);
     if (regId != 0)
     {
-        m_Body[regId] = value;
+        m_Entries[regId].s32.value = value;
+    }
+}
+
+void IntRegFile::WriteUInt32(int regId, uint32_t value)
+{
+    CHECK_RANGE(0, regId, RegCount);
+    if (regId != 0)
+    {
+        m_Entries[regId].u32.value = value;
     }
 }
 
