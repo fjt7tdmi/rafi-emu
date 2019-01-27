@@ -54,26 +54,23 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
     );
 }
 
-void PrintIoNode(const IoNode* node)
+void PrintFpRegNode(const FpRegNode* node)
 {
-    printf(
-        "  Io {\n"
-        "    host: 0x%08x\n"
-        "  }\n",
-        node->hostIoValue
-    );
-}
+    printf("  FpReg: {\n");
 
-void PrintPc32Node(const Pc32Node* node)
-{
-    printf(
-        "  Pc32 {\n"
-        "    virtualPc:  0x%08x\n"
-        "    physicalPc: 0x%08x\n"
-        "  }\n",
-        node->virtualPc,
-        node->physicalPc
-    );
+    for (int i = 0; i < 32; i++)
+    {
+        printf(
+            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
+            i,
+            node->regs[i].u64.value,
+            node->regs[i].f32.value,
+            node->regs[i].f64.value,
+            GetFpRegName(i)
+        );
+    }
+
+    printf("  }\n");
 }
 
 void PrintIntReg32Node(const IntReg32Node* node)
@@ -148,6 +145,18 @@ void PrintIntReg32Node(const IntReg32Node* node)
     );
 }
 
+void PrintPc32Node(const Pc32Node* node)
+{
+    printf(
+        "  Pc32 {\n"
+        "    virtualPc:  0x%08x\n"
+        "    physicalPc: 0x%08x\n"
+        "  }\n",
+        node->virtualPc,
+        node->physicalPc
+    );
+}
+
 void PrintTrap32Node(const Trap32Node* node)
 {
     printf(
@@ -197,23 +206,14 @@ void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
     printf("  }\n");
 }
 
-void PrintFpRegNode(const FpRegNode* node)
+void PrintIoNode(const IoNode* node)
 {
-    printf("  FpReg: {\n");
-
-    for (int i = 0; i < 32; i++)
-    {
-        printf(
-            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
-            i,
-            node->regs[i].u64.value,
-            node->regs[i].f32.value,
-            node->regs[i].f64.value,
-            GetFpRegName(i)
-        );
-    }
-
-    printf("  }\n");
+    printf(
+        "  Io {\n"
+        "    host: 0x%08x\n"
+        "  }\n",
+        node->hostIoValue
+    );
 }
 
 void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)

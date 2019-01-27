@@ -115,14 +115,9 @@ void TraceCycleBuilderImpl::SetNode(const BasicInfoNode& node)
     SetNode(NodeType::BasicInfo, &node, sizeof(node));
 }
 
-void TraceCycleBuilderImpl::SetNode(const Pc32Node& node)
+void TraceCycleBuilderImpl::SetNode(const FpRegNode& node)
 {
-    SetNode(NodeType::Pc32, &node, sizeof(node));
-}
-
-void TraceCycleBuilderImpl::SetNode(const Pc64Node& node)
-{
-    SetNode(NodeType::Pc64, &node, sizeof(node));
+    SetNode(NodeType::FpReg, &node, sizeof(node));
 }
 
 void TraceCycleBuilderImpl::SetNode(const IntReg32Node& node)
@@ -135,9 +130,14 @@ void TraceCycleBuilderImpl::SetNode(const IntReg64Node& node)
     SetNode(NodeType::IntReg64, &node, sizeof(node));
 }
 
-void TraceCycleBuilderImpl::SetNode(const FpRegNode& node)
+void TraceCycleBuilderImpl::SetNode(const Pc32Node& node)
 {
-    SetNode(NodeType::FpReg, &node, sizeof(node));
+    SetNode(NodeType::Pc32, &node, sizeof(node));
+}
+
+void TraceCycleBuilderImpl::SetNode(const Pc64Node& node)
+{
+    SetNode(NodeType::Pc64, &node, sizeof(node));
 }
 
 void TraceCycleBuilderImpl::SetNode(const Trap32Node& node)
@@ -173,6 +173,7 @@ int64_t TraceCycleBuilderImpl::CalculateDataSize(int32_t flags, int csrCount, in
 
 #define GET_SIZE_FOR_FLAG(flag_) (((flags & NodeFlag_##flag_) != 0) ? GetProperNodeSize(NodeType:: flag_ , csrCount, ramSize) : 0)
     size += GET_SIZE_FOR_FLAG(BasicInfo);
+    size += GET_SIZE_FOR_FLAG(FpReg);
     size += GET_SIZE_FOR_FLAG(Pc32);
     size += GET_SIZE_FOR_FLAG(Pc64);
     size += GET_SIZE_FOR_FLAG(IntReg32);
@@ -185,7 +186,6 @@ int64_t TraceCycleBuilderImpl::CalculateDataSize(int32_t flags, int csrCount, in
     size += GET_SIZE_FOR_FLAG(MemoryAccess64);
     size += GET_SIZE_FOR_FLAG(Io);
     size += GET_SIZE_FOR_FLAG(Memory);
-    size += GET_SIZE_FOR_FLAG(FpReg);
 #undef GET_SIZE_FOR_FLAG
 
     return size;
@@ -197,6 +197,7 @@ int32_t TraceCycleBuilderImpl::CountValidFlags(int32_t flags)
 
 #define ONE_IF_VALID(flag_) (((flags & NodeFlag_##flag_) != 0) ? 1 : 0)
     count += ONE_IF_VALID(BasicInfo);
+    count += ONE_IF_VALID(FpReg);
     count += ONE_IF_VALID(Pc32);
     count += ONE_IF_VALID(Pc64);
     count += ONE_IF_VALID(IntReg32);
@@ -209,7 +210,6 @@ int32_t TraceCycleBuilderImpl::CountValidFlags(int32_t flags)
     count += ONE_IF_VALID(MemoryAccess64);
     count += ONE_IF_VALID(Io);
     count += ONE_IF_VALID(Memory);
-    count += ONE_IF_VALID(FpReg);
 #undef ONE_IF_VALID
 
     return count;
@@ -336,14 +336,16 @@ int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType, int csrCount
     {
     case NodeType::BasicInfo:
         return sizeof(BasicInfoNode);
-    case NodeType::Pc32:
-        return sizeof(Pc32Node);
-    case NodeType::Pc64:
-        return sizeof(Pc64Node);
+    case NodeType::FpReg:
+        return sizeof(FpRegNode);
     case NodeType::IntReg32:
         return sizeof(IntReg32Node);
     case NodeType::IntReg64:
         return sizeof(IntReg64Node);
+    case NodeType::Pc32:
+        return sizeof(Pc32Node);
+    case NodeType::Pc64:
+        return sizeof(Pc64Node);
     case NodeType::Csr32:
         return sizeof(Csr32Node) * csrCount;
     case NodeType::Csr64:
@@ -360,8 +362,6 @@ int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType, int csrCount
         return sizeof(IoNode);
     case NodeType::Memory:
         return ramSize;
-    case NodeType::FpReg:
-        return sizeof(FpRegNode);
     default:
         throw TraceCycleException("Unknown NodeType.");
     }
