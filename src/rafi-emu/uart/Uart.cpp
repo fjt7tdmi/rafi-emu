@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
@@ -24,77 +25,51 @@
 
 namespace rafi { namespace emu { namespace uart {
 
-int8_t Uart::GetInt8(int address)
+void Uart::Read(void* pOutBuffer, size_t bufferSize, uint64_t address)
 {
-    return static_cast<int8_t>(Read(address, sizeof(int8_t)));
-}
-
-void Uart::SetInt8(int address, int8_t value)
-{
-    Write(address, static_cast<int32_t>(value), sizeof(int8_t));
-}
-
-int16_t Uart::GetInt16(int address)
-{
-    return static_cast<int16_t>(Read(address, sizeof(int16_t)));
-}
-
-void Uart::SetInt16(int address, int16_t value)
-{
-    Write(address, static_cast<int32_t>(value), sizeof(int16_t));
-}
-
-int32_t Uart::GetInt32(int address)
-{
-    return Read(address, sizeof(int32_t));
-}
-
-void Uart::SetInt32(int address, int32_t value)
-{
-    Write(address, static_cast<int32_t>(value), sizeof(int32_t));
-}
-
-bool Uart::IsInterruptRequested() const
-{
-    return false;
-}
-
-void Uart::ProcessCycle()
-{
-    //UpdateRx();
-    PrintTx();
-
-    m_Cycle++;
-}
-
-int32_t Uart::Read(int address, int size)
-{
-    if (!(0 <= address && 0 <= size && address + size - 1 < RegSize))
+    if (!(0 <= address && address + bufferSize - 1 < RegSize))
     {
         ABORT();
     }
+
+    if (bufferSize != sizeof(int32_t))
+    {
+        ABORT();
+    }
+
+    int32_t value;
 
     switch (address)
     {
     case Address_TxData:
-        return m_TxChars.empty() ? 0 : m_TxChars.back();
+        value = m_TxChars.empty() ? 0 : m_TxChars.back();
     case Address_RxData:
-        return m_RxChar;
+        value = m_RxChar;
     case Address_InterruptEnable:
-        return m_InterruptEnable.GetInt32();
+        value = m_InterruptEnable.GetInt32();
     case Address_InterruptPending:
-        return m_InterruptPending.GetInt32();
+        value = m_InterruptPending.GetInt32();
     default:
         ABORT();
     }
+
+    std::memcpy(pOutBuffer, &value, sizeof(value));
 }
 
-void Uart::Write(int address, int32_t value, int size)
+void Uart::Write(void* pBuffer, size_t bufferSize, uint64_t address)
 {
-    if (!(0 <= address && 0 <= size && address + size - 1 < RegSize))
+    if (!(0 <= address && address + bufferSize - 1 < RegSize))
     {
         ABORT();
     }
+
+    if (bufferSize != sizeof(int32_t))
+    {
+        ABORT();
+    }
+
+    int32_t value;
+    std::memcpy(&value, pBuffer, sizeof(int32_t));
 
     switch (address)
     {
@@ -109,6 +84,19 @@ void Uart::Write(int address, int32_t value, int size)
     default:
         ABORT();
     }
+}
+
+bool Uart::IsInterruptRequested() const
+{
+    return false;
+}
+
+void Uart::ProcessCycle()
+{
+    //UpdateRx();
+    PrintTx();
+
+    m_Cycle++;
 }
 
 void Uart::UpdateRx()

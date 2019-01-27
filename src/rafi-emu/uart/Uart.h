@@ -29,14 +29,8 @@ namespace rafi { namespace emu { namespace uart {
 class Uart : public io::IIo
 {
 public:
-    virtual int8_t GetInt8(int address) override;
-    virtual void SetInt8(int address, int8_t value) override;
-
-    virtual int16_t GetInt16(int address) override;
-    virtual void SetInt16(int address, int16_t value) override;
-
-    virtual int32_t GetInt32(int address) override;
-    virtual void SetInt32(int address, int32_t value) override;
+    virtual void Read(void* pOutBuffer, size_t bufferSize, uint64_t address) override;
+    virtual void Write(void* pBuffer, size_t bufferSize, uint64_t address) override;
 
     virtual int GetSize() const override
     {
@@ -51,9 +45,6 @@ private:
     static const int RegSize = 32;
     static const int InitialRxCycle = 100;
     static const int RxCycle = 50;
-
-    int32_t Read(int address, int size);
-    void Write(int address, int32_t value, int size);
 
     void UpdateRx();
     void PrintTx();
