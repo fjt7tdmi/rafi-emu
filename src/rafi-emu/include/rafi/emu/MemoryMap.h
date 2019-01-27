@@ -16,30 +16,17 @@
 
 #pragma once
 
-#include <cfenv>
-#include <cstdlib>
+#include <utility>
 
-#include <rafi/Exception.h>
+#include <rafi/emu/BasicTypes.h>
 
-namespace rafi { namespace emu { namespace fp {
+namespace rafi { namespace emu {
 
-class ScopedFpRound
-{
-public:
-    explicit ScopedFpRound(int rvRound);
+// Memory Map
+const PhysicalAddress RomAddr = 0x00001000;
+const PhysicalAddress RamAddr = 0x80000000;
+const PhysicalAddress UartAddr = 0x40002000;
+const PhysicalAddress TimerAddr = 0x40000000;
+const PhysicalAddress HostIoAddr = 0x80001000;
 
-    ~ScopedFpRound();
-
-private:
-    int ConvertToHostRoundingMode(int rvRound);
-
-    int m_OriginalHostRound;
-};
-
-uint32_t GetRvFpExceptFlags(const fexcept_t& except);
-uint32_t GetRvFpClass(uint32_t value);
-
-bool IsSignalingNan(uint32_t value);
-bool IsQuietNan(uint32_t value);
-
-}}}
+}}

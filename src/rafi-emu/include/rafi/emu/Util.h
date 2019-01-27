@@ -20,8 +20,6 @@
 #include <cstdlib>
 #include <cstdint>
 
-#define ABORT() do { fprintf(stderr, "ABORT (%s:%d)\n", __FILE__, __LINE__); std::exit(1); } while (0)
-
 namespace rafi { namespace emu {
 
 inline int32_t GetHigh32(uint64_t value)

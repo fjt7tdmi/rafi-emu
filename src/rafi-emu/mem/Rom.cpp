@@ -20,7 +20,7 @@
 
 #include <rvtrace/common.h>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Rom.h"
 

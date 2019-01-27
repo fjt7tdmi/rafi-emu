@@ -24,11 +24,10 @@
 #include <limits>
 
 #include <rvtrace/common.h>
-#include <rafi/Common.h>
+#include <rafi/emu.h>
+#include <rafi/fp.h>
 
 #include "Executor.h"
-
-#include "../fp/FpUtil.h"
 
 #pragma fenv_access (on)
 

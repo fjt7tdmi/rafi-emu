@@ -16,11 +16,12 @@
 
 #pragma fenv_access (on)
 
-#include <rafi/Common.h>
+#include <cfenv>
+#include <softfloat.h>
 
-#include "FpUtil.h"
+#include <rafi/fp.h>
 
-namespace rafi { namespace emu { namespace fp {
+namespace rafi { namespace fp {
 
 namespace {
 
@@ -69,41 +70,6 @@ private:
     using FractionMsb = BitFieldMember<22>;
 };
 
-}
-
-ScopedFpRound::ScopedFpRound(int rvRound)
-{
-    m_OriginalHostRound = std::fegetround();
-
-    const auto hostRound = ConvertToHostRoundingMode(rvRound);
-
-    std::fesetround(hostRound);
-}
-
-ScopedFpRound::~ScopedFpRound()
-{
-    std::fesetround(m_OriginalHostRound);
-}
-
-int ScopedFpRound::ConvertToHostRoundingMode(int rvRound)
-{
-    switch(rvRound)
-    {
-    case 0:
-        // ties to even
-        return FE_TONEAREST;
-    case 1:
-        return FE_TOWARDZERO;
-    case 2:
-        return FE_DOWNWARD;
-    case 3:
-        return FE_UPWARD;
-    case 4:
-        // ties to max magnitude
-        return FE_TONEAREST;
-    default:
-        RAFI_EMU_NOT_IMPLEMENTED();
-    }
 }
 
 uint32_t GetRvFpExceptFlags(const std::fexcept_t& value)
@@ -195,4 +161,4 @@ bool IsQuietNan(uint32_t value)
     return f.IsQuietNan();
 }
 
-}}}
+}}

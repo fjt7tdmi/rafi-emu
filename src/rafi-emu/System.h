@@ -24,7 +24,7 @@
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
 
-#include <rafi/Event.h>
+#include <rafi/emu.h>
 
 namespace rafi { namespace emu {
 

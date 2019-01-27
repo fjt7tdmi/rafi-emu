@@ -20,7 +20,7 @@
 #include <Windows.h>
 #endif
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Profiler.h"
 

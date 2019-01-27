@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-#include <cassert>
+#pragma once
+
+#include <cstdint>
 #include <cstdio>
 
-#include <rafi/emu.h>
-
-#include "IoInterruptSource.h"
-
-namespace rafi { namespace emu { namespace io {
-
-IoInterruptSource::IoInterruptSource(const IIo* pIo)
-    : m_pIo(pIo)
-{
-}
-
-bool IoInterruptSource::IsRequested() const
-{
-    return m_pIo->IsInterruptRequested();
-}
-
-}}}
+#include "common/BitField.h"

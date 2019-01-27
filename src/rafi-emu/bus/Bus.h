@@ -19,7 +19,7 @@
 #include <vector>
 #include <utility>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "../io/IIo.h"
 #include "../mem/IMemory.h"

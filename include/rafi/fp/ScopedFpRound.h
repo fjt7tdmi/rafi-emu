@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-#include <cassert>
-#include <cstdio>
+#pragma once
 
-#include <rafi/emu.h>
+#include <cfenv>
+#include <cstdlib>
 
-#include "IoInterruptSource.h"
+#include <rafi/common.h>
 
-namespace rafi { namespace emu { namespace io {
+namespace rafi { namespace fp {
 
-IoInterruptSource::IoInterruptSource(const IIo* pIo)
-    : m_pIo(pIo)
+class ScopedFpRound
 {
-}
+public:
+    explicit ScopedFpRound(int rvRound);
 
-bool IoInterruptSource::IsRequested() const
-{
-    return m_pIo->IsInterruptRequested();
-}
+    ~ScopedFpRound();
 
-}}}
+private:
+    int ConvertToHostRoundingMode(int rvRound);
+
+    int m_OriginalHostRound;
+};
+
+}}

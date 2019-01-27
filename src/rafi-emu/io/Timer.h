@@ -18,7 +18,7 @@
 
 #include <vector>
 
-#include <rafi/BasicTypes.h>
+#include <rafi/emu.h>
 
 #include "../io/IIo.h"
 

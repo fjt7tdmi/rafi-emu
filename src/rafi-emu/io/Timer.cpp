@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Timer.h"
 

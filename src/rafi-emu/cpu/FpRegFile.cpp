@@ -16,7 +16,7 @@
 
 #include <cstring>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "FpRegFile.h"
 

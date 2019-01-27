@@ -18,8 +18,7 @@
 
 #include <cstring>
 
-#include <rafi/BitField.h>
-#include <rafi/Event.h>
+#include <rafi/emu.h>
 
 #include "Csr.h"
 #include "CsrTypes.h"

@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-#include <cassert>
-#include <cstdio>
+#pragma once
 
-#include <rafi/emu.h>
+#include <rafi/common.h>
 
-#include "IoInterruptSource.h"
-
-namespace rafi { namespace emu { namespace io {
-
-IoInterruptSource::IoInterruptSource(const IIo* pIo)
-    : m_pIo(pIo)
-{
-}
-
-bool IoInterruptSource::IsRequested() const
-{
-    return m_pIo->IsInterruptRequested();
-}
-
-}}}
+#include "emu/BasicTypes.h"
+#include "emu/Event.h"
+#include "emu/Exception.h"
+#include "emu/IInterruptSource.h"
+#include "emu/Macro.h"
+#include "emu/MemoryMap.h"
+#include "emu/Util.h"

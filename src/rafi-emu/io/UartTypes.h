@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <rafi/BitField.h>
+#include <rafi/emu.h>
 
 namespace rafi { namespace emu { namespace io {
 

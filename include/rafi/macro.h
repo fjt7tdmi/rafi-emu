@@ -16,10 +16,12 @@
 
 #pragma once
 
-#include "BasicTypes.h"
-#include "BitField.h"
-#include "Event.h"
-#include "Exception.h"
-#include "IInterruptSource.h"
-#include "Macro.h"
-#include "Util.h"
+#include <rafi/common.h>
+
+#include <cstdlib>
+
+#define RAFI_NOT_IMPLEMENTED() \
+    do { \
+        fprintf(stderr, "[ERROR] Not implemented @ %s:%d\n", __FILE__, __LINE__); \
+        std::exit(1); \
+    } while(0)

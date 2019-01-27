@@ -19,7 +19,7 @@
 #include <cctype>
 #include <cstdio>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Uart.h"
 

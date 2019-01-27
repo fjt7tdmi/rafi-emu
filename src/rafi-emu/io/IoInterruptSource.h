@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-#include <rafi/IInterruptSource.h>
+#include <rafi/emu.h>
 
 #include "IIo.h"
 
