@@ -119,4 +119,9 @@ void TraceCycleBuilder::SetNode(const IoNode& node)
     m_pImpl->SetNode(node);
 }
 
+void TraceCycleBuilder::SetNode(const FpRegNode& node)
+{
+    m_pImpl->SetNode(node);
+}
+
 }

@@ -16,6 +16,7 @@ import fnmatch
 import json
 import os
 import optparse
+import shutil
 import subprocess
 import sys
 
@@ -27,9 +28,8 @@ OutDirPath = "./work/zephyr"
 # Functions
 #
 def InitializeDirectory(path):
-    os.makedirs(path, exist_ok=True)
-    for filename in os.listdir(f"{path}"):
-        os.remove(f"{path}/{filename}")
+    shutil.rmtree(path, ignore_errors=True)
+    os.makedirs(path)
 
 def MakeRamObjcopyCommand(config):
     in_path = os.path.join(InDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.strip")

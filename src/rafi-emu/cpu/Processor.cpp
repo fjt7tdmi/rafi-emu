@@ -41,7 +41,7 @@ void Processor::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
 
 void Processor::SetIntReg(int regId, int32_t regValue)
 {
-    m_IntRegFile.Write(regId, regValue);
+    m_IntRegFile.WriteInt32(regId, regValue);
 }
 
 void Processor::ProcessOneCycle()
@@ -74,8 +74,6 @@ void Processor::ProcessOneCycle()
     }
 
     // Fetch
-    Op op { OpClass::RV32I, OpCode::unknown };
-
     PhysicalAddress physicalPc = InvalidValue;
 
     const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
@@ -90,7 +88,7 @@ void Processor::ProcessOneCycle()
     const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
 
     // Decode
-    const auto& op = m_Decoder.Decode(insn);
+    const auto op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
     {
         const auto decodeTrap = MakeIllegalInstructionException(pc, insn);
@@ -115,7 +113,7 @@ void Processor::ProcessOneCycle()
 
     m_Executor.ProcessOp(op, pc);
 
-    const auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
+    auto postExecuteTrap = m_Executor.PostCheckTrap(op, pc);
     if (postExecuteTrap)
     {
         m_TrapProcessor.ProcessException(postExecuteTrap.value());
@@ -137,9 +135,14 @@ void Processor::CopyCsr(void* pOut, size_t size) const
     m_Csr.Copy(pOut, size);
 }
 
-void Processor::CopyIntRegs(void* pOut, size_t size) const
+void Processor::CopyIntReg(void* pOut, size_t size) const
 {
     m_IntRegFile.Copy(pOut, size);
+}
+
+void Processor::CopyFpReg(void* pOut, size_t size) const
+{
+    m_FpRegFile.Copy(pOut, size);
 }
 
 void Processor::CopyCsrReadEvent(CsrReadEvent* pOut) const

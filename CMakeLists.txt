@@ -115,13 +115,16 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/CsrTypes.h
     src/rafi-emu/cpu/Executor.cpp
     src/rafi-emu/cpu/Executor.h
+    src/rafi-emu/cpu/FpRegFile.cpp
+    src/rafi-emu/cpu/FpRegFile.h
+    src/rafi-emu/cpu/FpUtil.cpp
+    src/rafi-emu/cpu/FpUtil.h
     src/rafi-emu/cpu/InterruptController.cpp
     src/rafi-emu/cpu/InterruptController.h
     src/rafi-emu/cpu/IntRegFile.cpp
     src/rafi-emu/cpu/IntRegFile.h
     src/rafi-emu/cpu/MemoryAccessUnit.cpp
     src/rafi-emu/cpu/MemoryAccessUnit.h
-    src/rafi-emu/cpu/OpTypes.h
     src/rafi-emu/cpu/Processor.cpp
     src/rafi-emu/cpu/Processor.h
     src/rafi-emu/cpu/Trap.cpp

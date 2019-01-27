@@ -23,20 +23,24 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
-class IntRegFile
+class FpRegFile
 {
 public:
     static const int RegCount = 32;
 
-    IntRegFile();
+    FpRegFile();
 
     void Copy(void* pOut, size_t size) const;
 
-	int32_t ReadInt32(int regId) const;
-	uint32_t ReadUInt32(int regId) const;
+    uint32_t ReadUInt32(int regId) const;
+    uint64_t ReadUInt64(int regId) const;
+	float ReadFloat(int regId) const;
+	double ReadDouble(int regId) const;
 
-    void WriteInt32(int regId, int32_t value);
     void WriteUInt32(int regId, uint32_t value);
+    void WriteUInt64(int regId, uint64_t value);
+    void WriteFloat(int regId, float value);
+    void WriteDouble(int regId, double value);
 
 private:
     union Entry
@@ -44,11 +48,21 @@ private:
         struct
         {
             uint32_t value;
+            uint32_t zero;
         } u32;
         struct
         {
-            int32_t value;
-        } s32;
+            uint64_t value;
+        } u64;
+        struct
+        {
+            float value;
+            uint32_t zero;
+        } f;
+        struct
+        {
+            double value;
+        } d;
     };
 
 	Entry m_Entries[RegCount];

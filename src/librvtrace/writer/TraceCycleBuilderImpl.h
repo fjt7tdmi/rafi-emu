@@ -50,6 +50,7 @@ public:
     void SetNode(const MemoryAccess32Node& node);
     void SetNode(const MemoryAccess64Node& node);
     void SetNode(const IoNode& node);
+    void SetNode(const FpRegNode& node);
 
 private:
     int64_t CalculateDataSize(int32_t flags, int csrCount, int ramSize);

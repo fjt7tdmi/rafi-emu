@@ -51,6 +51,7 @@ public:
     const MemoryAccess64Node* GetMemoryAccess64Node() const;
     const IoNode* GetIoNode() const;
     const void* GetMemoryNode() const;
+    const FpRegNode* GetFpRegNode() const;
 
 private:
     void CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const;

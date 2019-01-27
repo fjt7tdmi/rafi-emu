@@ -54,6 +54,7 @@ public:
     void SetNode(const MemoryAccess32Node& node);
     void SetNode(const MemoryAccess64Node& node);
     void SetNode(const IoNode& node);
+    void SetNode(const FpRegNode& node);
 
 private:
     TraceCycleBuilderImpl* m_pImpl;

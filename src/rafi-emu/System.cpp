@@ -71,9 +71,14 @@ void System::CopyCsr(void* pOut, size_t size) const
     m_Processor.CopyCsr(pOut, size);
 }
 
-void System::CopyIntRegs(void* pOut, size_t size) const
+void System::CopyIntReg(void* pOut, size_t size) const
 {
-    m_Processor.CopyIntRegs(pOut, size);
+    m_Processor.CopyIntReg(pOut, size);
+}
+
+void System::CopyFpReg(void* pOut, size_t size) const
+{
+    m_Processor.CopyFpReg(pOut, size);
 }
 
 void System::CopyRam(void* pOut, size_t size) const

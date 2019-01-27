@@ -60,11 +60,13 @@ public:
     }
 
     // Direct register access
+    fcsr_t ReadFpCsr() const;
     xip_t ReadInterruptPending() const;
     xie_t ReadInterruptEnable() const;
     xstatus_t ReadStatus() const;
     satp_t ReadSatp() const;
 
+    void WriteFpCsr(const fcsr_t& value);
     void WriteInterruptPending(const xip_t& value);
 
     // for Dump
@@ -91,6 +93,9 @@ private:
 
     int GetPerformanceCounterIndex(csr_addr_t addr) const;
     void PrintRegisterUnimplementedMessage(csr_addr_t addr) const;
+
+    // Floating point
+    fcsr_t m_FpCsr {0};
 
     // Trap Setup (0x000-0x03f, 0x100-0x13f and 0x300-0x33f)
     xstatus_t m_Status {0};

@@ -16,19 +16,30 @@
 
 #pragma once
 
-#include "RvTypes.h"
+#include <cfenv>
+#include <cstdlib>
 
-namespace rvtrace {
+#include <rafi/Exception.h>
 
-const char* GetString(MemoryAccessType accessType);
-const char* GetString(MemoryAccessSize accessSize);
-const char* GetString(PrivilegeLevel level);
-const char* GetString(TrapType trapType);
-const char* GetString(ExceptionType exceptionType);
-const char* GetString(InterruptType interruptType);
-const char* GetString(csr_addr_t addr);
-const char* GetString(csr_addr_t addr, const char* defaultValue);
+namespace rafi { namespace emu {
 
-const char* GetFpRegName(int index);
+class ScopedFpRound
+{
+public:
+    explicit ScopedFpRound(int rvRound);
 
-}
+    ~ScopedFpRound();
+
+private:
+    int ConvertToHostRoundingMode(int rvRound);
+
+    int m_OriginalHostRound;
+};
+
+uint32_t GetRvFpExceptFlags(const fexcept_t& except);
+uint32_t GetRvFpClass(uint32_t value);
+
+bool IsSignalingNan(uint32_t value);
+bool IsQuietNan(uint32_t value);
+
+}}
