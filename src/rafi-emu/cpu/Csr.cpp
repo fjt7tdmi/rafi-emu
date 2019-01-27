@@ -159,7 +159,7 @@ void Csr::Update()
 
 std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn) const
 {
-    CHECK_RANGE(0, regId, NumberOfRegister);
+    RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
     // disable permission check for riscv-tests
     (void)write;
@@ -203,7 +203,7 @@ std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t in
     {
         const auto index = GetPerformanceCounterIndex(addr);
 
-        CHECK_RANGE(0, index, 32);
+        RAFI_EMU_CHECK_RANGE(0, index, 32);
 
         const auto mask = 1 << index;
 
@@ -671,7 +671,7 @@ int Csr::GetPerformanceCounterIndex(csr_addr_t addr) const
     }
     else
     {
-        throw new NotImplementedException(__FILE__, __LINE__);
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     return static_cast<int>(addr) - static_cast<int>(base);
@@ -689,10 +689,7 @@ int Csr::GetRegisterCount() const
 
 void Csr::Copy(void* pOut, size_t size) const
 {
-    if (size != GetRegisterCount() * sizeof(Csr32Node))
-    {
-        ABORT();
-    }
+    assert(size != GetRegisterCount() * sizeof(Csr32Node));
 
     auto nodes = reinterpret_cast<Csr32Node*>(pOut);
 

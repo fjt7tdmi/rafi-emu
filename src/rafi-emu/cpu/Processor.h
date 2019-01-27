@@ -73,6 +73,8 @@ public:
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 
+    void PrintStatus() const;
+    
 private:
     void ClearOpEvent();
 

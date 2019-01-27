@@ -62,8 +62,12 @@ int System::GetRamSize() const
 
 int32_t System::GetHostIoValue() const
 {
-    auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
-    return m_Ram.GetInt32(location.offset);
+    const auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
+
+    int32_t value;
+    m_Ram.Read(&value, sizeof(value), location.offset);
+
+    return value;
 }
 
 void System::CopyCsr(void* pOut, size_t size) const
@@ -134,6 +138,11 @@ bool System::IsOpEventExist() const
 bool System::IsTrapEventExist() const
 {
     return m_Processor.IsTrapEventExist();
+}
+
+void System::PrintStatus() const
+{
+    return m_Processor.PrintStatus();
 }
 
 }}

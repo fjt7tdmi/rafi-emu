@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cstdio>
@@ -24,34 +25,64 @@
 
 namespace rafi { namespace emu { namespace uart {
 
-int8_t Uart::GetInt8(int address)
+void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
-    return static_cast<int8_t>(Read(address, sizeof(int8_t)));
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
+
+    int32_t value;
+
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+    }
+
+    switch (address)
+    {
+    case Address_TxData:
+        value = m_TxChars.empty() ? 0 : m_TxChars.back();
+        break;
+    case Address_RxData:
+        value = m_RxChar;
+        break;
+    case Address_InterruptEnable:
+        value = m_InterruptEnable.GetInt32();
+        break;
+    case Address_InterruptPending:
+        value = m_InterruptPending.GetInt32();
+        break;
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
+
+    std::memcpy(pOutBuffer, &value, sizeof(value));
 }
 
-void Uart::SetInt8(int address, int8_t value)
+void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    Write(address, static_cast<int32_t>(value), sizeof(int8_t));
-}
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
-int16_t Uart::GetInt16(int address)
-{
-    return static_cast<int16_t>(Read(address, sizeof(int16_t)));
-}
+    int32_t value;
 
-void Uart::SetInt16(int address, int16_t value)
-{
-    Write(address, static_cast<int32_t>(value), sizeof(int16_t));
-}
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+    }
 
-int32_t Uart::GetInt32(int address)
-{
-    return Read(address, sizeof(int32_t));
-}
+    std::memcpy(&value, pBuffer, sizeof(int32_t));
 
-void Uart::SetInt32(int address, int32_t value)
-{
-    Write(address, static_cast<int32_t>(value), sizeof(int32_t));
+    switch (address)
+    {
+    case Address_TxData:
+        m_TxChars.push_back(static_cast<char>(value));
+    case Address_RxData:
+        break;
+    case Address_InterruptEnable:
+        m_InterruptEnable.Set(value);
+    case Address_InterruptPending:
+        m_InterruptPending.Set(value);
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
 }
 
 bool Uart::IsInterruptRequested() const
@@ -65,50 +96,6 @@ void Uart::ProcessCycle()
     PrintTx();
 
     m_Cycle++;
-}
-
-int32_t Uart::Read(int address, int size)
-{
-    if (!(0 <= address && 0 <= size && address + size - 1 < RegSize))
-    {
-        ABORT();
-    }
-
-    switch (address)
-    {
-    case Address_TxData:
-        return m_TxChars.empty() ? 0 : m_TxChars.back();
-    case Address_RxData:
-        return m_RxChar;
-    case Address_InterruptEnable:
-        return m_InterruptEnable.GetInt32();
-    case Address_InterruptPending:
-        return m_InterruptPending.GetInt32();
-    default:
-        ABORT();
-    }
-}
-
-void Uart::Write(int address, int32_t value, int size)
-{
-    if (!(0 <= address && 0 <= size && address + size - 1 < RegSize))
-    {
-        ABORT();
-    }
-
-    switch (address)
-    {
-    case Address_TxData:
-        m_TxChars.push_back(static_cast<char>(value));
-    case Address_RxData:
-        break;
-    case Address_InterruptEnable:
-        m_InterruptEnable.Set(value);
-    case Address_InterruptPending:
-        m_InterruptPending.Set(value);
-    default:
-        ABORT();
-    }
 }
 
 void Uart::UpdateRx()

@@ -19,6 +19,7 @@
 #include <variant>
 
 #include <rvtrace/common/OpApi.h>
+#include <rvtrace/common/RvApi.h>
 
 namespace rvtrace {
 

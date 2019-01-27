@@ -39,10 +39,11 @@ public:
 
     // utility
     const BasicInfoNode* GetBasicInfoNode() const;
-    const Pc32Node* GetPc32Node() const;
-    const Pc64Node* GetPc64Node() const;
+    const FpRegNode* GetFpRegNode() const;
     const IntReg32Node* GetIntReg32Node() const;
     const IntReg64Node* GetIntReg64Node() const;
+    const Pc32Node* GetPc32Node() const;
+    const Pc64Node* GetPc64Node() const;
     const Csr32Node* GetCsr32Node() const;
     const Csr64Node* GetCsr64Node() const;
     const Trap32Node* GetTrap32Node() const;
@@ -51,7 +52,6 @@ public:
     const MemoryAccess64Node* GetMemoryAccess64Node() const;
     const IoNode* GetIoNode() const;
     const void* GetMemoryNode() const;
-    const FpRegNode* GetFpRegNode() const;
 
 private:
     void CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const;

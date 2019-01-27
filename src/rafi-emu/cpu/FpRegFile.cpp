@@ -29,44 +29,42 @@ FpRegFile::FpRegFile()
 
 void FpRegFile::Copy(void* pOut, size_t size) const
 {
-    if (size > sizeof(m_Entries))
-    {
-        ABORT();
-    }
+    assert(size == sizeof(m_Entries));
+
     std::memcpy(pOut, m_Entries, size);
 }
 
 uint32_t FpRegFile::ReadUInt32(int regId) const
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     return m_Entries[regId].u32.value;
 }
 
 uint64_t FpRegFile::ReadUInt64(int regId) const
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     return m_Entries[regId].u64.value;
 }
 
 float FpRegFile::ReadFloat(int regId) const
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     return m_Entries[regId].f.value;
 }
 
 double FpRegFile::ReadDouble(int regId) const
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     return m_Entries[regId].d.value;
 }
 
 void FpRegFile::WriteUInt32(int regId, uint32_t value)
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].u32.value = value;
     m_Entries[regId].u32.zero = 0;
@@ -74,14 +72,14 @@ void FpRegFile::WriteUInt32(int regId, uint32_t value)
 
 void FpRegFile::WriteUInt64(int regId, uint64_t value)
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].u64.value = value;
 }
 
 void FpRegFile::WriteFloat(int regId, float value)
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].f.value = value;
     m_Entries[regId].f.zero = 0;
@@ -89,7 +87,7 @@ void FpRegFile::WriteFloat(int regId, float value)
 
 void FpRegFile::WriteDouble(int regId, double value)
 {
-    CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].d.value = value;
 }

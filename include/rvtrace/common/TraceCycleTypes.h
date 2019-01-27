@@ -25,11 +25,12 @@ namespace rvtrace {
 
 enum class NodeType : int32_t
 {
-    BasicInfo = 1,
-    Pc32 = 2,
-    Pc64 = 3,
-    IntReg32 = 4,
-    IntReg64 = 5,
+    BasicInfo = 0,
+    FpReg = 1,
+    IntReg32 = 2,
+    IntReg64 = 3,
+    Pc32 = 4,
+    Pc64 = 5,
     Csr32 = 6,
     Csr64 = 7,
     Trap32 = 8,
@@ -38,16 +39,16 @@ enum class NodeType : int32_t
     MemoryAccess64 = 11,
     Io = 12,
     Memory = 13,
-    FpReg = 14,
 };
 
 enum NodeFlag : int32_t
 {
     NodeFlag_BasicInfo      = 1 << static_cast<int32_t>(NodeType::BasicInfo),
-    NodeFlag_Pc32           = 1 << static_cast<int32_t>(NodeType::Pc32),
-    NodeFlag_Pc64           = 1 << static_cast<int32_t>(NodeType::Pc64),
+    NodeFlag_FpReg          = 1 << static_cast<int32_t>(NodeType::FpReg),
     NodeFlag_IntReg32       = 1 << static_cast<int32_t>(NodeType::IntReg32),
     NodeFlag_IntReg64       = 1 << static_cast<int32_t>(NodeType::IntReg64),
+    NodeFlag_Pc32           = 1 << static_cast<int32_t>(NodeType::Pc32),
+    NodeFlag_Pc64           = 1 << static_cast<int32_t>(NodeType::Pc64),
     NodeFlag_Csr32          = 1 << static_cast<int32_t>(NodeType::Csr32),
     NodeFlag_Csr64          = 1 << static_cast<int32_t>(NodeType::Csr64),
     NodeFlag_Trap32         = 1 << static_cast<int32_t>(NodeType::Trap32),
@@ -56,7 +57,6 @@ enum NodeFlag : int32_t
     NodeFlag_MemoryAccess64 = 1 << static_cast<int32_t>(NodeType::MemoryAccess64),
     NodeFlag_Io             = 1 << static_cast<int32_t>(NodeType::Io),
     NodeFlag_Memory         = 1 << static_cast<int32_t>(NodeType::Memory),
-    NodeFlag_FpReg          = 1 << static_cast<int32_t>(NodeType::FpReg),
 };
 
 struct TraceCycleHeader
@@ -98,16 +98,26 @@ struct BasicInfoNode
     PrivilegeLevel privilegeLevel;
 };
 
-struct Pc32Node
+union FpRegNodeUnion
 {
-    int32_t virtualPc;
-    int32_t physicalPc;
+    struct
+    {
+        uint64_t value;
+    } u64;
+    struct
+    {
+        float value;
+        uint32_t zero;
+    } f32;
+    struct
+    {
+        double value;
+    } f64;
 };
 
-struct Pc64Node
+struct FpRegNode
 {
-    int64_t virtualPc;
-    int64_t physicalPc;
+    FpRegNodeUnion regs[32];
 };
 
 struct IntReg32Node
@@ -118,6 +128,18 @@ struct IntReg32Node
 struct IntReg64Node
 {
     int64_t regs[32];
+};
+
+struct Pc32Node
+{
+    int32_t virtualPc;
+    int32_t physicalPc;
+};
+
+struct Pc64Node
+{
+    int64_t virtualPc;
+    int64_t physicalPc;
 };
 
 struct Csr32Node
@@ -155,50 +177,26 @@ struct Trap64Node
 
 struct MemoryAccess32Node
 {
+    MemoryAccessType accessType;
+    int32_t size;
+    int64_t value;
     int32_t virtualAddress;
     int32_t physicalAddress;
-    int32_t value;
-    MemoryAccessType memoryAccessType;
-    MemoryAccessSize memoryAccessSize;
-    int8_t reserved[2];
 };
 
 struct MemoryAccess64Node
 {
+    MemoryAccessType accessType;
+    int32_t size;
+    int64_t value;
     int64_t virtualAddress;
     int64_t physicalAddress;
-    int64_t value;
-    MemoryAccessType memoryAccessType;
-    MemoryAccessSize memoryAccessSize;
-    int8_t reserved[6];
 };
 
 struct IoNode
 {
     int32_t hostIoValue;
     int32_t reserved;
-};
-
-union FpRegNodeUnion
-{
-    struct
-    {
-        uint64_t value;
-    } u64;
-    struct
-    {
-        float value;
-        uint32_t zero;
-    } f32;
-    struct
-    {
-        double value;
-    } f64;
-};
-
-struct FpRegNode
-{
-    FpRegNodeUnion regs[32];
 };
 
 }

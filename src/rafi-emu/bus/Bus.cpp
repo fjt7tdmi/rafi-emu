@@ -14,119 +14,101 @@
  * limitations under the License.
  */
 
-#include <rafi/Exception.h>
-#include <rafi/MemoryMap.h>
+#include <rafi/Common.h>
 
 #include "Bus.h"
 
+// Suppress VC warning for printf "%16lx"
+#pragma warning(disable:4477)
+
 namespace rafi { namespace emu { namespace bus {
 
-int8_t Bus::GetInt8(PhysicalAddress address)
+void Bus::Read(void* pOutBuffer, size_t size, PhysicalAddress address)
 {
-    if (IsMemoryAddress(address, sizeof(int8_t)))
+    if (IsMemoryAddress(address, size))
     {
         const auto location = ConvertToMemoryLocation(address);
-        return location.pMemory->GetInt8(location.offset);
+        return location.pMemory->Read(pOutBuffer, size, location.offset);
     }
     else if (IsIoAddress(address, sizeof(int8_t)))
     {
         const auto location = ConvertToIoLocation(address);
-        return location.pIo->GetInt8(location.offset);
+        return location.pIo->Read(pOutBuffer, size, location.offset);
     }
     else
     {
-        throw InvalidAccessException(address);
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
     }
 }
 
-void Bus::SetInt8(PhysicalAddress address, int8_t value)
+void Bus::Write(const void* pBuffer, size_t size, PhysicalAddress address)
 {
     if (IsMemoryAddress(address, sizeof(int8_t)))
     {
         const auto location = ConvertToMemoryLocation(address);
-        location.pMemory->SetInt8(location.offset, value);
+        location.pMemory->Write(pBuffer, size, location.offset);
     }
     else if (IsIoAddress(address, sizeof(int8_t)))
     {
         const auto location = ConvertToIoLocation(address);
-        location.pIo->SetInt8(location.offset, value);
+        location.pIo->Write(pBuffer, size, location.offset);
     }
     else
     {
-        throw InvalidAccessException(address);
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
     }
 }
 
-int16_t Bus::GetInt16(PhysicalAddress address)
+int8_t Bus::ReadInt8(PhysicalAddress address)
 {
-    if (IsMemoryAddress(address, sizeof(int16_t)))
-    {
-        const auto location = ConvertToMemoryLocation(address);
-        return location.pMemory->GetInt16(location.offset);
-    }
-    else if (IsIoAddress(address, sizeof(int16_t)))
-    {
-        const auto location = ConvertToIoLocation(address);
-        return location.pIo->GetInt16(location.offset);
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+    int8_t value;
+    Read(&value, sizeof(value), address);
+
+    return value;
 }
 
-void Bus::SetInt16(PhysicalAddress address, int16_t value)
+int16_t Bus::ReadInt16(PhysicalAddress address)
 {
-    if (IsMemoryAddress(address, sizeof(int16_t)))
-    {
-        const auto location = ConvertToMemoryLocation(address);
-        location.pMemory->SetInt16(location.offset, value);
-    }
-    else if (IsIoAddress(address, sizeof(int16_t)))
-    {
-        const auto location = ConvertToIoLocation(address);
-        location.pIo->SetInt16(location.offset, value);
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+    int16_t value;
+    Read(&value, sizeof(value), address);
+
+    return value;
 }
 
-int32_t Bus::GetInt32(PhysicalAddress address)
+int32_t Bus::ReadInt32(PhysicalAddress address)
 {
-    if (IsMemoryAddress(address, sizeof(int32_t)))
-    {
-        const auto location = ConvertToMemoryLocation(address);
-        return location.pMemory->GetInt32(location.offset);
-    }
-    else if (IsIoAddress(address, sizeof(int32_t)))
-    {
-        const auto location = ConvertToIoLocation(address);
-        return location.pIo->GetInt32(location.offset);
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+    int32_t value;
+    Read(&value, sizeof(value), address);
+
+    return value;
 }
 
-void Bus::SetInt32(PhysicalAddress address, int32_t value)
+int64_t Bus::ReadInt64(PhysicalAddress address)
 {
-    if (IsMemoryAddress(address, sizeof(int32_t)))
-    {
-        const auto location = ConvertToMemoryLocation(address);
-        location.pMemory->SetInt32(location.offset, value);
-    }
-    else if (IsIoAddress(address, sizeof(int32_t)))
-    {
-        const auto location = ConvertToIoLocation(address);
-        location.pIo->SetInt32(location.offset, value);
-    }
-    else
-    {
-        throw InvalidAccessException(address);
-    }
+    int64_t value;
+    Read(&value, sizeof(value), address);
+
+    return value;
+}
+
+void Bus::WriteInt8(PhysicalAddress address, int8_t value)
+{
+    Write(&value, sizeof(value), address);
+}
+
+void Bus::WriteInt16(PhysicalAddress address, int16_t value)
+{
+    Write(&value, sizeof(value), address);
+}
+
+void Bus::WriteInt32(PhysicalAddress address, int32_t value)
+{
+    Write(&value, sizeof(value), address);
+}
+
+void Bus::WriteInt64(PhysicalAddress address, int64_t value)
+{
+    Write(&value, sizeof(value), address);
 }
 
 void Bus::RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size)
@@ -156,7 +138,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(PhysicalAddress address) const
         }
     }
 
-    throw InvalidAccessException(address);
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
 }
 
 bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
@@ -190,7 +172,7 @@ IoLocation Bus::ConvertToIoLocation(PhysicalAddress address) const
         }
     }
 
-    throw InvalidAccessException(address);
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
 }
 
 bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const

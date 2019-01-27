@@ -28,14 +28,6 @@ enum class MemoryAccessType : int32_t
     Store = 3,
 };
 
-enum class MemoryAccessSize : int32_t
-{
-    Byte = 0,
-    HalfWord = 1,
-    Word = 2,
-    DoubleWord = 3,
-};
-
 enum class PrivilegeLevel : int32_t
 {
     User = 0,
@@ -311,14 +303,5 @@ enum class counter_addr_t
     time = 1,
     instret = 2,
 };
-
-const char* GetString(MemoryAccessType accessType);
-const char* GetString(MemoryAccessSize accessSize);
-const char* GetString(PrivilegeLevel level);
-const char* GetString(TrapType trapType);
-const char* GetString(ExceptionType exceptionType);
-const char* GetString(InterruptType interruptType);
-const char* GetString(csr_addr_t addr);
-const char* GetString(csr_addr_t addr, const char* defaultValue);
 
 }

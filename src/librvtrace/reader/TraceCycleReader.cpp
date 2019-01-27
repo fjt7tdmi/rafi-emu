@@ -54,14 +54,9 @@ const BasicInfoNode* TraceCycleReader::GetBasicInfoNode() const
     return m_pImpl->GetBasicInfoNode();
 }
 
-const Pc32Node* TraceCycleReader::GetPc32Node() const
+const FpRegNode* TraceCycleReader::GetFpRegNode() const
 {
-    return m_pImpl->GetPc32Node();
-}
-
-const Pc64Node* TraceCycleReader::GetPc64Node() const
-{
-    return m_pImpl->GetPc64Node();
+    return m_pImpl->GetFpRegNode();
 }
 
 const IntReg32Node* TraceCycleReader::GetIntReg32Node() const
@@ -72,6 +67,16 @@ const IntReg32Node* TraceCycleReader::GetIntReg32Node() const
 const IntReg64Node* TraceCycleReader::GetIntReg64Node() const
 {
     return m_pImpl->GetIntReg64Node();
+}
+
+const Pc32Node* TraceCycleReader::GetPc32Node() const
+{
+    return m_pImpl->GetPc32Node();
+}
+
+const Pc64Node* TraceCycleReader::GetPc64Node() const
+{
+    return m_pImpl->GetPc64Node();
 }
 
 const Csr32Node* TraceCycleReader::GetCsr32Node() const
@@ -112,11 +117,6 @@ const IoNode* TraceCycleReader::GetIoNode() const
 const void* TraceCycleReader::GetMemoryNode() const
 {
     return m_pImpl->GetMemoryNode();
-}
-
-const FpRegNode* TraceCycleReader::GetFpRegNode() const
-{
-    return m_pImpl->GetFpRegNode();
 }
 
 }

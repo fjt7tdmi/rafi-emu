@@ -248,17 +248,10 @@ int main(int argc, char** argv)
             }
         }
     }
-    catch (rafi::emu::NotImplementedException e)
+    catch (rafi::emu::RafiEmuException)
     {
-        e.PrintMessage();
-    }
-    catch (rafi::emu::FatalException e)
-    {
-        e.PrintMessage();
-    }
-    catch (rafi::emu::InvalidAccessException e)
-    {
-        e.PrintMessage();
+        std::cout << "Emulation stopped by exception." << std::endl;
+        pSystem->PrintStatus();
     }
 
     dumper->DumpFooter();

@@ -20,6 +20,8 @@
 #include <Windows.h>
 #endif
 
+#include <rafi/Common.h>
+
 #include "Profiler.h"
 
 namespace rafi { namespace emu { namespace log {
@@ -31,7 +33,7 @@ void Profiler::SwitchPhase(Phase phase)
 {
     if (!(Phase_None <= phase && phase < Phase_MaxCount))
     {
-        abort();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     const auto prevPhase = m_CurrentPhase;

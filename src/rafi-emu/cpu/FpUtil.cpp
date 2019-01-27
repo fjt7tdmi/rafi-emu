@@ -102,7 +102,7 @@ int ScopedFpRound::ConvertToHostRoundingMode(int rvRound)
         // ties to max magnitude
         return FE_TONEAREST;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 

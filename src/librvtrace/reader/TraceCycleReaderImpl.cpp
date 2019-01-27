@@ -65,16 +65,10 @@ const BasicInfoNode* TraceCycleReaderImpl::GetBasicInfoNode() const
     return reinterpret_cast<const BasicInfoNode*>(GetNode(NodeType::BasicInfo));
 }
 
-const Pc32Node* TraceCycleReaderImpl::GetPc32Node() const
+const FpRegNode* TraceCycleReaderImpl::GetFpRegNode() const
 {
-    CheckNodeSizeEqualTo(NodeType::Pc32, sizeof(Pc32Node));
-    return reinterpret_cast<const Pc32Node*>(GetNode(NodeType::Pc32));
-}
-
-const Pc64Node* TraceCycleReaderImpl::GetPc64Node() const
-{
-    CheckNodeSizeEqualTo(NodeType::Pc64, sizeof(Pc64Node));
-    return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64));
+    CheckNodeSizeEqualTo(NodeType::FpReg, sizeof(FpRegNode));
+    return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg));
 }
 
 const IntReg32Node* TraceCycleReaderImpl::GetIntReg32Node() const
@@ -87,6 +81,18 @@ const IntReg64Node* TraceCycleReaderImpl::GetIntReg64Node() const
 {
     CheckNodeSizeEqualTo(NodeType::IntReg64, sizeof(IntReg64Node));
     return reinterpret_cast<const IntReg64Node*>(GetNode(NodeType::IntReg64));
+}
+
+const Pc32Node* TraceCycleReaderImpl::GetPc32Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Pc32, sizeof(Pc32Node));
+    return reinterpret_cast<const Pc32Node*>(GetNode(NodeType::Pc32));
+}
+
+const Pc64Node* TraceCycleReaderImpl::GetPc64Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Pc64, sizeof(Pc64Node));
+    return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64));
 }
 
 const Csr32Node* TraceCycleReaderImpl::GetCsr32Node() const
@@ -135,12 +141,6 @@ const void* TraceCycleReaderImpl::GetMemoryNode() const
 {
     CheckNodeSizeGreaterThan(NodeType::Memory, 0);
     return GetNode(NodeType::Memory);
-}
-
-const FpRegNode* TraceCycleReaderImpl::GetFpRegNode() const
-{
-    CheckNodeSizeEqualTo(NodeType::FpReg, sizeof(FpRegNode));
-    return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg));
 }
 
 void TraceCycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const

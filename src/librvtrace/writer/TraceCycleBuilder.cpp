@@ -74,6 +74,11 @@ void TraceCycleBuilder::SetNode(const BasicInfoNode& node)
     m_pImpl->SetNode(node);
 }
 
+void TraceCycleBuilder::SetNode(const FpRegNode& node)
+{
+    m_pImpl->SetNode(node);
+}
+
 void TraceCycleBuilder::SetNode(const Pc32Node& node)
 {
     m_pImpl->SetNode(node);
@@ -115,11 +120,6 @@ void TraceCycleBuilder::SetNode(const MemoryAccess64Node& node)
 }
 
 void TraceCycleBuilder::SetNode(const IoNode& node)
-{
-    m_pImpl->SetNode(node);
-}
-
-void TraceCycleBuilder::SetNode(const FpRegNode& node)
 {
     m_pImpl->SetNode(node);
 }

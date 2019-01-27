@@ -45,16 +45,16 @@ public:
 
     // utility
     void SetNode(const BasicInfoNode& node);
-    void SetNode(const Pc32Node& node);
-    void SetNode(const Pc64Node& node);
+    void SetNode(const FpRegNode& node);
     void SetNode(const IntReg32Node& node);
     void SetNode(const IntReg64Node& node);
+    void SetNode(const Pc32Node& node);
+    void SetNode(const Pc64Node& node);
     void SetNode(const Trap32Node& node);
     void SetNode(const Trap64Node& node);
     void SetNode(const MemoryAccess32Node& node);
     void SetNode(const MemoryAccess64Node& node);
     void SetNode(const IoNode& node);
-    void SetNode(const FpRegNode& node);
 
 private:
     TraceCycleBuilderImpl* m_pImpl;

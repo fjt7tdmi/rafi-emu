@@ -62,6 +62,8 @@ public:
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 
+    void PrintStatus() const;
+
 private:
     bus::Bus m_Bus;
     mem::Ram m_Ram;

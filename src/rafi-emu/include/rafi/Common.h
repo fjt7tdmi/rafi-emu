@@ -21,4 +21,5 @@
 #include "Event.h"
 #include "Exception.h"
 #include "IInterruptSource.h"
+#include "Macro.h"
 #include "Util.h"

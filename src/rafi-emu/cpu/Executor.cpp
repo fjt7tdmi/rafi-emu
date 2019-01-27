@@ -186,7 +186,7 @@ std::optional<Trap> Executor::PostCheckTrapForEcall(int32_t pc) const
     case PrivilegeLevel::User:
         return MakeEnvironmentCallFromUserException(pc);
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 
