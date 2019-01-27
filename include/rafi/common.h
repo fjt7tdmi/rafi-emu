@@ -20,3 +20,4 @@
 #include <cstdio>
 
 #include "common/BitField.h"
+#include "common/Macro.h"

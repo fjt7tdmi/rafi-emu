@@ -19,7 +19,6 @@
 #include <softfloat.h>
 
 #include <rafi/fp.h>
-#include <rafi/macro.h>
 
 namespace rafi { namespace fp {
 

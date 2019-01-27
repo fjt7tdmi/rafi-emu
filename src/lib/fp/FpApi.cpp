@@ -17,18 +17,21 @@
 #pragma fenv_access (on)
 
 #include <cfenv>
-#include <softfloat.h>
-
 #include <rafi/fp.h>
+
+extern "C"
+{
+#include <softfloat.h>
+}
 
 namespace rafi { namespace fp {
 
 namespace {
 
-class Float : public BitField
+class FloatStruct : public BitField
 {
 public:
-    explicit Float(uint32_t value)
+    explicit FloatStruct(uint32_t value)
         : BitField(value)
     {
     }
@@ -70,39 +73,111 @@ private:
     using FractionMsb = BitFieldMember<22>;
 };
 
+union Float
+{
+    float _float;
+    float32 _float32;
+};
+
+union Double
+{
+    double _double;
+    float64 _float64;
+};
+
+double ToDouble(float64 value)
+{
+    Double tmp;
+    tmp._float64 = value;
+    return tmp._double;
 }
 
-uint32_t GetRvFpExceptFlags(const std::fexcept_t& value)
+float ToFloat(float32 value)
 {
-    uint32_t rvFlags = 0;
-
-    if (value & FE_INEXACT)
-    {
-        rvFlags |= 0x01;
-    }
-    if (value & FE_UNDERFLOW)
-    {
-        rvFlags |= 0x02;
-    }
-    if (value & FE_OVERFLOW)
-    {
-        rvFlags |= 0x04;
-    }
-    if (value & FE_DIVBYZERO)
-    {
-        rvFlags |= 0x08;
-    }
-    if (value & FE_INVALID)
-    {
-        rvFlags |= 0x10;
-    }
-
-    return rvFlags;
+    Float tmp;
+    tmp._float32 = value;
+    return tmp._float;
 }
 
-uint32_t GetRvFpClass(uint32_t value)
+float32 ToFloat32(float value)
 {
-    Float f(value);
+    Float tmp;
+    tmp._float = value;
+    return tmp._float;
+}
+
+float64 ToFloat64(double value)
+{
+    Double tmp;
+    tmp._double = value;
+    return tmp._float64;
+}
+
+}
+
+float Add(float x, float y)
+{
+    return ToFloat(float32_add(ToFloat32(x), ToFloat32(y)));
+}
+
+float Sub(float x, float y)
+{
+    return ToFloat(float32_sub(ToFloat32(x), ToFloat32(y)));
+}
+
+float Mul(float x, float y)
+{
+    return ToFloat(float32_mul(ToFloat32(x), ToFloat32(y)));
+}
+
+float Div(float x, float y)
+{
+    return ToFloat(float32_div(ToFloat32(x), ToFloat32(y)));
+}
+
+float Sqrt(float x)
+{
+    return ToFloat(float32_sqrt(ToFloat32(x)));
+}
+
+int Eq(float x, float y)
+{
+    return float32_eq(ToFloat32(x), ToFloat32(y));
+}
+
+int Le(float x, float y)
+{
+    return float32_le(ToFloat32(x), ToFloat32(y));
+}
+
+int Lt(float x, float y)
+{
+    return float32_lt(ToFloat32(x), ToFloat32(y));
+}
+
+int32_t ConvertToInt32(float x)
+{
+    return float32_to_int32(ToFloat32(x));
+}
+
+uint32_t ConvertToUInt32(float x)
+{
+    return static_cast<uint32_t>(ConvertToInt32(x));
+}
+
+float ConvertToFloat(int32_t x)
+{
+    return ToFloat(int32_to_float32(x));
+}
+
+float ConvertToFloat(uint32_t x)
+{
+    return ConvertToFloat(static_cast<int32_t>(x));
+}
+
+uint32_t ConvertToRvFpClass(uint32_t rawValue)
+{
+    FloatStruct f(rawValue);
 
     if (f.GetSign() == 1 && f.GetExponent() == 255 && f.GetFraction() == 0)
     {
@@ -149,16 +224,104 @@ uint32_t GetRvFpClass(uint32_t value)
     }
 }
 
-bool IsSignalingNan(uint32_t value)
+int GetRvExceptionFlags()
 {
-    Float f(value);
-    return f.IsSignalingNan();
+    uint32_t rvFlags = 0;
+
+    if (float_exception_flags & float_flag_inexact)
+    {
+        rvFlags |= 0x01;
+    }
+    if (float_exception_flags & float_flag_underflow)
+    {
+        rvFlags |= 0x02;
+    }
+    if (float_exception_flags & float_flag_overflow)
+    {
+        rvFlags |= 0x04;
+    }
+    if (float_exception_flags & float_flag_divbyzero)
+    {
+        rvFlags |= 0x08;
+    }
+    if (float_exception_flags & float_flag_invalid)
+    {
+        rvFlags |= 0x10;
+    }
+
+    return rvFlags;
 }
 
-bool IsQuietNan(uint32_t value)
+void SetRvExceptionFlags(int rvFlags)
 {
-    Float f(value);
-    return f.IsQuietNan();
+    int8_t flags = 0;
+
+    if (rvFlags & 0x01)
+    {
+        flags |= float_flag_inexact;
+    }
+    if (rvFlags & 0x02)
+    {
+        flags |= float_flag_underflow;
+    }
+    if (rvFlags & 0x04)
+    {
+        flags |= float_flag_overflow;
+    }
+    if (rvFlags & 0x08)
+    {
+        flags |= float_flag_divbyzero;
+    }
+    if (rvFlags & 0x10)
+    {
+        flags |= float_flag_invalid;
+    }
+
+    float_exception_flags = flags;
+}
+
+int GetRvRoundMode()
+{
+    switch(float_rounding_mode)
+    {
+    case float_round_nearest_even:
+        // Round to Nearest, ties to even
+        return 0;
+    case float_round_to_zero:
+        return 1;
+    case float_round_down:
+        return 2;
+    case float_round_up:
+        return 3;
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+void SetRvRoundMode(int mode)
+{
+    switch(mode)
+    {
+    case 0:
+        // Round to Nearest, ties to even
+        float_rounding_mode = float_round_nearest_even;
+        break;
+    case 1:
+        float_rounding_mode = float_round_to_zero;
+        break;
+    case 2:
+        float_rounding_mode = float_round_down;
+        break;
+    case 3:
+        float_rounding_mode = float_round_up;
+        break;
+    case 4:
+        // Round to Nearest, ties to max magnitude
+        float_rounding_mode = float_round_nearest_even;
+        break;
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
 }
 
 }}

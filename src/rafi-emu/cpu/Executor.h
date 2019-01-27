@@ -107,7 +107,7 @@ private:
     void ProcessDoubleConvertToFp(const Op& op);
 
     // Common
-    void UpdateFpCsr(const std::fexcept_t& value);
+    void UpdateFpCsr();
     [[noreturn]] void Error(const Op& op);
 
     Csr* m_pCsr;

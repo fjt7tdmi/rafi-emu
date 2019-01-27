@@ -16,16 +16,30 @@
 
 #pragma once
 
-#include <cfenv>
-
 #include <rafi/common.h>
 
 namespace rafi { namespace fp {
 
-uint32_t GetRvFpExceptFlags(const fexcept_t& except);
-uint32_t GetRvFpClass(uint32_t value);
+float Add(float x, float y);
+float Sub(float x, float y);
+float Mul(float x, float y);
+float Div(float x, float y);
+float Sqrt(float x);
+int Eq(float x, float y);
+int Le(float x, float y);
+int Lt(float x, float y);
 
-bool IsSignalingNan(uint32_t value);
-bool IsQuietNan(uint32_t value);
+int32_t ConvertToInt32(float x);
+uint32_t ConvertToUInt32(float x);
+float ConvertToFloat(int32_t x);
+float ConvertToFloat(uint32_t x);
+
+uint32_t ConvertToRvFpClass(uint32_t rawValue);
+
+int GetRvExceptionFlags();
+void SetRvExceptionFlags(int flags);
+
+int GetRvRoundMode();
+void SetRvRoundMode(int mode);
 
 }}

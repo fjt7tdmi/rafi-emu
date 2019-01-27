@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdio>
-#include <cfenv>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -963,64 +962,42 @@ void Executor::ProcessFloatCompute(const Op& op)
 
     fp::ScopedFpRound scopedFpRound(roundMode);
 
-    std::feclearexcept(FE_ALL_EXCEPT);
-
-    fexcept_t except;
     float value;
 
     switch (op.opCode)
     {
     case OpCode::fadd_s:
-        value = fpSrc1 + fpSrc2;
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
-
-        if (std::isinf(fpSrc1) && std::isinf(fpSrc2) && srcSign1 != srcSign2)
-        {
-            value = std::numeric_limits<float>::quiet_NaN();
-        }
+        value = fp::Add(fpSrc1, fpSrc2);
         break;
     case OpCode::fsub_s:
-        value = fpSrc1 - fpSrc2;
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
-
-        if (std::isinf(fpSrc1) && std::isinf(fpSrc2) && srcSign1 == srcSign2)
-        {
-            value = std::numeric_limits<float>::quiet_NaN();
-        }
+        value = fp::Sub(fpSrc1, fpSrc2);
         break;
     case OpCode::fmul_s:
-        value = fpSrc1 * fpSrc2;
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::Mul(fpSrc1, fpSrc2);
         break;
     case OpCode::fdiv_s:
-        value = fpSrc1 / fpSrc2;
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::Div(fpSrc1, fpSrc2);
         break;
     case OpCode::fsqrt_s:
-        value = std::sqrt(fpSrc1);
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::Sqrt(fpSrc1);
         break;
     case OpCode::fmin_s:
-        value = std::min(fpSrc1, fpSrc2);
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::Le(fpSrc1, fpSrc2) ? fpSrc1 : fpSrc2;
         break;
     case OpCode::fmax_s:
-        value = std::max(fpSrc1, fpSrc2);
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::Le(fpSrc1, fpSrc2) ? fpSrc2 : fpSrc1;
         break;
     case OpCode::fcvt_s_w:
-        value = static_cast<float>(intSrc1);
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::ConvertToFloat(intSrc1);
         break;
     case OpCode::fcvt_s_wu:
-        value = static_cast<float>(uintSrc1);
-        std::fegetexceptflag(&except, FE_ALL_EXCEPT);
+        value = fp::ConvertToFloat(uintSrc1);
         break;
     default:
         Error(op);
     }
 
-    UpdateFpCsr(except);
+    UpdateFpCsr();
 
     m_pFpRegFile->WriteFloat(operand.rd, value);
 }
@@ -1035,52 +1012,24 @@ void Executor::ProcessFloatCompare(const Op& op)
     const auto src1_u32 = m_pFpRegFile->ReadUInt32(operand.rs1);
     const auto src2_u32 = m_pFpRegFile->ReadUInt32(operand.rs2);
 
-    fexcept_t except;
     int32_t value;
 
     switch (op.opCode)
     {
     case OpCode::feq_s:
-        if (fp::IsSignalingNan(src1_u32) || fp::IsSignalingNan(src2_u32))
-        {
-            except = FE_INVALID;
-        }
-        else
-        {
-            except = 0;
-        }
-
-        value = (src1 == src2) ? 1 : 0;
+        value = fp::Eq(src1, src2);
         break;
     case OpCode::flt_s:
-        if (std::isnan(src1) || std::isnan(src2))
-        {
-            except = FE_INVALID;
-        }
-        else
-        {
-            except = 0;
-        }
-
-        value = (src1 < src2) ? 1 : 0;
+        value = fp::Lt(src1, src2);
         break;
     case OpCode::fle_s:
-        if (std::isnan(src1) || std::isnan(src2))
-        {
-            except = FE_INVALID;
-        }
-        else
-        {
-            except = 0;
-        }
-
-        value = (src1 <= src2) ? 1 : 0;
+        value = fp::Le(src1, src2);
         break;
     default:
         Error(op);
     }
 
-    UpdateFpCsr(except);
+    UpdateFpCsr();
 
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
@@ -1091,7 +1040,7 @@ void Executor::ProcessFloatClass(const Op& op)
 
     const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
 
-    const auto value = fp::GetRvFpClass(src);
+    const auto value = fp::ConvertToRvFpClass(src);
 
     m_pIntRegFile->WriteInt32(operand.rd, static_cast<int32_t>(value));
 }
@@ -1120,24 +1069,19 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
 
     const auto src = m_pFpRegFile->ReadFloat(operand.rs1);
 
-    std::feclearexcept(FE_ALL_EXCEPT);
-
     switch (op.opCode)
     {
     case OpCode::fcvt_w_s:
-        m_pIntRegFile->WriteInt32(operand.rd, static_cast<int32_t>(src));
+        m_pIntRegFile->WriteInt32(operand.rd, fp::ConvertToInt32(src));
         break;
     case OpCode::fcvt_wu_s:
-        m_pIntRegFile->WriteUInt32(operand.rd, static_cast<uint32_t>(src));
+        m_pIntRegFile->WriteUInt32(operand.rd, fp::ConvertToUInt32(src));
         break;
     default:
         Error(op);
     }
 
-    fexcept_t except;
-    std::fegetexceptflag(&except, FE_ALL_EXCEPT);
-
-    UpdateFpCsr(except);
+    UpdateFpCsr();
 }
 
 void Executor::ProcessFloatConvertToFp(const Op& op)
@@ -1148,8 +1092,6 @@ void Executor::ProcessFloatConvertToFp(const Op& op)
     const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
 
     uint32_t value;
-
-    std::feclearexcept(FE_ALL_EXCEPT);
 
     switch (op.opCode)
     {
@@ -1166,10 +1108,7 @@ void Executor::ProcessFloatConvertToFp(const Op& op)
         Error(op);
     }
 
-    fexcept_t except;
-    std::fegetexceptflag(&except, FE_ALL_EXCEPT);
-
-    UpdateFpCsr(except);
+    UpdateFpCsr();
 
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
@@ -1209,11 +1148,11 @@ void Executor::ProcessDoubleConvertToFp(const Op& op)
     Error(op);
 }
 
-void Executor::UpdateFpCsr(const fexcept_t& value)
+void Executor::UpdateFpCsr()
 {
     auto fpCsr = m_pCsr->ReadFpCsr();
 
-    fpCsr.SetMember<fcsr_t::AE>(fp::GetRvFpExceptFlags(value));
+    fpCsr.SetMember<fcsr_t::AE>(fp::GetRvExceptionFlags());
 
     m_pCsr->WriteFpCsr(fpCsr);
 }
