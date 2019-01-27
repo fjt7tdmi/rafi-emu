@@ -157,11 +157,11 @@ void TraceDumper::DumpOneCycle(int cycle)
 
         MemoryAccess32Node memoryAccessNode
         {
-            memoryAccessEvent.virtualAddress,
-            static_cast<int32_t>(memoryAccessEvent.physicalAddress),
-            memoryAccessEvent.value,
             memoryAccessEvent.accessType,
             memoryAccessEvent.size,
+            memoryAccessEvent.value,
+            memoryAccessEvent.virtualAddress,
+            static_cast<int32_t>(memoryAccessEvent.physicalAddress),
         };
         builder.SetNode(memoryAccessNode);
     }

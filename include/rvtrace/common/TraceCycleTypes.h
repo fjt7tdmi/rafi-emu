@@ -177,20 +177,20 @@ struct Trap64Node
 
 struct MemoryAccess32Node
 {
+    MemoryAccessType accessType;
+    int32_t size;
+    int64_t value;
     int32_t virtualAddress;
     int32_t physicalAddress;
-    int32_t value;
-    MemoryAccessType memoryAccessType;
-    int32_t size;
 };
 
 struct MemoryAccess64Node
 {
+    MemoryAccessType accessType;
+    int32_t size;
+    int64_t value;
     int64_t virtualAddress;
     int64_t physicalAddress;
-    int64_t value;
-    MemoryAccessType memoryAccessType;
-    int32_t size;
 };
 
 struct IoNode

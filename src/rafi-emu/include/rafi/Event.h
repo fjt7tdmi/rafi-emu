@@ -42,9 +42,9 @@ struct MemoryAccessEvent
 {
     MemoryAccessType accessType;
     int32_t size;
+    int64_t value;
     int32_t virtualAddress;
     PhysicalAddress physicalAddress;
-    int32_t value;
 };
 
 struct OpEvent

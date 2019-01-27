@@ -25,6 +25,8 @@
 
 #include <rvtrace/reader.h>
 
+#pragma warning(disable:4477)
+
 using namespace rvtrace;
 
 namespace po = boost::program_options;
@@ -179,17 +181,17 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
 {
     printf(
         "  MemoryAccess32 {\n"
-        "    vaddr: 0x%08x\n"
-        "    paddr: 0x%08x\n"
-        "    value: 0x%08x\n"
         "    accessType: %s\n"
         "    size: %d // byte\n"
+        "    value: 0x%16llx\n"
+        "    vaddr: 0x%08x\n"
+        "    paddr: 0x%08x\n"
         "  }\n",
-        node->virtualAddress,
-        node->physicalAddress,
+        GetString(node->accessType),
+        node->size,
         node->value,
-        GetString(node->memoryAccessType),
-        node->size
+        node->virtualAddress,
+        node->physicalAddress
     );
 }
 
