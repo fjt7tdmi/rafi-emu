@@ -16,14 +16,13 @@
 
 #pragma once
 
+#include <vector>
 #include <utility>
 
-#include <rafi/BasicTypes.h>
+#include <rafi/Common.h>
 
 #include "../io/IIo.h"
-#include "../mem/Ram.h"
-#include "../uart/Uart.h"
-#include "../timer/Timer.h"
+#include "../mem/IMemory.h"
 
 namespace rafi { namespace emu { namespace bus {
 

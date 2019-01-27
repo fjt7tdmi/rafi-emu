@@ -23,7 +23,7 @@
 
 #include "Uart.h"
 
-namespace rafi { namespace emu { namespace uart {
+namespace rafi { namespace emu { namespace io {
 
 void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 {

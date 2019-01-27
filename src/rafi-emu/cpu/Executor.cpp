@@ -27,7 +27,8 @@
 #include <rafi/Common.h>
 
 #include "Executor.h"
-#include "FpUtil.h"
+
+#include "../fp/FpUtil.h"
 
 #pragma fenv_access (on)
 
@@ -917,7 +918,7 @@ void Executor::ProcessFloatMulAdd(const Op& op)
         roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
     }
 
-    ScopedFpRound scopedFpRound(roundMode);
+    fp::ScopedFpRound scopedFpRound(roundMode);
 
     float value;
 
@@ -961,7 +962,7 @@ void Executor::ProcessFloatCompute(const Op& op)
         roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
     }
 
-    ScopedFpRound scopedFpRound(roundMode);
+    fp::ScopedFpRound scopedFpRound(roundMode);
 
     std::feclearexcept(FE_ALL_EXCEPT);
 
@@ -1041,7 +1042,7 @@ void Executor::ProcessFloatCompare(const Op& op)
     switch (op.opCode)
     {
     case OpCode::feq_s:
-        if (IsSignalingNan(src1_u32) || IsSignalingNan(src2_u32))
+        if (fp::IsSignalingNan(src1_u32) || fp::IsSignalingNan(src2_u32))
         {
             except = FE_INVALID;
         }
@@ -1091,7 +1092,7 @@ void Executor::ProcessFloatClass(const Op& op)
 
     const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
 
-    const auto value = GetRvFpClass(src);
+    const auto value = fp::GetRvFpClass(src);
 
     m_pIntRegFile->WriteInt32(operand.rd, static_cast<int32_t>(value));
 }
@@ -1213,7 +1214,7 @@ void Executor::UpdateFpCsr(const fexcept_t& value)
 {
     auto fpCsr = m_pCsr->ReadFpCsr();
 
-    fpCsr.SetMember<fcsr_t::AE>(GetRvFpExceptFlags(value));
+    fpCsr.SetMember<fcsr_t::AE>(fp::GetRvFpExceptFlags(value));
 
     m_pCsr->WriteFpCsr(fpCsr);
 }

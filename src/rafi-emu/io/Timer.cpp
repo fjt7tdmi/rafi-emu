@@ -21,7 +21,7 @@
 
 #include "Timer.h"
 
-namespace rafi { namespace emu { namespace timer {
+namespace rafi { namespace emu { namespace io {
 
 void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
 {

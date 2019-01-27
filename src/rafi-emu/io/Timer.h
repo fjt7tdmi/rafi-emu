@@ -22,11 +22,9 @@
 
 #include "../io/IIo.h"
 
-#include "TimerTypes.h"
+namespace rafi { namespace emu { namespace io {
 
-namespace rafi { namespace emu { namespace timer {
-
-class Timer : public io::IIo
+class Timer : public IIo
 {
 public:
     virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
@@ -43,6 +41,12 @@ public:
 
 private:
     static const int RegSize = 16;
+
+    // Register address
+    static const int Address_TimeLow = 0;
+    static const int Address_TimeHigh = 4;
+    static const int Address_TimeCmpLow = 8;
+    static const int Address_TimeCmpHigh = 12;
 
     uint64_t m_Time;
     uint64_t m_TimeCmp;

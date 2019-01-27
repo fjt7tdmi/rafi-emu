@@ -20,7 +20,7 @@
 
 #include "FpUtil.h"
 
-namespace rafi { namespace emu {
+namespace rafi { namespace emu { namespace fp {
 
 namespace {
 
@@ -195,4 +195,4 @@ bool IsQuietNan(uint32_t value)
     return f.IsQuietNan();
 }
 
-}}
+}}}

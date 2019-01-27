@@ -18,15 +18,7 @@
 
 #include <rafi/BitField.h>
 
-namespace rafi { namespace emu { namespace uart {
-
-enum Address
-{
-    Address_TxData = 0,
-    Address_RxData = 4,
-    Address_InterruptEnable = 16,
-    Address_InterruptPending = 24,
-};
+namespace rafi { namespace emu { namespace io {
 
 struct InterruptEnable : BitField
 {

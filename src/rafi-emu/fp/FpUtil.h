@@ -21,7 +21,7 @@
 
 #include <rafi/Exception.h>
 
-namespace rafi { namespace emu {
+namespace rafi { namespace emu { namespace fp {
 
 class ScopedFpRound
 {
@@ -42,4 +42,4 @@ uint32_t GetRvFpClass(uint32_t value);
 bool IsSignalingNan(uint32_t value);
 bool IsQuietNan(uint32_t value);
 
-}}
+}}}

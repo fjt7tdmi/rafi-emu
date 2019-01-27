@@ -24,9 +24,9 @@
 
 #include "UartTypes.h"
 
-namespace rafi { namespace emu { namespace uart {
+namespace rafi { namespace emu { namespace io {
 
-class Uart : public io::IIo
+class Uart : public IIo
 {
 public:
     virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
@@ -45,6 +45,12 @@ private:
     static const int RegSize = 32;
     static const int InitialRxCycle = 100;
     static const int RxCycle = 50;
+
+    // Register address
+    static const int Address_TxData = 0;
+    static const int Address_RxData = 4;
+    static const int Address_InterruptEnable = 16;
+    static const int Address_InterruptPending = 24;
 
     void UpdateRx();
     void PrintTx();
