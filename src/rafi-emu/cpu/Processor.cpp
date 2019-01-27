@@ -195,6 +195,12 @@ bool Processor::IsTrapEventExist() const
     return m_TrapProcessor.IsTrapEventExist();
 }
 
+void Processor::PrintStatus() const
+{
+    printf("    OpCount: %d (0x%x)\n", m_OpCount, m_OpCount);
+    printf("    PC:      0x%x\n", m_Csr.GetProgramCounter());
+}
+
 void Processor::ClearOpEvent()
 {
     m_OpEventValid = false;

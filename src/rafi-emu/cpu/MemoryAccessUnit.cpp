@@ -277,7 +277,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
         }
         break;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     return std::nullopt;
@@ -294,7 +294,7 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, int3
     case MemoryAccessType::Store:
         return MakeStorePageFaultException(pc, virtualAddress);
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 

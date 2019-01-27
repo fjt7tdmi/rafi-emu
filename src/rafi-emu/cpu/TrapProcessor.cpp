@@ -65,7 +65,7 @@ void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
         nextPrivilegeLevel = PrivilegeLevel::User;
         break;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     ProcessTrapEnter(true, static_cast<int32_t>(type), 0, pc, nextPrivilegeLevel);
@@ -108,7 +108,7 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         m_pCsr->SetProgramCounter(pc);
         break;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     const auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
@@ -193,7 +193,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, in
         trapVector = m_pCsr->ReadAs<xtvec_t>(csr_addr_t::utvec);
         break;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     int32_t base = trapVector.GetWithMask(xtvec_t::BASE::Mask);

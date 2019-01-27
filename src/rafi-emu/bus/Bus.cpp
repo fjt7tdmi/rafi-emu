@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#include <rafi/Exception.h>
-#include <rafi/MemoryMap.h>
+#include <rafi/Common.h>
 
 #include "Bus.h"
+
+// Suppress VC warning for printf "%16lx"
+#pragma warning(disable:4477)
 
 namespace rafi { namespace emu { namespace bus {
 
@@ -35,7 +37,7 @@ void Bus::Read(void* pOutBuffer, size_t size, PhysicalAddress address)
     }
     else
     {
-        throw InvalidAccessException(address);
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
     }
 }
 
@@ -53,7 +55,7 @@ void Bus::Write(const void* pBuffer, size_t size, PhysicalAddress address)
     }
     else
     {
-        throw InvalidAccessException(address);
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
     }
 }
 
@@ -136,7 +138,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(PhysicalAddress address) const
         }
     }
 
-    throw InvalidAccessException(address);
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
 }
 
 bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
@@ -170,7 +172,7 @@ IoLocation Bus::ConvertToIoLocation(PhysicalAddress address) const
         }
     }
 
-    throw InvalidAccessException(address);
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016lx\n", static_cast<uint64_t>(address));
 }
 
 bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const

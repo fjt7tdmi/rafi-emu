@@ -44,16 +44,13 @@ int Rom::GetCapacity() const
 
 void Rom::LoadFile(const char* path, int offset)
 {
-    if (!(0 <= offset && offset < Capacity))
-    {
-        ABORT();
-    }
+    RAFI_EMU_CHECK_RANGE(0, offset, GetCapacity());
 
     std::ifstream f;
     f.open(path, std::fstream::binary | std::fstream::in);
     if (!f.is_open())
     {
-        ABORT();
+        RAFI_EMU_ERROR("Failed to open file: %s\n", path);
     }
     f.read(&m_pBody[offset], Capacity - offset);
     f.close();
@@ -61,7 +58,7 @@ void Rom::LoadFile(const char* path, int offset)
 
 void Rom::Read(void* pOutBuffer, size_t size, uint64_t address) const
 {
-    assert(0 <= address && address + size <= Capacity);
+    RAFI_EMU_CHECK_ACCESS(address, size, GetCapacity());
 
     std::memcpy(pOutBuffer, &m_pBody[address], size);
 }
@@ -72,8 +69,7 @@ void Rom::Write(const void* pBuffer, size_t size, uint64_t address)
     static_cast<void>(size);
     static_cast<void>(address);
 
-    printf("Rom does not support write operation.\n");
-    ABORT();
+    RAFI_EMU_ERROR("Rom does not support write operation.\n");
 }
 
 }}}

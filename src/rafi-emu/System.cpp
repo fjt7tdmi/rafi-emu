@@ -140,4 +140,9 @@ bool System::IsTrapEventExist() const
     return m_Processor.IsTrapEventExist();
 }
 
+void System::PrintStatus() const
+{
+    return m_Processor.PrintStatus();
+}
+
 }}

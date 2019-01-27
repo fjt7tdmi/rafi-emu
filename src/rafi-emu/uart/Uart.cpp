@@ -27,16 +27,13 @@ namespace rafi { namespace emu { namespace uart {
 
 void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + size - 1 < RegSize))
-    {
-        ABORT();
-    }
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
     int32_t value;
 
     if (size != sizeof(value))
     {
-        ABORT();
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
     }
 
     switch (address)
@@ -54,7 +51,7 @@ void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
         value = m_InterruptPending.GetInt32();
         break;
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     std::memcpy(pOutBuffer, &value, sizeof(value));
@@ -62,17 +59,15 @@ void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 
 void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + size - 1 < RegSize))
-    {
-        ABORT();
-    }
-
-    if (size != sizeof(int32_t))
-    {
-        ABORT();
-    }
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
     int32_t value;
+
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+    }
+
     std::memcpy(&value, pBuffer, sizeof(int32_t));
 
     switch (address)
@@ -86,7 +81,7 @@ void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
     case Address_InterruptPending:
         m_InterruptPending.Set(value);
     default:
-        ABORT();
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 

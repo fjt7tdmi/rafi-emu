@@ -45,16 +45,13 @@ int Ram::GetCapacity() const
 
 void Ram::LoadFile(const char* path, int offset)
 {
-    if (!(0 <= offset && offset < m_Capacity))
-    {
-        ABORT();
-    }
+    RAFI_EMU_CHECK_RANGE(0, offset, GetCapacity());
 
     std::ifstream f;
     f.open(path, std::fstream::binary | std::fstream::in);
     if (!f.is_open())
     {
-        ABORT();
+        RAFI_EMU_ERROR("Failed to open file: %s\n", path);
     }
     f.read(&m_pBody[offset], m_Capacity - offset);
     f.close();
@@ -62,10 +59,7 @@ void Ram::LoadFile(const char* path, int offset)
 
 void Ram::Copy(void* pOut, size_t size) const
 {
-    if (size > static_cast<size_t>(m_Capacity))
-    {
-        ABORT();
-    }
+    assert(size == static_cast<size_t>(m_Capacity));
 
     std::memcpy(pOut, m_pBody, size);
 }

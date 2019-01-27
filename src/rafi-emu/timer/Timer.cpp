@@ -25,16 +25,13 @@ namespace rafi { namespace emu { namespace timer {
 
 void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + size - 1 < RegSize))
-    {
-        throw FatalException(__FILE__, __LINE__);
-    }
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
     int32_t value;
 
     if (size != sizeof(value))
     {
-        throw FatalException(__FILE__, __LINE__);
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
     }
 
     switch (address)
@@ -52,7 +49,7 @@ void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
         value = GetHigh32(m_TimeCmp);
         break;
     default:
-        throw FatalException(__FILE__, __LINE__);
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
     std::memcpy(pOutBuffer, &value, sizeof(value));
@@ -60,17 +57,15 @@ void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
 
 void Timer::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + size - 1 < RegSize))
-    {
-        throw FatalException(__FILE__, __LINE__);
-    }
-
-    if (size != sizeof(int32_t))
-    {
-        throw FatalException(__FILE__, __LINE__);
-    }
+    RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
     int32_t value;
+
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+    }
+
     std::memcpy(&value, pBuffer, sizeof(int32_t));
 
     switch (address)
@@ -88,7 +83,7 @@ void Timer::Write(const void* pBuffer, size_t size, uint64_t address)
         SetHigh32(&m_TimeCmp, value);
         break;
     default:
-        throw FatalException(__FILE__, __LINE__);
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 
