@@ -21,7 +21,6 @@
 namespace rvtrace {
 
 const char* GetString(MemoryAccessType accessType);
-const char* GetString(MemoryAccessSize accessSize);
 const char* GetString(PrivilegeLevel level);
 const char* GetString(TrapType trapType);
 const char* GetString(ExceptionType exceptionType);

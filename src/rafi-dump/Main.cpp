@@ -174,13 +174,13 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
         "    paddr: 0x%08x\n"
         "    value: 0x%08x\n"
         "    accessType: %s\n"
-        "    accessSize: %s\n"
+        "    size: %d // byte\n"
         "  }\n",
         node->virtualAddress,
         node->physicalAddress,
         node->value,
         GetString(node->memoryAccessType),
-        GetString(node->memoryAccessSize)
+        node->size
     );
 }
 

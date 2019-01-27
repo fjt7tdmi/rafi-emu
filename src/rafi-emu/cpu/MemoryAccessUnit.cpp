@@ -51,7 +51,7 @@ int8_t MemoryAccessUnit::LoadInt8(int32_t virtualAddress)
     const auto value = m_pBus->GetInt8(physicalAddress);
 
     m_Event.accessType = MemoryAccessType::Load;
-    m_Event.accessSize = MemoryAccessSize::Byte;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;
@@ -67,7 +67,7 @@ void MemoryAccessUnit::StoreInt8(int32_t virtualAddress, int8_t value)
     m_pBus->SetInt8(physicalAddress, value);
 
     m_Event.accessType = MemoryAccessType::Store;
-    m_Event.accessSize = MemoryAccessSize::Byte;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;
@@ -81,7 +81,7 @@ int16_t MemoryAccessUnit::LoadInt16(int32_t virtualAddress)
     const auto value = m_pBus->GetInt16(physicalAddress);
 
     m_Event.accessType = MemoryAccessType::Load;
-    m_Event.accessSize = MemoryAccessSize::HalfWord;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;
@@ -97,7 +97,7 @@ void MemoryAccessUnit::StoreInt16(int32_t virtualAddress, int16_t value)
     m_pBus->SetInt16(physicalAddress, value);
 
     m_Event.accessType = MemoryAccessType::Store;
-    m_Event.accessSize = MemoryAccessSize::HalfWord;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;
@@ -111,7 +111,7 @@ int32_t MemoryAccessUnit::LoadInt32(int32_t virtualAddress)
     const auto value = m_pBus->GetInt32(physicalAddress);
 
     m_Event.accessType = MemoryAccessType::Load;
-    m_Event.accessSize = MemoryAccessSize::Word;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;
@@ -127,7 +127,7 @@ void MemoryAccessUnit::StoreInt32(int32_t virtualAddress, int32_t value)
     m_pBus->SetInt32(physicalAddress, value);
 
     m_Event.accessType = MemoryAccessType::Store;
-    m_Event.accessSize = MemoryAccessSize::Word;
+    m_Event.size = sizeof(value);
     m_Event.virtualAddress = virtualAddress;
     m_Event.physicalAddress = physicalAddress;
     m_Event.value = value;

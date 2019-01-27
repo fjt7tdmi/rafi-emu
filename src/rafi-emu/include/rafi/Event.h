@@ -41,7 +41,7 @@ struct CsrWriteEvent
 struct MemoryAccessEvent
 {
     MemoryAccessType accessType;
-    MemoryAccessSize accessSize;
+    int8_t size;
     int32_t virtualAddress;
     PhysicalAddress physicalAddress;
     int32_t value;

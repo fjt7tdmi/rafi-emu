@@ -159,8 +159,7 @@ struct MemoryAccess32Node
     int32_t physicalAddress;
     int32_t value;
     MemoryAccessType memoryAccessType;
-    MemoryAccessSize memoryAccessSize;
-    int8_t reserved[2];
+    int32_t size;
 };
 
 struct MemoryAccess64Node
@@ -169,8 +168,7 @@ struct MemoryAccess64Node
     int64_t physicalAddress;
     int64_t value;
     MemoryAccessType memoryAccessType;
-    MemoryAccessSize memoryAccessSize;
-    int8_t reserved[6];
+    int32_t size;
 };
 
 struct IoNode

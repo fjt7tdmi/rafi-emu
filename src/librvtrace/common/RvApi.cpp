@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <rvtrace/common/RvTypes.h>
+#include <rvtrace/common/RvApi.h>
 
 namespace rvtrace {
 
@@ -39,20 +39,6 @@ const char* GetString(MemoryAccessType accessType)
         GET_STRING_CASE(Store);
     default:
         return "Unknown MemoryAccessType";
-    }
-#undef GET_STRING_CASE
-}
-
-const char* GetString(MemoryAccessSize accessSize)
-{
-#define GET_STRING_CASE(arg) case MemoryAccessSize::arg: return #arg
-    switch (accessSize)
-    {
-        GET_STRING_CASE(Byte);
-        GET_STRING_CASE(HalfWord);
-        GET_STRING_CASE(Word);
-    default:
-        return "Unknown MemoryAccessSize";
     }
 #undef GET_STRING_CASE
 }
