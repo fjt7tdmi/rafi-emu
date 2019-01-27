@@ -23,8 +23,8 @@ namespace rafi { namespace emu { namespace io {
 class IIo
 {
 public:
-    virtual void Read(void* pOutBuffer, size_t bufferSize, uint64_t address) = 0;
-    virtual void Write(void* pBuffer, size_t bufferSize, uint64_t address) = 0;
+    virtual void Read(void* pOutBuffer, size_t size, uint64_t address) = 0;
+    virtual void Write(const void* pBuffer, size_t size, uint64_t address) = 0;
 
     virtual int GetSize() const = 0;
 

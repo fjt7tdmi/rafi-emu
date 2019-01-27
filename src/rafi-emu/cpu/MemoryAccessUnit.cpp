@@ -48,15 +48,39 @@ namespace {
 int8_t MemoryAccessUnit::LoadInt8(int32_t virtualAddress)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
-    const auto value = m_pBus->GetInt8(physicalAddress);
+    const auto value = m_pBus->ReadInt8(physicalAddress);
 
-    m_Event.accessType = MemoryAccessType::Load;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
 
-    m_EventValid = true;
+    return value;
+}
+
+int16_t MemoryAccessUnit::LoadInt16(int32_t virtualAddress)
+{
+    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto value = m_pBus->ReadInt16(physicalAddress);
+
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
+
+    return value;
+}
+
+int32_t MemoryAccessUnit::LoadInt32(int32_t virtualAddress)
+{
+    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto value = m_pBus->ReadInt32(physicalAddress);
+
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
+
+    return value;
+}
+
+int64_t MemoryAccessUnit::LoadInt64(int32_t virtualAddress)
+{
+    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto value = m_pBus->ReadInt64(physicalAddress);
+
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
 
     return value;
 }
@@ -64,81 +88,39 @@ int8_t MemoryAccessUnit::LoadInt8(int32_t virtualAddress)
 void MemoryAccessUnit::StoreInt8(int32_t virtualAddress, int8_t value)
 {
     auto physicalAddress = ProcessTranslation(virtualAddress, true);
-    m_pBus->SetInt8(physicalAddress, value);
+    m_pBus->WriteInt8(physicalAddress, value);
 
-    m_Event.accessType = MemoryAccessType::Store;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
-
-    m_EventValid = true;
-}
-
-int16_t MemoryAccessUnit::LoadInt16(int32_t virtualAddress)
-{
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
-    const auto value = m_pBus->GetInt16(physicalAddress);
-
-    m_Event.accessType = MemoryAccessType::Load;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
-
-    m_EventValid = true;
-
-    return value;
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
 }
 
 void MemoryAccessUnit::StoreInt16(int32_t virtualAddress, int16_t value)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
-    m_pBus->SetInt16(physicalAddress, value);
+    m_pBus->WriteInt16(physicalAddress, value);
 
-    m_Event.accessType = MemoryAccessType::Store;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
-
-    m_EventValid = true;
-}
-
-int32_t MemoryAccessUnit::LoadInt32(int32_t virtualAddress)
-{
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
-    const auto value = m_pBus->GetInt32(physicalAddress);
-
-    m_Event.accessType = MemoryAccessType::Load;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
-
-    m_EventValid = true;
-
-    return value;
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
 }
 
 void MemoryAccessUnit::StoreInt32(int32_t virtualAddress, int32_t value)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
-    m_pBus->SetInt32(physicalAddress, value);
+    m_pBus->WriteInt32(physicalAddress, value);
 
-    m_Event.accessType = MemoryAccessType::Store;
-    m_Event.size = sizeof(value);
-    m_Event.virtualAddress = virtualAddress;
-    m_Event.physicalAddress = physicalAddress;
-    m_Event.value = value;
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
+}
 
-    m_EventValid = true;
+void MemoryAccessUnit::StoreInt64(int32_t virtualAddress, int64_t value)
+{
+    const auto physicalAddress = ProcessTranslation(virtualAddress, true);
+    m_pBus->WriteInt64(physicalAddress, value);
+
+    RecordEvent(MemoryAccessType::Store, sizeof(value), virtualAddress, physicalAddress, value);
 }
 
 int32_t MemoryAccessUnit::FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress)
 {
     *outPhysicalAddress = ProcessTranslation(virtualAddress, false);
-    return m_pBus->GetInt32(*outPhysicalAddress);
+    return m_pBus->ReadInt32(*outPhysicalAddress);
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress) const
@@ -155,7 +137,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int
 
     const auto firstTableHead = PageSize * satp.GetMember<satp_t::PPN>();
     const auto firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
-    const auto firstEntry = PageTableEntry(m_pBus->GetInt32(firstEntryAddress));
+    const auto firstEntry = PageTableEntry(m_pBus->ReadInt32(firstEntryAddress));
 
     const auto firstTrap = CheckTrapForEntry(firstEntry, accessType, pc, virtualAddress);
     if (firstTrap)
@@ -180,7 +162,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int
     {
         const auto secondTableHead = PageSize * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
         const auto secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
-        const auto secondEntry = PageTableEntry(m_pBus->GetInt32(secondEntryAddress));
+        const auto secondEntry = PageTableEntry(m_pBus->ReadInt32(secondEntryAddress));
 
         const auto secondTrap = CheckTrapForEntry(secondEntry, accessType, pc, virtualAddress);
         if (secondTrap)
@@ -196,6 +178,13 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int
     }
 
     return std::nullopt;
+}
+
+void MemoryAccessUnit::RecordEvent(MemoryAccessType accessType, int32_t size, int32_t vaddr, PhysicalAddress paddr, int64_t value)
+{
+    // TODO: 64bit 値をイベントに記録
+    m_Event = { accessType, size, vaddr, paddr, static_cast<int32_t>(value) };
+    m_EventValid = true;
 }
 
 void MemoryAccessUnit::ClearEvent()
@@ -318,7 +307,7 @@ PhysicalAddress MemoryAccessUnit::ProcessTranslation(int32_t virtualAddress, boo
 
         const PhysicalAddress firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN>();
         const PhysicalAddress firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
-        const auto firstEntry = PageTableEntry(m_pBus->GetInt32(firstEntryAddress));
+        const auto firstEntry = PageTableEntry(m_pBus->ReadInt32(firstEntryAddress));
 
         if (IsLeafEntry(firstEntry))
         {
@@ -330,7 +319,7 @@ PhysicalAddress MemoryAccessUnit::ProcessTranslation(int32_t virtualAddress, boo
         {
             const PhysicalAddress secondTableHead = static_cast<uint64_t>(PageSize) * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
             const PhysicalAddress secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
-            const auto secondEntry = PageTableEntry(m_pBus->GetInt32(secondEntryAddress));
+            const auto secondEntry = PageTableEntry(m_pBus->ReadInt32(secondEntryAddress));
 
             UpdateEntry(secondEntryAddress, isWrite);
 
@@ -345,14 +334,14 @@ PhysicalAddress MemoryAccessUnit::ProcessTranslation(int32_t virtualAddress, boo
 
 void MemoryAccessUnit::UpdateEntry(PhysicalAddress entryAddress, bool isWrite)
 {
-    auto entry = PageTableEntry(m_pBus->GetInt32(entryAddress));
+    auto entry = PageTableEntry(m_pBus->ReadInt32(entryAddress));
 
     entry.SetMember<PageTableEntry::Accessed>(1);
     if (isWrite)
     {
         entry.SetMember<PageTableEntry::Dirty>(1);
     }
-    m_pBus->SetInt32(entryAddress, entry.GetInt32());
+    m_pBus->WriteInt32(entryAddress, entry.GetInt32());
 }
 
 }}}

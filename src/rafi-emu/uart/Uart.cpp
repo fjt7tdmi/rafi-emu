@@ -25,30 +25,34 @@
 
 namespace rafi { namespace emu { namespace uart {
 
-void Uart::Read(void* pOutBuffer, size_t bufferSize, uint64_t address)
+void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + bufferSize - 1 < RegSize))
-    {
-        ABORT();
-    }
-
-    if (bufferSize != sizeof(int32_t))
+    if (!(0 <= address && address + size - 1 < RegSize))
     {
         ABORT();
     }
 
     int32_t value;
 
+    if (size != sizeof(value))
+    {
+        ABORT();
+    }
+
     switch (address)
     {
     case Address_TxData:
         value = m_TxChars.empty() ? 0 : m_TxChars.back();
+        break;
     case Address_RxData:
         value = m_RxChar;
+        break;
     case Address_InterruptEnable:
         value = m_InterruptEnable.GetInt32();
+        break;
     case Address_InterruptPending:
         value = m_InterruptPending.GetInt32();
+        break;
     default:
         ABORT();
     }
@@ -56,14 +60,14 @@ void Uart::Read(void* pOutBuffer, size_t bufferSize, uint64_t address)
     std::memcpy(pOutBuffer, &value, sizeof(value));
 }
 
-void Uart::Write(void* pBuffer, size_t bufferSize, uint64_t address)
+void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    if (!(0 <= address && address + bufferSize - 1 < RegSize))
+    if (!(0 <= address && address + size - 1 < RegSize))
     {
         ABORT();
     }
 
-    if (bufferSize != sizeof(int32_t))
+    if (size != sizeof(int32_t))
     {
         ABORT();
     }

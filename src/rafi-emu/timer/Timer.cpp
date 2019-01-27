@@ -23,45 +23,56 @@
 
 namespace rafi { namespace emu { namespace timer {
 
-int8_t Timer::GetInt8(int)
+void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
-    throw FatalException(__FILE__, __LINE__);
-}
+    if (!(0 <= address && address + size - 1 < RegSize))
+    {
+        throw FatalException(__FILE__, __LINE__);
+    }
 
-void Timer::SetInt8(int, int8_t)
-{
-    throw FatalException(__FILE__, __LINE__);
-}
+    int32_t value;
 
-int16_t Timer::GetInt16(int)
-{
-    throw FatalException(__FILE__, __LINE__);
-}
+    if (size != sizeof(value))
+    {
+        throw FatalException(__FILE__, __LINE__);
+    }
 
-void Timer::SetInt16(int, int16_t)
-{
-    throw FatalException(__FILE__, __LINE__);
-}
-
-int32_t Timer::GetInt32(int address)
-{
     switch (address)
     {
     case Address_TimeLow:
-        return GetLow32(m_Time);
+        value = GetLow32(m_Time);
+        break;
     case Address_TimeHigh:
-        return GetHigh32(m_Time);
+        value = GetHigh32(m_Time);
+        break;
     case Address_TimeCmpLow:
-        return GetLow32(m_TimeCmp);
+        value = GetLow32(m_TimeCmp);
+        break;
     case Address_TimeCmpHigh:
-        return GetHigh32(m_TimeCmp);
+        value = GetHigh32(m_TimeCmp);
+        break;
     default:
         throw FatalException(__FILE__, __LINE__);
     }
+
+    std::memcpy(pOutBuffer, &value, sizeof(value));
 }
 
-void Timer::SetInt32(int address, int32_t value)
+void Timer::Write(const void* pBuffer, size_t size, uint64_t address)
 {
+    if (!(0 <= address && address + size - 1 < RegSize))
+    {
+        throw FatalException(__FILE__, __LINE__);
+    }
+
+    if (size != sizeof(int32_t))
+    {
+        throw FatalException(__FILE__, __LINE__);
+    }
+
+    int32_t value;
+    std::memcpy(&value, pBuffer, sizeof(int32_t));
+
     switch (address)
     {
     case Address_TimeLow:

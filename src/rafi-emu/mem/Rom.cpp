@@ -59,42 +59,20 @@ void Rom::LoadFile(const char* path, int offset)
     f.close();
 }
 
-int8_t Rom::GetInt8(int address) const
+void Rom::Read(void* pOutBuffer, size_t size, uint64_t address) const
 {
-    assert(0 <= address && address + sizeof(int8_t) <= Capacity);
-    return *reinterpret_cast<int8_t*>(&m_pBody[address]);
+    assert(0 <= address && address + size <= Capacity);
+
+    std::memcpy(pOutBuffer, &m_pBody[address], size);
 }
 
-void Rom::SetInt8(int address, int8_t value)
+void Rom::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    (void)address;
-    (void)value;
-    ABORT();
-}
+    static_cast<void>(pBuffer);
+    static_cast<void>(size);
+    static_cast<void>(address);
 
-int16_t Rom::GetInt16(int address) const
-{
-    assert(0 <= address && address + sizeof(int16_t) <= Capacity);
-    return *reinterpret_cast<int16_t*>(&m_pBody[address]);
-}
-
-void Rom::SetInt16(int address, int16_t value)
-{
-    (void)address;
-    (void)value;
-    ABORT();
-}
-
-int32_t Rom::GetInt32(int address) const
-{
-    assert(0 <= address && address + sizeof(int32_t) <= Capacity);
-    return *reinterpret_cast<int32_t*>(&m_pBody[address]);
-}
-
-void Rom::SetInt32(int address, int32_t value)
-{
-    (void)address;
-    (void)value;
+    printf("Rom does not support write operation.\n");
     ABORT();
 }
 

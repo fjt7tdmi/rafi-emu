@@ -29,14 +29,8 @@ namespace rafi { namespace emu { namespace timer {
 class Timer : public io::IIo
 {
 public:
-    virtual int8_t GetInt8(int address) override;
-    virtual void SetInt8(int address, int8_t value) override;
-
-    virtual int16_t GetInt16(int address) override;
-    virtual void SetInt16(int address, int16_t value) override;
-
-    virtual int32_t GetInt32(int address) override;
-    virtual void SetInt32(int address, int32_t value) override;
+    virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
+    virtual void Write(const void* pBuffer, size_t size, uint64_t address) override;
 
     virtual int GetSize() const override
     {

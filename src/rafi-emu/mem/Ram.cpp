@@ -70,40 +70,18 @@ void Ram::Copy(void* pOut, size_t size) const
     std::memcpy(pOut, m_pBody, size);
 }
 
-int8_t Ram::GetInt8(int address) const
+void Ram::Read(void* pOutBuffer, size_t size, uint64_t address) const
 {
-    assert(0 <= address && address + static_cast<int>(sizeof(int8_t)) <= m_Capacity);
-    return *reinterpret_cast<int8_t*>(&m_pBody[address]);
+    assert(0 <= address && address + size <= GetCapacity());
+
+    std::memcpy(pOutBuffer, &m_pBody[address], size);
 }
 
-void Ram::SetInt8(int address, int8_t value)
+void Ram::Write(const void* pBuffer, size_t size, uint64_t address)
 {
-    assert(0 <= address && address + static_cast<int>(sizeof(int8_t)) <= m_Capacity);
-    *reinterpret_cast<int8_t*>(&m_pBody[address]) = value;
-}
+    assert(0 <= address && address + size <= GetCapacity());
 
-int16_t Ram::GetInt16(int address) const
-{
-    assert(0 <= address && address + static_cast<int>(sizeof(int16_t)) <= m_Capacity);
-    return *reinterpret_cast<int16_t*>(&m_pBody[address]);
-}
-
-void Ram::SetInt16(int address, int16_t value)
-{
-    assert(0 <= address && address + static_cast<int>(sizeof(int16_t)) <= m_Capacity);
-    *reinterpret_cast<int16_t*>(&m_pBody[address]) = value;
-}
-
-int32_t Ram::GetInt32(int address) const
-{
-    assert(0 <= address && address + static_cast<int>(sizeof(int32_t)) <= m_Capacity);
-    return *reinterpret_cast<int32_t*>(&m_pBody[address]);
-}
-
-void Ram::SetInt32(int address, int32_t value)
-{
-    assert(0 <= address && address + static_cast<int>(sizeof(int32_t)) <= m_Capacity);
-    *reinterpret_cast<int32_t*>(&m_pBody[address]) = value;
+    std::memcpy(&m_pBody[address], pBuffer, size);
 }
 
 }}}

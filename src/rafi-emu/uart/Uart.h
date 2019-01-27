@@ -29,8 +29,8 @@ namespace rafi { namespace emu { namespace uart {
 class Uart : public io::IIo
 {
 public:
-    virtual void Read(void* pOutBuffer, size_t bufferSize, uint64_t address) override;
-    virtual void Write(void* pBuffer, size_t bufferSize, uint64_t address) override;
+    virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
+    virtual void Write(const void* pBuffer, size_t size, uint64_t address) override;
 
     virtual int GetSize() const override
     {

@@ -56,14 +56,18 @@ struct IoLocation
 class Bus
 {
 public:
-    int8_t GetInt8(PhysicalAddress address);
-    void SetInt8(PhysicalAddress address, int8_t value);
+    void Read(void* pOutBuffer, size_t size, PhysicalAddress address);
+    void Write(const void* pBuffer, size_t size, PhysicalAddress address);
 
-    int16_t GetInt16(PhysicalAddress address);
-    void SetInt16(PhysicalAddress address, int16_t value);
+    int8_t ReadInt8(PhysicalAddress address);
+    int16_t ReadInt16(PhysicalAddress address);
+    int32_t ReadInt32(PhysicalAddress address);
+    int64_t ReadInt64(PhysicalAddress address);
 
-    int32_t GetInt32(PhysicalAddress address);
-    void SetInt32(PhysicalAddress address, int32_t value);
+    void WriteInt8(PhysicalAddress address, int8_t value);
+    void WriteInt16(PhysicalAddress address, int16_t value);
+    void WriteInt32(PhysicalAddress address, int32_t value);
+    void WriteInt64(PhysicalAddress address, int64_t value);
 
     void RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size);
     void RegisterIo(io::IIo* pIo, PhysicalAddress address, int size);

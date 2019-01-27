@@ -66,18 +66,21 @@ public:
     }
 
     int8_t LoadInt8(int32_t virtualAddress);
-    void StoreInt8(int32_t virtualAddress, int8_t value);
-
     int16_t LoadInt16(int32_t virtualAddress);
+    int32_t LoadInt32(int32_t virtualAddress);
+    int64_t LoadInt64(int32_t virtualAddress);
+
+    void StoreInt8(int32_t virtualAddress, int8_t value);
     void StoreInt16(int32_t virtualAddress, int16_t value);
+    void StoreInt32(int32_t virtualAddress, int32_t value);
+    void StoreInt64(int32_t virtualAddress, int64_t value);
 
     int32_t FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress);
-    int32_t LoadInt32(int32_t virtualAddress);
-    void StoreInt32(int32_t virtualAddress, int32_t value);
 
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress) const;
 
     // for Dump
+    void RecordEvent(MemoryAccessType accessType, int32_t size, int32_t vaddr, PhysicalAddress paddr, int64_t value);
     void ClearEvent();
     void CopyEvent(MemoryAccessEvent* pOut) const;
     bool IsEventExist() const;
@@ -96,10 +99,10 @@ private:
     PhysicalAddress ProcessTranslation(int32_t virtualAddress, bool isWrite);
     void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
 
-    bus::Bus* m_pBus = nullptr;
-    Csr* m_pCsr = nullptr;
+    bus::Bus* m_pBus{ nullptr };
+    Csr* m_pCsr{ nullptr };
 
-    bool m_EventValid = false;
+    bool m_EventValid{ false };
 
     MemoryAccessEvent m_Event;
 };
