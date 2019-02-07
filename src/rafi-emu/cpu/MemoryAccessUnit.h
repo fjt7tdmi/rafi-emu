@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include <rafi/BitField.h>
+#include <rafi/emu.h>
 
 #include "../bus/Bus.h"
 

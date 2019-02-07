@@ -19,8 +19,7 @@
 #include <cstring>
 #include <optional>
 
-#include <rafi/BitField.h>
-#include <rafi/Event.h>
+#include <rafi/emu.h>
 
 #include "CsrTypes.h"
 #include "Trap.h"

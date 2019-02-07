@@ -37,11 +37,29 @@ else()
     set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 endif()
 
+set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-2/include/x86-gcc)
+
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${GoogleTest_INCLUDE_DIRS})
 
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GoogleTest_LIBRARY_DIRS})
+
+add_library(librafi_fp
+    include/rafi/common.h
+    include/rafi/fp.h
+    include/rafi/common/BitField.h
+    include/rafi/fp/FpApi.h
+    include/rafi/fp/ScopedFpRound.h
+    src/lib/fp/FpApi.cpp
+    src/lib/fp/ScopedFpRound.cpp
+    third_party/berkeley-softfloat-2/softfloat.c
+    third_party/berkeley-softfloat-2/include/x86-gcc/softfloat.h    
+)
+
+if (MSVC)
+    target_compile_options(librafi_fp PUBLIC /wd"4018" PUBLIC /wd"4146" PUBLIC /wd"4244" PUBLIC /wd"4245")
+endif()
 
 add_library(librvtrace
     include/rvtrace/common.h
@@ -117,8 +135,6 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Executor.h
     src/rafi-emu/cpu/FpRegFile.cpp
     src/rafi-emu/cpu/FpRegFile.h
-    src/rafi-emu/cpu/FpUtil.cpp
-    src/rafi-emu/cpu/FpUtil.h
     src/rafi-emu/cpu/InterruptController.cpp
     src/rafi-emu/cpu/InterruptController.h
     src/rafi-emu/cpu/IntRegFile.cpp
@@ -131,18 +147,22 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
-    src/rafi-emu/include/rafi/BasicTypes.h
-    src/rafi-emu/include/rafi/BitField.h
-    src/rafi-emu/include/rafi/Common.h
-    src/rafi-emu/include/rafi/Event.h
-    src/rafi-emu/include/rafi/Exception.h
-    src/rafi-emu/include/rafi/IInterruptSource.h
-    src/rafi-emu/include/rafi/Macro.h
-    src/rafi-emu/include/rafi/MemoryMap.h
-    src/rafi-emu/include/rafi/Util.h
+    src/rafi-emu/include/rafi/emu.h
+    src/rafi-emu/include/rafi/emu/BasicTypes.h
+    src/rafi-emu/include/rafi/emu/Event.h
+    src/rafi-emu/include/rafi/emu/Exception.h
+    src/rafi-emu/include/rafi/emu/IInterruptSource.h
+    src/rafi-emu/include/rafi/emu/Macro.h
+    src/rafi-emu/include/rafi/emu/MemoryMap.h
+    src/rafi-emu/include/rafi/emu/Util.h
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
     src/rafi-emu/io/IoInterruptSource.h
+    src/rafi-emu/io/Uart.cpp
+    src/rafi-emu/io/Uart.h
+    src/rafi-emu/io/UartTypes.h
+    src/rafi-emu/io/Timer.cpp
+    src/rafi-emu/io/Timer.h
     src/rafi-emu/log/Profiler.cpp
     src/rafi-emu/log/Profiler.h
     src/rafi-emu/log/TraceDumper.cpp
@@ -152,12 +172,6 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Ram.h
     src/rafi-emu/mem/Rom.cpp
     src/rafi-emu/mem/Rom.h
-    src/rafi-emu/uart/Uart.cpp
-    src/rafi-emu/uart/Uart.h
-    src/rafi-emu/uart/UartTypes.h
-    src/rafi-emu/timer/Timer.cpp
-    src/rafi-emu/timer/Timer.h
-    src/rafi-emu/timer/TimerTypes.h
     src/rafi-emu/Main.cpp
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
@@ -175,6 +189,7 @@ add_executable(test-trace
     test/test-trace/test_TraceWriter.cpp
 )
 
+include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
 include_directories(rafi-check-io include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
@@ -187,6 +202,6 @@ target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES
 target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-emu librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librvtrace librafi_fp ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(test-op librvtrace ${GoogleTest_LIBRARIES})
 target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})

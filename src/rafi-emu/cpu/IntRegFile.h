@@ -19,7 +19,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include <rafi/Exception.h>
+#include <rafi/emu.h>
 
 namespace rafi { namespace emu { namespace cpu {
 

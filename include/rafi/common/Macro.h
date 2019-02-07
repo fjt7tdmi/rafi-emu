@@ -16,16 +16,13 @@
 
 #pragma once
 
-#include <rafi/BitField.h>
+#include <rafi/common.h>
 
-namespace rafi { namespace emu { namespace timer {
+#include <cstdlib>
+#include <cstdio>
 
-enum Address
-{
-    Address_TimeLow = 0,
-    Address_TimeHigh = 4,
-    Address_TimeCmpLow = 8,
-    Address_TimeCmpHigh = 12,
-};
-
-}}}
+#define RAFI_NOT_IMPLEMENTED() \
+    do { \
+        fprintf(stderr, "[ERROR] Not implemented @ %s:%d\n", __FILE__, __LINE__); \
+        std::exit(1); \
+    } while(0)

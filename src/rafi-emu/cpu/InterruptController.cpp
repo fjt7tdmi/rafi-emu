@@ -17,7 +17,7 @@
 #include <cassert>
 #include <cstring>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 #include "InterruptController.h"
 
 namespace rafi { namespace emu { namespace cpu {

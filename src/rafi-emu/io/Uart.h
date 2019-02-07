@@ -18,15 +18,15 @@
 
 #include <vector>
 
-#include <rafi/BasicTypes.h>
+#include <rafi/emu.h>
 
 #include "../io/IIo.h"
 
-#include "TimerTypes.h"
+#include "UartTypes.h"
 
-namespace rafi { namespace emu { namespace timer {
+namespace rafi { namespace emu { namespace io {
 
-class Timer : public io::IIo
+class Uart : public IIo
 {
 public:
     virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
@@ -42,10 +42,27 @@ public:
     void ProcessCycle();
 
 private:
-    static const int RegSize = 16;
+    static const int RegSize = 32;
+    static const int InitialRxCycle = 100;
+    static const int RxCycle = 50;
 
-    uint64_t m_Time;
-    uint64_t m_TimeCmp;
+    // Register address
+    static const int Address_TxData = 0;
+    static const int Address_RxData = 4;
+    static const int Address_InterruptEnable = 16;
+    static const int Address_InterruptPending = 24;
+
+    void UpdateRx();
+    void PrintTx();
+
+    InterruptEnable m_InterruptEnable;
+    InterruptPending m_InterruptPending;
+
+    std::vector<char> m_TxChars;
+    char m_RxChar {'\0'};
+
+    int m_Cycle {0};
+    size_t m_PrintCount {0};
 };
 
 }}}

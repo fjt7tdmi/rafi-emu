@@ -16,10 +16,17 @@
 
 #pragma once
 
-#include "BasicTypes.h"
-#include "BitField.h"
-#include "Event.h"
-#include "Exception.h"
-#include "IInterruptSource.h"
-#include "Macro.h"
-#include "Util.h"
+#include <utility>
+
+#include <rafi/emu/BasicTypes.h>
+
+namespace rafi { namespace emu {
+
+// Memory Map
+const PhysicalAddress RomAddr = 0x00001000;
+const PhysicalAddress RamAddr = 0x80000000;
+const PhysicalAddress UartAddr = 0x40002000;
+const PhysicalAddress TimerAddr = 0x40000000;
+const PhysicalAddress HostIoAddr = 0x80001000;
+
+}}

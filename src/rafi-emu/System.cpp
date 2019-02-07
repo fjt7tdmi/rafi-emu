@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <rafi/MemoryMap.h>
+#include <rafi/emu.h>
 #include "System.h"
 
 namespace rafi { namespace emu {

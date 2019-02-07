@@ -21,9 +21,7 @@
 
 #include <boost/program_options.hpp>
 
-#include <rafi/BasicTypes.h>
-#include <rafi/Exception.h>
-#include <rafi/MemoryMap.h>
+#include <rafi/emu.h>
 
 #include "bus/Bus.h"
 

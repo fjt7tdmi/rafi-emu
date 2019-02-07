@@ -17,14 +17,14 @@
 #pragma once
 
 #include "io/IoInterruptSource.h"
-#include "uart/Uart.h"
-#include "timer/Timer.h"
+#include "io/Uart.h"
+#include "io/Timer.h"
 #include "mem/Ram.h"
 #include "mem/Rom.h"
 #include "bus/Bus.h"
 #include "cpu/Processor.h"
 
-#include <rafi/Event.h>
+#include <rafi/emu.h>
 
 namespace rafi { namespace emu {
 
@@ -68,8 +68,8 @@ private:
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;
-    uart::Uart m_Uart;
-    timer::Timer m_Timer;
+    io::Uart m_Uart;
+    io::Timer m_Timer;
 
     io::IoInterruptSource m_ExternalInterruptSource;
     io::IoInterruptSource m_TimerInterruptSource;

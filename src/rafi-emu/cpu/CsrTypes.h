@@ -18,7 +18,7 @@
 
 #include <cstring>
 
-#include <rafi/BitField.h>
+#include <rafi/emu.h>
 
 #include "Trap.h"
 

@@ -18,12 +18,13 @@
 #include <cassert>
 #include <cctype>
 #include <cstdio>
+#include <cstring>
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Uart.h"
 
-namespace rafi { namespace emu { namespace uart {
+namespace rafi { namespace emu { namespace io {
 
 void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 {

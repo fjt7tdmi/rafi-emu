@@ -14,23 +14,32 @@
  * limitations under the License.
  */
 
-#include <cassert>
-#include <cstdio>
+#pragma once
 
-#include <rafi/emu.h>
+#include <rafi/common.h>
 
-#include "IoInterruptSource.h"
+namespace rafi { namespace fp {
 
-namespace rafi { namespace emu { namespace io {
+float Add(float x, float y);
+float Sub(float x, float y);
+float Mul(float x, float y);
+float Div(float x, float y);
+float Sqrt(float x);
+int Eq(float x, float y);
+int Le(float x, float y);
+int Lt(float x, float y);
 
-IoInterruptSource::IoInterruptSource(const IIo* pIo)
-    : m_pIo(pIo)
-{
-}
+int32_t ConvertToInt32(float x);
+uint32_t ConvertToUInt32(float x);
+float ConvertToFloat(int32_t x);
+float ConvertToFloat(uint32_t x);
 
-bool IoInterruptSource::IsRequested() const
-{
-    return m_pIo->IsInterruptRequested();
-}
+uint32_t ConvertToRvFpClass(uint32_t rawValue);
 
-}}}
+int GetRvExceptionFlags();
+void SetRvExceptionFlags(int flags);
+
+int GetRvRoundMode();
+void SetRvRoundMode(int mode);
+
+}}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <rafi/Common.h>
+#include <rafi/emu.h>
 
 #include "Bus.h"
 
