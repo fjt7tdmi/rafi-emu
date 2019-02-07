@@ -23,8 +23,7 @@ namespace rvtrace {
 class TraceCycleBuilderImpl final
 {
 public:
-    explicit TraceCycleBuilderImpl(int32_t flags, int csrCount, int ramSize);
-
+    explicit TraceCycleBuilderImpl(const TraceCycleConfig& config);
     ~TraceCycleBuilderImpl();
 
     // Get pointer to raw data
@@ -34,10 +33,13 @@ public:
     int64_t GetDataSize();
 
     int64_t GetNodeSize(NodeType nodeType);
+    int64_t GetNodeSize(NodeType nodeType, int index);
 
     void* GetPointerToNode(NodeType nodeType);
+    void* GetPointerToNode(NodeType nodeType, int index);
 
     void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
+    void SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize);
 
     // utility
     void SetNode(const BasicInfoNode& node);
@@ -48,31 +50,25 @@ public:
     void SetNode(const Pc64Node& node);
     void SetNode(const Trap32Node& node);
     void SetNode(const Trap64Node& node);
-    void SetNode(const MemoryAccess32Node& node);
-    void SetNode(const MemoryAccess64Node& node);
+    void SetNode(const MemoryAccess32Node& node, int index);
+    void SetNode(const MemoryAccess64Node& node, int index);
     void SetNode(const IoNode& node);
 
 private:
-    int64_t CalculateDataSize(int32_t flags, int csrCount, int ramSize);
+    int64_t CalculateDataSize();
 
-    int32_t CountValidFlags(int32_t flags);
+    void InitializeMetaNodes();
 
-    void InitializeMetaNodes(int32_t flags, int csrCount, int ramSize);
-
-    void InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset, int csrCount, int ramSize);
-
-    int64_t GetProperNodeSize(NodeType nodeType, int csrCount, int ramSize);
+    int64_t GetProperNodeSize(NodeType nodeType);
 
     TraceCycleHeader* GetPointerToHeader();
-
     TraceCycleFooter* GetPointerToFooter();
 
     TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+    TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index);
 
-    TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType);
-
+    TraceCycleConfig m_Config;
     void* m_pData;
-
     int64_t m_DataSize;
 };
 

@@ -66,32 +66,34 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     // TraceHeader
-    int32_t flags = NodeFlag_BasicInfo | NodeFlag_Pc32 | NodeFlag_IntReg32 | NodeFlag_FpReg | NodeFlag_Io;
+    TraceCycleConfig config;
+    config.SetNodeCount(NodeType::BasicInfo, 1);
+    config.SetNodeCount(NodeType::Pc32, 1);
+    config.SetNodeCount(NodeType::IntReg32, 1);
+    config.SetNodeCount(NodeType::FpReg, 1);
+    config.SetNodeCount(NodeType::Io, 1);
 
     if (m_pSystem->IsTrapEventExist())
     {
-        flags |= NodeFlag_Trap32;
+        config.SetNodeCount(NodeType::Trap32, 1);
     }
 
-    if (m_pSystem->IsMemoryAccessEventExist())
-    {
-        flags |= NodeFlag_MemoryAccess32;
-    }
+    config.SetNodeCount(NodeType::MemoryAccess32, m_pSystem->GetMemoryAccessEventCount());
 
     if (m_EnableDumpCsr)
     {
-        flags |= NodeFlag_Csr32;
+        config.SetNodeCount(NodeType::Csr32, 1);
     }
 
     if (m_EnableDumpMemory)
     {
-        flags |= NodeFlag_Memory;
+        config.SetNodeCount(NodeType::Memory, 1);
     }
 
-    const int csrCount = m_pSystem->GetCsrCount();
-    const int ramSize = m_pSystem->GetRamSize();
+    config.SetCsrCount(m_pSystem->GetCsrCount());
+    config.SetRamSize(m_pSystem->GetRamSize());
 
-    TraceCycleBuilder builder(flags, csrCount, ramSize);
+    TraceCycleBuilder builder(config);
 
     // OpEvent
     OpEvent opEvent;
@@ -150,10 +152,11 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     // MemoryAccess32Node
-    if (m_pSystem->IsMemoryAccessEventExist())
+    // TODO: optimize (values are double copied now)
+    for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
     {
         MemoryAccessEvent memoryAccessEvent;
-        m_pSystem->CopyMemoryAccessEvent(&memoryAccessEvent);
+        m_pSystem->CopyMemoryAccessEvent(&memoryAccessEvent, index);
 
         MemoryAccess32Node memoryAccessNode
         {
@@ -163,7 +166,7 @@ void TraceDumper::DumpOneCycle(int cycle)
             memoryAccessEvent.virtualAddress,
             static_cast<int32_t>(memoryAccessEvent.physicalAddress),
         };
-        builder.SetNode(memoryAccessNode);
+        builder.SetNode(memoryAccessNode, index);
     }
 
     // Csr32Node

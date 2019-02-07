@@ -28,14 +28,13 @@ public:
     TraceCycleReaderImpl(const void* buffer, int64_t bufferSize);
 
     int64_t GetOffsetOfPreviousCycle() const;
-
     int64_t GetOffsetOfNextCycle() const;
 
-    const void* GetNode(NodeType nodeType) const;
+    const void* GetNode(NodeType nodeType, int index) const;
 
-    int64_t GetNodeSize(NodeType nodeType) const;
+    int64_t GetNodeSize(NodeType nodeType, int index) const;
 
-    bool IsNodeExist(NodeType nodeType) const;
+    int GetNodeCount(NodeType nodeType) const;
 
     // utility
     const BasicInfoNode* GetBasicInfoNode() const;
@@ -48,26 +47,23 @@ public:
     const Csr64Node* GetCsr64Node() const;
     const Trap32Node* GetTrap32Node() const;
     const Trap64Node* GetTrap64Node() const;
-    const MemoryAccess32Node* GetMemoryAccess32Node() const;
-    const MemoryAccess64Node* GetMemoryAccess64Node() const;
+    const MemoryAccess32Node* GetMemoryAccess32Node(int index) const;
+    const MemoryAccess64Node* GetMemoryAccess64Node(int index) const;
     const IoNode* GetIoNode() const;
     const void* GetMemoryNode() const;
 
 private:
-    void CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const;
-
-    void CheckNodeSizeGreaterThan(NodeType nodeType, size_t size) const;
+    void CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const;
+    void CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const;
 
     const TraceCycleHeader* GetPointerToHeader() const;
 
     const TraceCycleMetaNode* GetPointerToMeta(int32_t index) const;
+    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index) const;
 
-    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType) const;
-
-    const void* GetPointerToNode(NodeType nodeType) const;
+    const void* GetPointerToNode(NodeType nodeType, int index) const;
 
     const void* m_pData;
-
     int64_t m_BufferSize;
 };
 

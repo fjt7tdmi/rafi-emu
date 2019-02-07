@@ -24,19 +24,9 @@
 
 namespace rvtrace {
 
-TraceCycleBuilder::TraceCycleBuilder(int32_t flags)
+TraceCycleBuilder::TraceCycleBuilder(TraceCycleConfig config)
 {
-    m_pImpl = new TraceCycleBuilderImpl(flags, 0, 0);
-}
-
-TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount)
-{
-    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount, 0);
-}
-
-TraceCycleBuilder::TraceCycleBuilder(int32_t flags, int csrCount, int ramSize)
-{
-    m_pImpl = new TraceCycleBuilderImpl(flags, csrCount, ramSize);
+    m_pImpl = new TraceCycleBuilderImpl(config);
 }
 
 TraceCycleBuilder::~TraceCycleBuilder()
@@ -64,9 +54,9 @@ void* TraceCycleBuilder::GetPointerToNode(NodeType nodeType)
     return m_pImpl->GetPointerToNode(nodeType);
 }
 
-void TraceCycleBuilder::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
+void TraceCycleBuilder::SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize)
 {
-    m_pImpl->SetNode(nodeType, buffer, bufferSize);
+    m_pImpl->SetNode(nodeType, index, buffer, bufferSize);
 }
 
 void TraceCycleBuilder::SetNode(const BasicInfoNode& node)
@@ -109,14 +99,14 @@ void TraceCycleBuilder::SetNode(const Trap64Node& node)
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const MemoryAccess32Node& node)
+void TraceCycleBuilder::SetNode(const MemoryAccess32Node& node, int index)
 {
-    m_pImpl->SetNode(node);
+    m_pImpl->SetNode(node, index);
 }
 
-void TraceCycleBuilder::SetNode(const MemoryAccess64Node& node)
+void TraceCycleBuilder::SetNode(const MemoryAccess64Node& node, int index)
 {
-    m_pImpl->SetNode(node);
+    m_pImpl->SetNode(node, index);
 }
 
 void TraceCycleBuilder::SetNode(const IoNode& node)

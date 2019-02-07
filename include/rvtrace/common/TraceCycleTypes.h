@@ -23,6 +23,8 @@
 
 namespace rvtrace {
 
+const int NodeTypeMax = 32;
+
 enum class NodeType : int32_t
 {
     BasicInfo = 0,
@@ -39,24 +41,6 @@ enum class NodeType : int32_t
     MemoryAccess64 = 11,
     Io = 12,
     Memory = 13,
-};
-
-enum NodeFlag : int32_t
-{
-    NodeFlag_BasicInfo      = 1 << static_cast<int32_t>(NodeType::BasicInfo),
-    NodeFlag_FpReg          = 1 << static_cast<int32_t>(NodeType::FpReg),
-    NodeFlag_IntReg32       = 1 << static_cast<int32_t>(NodeType::IntReg32),
-    NodeFlag_IntReg64       = 1 << static_cast<int32_t>(NodeType::IntReg64),
-    NodeFlag_Pc32           = 1 << static_cast<int32_t>(NodeType::Pc32),
-    NodeFlag_Pc64           = 1 << static_cast<int32_t>(NodeType::Pc64),
-    NodeFlag_Csr32          = 1 << static_cast<int32_t>(NodeType::Csr32),
-    NodeFlag_Csr64          = 1 << static_cast<int32_t>(NodeType::Csr64),
-    NodeFlag_Trap32         = 1 << static_cast<int32_t>(NodeType::Trap32),
-    NodeFlag_Trap64         = 1 << static_cast<int32_t>(NodeType::Trap64),
-    NodeFlag_MemoryAccess32 = 1 << static_cast<int32_t>(NodeType::MemoryAccess32),
-    NodeFlag_MemoryAccess64 = 1 << static_cast<int32_t>(NodeType::MemoryAccess64),
-    NodeFlag_Io             = 1 << static_cast<int32_t>(NodeType::Io),
-    NodeFlag_Memory         = 1 << static_cast<int32_t>(NodeType::Memory),
 };
 
 struct TraceCycleHeader

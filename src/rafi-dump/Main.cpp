@@ -222,37 +222,38 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
-    if (cycle.IsNodeExist(NodeType::BasicInfo))
+    if (cycle.GetNodeCount(NodeType::BasicInfo) > 0)
     {
         PrintBasicInfoNode(cycle.GetBasicInfoNode());
     }
-    if (cycle.IsNodeExist(NodeType::Io))
+    if (cycle.GetNodeCount(NodeType::Io) > 0)
     {
         PrintIoNode(cycle.GetIoNode());
     }
-    if (cycle.IsNodeExist(NodeType::Pc32))
+    if (cycle.GetNodeCount(NodeType::Pc32) > 0)
     {
         PrintPc32Node(cycle.GetPc32Node());
     }
-    if (cycle.IsNodeExist(NodeType::IntReg32))
+    if (cycle.GetNodeCount(NodeType::IntReg32) > 0)
     {
         PrintIntReg32Node(cycle.GetIntReg32Node());
     }
-    if (cycle.IsNodeExist(NodeType::FpReg))
+    if (cycle.GetNodeCount(NodeType::FpReg) > 0)
     {
         PrintFpRegNode(cycle.GetFpRegNode());
     }
-    if (cycle.IsNodeExist(NodeType::Trap32))
+    if (cycle.GetNodeCount(NodeType::Csr32) > 0)
+    {
+        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+    }
+    if (cycle.GetNodeCount(NodeType::Trap32) > 0)
     {
         PrintTrap32Node(cycle.GetTrap32Node());
     }
-    if (cycle.IsNodeExist(NodeType::MemoryAccess32))
+
+    for (int index = 0; index < cycle.GetNodeCount(NodeType::MemoryAccess32); index++)
     {
-        PrintMemoryAccess32Node(cycle.GetMemoryAccess32Node());
-    }
-    if (cycle.IsNodeExist(NodeType::Csr32))
-    {
-        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+        PrintMemoryAccess32Node(cycle.GetMemoryAccess32Node(index));
     }
 
     // TODO: implement PrintMemory()

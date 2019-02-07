@@ -130,6 +130,11 @@ int Processor::GetCsrCount() const
     return m_Csr.GetRegisterCount();
 }
 
+int Processor::GetMemoryAccessEventCount() const
+{
+    return m_MemAccessUnit.GetEventCount();
+}
+
 void Processor::CopyCsr(void* pOut, size_t size) const
 {
     m_Csr.Copy(pOut, size);
@@ -160,9 +165,9 @@ void Processor::CopyOpEvent(OpEvent* pOut) const
     std::memcpy(pOut, &m_OpEvent, sizeof(*pOut));
 }
 
-void Processor::CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const
+void Processor::CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const
 {
-    m_MemAccessUnit.CopyEvent(pOut);
+    m_MemAccessUnit.CopyEvent(pOut, index);
 }
 
 void Processor::CopyTrapEvent(TrapEvent* pOut) const
@@ -183,11 +188,6 @@ bool Processor::IsCsrWriteEventExist() const
 bool Processor::IsOpEventExist() const
 {
     return m_OpEventValid;
-}
-
-bool Processor::IsMemoryAccessEventExist() const
-{
-    return m_MemAccessUnit.IsEventExist();
 }
 
 bool Processor::IsTrapEventExist() const
