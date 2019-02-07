@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdio>
+#include <cstring>
 
 #include <rafi/emu.h>
 

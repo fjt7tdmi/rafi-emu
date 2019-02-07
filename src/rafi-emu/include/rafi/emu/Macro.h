@@ -22,10 +22,10 @@
 
 #include "Exception.h"
 
-#define RAFI_EMU_ERROR(fmt, ...) \
+#define RAFI_EMU_ERROR(...) \
     do { \
         fprintf(stderr, "[ERROR] Emulator error @ %s:%d\n", __FILE__, __LINE__); \
-        fprintf(stderr, fmt, __VA_ARGS__); \
+        fprintf(stderr, __VA_ARGS__); \
         throw RafiEmuException(); \
     } while(0)
 

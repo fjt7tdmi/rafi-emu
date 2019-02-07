@@ -19,6 +19,7 @@
 #include <rafi/common.h>
 
 #include <cstdlib>
+#include <cstdio>
 
 #define RAFI_NOT_IMPLEMENTED() \
     do { \
