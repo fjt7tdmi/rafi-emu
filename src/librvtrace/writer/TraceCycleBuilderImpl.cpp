@@ -26,10 +26,10 @@ using namespace std;
 
 namespace rvtrace {
 
-TraceCycleBuilderImpl::TraceCycleBuilderImpl(int32_t flags, int csrCount, int ramSize)
+TraceCycleBuilderImpl::TraceCycleBuilderImpl(const TraceCycleConfig& config)
+    : m_Config(config)
 {
-    const auto size = CalculateDataSize(flags, csrCount, ramSize);
-
+    const auto size = CalculateDataSize();
     if (size > SIZE_MAX)
     {
         throw TraceCycleException("Overflow.");
@@ -39,12 +39,12 @@ TraceCycleBuilderImpl::TraceCycleBuilderImpl(int32_t flags, int csrCount, int ra
     m_DataSize = size;
 
     GetPointerToHeader()->footerOffset = size - sizeof(TraceCycleFooter);
-    GetPointerToHeader()->metaCount = CountValidFlags(flags);
+    GetPointerToHeader()->metaCount = config.GetTotalNodeCount();
     GetPointerToHeader()->reserved = 0;
 
     GetPointerToFooter()->headerOffset = size - sizeof(TraceCycleFooter);
 
-    InitializeMetaNodes(flags, csrCount, ramSize);
+    InitializeMetaNodes();
 }
 
 TraceCycleBuilderImpl::~TraceCycleBuilderImpl()
@@ -64,7 +64,14 @@ int64_t TraceCycleBuilderImpl::GetDataSize()
 
 int64_t TraceCycleBuilderImpl::GetNodeSize(NodeType nodeType)
 {
-    const auto pMeta = GetPointerToMeta(nodeType);
+    assert(m_Config.GetNodeCount(nodeType) == 1);
+
+    return GetNodeSize(nodeType, 0);
+}
+
+int64_t TraceCycleBuilderImpl::GetNodeSize(NodeType nodeType, int index)
+{
+    const auto pMeta = GetPointerToMeta(nodeType, index);
 
     if (pMeta == nullptr)
     {
@@ -76,7 +83,14 @@ int64_t TraceCycleBuilderImpl::GetNodeSize(NodeType nodeType)
 
 void* TraceCycleBuilderImpl::GetPointerToNode(NodeType nodeType)
 {
-    const auto pMeta = GetPointerToMeta(nodeType);
+    assert(m_Config.GetNodeCount(nodeType) == 1);
+
+    return GetPointerToNode(nodeType, 0);
+}
+
+void* TraceCycleBuilderImpl::GetPointerToNode(NodeType nodeType, int index)
+{
+    const auto pMeta = GetPointerToMeta(nodeType, index);
 
     if (pMeta == nullptr)
     {
@@ -88,7 +102,12 @@ void* TraceCycleBuilderImpl::GetPointerToNode(NodeType nodeType)
 
 void TraceCycleBuilderImpl::SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize)
 {
-    const auto pMeta = GetPointerToMeta(nodeType);
+    SetNode(nodeType, 0, buffer, bufferSize);
+}
+
+void TraceCycleBuilderImpl::SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize)
+{
+    const auto pMeta = GetPointerToMeta(nodeType, index);
 
     if (pMeta == nullptr)
     {
@@ -107,7 +126,7 @@ void TraceCycleBuilderImpl::SetNode(NodeType nodeType, const void* buffer, int64
 
     const auto size = static_cast<size_t>(bufferSize);
 
-    std::memcpy(GetPointerToNode(nodeType), buffer, size);
+    std::memcpy(GetPointerToNode(nodeType, index), buffer, size);
 }
 
 void TraceCycleBuilderImpl::SetNode(const BasicInfoNode& node)
@@ -150,14 +169,14 @@ void TraceCycleBuilderImpl::SetNode(const Trap64Node& node)
     SetNode(NodeType::Trap64, &node, sizeof(node));
 }
 
-void TraceCycleBuilderImpl::SetNode(const MemoryAccess32Node& node)
+void TraceCycleBuilderImpl::SetNode(const MemoryAccess32Node& node, int index)
 {
-    SetNode(NodeType::MemoryAccess32, &node, sizeof(node));
+    SetNode(NodeType::MemoryAccess32, index, &node, sizeof(node));
 }
 
-void TraceCycleBuilderImpl::SetNode(const MemoryAccess64Node& node)
+void TraceCycleBuilderImpl::SetNode(const MemoryAccess64Node& node, int index)
 {
-    SetNode(NodeType::MemoryAccess64, &node, sizeof(node));
+    SetNode(NodeType::MemoryAccess64, index, &node, sizeof(node));
 }
 
 void TraceCycleBuilderImpl::SetNode(const IoNode& node)
@@ -165,172 +184,47 @@ void TraceCycleBuilderImpl::SetNode(const IoNode& node)
     SetNode(NodeType::Io, &node, sizeof(node));
 }
 
-int64_t TraceCycleBuilderImpl::CalculateDataSize(int32_t flags, int csrCount, int ramSize)
+int64_t TraceCycleBuilderImpl::CalculateDataSize()
 {
-    int64_t size = sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter);
+    const int totalNodeCount = m_Config.GetTotalNodeCount();
 
-    size += sizeof(TraceCycleMetaNode) * CountValidFlags(flags);
+    int64_t size = sizeof(TraceCycleHeader) + totalNodeCount * sizeof(TraceCycleMetaNode);
 
-#define GET_SIZE_FOR_FLAG(flag_) (((flags & NodeFlag_##flag_) != 0) ? GetProperNodeSize(NodeType:: flag_ , csrCount, ramSize) : 0)
-    size += GET_SIZE_FOR_FLAG(BasicInfo);
-    size += GET_SIZE_FOR_FLAG(FpReg);
-    size += GET_SIZE_FOR_FLAG(Pc32);
-    size += GET_SIZE_FOR_FLAG(Pc64);
-    size += GET_SIZE_FOR_FLAG(IntReg32);
-    size += GET_SIZE_FOR_FLAG(IntReg64);
-    size += GET_SIZE_FOR_FLAG(Csr32);
-    size += GET_SIZE_FOR_FLAG(Csr64);
-    size += GET_SIZE_FOR_FLAG(Trap32);
-    size += GET_SIZE_FOR_FLAG(Trap64);
-    size += GET_SIZE_FOR_FLAG(MemoryAccess32);
-    size += GET_SIZE_FOR_FLAG(MemoryAccess64);
-    size += GET_SIZE_FOR_FLAG(Io);
-    size += GET_SIZE_FOR_FLAG(Memory);
-#undef GET_SIZE_FOR_FLAG
+    for (int nodeType = 0; nodeType < NodeTypeMax; nodeType++)
+    {
+        size += GetProperNodeSize(static_cast<NodeType>(nodeType)) * m_Config.GetNodeCount(nodeType);
+    }
+
+    size += sizeof(TraceCycleFooter);
 
     return size;
 }
 
-int32_t TraceCycleBuilderImpl::CountValidFlags(int32_t flags)
+void TraceCycleBuilderImpl::InitializeMetaNodes()
 {
-    int32_t count = 0;
+    const int totalNodeCount = m_Config.GetTotalNodeCount();
 
-#define ONE_IF_VALID(flag_) (((flags & NodeFlag_##flag_) != 0) ? 1 : 0)
-    count += ONE_IF_VALID(BasicInfo);
-    count += ONE_IF_VALID(FpReg);
-    count += ONE_IF_VALID(Pc32);
-    count += ONE_IF_VALID(Pc64);
-    count += ONE_IF_VALID(IntReg32);
-    count += ONE_IF_VALID(IntReg64);
-    count += ONE_IF_VALID(Csr32);
-    count += ONE_IF_VALID(Csr64);
-    count += ONE_IF_VALID(Trap32);
-    count += ONE_IF_VALID(Trap64);
-    count += ONE_IF_VALID(MemoryAccess32);
-    count += ONE_IF_VALID(MemoryAccess64);
-    count += ONE_IF_VALID(Io);
-    count += ONE_IF_VALID(Memory);
-#undef ONE_IF_VALID
+    int nodeIndex = 0;
+    int64_t offset = sizeof(TraceCycleHeader) + totalNodeCount * sizeof(TraceCycleMetaNode);
 
-    return count;
+    for (int nodeType = 0; nodeType < NodeTypeMax; nodeType++)
+    {
+        for (int i = 0; i < m_Config.GetNodeCount(nodeType); i++)
+        {
+            auto p = GetPointerToMeta(nodeIndex);
+
+            p->nodeType = static_cast<NodeType>(nodeType);
+            p->offset = offset;
+            p->size = GetProperNodeSize(static_cast<NodeType>(nodeType));
+            p->reserved = 0;
+
+            offset += GetProperNodeSize(static_cast<NodeType>(nodeType));
+            nodeIndex += 1;
+        }
+    }
 }
 
-void TraceCycleBuilderImpl::InitializeMetaNodes(int32_t flags, int csrCount, int ramSize)
-{
-    int32_t index = 0;
-    int64_t offset = sizeof(TraceCycleHeader) + CountValidFlags(flags) * sizeof(TraceCycleMetaNode);
-
-    if (flags & NodeFlag_BasicInfo)
-    {
-        InitializeMetaNode(index, NodeType::BasicInfo, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::BasicInfo, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Pc32)
-    {
-        InitializeMetaNode(index, NodeType::Pc32, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Pc32, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Pc64)
-    {
-        InitializeMetaNode(index, NodeType::Pc64, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Pc64, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_IntReg32)
-    {
-        InitializeMetaNode(index, NodeType::IntReg32, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::IntReg32, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_IntReg64)
-    {
-        InitializeMetaNode(index, NodeType::IntReg64, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::IntReg64, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Csr32)
-    {
-        InitializeMetaNode(index, NodeType::Csr32, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Csr32, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Csr64)
-    {
-        InitializeMetaNode(index, NodeType::Csr64, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Csr64, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Trap32)
-    {
-        InitializeMetaNode(index, NodeType::Trap32, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Trap32, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Trap64)
-    {
-        InitializeMetaNode(index, NodeType::Trap64, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Trap64, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_MemoryAccess32)
-    {
-        InitializeMetaNode(index, NodeType::MemoryAccess32, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::MemoryAccess32, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_MemoryAccess64)
-    {
-        InitializeMetaNode(index, NodeType::MemoryAccess64, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::MemoryAccess64, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Io)
-    {
-        InitializeMetaNode(index, NodeType::Io, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Io, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_Memory)
-    {
-        InitializeMetaNode(index, NodeType::Memory, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::Memory, csrCount, ramSize);
-        index++;
-    }
-    if (flags & NodeFlag_FpReg)
-    {
-        InitializeMetaNode(index, NodeType::FpReg, offset, csrCount, ramSize);
-
-        offset += GetProperNodeSize(NodeType::FpReg, csrCount, ramSize);
-        index++;
-    }
-
-    assert(index == CountValidFlags(flags));
-}
-
-void TraceCycleBuilderImpl::InitializeMetaNode(int32_t index, NodeType nodeType, int64_t offset, int csrCount, int ramSize)
-{
-    GetPointerToMeta(index)->nodeType = nodeType;
-    GetPointerToMeta(index)->offset = offset;
-    GetPointerToMeta(index)->size = GetProperNodeSize(nodeType, csrCount, ramSize);
-    GetPointerToMeta(index)->reserved = 0;
-}
-
-int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType, int csrCount, int ramSize)
+int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType)
 {
     switch (nodeType)
     {
@@ -347,9 +241,9 @@ int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType, int csrCount
     case NodeType::Pc64:
         return sizeof(Pc64Node);
     case NodeType::Csr32:
-        return sizeof(Csr32Node) * csrCount;
+        return sizeof(Csr32Node) * m_Config.GetCsrCount();
     case NodeType::Csr64:
-        return sizeof(Csr64Node) * csrCount;
+        return sizeof(Csr64Node) * m_Config.GetCsrCount();
     case NodeType::Trap32:
         return sizeof(Trap32Node);
     case NodeType::Trap64:
@@ -361,9 +255,9 @@ int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType, int csrCount
     case NodeType::Io:
         return sizeof(IoNode);
     case NodeType::Memory:
-        return ramSize;
+        return m_Config.GetRamSize();
     default:
-        throw TraceCycleException("Unknown NodeType.");
+        return 0;
     }
 }
 
@@ -389,9 +283,11 @@ TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(int32_t index)
     return &metaNodes[index];
 }
 
-TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(NodeType nodeType)
+TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(NodeType nodeType, int index)
 {
     const auto metaCount = GetPointerToHeader()->metaCount;
+
+    int matched = 0;
 
     for (int i = 0; i < metaCount; i++)
     {
@@ -399,7 +295,12 @@ TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(NodeType nodeType)
 
         if (pMeta->nodeType == nodeType)
         {
-            return pMeta;
+            if (index == matched)
+            {
+                return pMeta;
+            }
+
+            matched++;
         }
     }
 

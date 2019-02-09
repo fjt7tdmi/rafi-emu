@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <vector>
 
 #include <rafi/emu.h>
 
@@ -56,7 +57,7 @@ class MemoryAccessUnit
 public:
     MemoryAccessUnit()
     {
-        std::memset(&m_Event, 0, sizeof(m_Event));
+        m_Events.clear();
     }
 
     void Initialize(bus::Bus* pBus, Csr* pCsr)
@@ -80,10 +81,11 @@ public:
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress) const;
 
     // for Dump
-    void RecordEvent(MemoryAccessType accessType, int32_t size,  int64_t value, int32_t vaddr, PhysicalAddress paddr);
+    void AddEvent(MemoryAccessType accessType, int32_t size,  int64_t value, int32_t vaddr, PhysicalAddress paddr);
     void ClearEvent();
-    void CopyEvent(MemoryAccessEvent* pOut) const;
-    bool IsEventExist() const;
+
+    void CopyEvent(MemoryAccessEvent* pOut, int index) const;
+    int GetEventCount() const;
 
 private:
     const int PageTableEntrySize = 4;
@@ -99,12 +101,10 @@ private:
     PhysicalAddress ProcessTranslation(int32_t virtualAddress, bool isWrite);
     void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
 
+    std::vector<MemoryAccessEvent> m_Events;
+
     bus::Bus* m_pBus{ nullptr };
     Csr* m_pCsr{ nullptr };
-
-    bool m_EventValid{ false };
-
-    MemoryAccessEvent m_Event;
 };
 
 }}}

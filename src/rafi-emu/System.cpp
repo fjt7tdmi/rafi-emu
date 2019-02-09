@@ -60,6 +60,11 @@ int System::GetRamSize() const
     return m_Ram.GetCapacity();
 }
 
+int System::GetMemoryAccessEventCount() const
+{
+    return m_Processor.GetMemoryAccessEventCount();
+}
+
 int32_t System::GetHostIoValue() const
 {
     const auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
@@ -100,11 +105,6 @@ void System::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
     return m_Processor.CopyCsrWriteEvent(pOut);
 }
 
-void System::CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const
-{
-    return m_Processor.CopyMemoryAccessEvent(pOut);
-}
-
 void System::CopyOpEvent(OpEvent* pOut) const
 {
     return m_Processor.CopyOpEvent(pOut);
@@ -115,6 +115,11 @@ void System::CopyTrapEvent(TrapEvent* pOut) const
     return m_Processor.CopyTrapEvent(pOut);
 }
 
+void System::CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const
+{
+    return m_Processor.CopyMemoryAccessEvent(pOut, index);
+}
+
 bool System::IsCsrReadEventExist() const
 {
     return m_Processor.IsCsrReadEventExist();
@@ -123,11 +128,6 @@ bool System::IsCsrReadEventExist() const
 bool System::IsCsrWriteEventExist() const
 {
     return m_Processor.IsCsrWriteEventExist();
-}
-
-bool System::IsMemoryAccessEventExist() const
-{
-    return m_Processor.IsMemoryAccessEventExist();
 }
 
 bool System::IsOpEventExist() const

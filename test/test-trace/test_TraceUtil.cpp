@@ -40,13 +40,17 @@ void FillZero(void* buffer, size_t size)
 
 std::unique_ptr<TraceCycleBuilder> MakeTestBuilder()
 {
-    auto builder = std::make_unique<TraceCycleBuilder>(NodeFlag_BasicInfo);
+    TraceCycleConfig config;
+
+    config.SetNodeCount(NodeType::BasicInfo, 1);
+
+    auto builder = std::make_unique<TraceCycleBuilder>(config);
 
     BasicInfoNode basicInfo;
 
     FillRandom(&basicInfo, sizeof(basicInfo));
 
-    builder->SetNode(NodeType::BasicInfo, &basicInfo, sizeof(basicInfo));
+    builder->SetNode(NodeType::BasicInfo, 0, &basicInfo, sizeof(basicInfo));
 
     return std::move(builder);
 }

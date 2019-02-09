@@ -30,9 +30,9 @@ TraceCycleReaderImpl::TraceCycleReaderImpl(const void* buffer, int64_t bufferSiz
     m_BufferSize = bufferSize;
 }
 
-const void* TraceCycleReaderImpl::GetNode(NodeType nodeType) const
+const void* TraceCycleReaderImpl::GetNode(NodeType nodeType, int index) const
 {
-    const auto pNode = GetPointerToNode(nodeType);
+    const auto pNode = GetPointerToNode(nodeType, index);
 
     if (pNode == nullptr)
     {
@@ -42,9 +42,9 @@ const void* TraceCycleReaderImpl::GetNode(NodeType nodeType) const
     return pNode;
 }
 
-int64_t TraceCycleReaderImpl::GetNodeSize(NodeType nodeType) const
+int64_t TraceCycleReaderImpl::GetNodeSize(NodeType nodeType, int index) const
 {
-    const auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType, index);
 
     if (pMeta == nullptr)
     {
@@ -54,106 +54,118 @@ int64_t TraceCycleReaderImpl::GetNodeSize(NodeType nodeType) const
     return pMeta->size;
 }
 
-bool TraceCycleReaderImpl::IsNodeExist(NodeType nodeType) const
+int TraceCycleReaderImpl::GetNodeCount(NodeType nodeType) const
 {
-    return GetPointerToMeta(nodeType) != nullptr;
+    int count = 0;
+
+    for (int i = 0; i < GetPointerToHeader()->metaCount; i++)
+    {
+        auto pMeta = GetPointerToMeta(i);
+
+        if (pMeta->nodeType == nodeType)
+        {
+            count++;
+        }
+    }
+
+    return count;
 }
 
 const BasicInfoNode* TraceCycleReaderImpl::GetBasicInfoNode() const
 {
-    CheckNodeSizeEqualTo(NodeType::BasicInfo, sizeof(BasicInfoNode));
-    return reinterpret_cast<const BasicInfoNode*>(GetNode(NodeType::BasicInfo));
+    CheckNodeSizeEqualTo(NodeType::BasicInfo, 0, sizeof(BasicInfoNode));
+    return reinterpret_cast<const BasicInfoNode*>(GetNode(NodeType::BasicInfo, 0));
 }
 
 const FpRegNode* TraceCycleReaderImpl::GetFpRegNode() const
 {
-    CheckNodeSizeEqualTo(NodeType::FpReg, sizeof(FpRegNode));
-    return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg));
+    CheckNodeSizeEqualTo(NodeType::FpReg, 0, sizeof(FpRegNode));
+    return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg, 0));
 }
 
 const IntReg32Node* TraceCycleReaderImpl::GetIntReg32Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::IntReg32, sizeof(IntReg32Node));
-    return reinterpret_cast<const IntReg32Node*>(GetNode(NodeType::IntReg32));
+    CheckNodeSizeEqualTo(NodeType::IntReg32, 0, sizeof(IntReg32Node));
+    return reinterpret_cast<const IntReg32Node*>(GetNode(NodeType::IntReg32, 0));
 }
 
 const IntReg64Node* TraceCycleReaderImpl::GetIntReg64Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::IntReg64, sizeof(IntReg64Node));
-    return reinterpret_cast<const IntReg64Node*>(GetNode(NodeType::IntReg64));
+    CheckNodeSizeEqualTo(NodeType::IntReg64, 0, sizeof(IntReg64Node));
+    return reinterpret_cast<const IntReg64Node*>(GetNode(NodeType::IntReg64, 0));
 }
 
 const Pc32Node* TraceCycleReaderImpl::GetPc32Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::Pc32, sizeof(Pc32Node));
-    return reinterpret_cast<const Pc32Node*>(GetNode(NodeType::Pc32));
+    CheckNodeSizeEqualTo(NodeType::Pc32, 0, sizeof(Pc32Node));
+    return reinterpret_cast<const Pc32Node*>(GetNode(NodeType::Pc32, 0));
 }
 
 const Pc64Node* TraceCycleReaderImpl::GetPc64Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::Pc64, sizeof(Pc64Node));
-    return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64));
+    CheckNodeSizeEqualTo(NodeType::Pc64, 0, sizeof(Pc64Node));
+    return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64, 0));
 }
 
 const Csr32Node* TraceCycleReaderImpl::GetCsr32Node() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Csr32, sizeof(Csr32Node));
-    return reinterpret_cast<const Csr32Node*>(GetNode(NodeType::Csr32));
+    CheckNodeSizeGreaterThan(NodeType::Csr32, 0, sizeof(Csr32Node));
+    return reinterpret_cast<const Csr32Node*>(GetNode(NodeType::Csr32, 0));
 }
 
 const Csr64Node* TraceCycleReaderImpl::GetCsr64Node() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Csr64, sizeof(Csr64Node));
-    return reinterpret_cast<const Csr64Node*>(GetNode(NodeType::Csr64));
+    CheckNodeSizeGreaterThan(NodeType::Csr64, 0, sizeof(Csr64Node));
+    return reinterpret_cast<const Csr64Node*>(GetNode(NodeType::Csr64, 0));
 }
 
 const Trap32Node* TraceCycleReaderImpl::GetTrap32Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::Trap32, sizeof(Trap32Node));
-    return reinterpret_cast<const Trap32Node*>(GetNode(NodeType::Trap32));
+    CheckNodeSizeEqualTo(NodeType::Trap32, 0, sizeof(Trap32Node));
+    return reinterpret_cast<const Trap32Node*>(GetNode(NodeType::Trap32, 0));
 }
 
 const Trap64Node* TraceCycleReaderImpl::GetTrap64Node() const
 {
-    CheckNodeSizeEqualTo(NodeType::Trap64, sizeof(Trap64Node));
-    return reinterpret_cast<const Trap64Node*>(GetNode(NodeType::Trap64));
+    CheckNodeSizeEqualTo(NodeType::Trap64, 0, sizeof(Trap64Node));
+    return reinterpret_cast<const Trap64Node*>(GetNode(NodeType::Trap64, 0));
 }
 
-const MemoryAccess32Node* TraceCycleReaderImpl::GetMemoryAccess32Node() const
+const MemoryAccess32Node* TraceCycleReaderImpl::GetMemoryAccess32Node(int index) const
 {
-    CheckNodeSizeEqualTo(NodeType::MemoryAccess32, sizeof(MemoryAccess32Node));
-    return reinterpret_cast<const MemoryAccess32Node*>(GetNode(NodeType::MemoryAccess32));
+    CheckNodeSizeEqualTo(NodeType::MemoryAccess32, index, sizeof(MemoryAccess32Node));
+    return reinterpret_cast<const MemoryAccess32Node*>(GetNode(NodeType::MemoryAccess32, index));
 }
 
-const MemoryAccess64Node* TraceCycleReaderImpl::GetMemoryAccess64Node() const
+const MemoryAccess64Node* TraceCycleReaderImpl::GetMemoryAccess64Node(int index) const
 {
-    CheckNodeSizeEqualTo(NodeType::MemoryAccess64, sizeof(MemoryAccess64Node));
-    return reinterpret_cast<const MemoryAccess64Node*>(GetNode(NodeType::MemoryAccess64));
+    CheckNodeSizeEqualTo(NodeType::MemoryAccess64, index, sizeof(MemoryAccess64Node));
+    return reinterpret_cast<const MemoryAccess64Node*>(GetNode(NodeType::MemoryAccess64, index));
 }
 
 const IoNode* TraceCycleReaderImpl::GetIoNode() const
 {
-    CheckNodeSizeEqualTo(NodeType::Io, sizeof(IoNode));
-    return reinterpret_cast<const IoNode*>(GetNode(NodeType::Io));
+    CheckNodeSizeEqualTo(NodeType::Io, 0, sizeof(IoNode));
+    return reinterpret_cast<const IoNode*>(GetNode(NodeType::Io, 0));
 }
 
 const void* TraceCycleReaderImpl::GetMemoryNode() const
 {
-    CheckNodeSizeGreaterThan(NodeType::Memory, 0);
-    return GetNode(NodeType::Memory);
+    CheckNodeSizeGreaterThan(NodeType::Memory, 0, 0);
+    return GetNode(NodeType::Memory, 0);
 }
 
-void TraceCycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, size_t size) const
+void TraceCycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const
 {
-    if (!(GetNodeSize(nodeType) == size))
+    if (!(GetNodeSize(nodeType, index) == size))
     {
         throw TraceCycleException("node size is incorrect.");
     }
 }
 
-void TraceCycleReaderImpl::CheckNodeSizeGreaterThan(NodeType nodeType, size_t size) const
+void TraceCycleReaderImpl::CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const
 {
-    if (!(GetNodeSize(nodeType) > size))
+    if (!(GetNodeSize(nodeType, index) > size))
     {
         throw TraceCycleException("node size is incorrect.");
     }
@@ -174,26 +186,33 @@ const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(int32_t index) 
     return &metaNodes[index];
 }
 
-const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(NodeType nodeType) const
+const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(NodeType nodeType, int index) const
 {
     const auto metaCount = GetPointerToHeader()->metaCount;
 
+    int matched = 0;
+
     for (int i = 0; i < metaCount; i++)
     {
-        const auto pMeta = GetPointerToMeta(i);
+        auto pMeta = GetPointerToMeta(i);
 
         if (pMeta->nodeType == nodeType)
         {
-            return pMeta;
+            if (index == matched)
+            {
+                return pMeta;
+            }
+
+            matched++;
         }
     }
 
     return nullptr;
 }
 
-const void* TraceCycleReaderImpl::GetPointerToNode(NodeType nodeType) const
+const void* TraceCycleReaderImpl::GetPointerToNode(NodeType nodeType, int index) const
 {
-    const auto pMeta = GetPointerToMeta(nodeType);
+    const auto pMeta = GetPointerToMeta(nodeType, index);
 
     if (pMeta == nullptr)
     {

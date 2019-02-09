@@ -25,10 +25,7 @@ class TraceCycleBuilderImpl;
 class TraceCycleBuilder final
 {
 public:
-    explicit TraceCycleBuilder(int32_t flags);
-    TraceCycleBuilder(int32_t flags, int csrCount);
-    TraceCycleBuilder(int32_t flags, int csrCount, int ramSize);
-
+    explicit TraceCycleBuilder(TraceCycleConfig config);
     ~TraceCycleBuilder();
 
     // Get pointer to raw data
@@ -41,7 +38,7 @@ public:
 
     void* GetPointerToNode(NodeType nodeType);
 
-    void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
+    void SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize);
 
     // utility
     void SetNode(const BasicInfoNode& node);
@@ -52,8 +49,8 @@ public:
     void SetNode(const Pc64Node& node);
     void SetNode(const Trap32Node& node);
     void SetNode(const Trap64Node& node);
-    void SetNode(const MemoryAccess32Node& node);
-    void SetNode(const MemoryAccess64Node& node);
+    void SetNode(const MemoryAccess32Node& node, int index);
+    void SetNode(const MemoryAccess64Node& node, int index);
     void SetNode(const IoNode& node);
 
 private:

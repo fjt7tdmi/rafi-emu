@@ -34,7 +34,7 @@ void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
 
     if (size != sizeof(value))
     {
-        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+        RAFI_EMU_ERROR("Invalid access size (%zd byte).\n", size);
     }
 
     switch (address)
@@ -66,7 +66,7 @@ void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
 
     if (size != sizeof(value))
     {
-        RAFI_EMU_ERROR("Invalid access size (%d byte).\n", size);
+        RAFI_EMU_ERROR("Invalid access size (%zd byte).\n", size);
     }
 
     std::memcpy(&value, pBuffer, sizeof(int32_t));

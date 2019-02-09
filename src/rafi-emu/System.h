@@ -42,6 +42,7 @@ public:
     // for Dump
     int GetCsrCount() const;
     int GetRamSize() const;
+    int GetMemoryAccessEventCount() const;
 
     int32_t GetHostIoValue() const;
 
@@ -49,16 +50,14 @@ public:
     void CopyIntReg(void* pOut, size_t size) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyRam(void* pOut, size_t size) const;
-
     void CopyCsrReadEvent(CsrReadEvent* pOut) const;
     void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
-    void CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
+    void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
 
     bool IsCsrReadEventExist() const;
     bool IsCsrWriteEventExist() const;
-    bool IsMemoryAccessEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 

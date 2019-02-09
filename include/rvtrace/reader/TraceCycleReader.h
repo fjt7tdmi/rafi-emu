@@ -31,14 +31,15 @@ public:
     ~TraceCycleReader();
 
     int64_t GetOffsetOfPreviousCycle() const;
-
     int64_t GetOffsetOfNextCycle() const;
 
     const void* GetNode(NodeType nodeType) const;
+    const void* GetNode(NodeType nodeType, int index) const;
 
     int64_t GetNodeSize(NodeType nodeType) const;
+    int64_t GetNodeSize(NodeType nodeType, int index) const;
 
-    bool IsNodeExist(NodeType nodeType) const;
+    int GetNodeCount(NodeType nodeType) const;
 
     // utility
     const BasicInfoNode* GetBasicInfoNode() const;
@@ -51,8 +52,8 @@ public:
     const Csr64Node* GetCsr64Node() const;
     const Trap32Node* GetTrap32Node() const;
     const Trap64Node* GetTrap64Node() const;
-    const MemoryAccess32Node* GetMemoryAccess32Node() const;
-    const MemoryAccess64Node* GetMemoryAccess64Node() const;
+    const MemoryAccess32Node* GetMemoryAccess32Node(int index) const;
+    const MemoryAccess64Node* GetMemoryAccess64Node(int index) const;
     const IoNode* GetIoNode() const;
     const void* GetMemoryNode() const;
 

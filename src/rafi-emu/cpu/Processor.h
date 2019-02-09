@@ -56,25 +56,24 @@ public:
 
     // for Dump
     int GetCsrCount() const;
+    int GetMemoryAccessEventCount() const;
 
     void CopyCsr(void* pOut, size_t size) const;
     void CopyIntReg(void* pOut, size_t size) const;
     void CopyFpReg(void* pOut, size_t size) const;
-
     void CopyCsrReadEvent(CsrReadEvent* pOut) const;
     void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
     void CopyOpEvent(OpEvent* pOut) const;
-    void CopyMemoryAccessEvent(MemoryAccessEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
+    void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
 
     bool IsCsrReadEventExist() const;
     bool IsCsrWriteEventExist() const;
-    bool IsMemoryAccessEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 
     void PrintStatus() const;
-    
+
 private:
     void ClearOpEvent();
 

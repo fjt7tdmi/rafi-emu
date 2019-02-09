@@ -36,17 +36,31 @@ TraceCycleReader::~TraceCycleReader()
 
 const void* TraceCycleReader::GetNode(NodeType nodeType) const
 {
-    return m_pImpl->GetNode(nodeType);
+    assert(GetNodeCount(nodeType) == 1);
+
+    return GetNode(nodeType, 0);
+}
+
+const void* TraceCycleReader::GetNode(NodeType nodeType, int index) const
+{
+    return m_pImpl->GetNode(nodeType, index);
 }
 
 int64_t TraceCycleReader::GetNodeSize(NodeType nodeType) const
 {
-    return m_pImpl->GetNodeSize(nodeType);
+    assert(GetNodeCount(nodeType) == 1);
+
+    return m_pImpl->GetNodeSize(nodeType, 0);
 }
 
-bool TraceCycleReader::IsNodeExist(NodeType nodeType) const
+int64_t TraceCycleReader::GetNodeSize(NodeType nodeType, int index) const
 {
-    return m_pImpl->IsNodeExist(nodeType);
+    return m_pImpl->GetNodeSize(nodeType, index);
+}
+
+int TraceCycleReader::GetNodeCount(NodeType nodeType) const
+{
+    return m_pImpl->GetNodeCount(nodeType);
 }
 
 const BasicInfoNode* TraceCycleReader::GetBasicInfoNode() const
@@ -99,14 +113,14 @@ const Trap64Node* TraceCycleReader::GetTrap64Node() const
     return m_pImpl->GetTrap64Node();
 }
 
-const MemoryAccess32Node* TraceCycleReader::GetMemoryAccess32Node() const
+const MemoryAccess32Node* TraceCycleReader::GetMemoryAccess32Node(int index) const
 {
-    return m_pImpl->GetMemoryAccess32Node();
+    return m_pImpl->GetMemoryAccess32Node(index);
 }
 
-const MemoryAccess64Node* TraceCycleReader::GetMemoryAccess64Node() const
+const MemoryAccess64Node* TraceCycleReader::GetMemoryAccess64Node(int index) const
 {
-    return m_pImpl->GetMemoryAccess64Node();
+    return m_pImpl->GetMemoryAccess64Node(index);
 }
 
 const IoNode* TraceCycleReader::GetIoNode() const
