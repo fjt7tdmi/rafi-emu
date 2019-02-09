@@ -94,122 +94,90 @@ private:
     using FractionMsb = BitFieldMember<22>;
 };
 
-float32 ToFloat32(uint32_t value)
+float32_t ToFloat32(uint32_t value)
 {
-    return static_cast<float32>(value);
+    float32_t result;
+    result.v = value;
+    return result;
 }
 
-float64 ToFloat64(uint64_t value)
+float64_t ToFloat64(uint64_t value)
 {
-    return static_cast<float64>(value);
+    float64_t result;
+    result.v = value;
+    return result;
 }
 
-uint32_t ToUInt32(float32 value)
+float32_t Negate(float32_t value)
 {
-    return static_cast<uint32_t>(value);
-}
-
-uint64_t ToUInt64(float64 value)
-{
-    return static_cast<uint64_t>(value);
-}
-
-uint32_t AdjustNan(uint32_t value)
-{
-    Float f(value);
-
-    if (f.IsQuietNan())
-    {
-        return FloatCanonicalQuietNan;
-    }
-    else if (f.IsSignalingNan())
-    {
-        return FloatCanonicalSignalingNan;
-    }
-    else
-    {
-        return value;
-    }
-}
-
-float32 Negate(float32 value)
-{
-    return value ^ 0x80000000;
+    float32_t result;
+    result.v = value.v ^ 0x80000000;
+    return result;
 }
 
 }
 
 uint32_t Add(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
     
-    const auto tmp = ToUInt32(float32_add(ToFloat32(x), ToFloat32(y)));
-
-    return AdjustNan(tmp);
+    return f32_add(ToFloat32(x), ToFloat32(y)).v;
 }
 
 uint32_t Sub(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
     
-    const auto tmp = ToUInt32(float32_sub(ToFloat32(x), ToFloat32(y)));
-
-    return AdjustNan(tmp);
+    return f32_sub(ToFloat32(x), ToFloat32(y)).v;
 }
 
 uint32_t Mul(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp = ToUInt32(float32_mul(ToFloat32(x), ToFloat32(y)));
-
-    return AdjustNan(tmp);
+    return f32_mul(ToFloat32(x), ToFloat32(y)).v;
 }
 
 uint32_t Div(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp = ToUInt32(float32_div(ToFloat32(x), ToFloat32(y)));
-
-    return AdjustNan(tmp);
+    return f32_div(ToFloat32(x), ToFloat32(y)).v;
 }
 
 uint32_t Sqrt(uint32_t x)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp = ToUInt32(float32_sqrt(ToFloat32(x)));
-
-    return AdjustNan(tmp);
+    return f32_sqrt(ToFloat32(x)).v;
 }
 
-int Eq(uint32_t x, uint32_t y)
+bool Eq(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    return float32_eq(ToFloat32(x), ToFloat32(y));
+    return f32_eq(ToFloat32(x), ToFloat32(y));
 }
 
-int Le(uint32_t x, uint32_t y)
+bool Le(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    return float32_le(ToFloat32(x), ToFloat32(y));
+    return f32_le(ToFloat32(x), ToFloat32(y));
 }
 
-int Lt(uint32_t x, uint32_t y)
+bool Lt(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    return float32_lt(ToFloat32(x), ToFloat32(y));
+    return f32_lt(ToFloat32(x), ToFloat32(y));
 }
 
 uint32_t Min(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto cmpResult = float32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
+    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
 
     if (Float(x).IsZero() && Float(y).IsZero())
     {
@@ -249,9 +217,9 @@ uint32_t Min(uint32_t x, uint32_t y)
 
 uint32_t Max(uint32_t x, uint32_t y)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto cmpResult = float32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
+    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
 
     if (Float(x).IsZero() && Float(y).IsZero())
     {
@@ -291,74 +259,62 @@ uint32_t Max(uint32_t x, uint32_t y)
 
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp0 = float32_mul(ToFloat32(x), ToFloat32(y));
-    const auto tmp1 = float32_add(tmp0, ToFloat32(z));
-
-    return AdjustNan(ToUInt32(tmp1));
+    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
+    return f32_add(tmp, ToFloat32(z)).v;
 }
 
 uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp0 = float32_mul(ToFloat32(x), ToFloat32(y));
-    const auto tmp1 = float32_sub(tmp0, ToFloat32(z));
-
-    return AdjustNan(ToUInt32(tmp1));
+    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
+    return f32_sub(tmp, ToFloat32(z)).v;
 }
 
 uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp0 = Negate(float32_mul(ToFloat32(x), ToFloat32(y)));
-    const auto tmp1 = float32_sub(tmp0, ToFloat32(z));
-
-    return AdjustNan(ToUInt32(tmp1));
+    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
+    return f32_sub(tmp, ToFloat32(z)).v;
 }
 
 uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp0 = Negate(float32_mul(ToFloat32(x), ToFloat32(y)));
-    const auto tmp1 = float32_add(tmp0, ToFloat32(z));
- 
-    return AdjustNan(ToUInt32(tmp1));
+    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
+    return f32_add(tmp, ToFloat32(z)).v;
 }
 
-int32_t FloatToInt32(uint32_t x)
+int32_t FloatToInt32(uint32_t x, int roundMode)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    return float32_to_int32(ToFloat32(x));
+    return f32_to_i32(ToFloat32(x), roundMode, true);
 }
 
-uint32_t FloatToUInt32(uint32_t x)
+uint32_t FloatToUInt32(uint32_t x, int roundMode)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    return float32_to_int32(ToFloat32(x));
+    return f32_to_ui32(ToFloat32(x), roundMode, true);
 }
 
 uint32_t Int32ToFloat(int32_t x)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp = ToUInt32(int32_to_float32(x));
-
-    return AdjustNan(tmp);
+    return i32_to_f32(x).v;
 }
 
 uint32_t UInt32ToFloat(uint32_t x)
 {
-    float_exception_flags = 0;
+    softfloat_exceptionFlags = 0;
 
-    const auto tmp = ToUInt32(int32_to_float32(static_cast<int32_t>(x)));
-
-    return AdjustNan(tmp);
+    return ui32_to_f32(x).v;
 }
 
 uint32_t ConvertToRvFpClass(uint32_t x)
@@ -412,102 +368,22 @@ uint32_t ConvertToRvFpClass(uint32_t x)
 
 int GetRvExceptionFlags()
 {
-    uint32_t rvFlags = 0;
-
-    if (float_exception_flags & float_flag_inexact)
-    {
-        rvFlags |= 0x01;
-    }
-    if (float_exception_flags & float_flag_underflow)
-    {
-        rvFlags |= 0x02;
-    }
-    if (float_exception_flags & float_flag_overflow)
-    {
-        rvFlags |= 0x04;
-    }
-    if (float_exception_flags & float_flag_divbyzero)
-    {
-        rvFlags |= 0x08;
-    }
-    if (float_exception_flags & float_flag_invalid)
-    {
-        rvFlags |= 0x10;
-    }
-
-    return rvFlags;
+    return static_cast<int>(softfloat_exceptionFlags);
 }
 
 void SetRvExceptionFlags(int rvFlags)
 {
-    int8_t flags = 0;
-
-    if (rvFlags & 0x01)
-    {
-        flags |= float_flag_inexact;
-    }
-    if (rvFlags & 0x02)
-    {
-        flags |= float_flag_underflow;
-    }
-    if (rvFlags & 0x04)
-    {
-        flags |= float_flag_overflow;
-    }
-    if (rvFlags & 0x08)
-    {
-        flags |= float_flag_divbyzero;
-    }
-    if (rvFlags & 0x10)
-    {
-        flags |= float_flag_invalid;
-    }
-
-    float_exception_flags = flags;
+    softfloat_exceptionFlags = static_cast<decltype(softfloat_exceptionFlags)>(rvFlags);
 }
 
 int GetRvRoundMode()
 {
-    switch(float_rounding_mode)
-    {
-    case float_round_nearest_even:
-        // Round to Nearest, ties to even
-        return 0;
-    case float_round_to_zero:
-        return 1;
-    case float_round_down:
-        return 2;
-    case float_round_up:
-        return 3;
-    default:
-        RAFI_NOT_IMPLEMENTED();
-    }
+    return static_cast<int>(softfloat_roundingMode);
 }
 
 void SetRvRoundMode(int mode)
 {
-    switch(mode)
-    {
-    case 0:
-        // Round to Nearest, ties to even
-        float_rounding_mode = float_round_nearest_even;
-        break;
-    case 1:
-        float_rounding_mode = float_round_to_zero;
-        break;
-    case 2:
-        float_rounding_mode = float_round_down;
-        break;
-    case 3:
-        float_rounding_mode = float_round_up;
-        break;
-    case 4:
-        // Round to Nearest, ties to max magnitude
-        float_rounding_mode = float_round_nearest_even;
-        break;
-    default:
-        RAFI_NOT_IMPLEMENTED();
-    }
+    softfloat_roundingMode = static_cast<decltype(softfloat_roundingMode)>(mode);
 }
 
 }}

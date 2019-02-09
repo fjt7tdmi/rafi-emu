@@ -1065,19 +1065,29 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
 
     const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
 
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    int32_t result;
+
     switch (op.opCode)
     {
     case OpCode::fcvt_w_s:
-        m_pIntRegFile->WriteInt32(operand.rd, fp::FloatToInt32(src));
+        result = fp::FloatToInt32(src, roundMode);
         break;
     case OpCode::fcvt_wu_s:
-        m_pIntRegFile->WriteUInt32(operand.rd, fp::FloatToUInt32(src));
+        result = fp::FloatToUInt32(src, roundMode);
         break;
     default:
         Error(op);
     }
 
     UpdateFpCsr();
+
+    m_pIntRegFile->WriteInt32(operand.rd, result);
 }
 
 void Executor::ProcessFloatConvertToFp(const Op& op)

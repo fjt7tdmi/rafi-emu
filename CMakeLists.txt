@@ -37,7 +37,7 @@ else()
     set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 endif()
 
-set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-2/include/x86-gcc)
+set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/lib/fp/include)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${GoogleTest_INCLUDE_DIRS})
@@ -51,14 +51,142 @@ add_library(librafi_fp
     include/rafi/common/BitField.h
     include/rafi/fp/FpApi.h
     include/rafi/fp/ScopedFpRound.h
+    src/lib/fp/include/platform.h
     src/lib/fp/FpApi.cpp
     src/lib/fp/ScopedFpRound.cpp
-    third_party/berkeley-softfloat-2/softfloat.c
-    third_party/berkeley-softfloat-2/include/x86-gcc/softfloat.h    
-)
+
+    # berkeley-softfloat-3 include
+    third_party/berkeley-softfloat-3/source/include/internals.h
+    third_party/berkeley-softfloat-3/source/include/primitives.h
+    third_party/berkeley-softfloat-3/source/include/primitiveTypes.h
+    third_party/berkeley-softfloat-3/source/include/softfloat_types.h
+    third_party/berkeley-softfloat-3/source/include/softfloat.h
+
+    # berkeley-softfloat-3 primitive
+    third_party/berkeley-softfloat-3/source/s_compare96M.c
+    third_party/berkeley-softfloat-3/source/s_compare128M.c
+    third_party/berkeley-softfloat-3/source/s_shortShiftLeft64To96M.c
+    third_party/berkeley-softfloat-3/source/s_shortShiftLeftM.c
+    third_party/berkeley-softfloat-3/source/s_shiftLeftM.c
+    third_party/berkeley-softfloat-3/source/s_shortShiftRightM.c
+    third_party/berkeley-softfloat-3/source/s_shortShiftRightJam64.c
+    third_party/berkeley-softfloat-3/source/s_shortShiftRightJamM.c
+    third_party/berkeley-softfloat-3/source/s_shiftRightJam32.c
+    third_party/berkeley-softfloat-3/source/s_shiftRightJam64.c
+    third_party/berkeley-softfloat-3/source/s_shiftRightJamM.c
+    third_party/berkeley-softfloat-3/source/s_shiftRightM.c
+    third_party/berkeley-softfloat-3/source/s_countLeadingZeros8.c
+    third_party/berkeley-softfloat-3/source/s_countLeadingZeros16.c
+    third_party/berkeley-softfloat-3/source/s_countLeadingZeros32.c
+    third_party/berkeley-softfloat-3/source/s_countLeadingZeros64.c
+    third_party/berkeley-softfloat-3/source/s_addM.c
+    third_party/berkeley-softfloat-3/source/s_addCarryM.c
+    third_party/berkeley-softfloat-3/source/s_addComplCarryM.c
+    third_party/berkeley-softfloat-3/source/s_negXM.c
+    third_party/berkeley-softfloat-3/source/s_sub1XM.c
+    third_party/berkeley-softfloat-3/source/s_subM.c
+    third_party/berkeley-softfloat-3/source/s_approxRecip_1Ks.c
+    third_party/berkeley-softfloat-3/source/s_approxRecip32_1.c
+    third_party/berkeley-softfloat-3/source/s_approxRecipSqrt_1Ks.c
+    third_party/berkeley-softfloat-3/source/s_approxRecipSqrt32_1.c
+    third_party/berkeley-softfloat-3/source/s_remStepMBy32.c
+
+    # berkeley-softfloat-3 specialize
+    third_party/berkeley-softfloat-3/source/RISCV/s_commonNaNToF64UI.c
+    third_party/berkeley-softfloat-3/source/RISCV/s_f32UIToCommonNaN.c
+    third_party/berkeley-softfloat-3/source/RISCV/s_propagateNaNF64UI.c
+    third_party/berkeley-softfloat-3/source/RISCV/specialize.h
+    third_party/berkeley-softfloat-3/source/RISCV/s_commonNaNToF32UI.c
+    third_party/berkeley-softfloat-3/source/RISCV/s_f64UIToCommonNaN.c
+    third_party/berkeley-softfloat-3/source/RISCV/s_propagateNaNF32UI.c
+    third_party/berkeley-softfloat-3/source/RISCV/softfloat_raiseFlags.c
+
+    # berkeley-softfloat-3 others
+    third_party/berkeley-softfloat-3/source/s_roundToUI32.c
+    third_party/berkeley-softfloat-3/source/s_roundMToUI64.c
+    third_party/berkeley-softfloat-3/source/s_roundToI32.c
+    third_party/berkeley-softfloat-3/source/s_roundMToI64.c
+    third_party/berkeley-softfloat-3/source/s_normSubnormalF32Sig.c
+    third_party/berkeley-softfloat-3/source/s_roundPackToF32.c
+    third_party/berkeley-softfloat-3/source/s_normRoundPackToF32.c
+    third_party/berkeley-softfloat-3/source/s_addMagsF32.c
+    third_party/berkeley-softfloat-3/source/s_subMagsF32.c
+    third_party/berkeley-softfloat-3/source/s_mulAddF32.c
+    third_party/berkeley-softfloat-3/source/s_normSubnormalF64Sig.c
+    third_party/berkeley-softfloat-3/source/s_roundPackToF64.c
+    third_party/berkeley-softfloat-3/source/s_normRoundPackToF64.c
+    third_party/berkeley-softfloat-3/source/s_addMagsF64.c
+    third_party/berkeley-softfloat-3/source/s_subMagsF64.c
+    third_party/berkeley-softfloat-3/source/s_mulAddF64.c
+    third_party/berkeley-softfloat-3/source/softfloat_state.c
+    third_party/berkeley-softfloat-3/source/ui32_to_f32.c
+    third_party/berkeley-softfloat-3/source/ui32_to_f64.c
+    third_party/berkeley-softfloat-3/source/ui64_to_f32.c
+    third_party/berkeley-softfloat-3/source/ui64_to_f64.c
+    third_party/berkeley-softfloat-3/source/i32_to_f32.c
+    third_party/berkeley-softfloat-3/source/i32_to_f64.c
+    third_party/berkeley-softfloat-3/source/i64_to_f32.c
+    third_party/berkeley-softfloat-3/source/i64_to_f64.c
+    third_party/berkeley-softfloat-3/source/f32_to_ui32.c
+    third_party/berkeley-softfloat-3/source/f32_to_ui64.c
+    third_party/berkeley-softfloat-3/source/f32_to_i32.c
+    third_party/berkeley-softfloat-3/source/f32_to_i64.c
+    third_party/berkeley-softfloat-3/source/f32_to_ui32_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f32_to_ui64_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f32_to_i32_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f32_to_i64_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f32_to_f64.c
+    third_party/berkeley-softfloat-3/source/f32_roundToInt.c
+    third_party/berkeley-softfloat-3/source/f32_add.c
+    third_party/berkeley-softfloat-3/source/f32_sub.c
+    third_party/berkeley-softfloat-3/source/f32_mul.c
+    third_party/berkeley-softfloat-3/source/f32_mulAdd.c
+    third_party/berkeley-softfloat-3/source/f32_div.c
+    third_party/berkeley-softfloat-3/source/f32_rem.c
+    third_party/berkeley-softfloat-3/source/f32_sqrt.c
+    third_party/berkeley-softfloat-3/source/f32_eq.c
+    third_party/berkeley-softfloat-3/source/f32_le.c
+    third_party/berkeley-softfloat-3/source/f32_lt.c
+    third_party/berkeley-softfloat-3/source/f32_eq_signaling.c
+    third_party/berkeley-softfloat-3/source/f32_le_quiet.c
+    third_party/berkeley-softfloat-3/source/f32_lt_quiet.c
+    third_party/berkeley-softfloat-3/source/f32_isSignalingNaN.c
+    third_party/berkeley-softfloat-3/source/f64_to_ui32.c
+    third_party/berkeley-softfloat-3/source/f64_to_ui64.c
+    third_party/berkeley-softfloat-3/source/f64_to_i32.c
+    third_party/berkeley-softfloat-3/source/f64_to_i64.c
+    third_party/berkeley-softfloat-3/source/f64_to_ui32_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f64_to_ui64_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f64_to_i32_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f64_to_i64_r_minMag.c
+    third_party/berkeley-softfloat-3/source/f64_to_f32.c
+    third_party/berkeley-softfloat-3/source/f64_roundToInt.c
+    third_party/berkeley-softfloat-3/source/f64_add.c
+    third_party/berkeley-softfloat-3/source/f64_sub.c
+    third_party/berkeley-softfloat-3/source/f64_mul.c
+    third_party/berkeley-softfloat-3/source/f64_mulAdd.c
+    third_party/berkeley-softfloat-3/source/f64_div.c
+    third_party/berkeley-softfloat-3/source/f64_rem.c
+    third_party/berkeley-softfloat-3/source/f64_sqrt.c
+    third_party/berkeley-softfloat-3/source/f64_eq.c
+    third_party/berkeley-softfloat-3/source/f64_le.c
+    third_party/berkeley-softfloat-3/source/f64_lt.c
+    third_party/berkeley-softfloat-3/source/f64_eq_signaling.c
+    third_party/berkeley-softfloat-3/source/f64_le_quiet.c
+    third_party/berkeley-softfloat-3/source/f64_lt_quiet.c
+    third_party/berkeley-softfloat-3/source/f64_isSignalingNaN.c)
 
 if (MSVC)
-    target_compile_options(librafi_fp PUBLIC /wd"4018" PUBLIC /wd"4146" PUBLIC /wd"4244" PUBLIC /wd"4245")
+    target_compile_options(librafi_fp
+        PUBLIC /wd"4101"
+        PUBLIC /wd"4102"
+        PUBLIC /wd"4146"
+        PUBLIC /wd"4206"
+        PUBLIC /wd"4244"
+        PUBLIC /wd"4389"
+        PUBLIC /wd"4701"
+        PUBLIC /wd"4703"
+        )
 endif()
 
 add_library(librvtrace
