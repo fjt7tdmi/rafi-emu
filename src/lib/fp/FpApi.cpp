@@ -28,10 +28,10 @@ namespace rafi { namespace fp {
 
 namespace {
 
-class FloatStruct : public BitField
+class Float : public BitField
 {
 public:
-    explicit FloatStruct(uint32_t value)
+    explicit Float(uint32_t value)
         : BitField(value)
     {
     }
@@ -64,7 +64,7 @@ public:
 private:
     bool IsNan() const
     {
-        return GetSign() == 0 && GetExponent() == 255 && GetFraction() != 0;
+        return GetExponent() == 255 && GetFraction() != 0;
     }
 
     using Sign = BitFieldMember<31>;
@@ -73,135 +73,153 @@ private:
     using FractionMsb = BitFieldMember<22>;
 };
 
-union Float
+float32 ToFloat32(uint32_t value)
 {
-    float _float;
-    float32 _float32;
-};
-
-union Double
-{
-    double _double;
-    float64 _float64;
-};
-
-double ToDouble(float64 value)
-{
-    Double tmp;
-    tmp._float64 = value;
-    return tmp._double;
+    return static_cast<float32>(value);
 }
 
-float ToFloat(float32 value)
+float64 ToFloat64(uint64_t value)
 {
-    Float tmp;
-    tmp._float32 = value;
-    return tmp._float;
+    return static_cast<float64>(value);
 }
 
-float32 ToFloat32(float value)
+uint32_t ToUInt32(float32 value)
 {
-    Float tmp;
-    tmp._float = value;
-    return tmp._float32;
+    return static_cast<uint32_t>(value);
 }
 
-float64 ToFloat64(double value)
+uint64_t ToUInt64(float64 value)
 {
-    Double tmp;
-    tmp._double = value;
-    return tmp._float64;
+    return static_cast<uint64_t>(value);
+}
+
+uint32_t AdjustNan(uint32_t value)
+{
+    Float f(value);
+
+    if (f.IsQuietNan())
+    {
+        return 0x7fc00000; // for double, use 0d:7ff8000000000000
+    }
+    else if (f.IsSignalingNan())
+    {
+        return 0x7f800001; // for double, use 0d:7ff0000000000001
+    }
+    else
+    {
+        return value;
+    }
 }
 
 }
 
-float Add(float x, float y)
+uint32_t Add(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
     
-    return ToFloat(float32_add(ToFloat32(x), ToFloat32(y)));
+    const auto result = ToUInt32(float32_add(ToFloat32(x), ToFloat32(y)));
+
+    return AdjustNan(result);
 }
 
-float Sub(float x, float y)
+uint32_t Sub(uint32_t x, uint32_t y)
+{
+    float_exception_flags = 0;
+    
+    const auto result = ToUInt32(float32_sub(ToFloat32(x), ToFloat32(y)));
+
+    return AdjustNan(result);
+}
+
+uint32_t Mul(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    return ToFloat(float32_sub(ToFloat32(x), ToFloat32(y)));
+    const auto result = ToUInt32(float32_mul(ToFloat32(x), ToFloat32(y)));
+
+    return AdjustNan(result);
 }
 
-float Mul(float x, float y)
+uint32_t Div(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    return ToFloat(float32_mul(ToFloat32(x), ToFloat32(y)));
+    const auto result = ToUInt32(float32_div(ToFloat32(x), ToFloat32(y)));
+
+    return AdjustNan(result);
 }
 
-float Div(float x, float y)
+uint32_t Sqrt(uint32_t x)
 {
     float_exception_flags = 0;
 
-    return ToFloat(float32_div(ToFloat32(x), ToFloat32(y)));
+    const auto result = ToUInt32(float32_sqrt(ToFloat32(x)));
+
+    return AdjustNan(result);
 }
 
-float Sqrt(float x)
+int Eq(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    return ToFloat(float32_sqrt(ToFloat32(x)));
+    const auto result = float32_eq(ToFloat32(x), ToFloat32(y));
+
+    return AdjustNan(result);
 }
 
-int Eq(float x, float y)
+int Le(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    return float32_eq(ToFloat32(x), ToFloat32(y));
+    const auto result = float32_le(ToFloat32(x), ToFloat32(y));
+
+    return AdjustNan(result);
 }
 
-int Le(float x, float y)
+int Lt(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    return float32_le(ToFloat32(x), ToFloat32(y));
+    const auto result = float32_lt(ToFloat32(x), ToFloat32(y));
+
+    return AdjustNan(result);
 }
 
-int Lt(float x, float y)
-{
-    float_exception_flags = 0;
-
-    return float32_lt(ToFloat32(x), ToFloat32(y));
-}
-
-int32_t ConvertToInt32(float x)
+int32_t FloatToInt32(uint32_t x)
 {
     float_exception_flags = 0;
 
     return float32_to_int32(ToFloat32(x));
 }
 
-uint32_t ConvertToUInt32(float x)
+uint32_t FloatToUInt32(uint32_t x)
 {
     float_exception_flags = 0;
 
-    return static_cast<uint32_t>(ConvertToInt32(x));
+    return float32_to_int32(ToFloat32(x));
 }
 
-float ConvertToFloat(int32_t x)
+uint32_t Int32ToFloat(int32_t x)
 {
     float_exception_flags = 0;
 
-    return ToFloat(int32_to_float32(x));
+    const auto result = ToUInt32(int32_to_float32(x));
+
+    return AdjustNan(result);
 }
 
-float ConvertToFloat(uint32_t x)
+uint32_t UInt32ToFloat(uint32_t x)
 {
     float_exception_flags = 0;
 
-    return ConvertToFloat(static_cast<int32_t>(x));
+    const auto result = ToUInt32(int32_to_float32(static_cast<int32_t>(x)));
+
+    return AdjustNan(result);
 }
 
-uint32_t ConvertToRvFpClass(uint32_t rawValue)
+uint32_t ConvertToRvFpClass(uint32_t x)
 {
-    FloatStruct f(rawValue);
+    Float f(x);
 
     if (f.GetSign() == 1 && f.GetExponent() == 255 && f.GetFraction() == 0)
     {
