@@ -103,7 +103,7 @@ float32 ToFloat32(float value)
 {
     Float tmp;
     tmp._float = value;
-    return tmp._float;
+    return tmp._float32;
 }
 
 float64 ToFloat64(double value)
@@ -117,61 +117,85 @@ float64 ToFloat64(double value)
 
 float Add(float x, float y)
 {
+    float_exception_flags = 0;
+    
     return ToFloat(float32_add(ToFloat32(x), ToFloat32(y)));
 }
 
 float Sub(float x, float y)
 {
+    float_exception_flags = 0;
+
     return ToFloat(float32_sub(ToFloat32(x), ToFloat32(y)));
 }
 
 float Mul(float x, float y)
 {
+    float_exception_flags = 0;
+
     return ToFloat(float32_mul(ToFloat32(x), ToFloat32(y)));
 }
 
 float Div(float x, float y)
 {
+    float_exception_flags = 0;
+
     return ToFloat(float32_div(ToFloat32(x), ToFloat32(y)));
 }
 
 float Sqrt(float x)
 {
+    float_exception_flags = 0;
+
     return ToFloat(float32_sqrt(ToFloat32(x)));
 }
 
 int Eq(float x, float y)
 {
+    float_exception_flags = 0;
+
     return float32_eq(ToFloat32(x), ToFloat32(y));
 }
 
 int Le(float x, float y)
 {
+    float_exception_flags = 0;
+
     return float32_le(ToFloat32(x), ToFloat32(y));
 }
 
 int Lt(float x, float y)
 {
+    float_exception_flags = 0;
+
     return float32_lt(ToFloat32(x), ToFloat32(y));
 }
 
 int32_t ConvertToInt32(float x)
 {
+    float_exception_flags = 0;
+
     return float32_to_int32(ToFloat32(x));
 }
 
 uint32_t ConvertToUInt32(float x)
 {
+    float_exception_flags = 0;
+
     return static_cast<uint32_t>(ConvertToInt32(x));
 }
 
 float ConvertToFloat(int32_t x)
 {
+    float_exception_flags = 0;
+
     return ToFloat(int32_to_float32(x));
 }
 
 float ConvertToFloat(uint32_t x)
 {
+    float_exception_flags = 0;
+
     return ConvertToFloat(static_cast<int32_t>(x));
 }
 
