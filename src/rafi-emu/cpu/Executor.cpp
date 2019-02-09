@@ -906,9 +906,9 @@ void Executor::ProcessFloatMulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
-    const auto src3 = m_pFpRegFile->ReadFloat(operand.rs3);
+    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src3 = m_pFpRegFile->ReadUInt32(operand.rs3);
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -918,80 +918,21 @@ void Executor::ProcessFloatMulAdd(const Op& op)
 
     fp::ScopedFpRound scopedFpRound(roundMode);
 
-    float value;
+    uint32_t result;
 
     switch (op.opCode)
     {
     case OpCode::fmadd_s:
-        value = src1 * src2 + src3;
+        result = fp::MulAdd(src1, src2, src3);
         break;
     case OpCode::fmsub_s:
-        value = src1 * src2 - src3;
+        result = fp::MulSub(src1, src2, src3);
         break;
     case OpCode::fnmadd_s:
-        value = - src1 * src2 + src3;
+        result = fp::NegMulAdd(src1, src2, src3);
         break;
     case OpCode::fnmsub_s:
-        value = - src1 * src2 - src3;
-        break;
-    default:
-        Error(op);
-    }
-
-    m_pFpRegFile->WriteFloat(operand.rd, value);
-}
-
-void Executor::ProcessFloatCompute(const Op& op)
-{
-    const auto& operand = std::get<OperandR>(op.operand);
-
-    const auto fpSrc1 = m_pFpRegFile->ReadFloat(operand.rs1);
-    const auto fpSrc2 = m_pFpRegFile->ReadFloat(operand.rs2);
-
-    const auto intSrc1 = m_pIntRegFile->ReadInt32(operand.rs1);
-    const auto uintSrc1 = m_pIntRegFile->ReadUInt32(operand.rs2);
-
-    const auto srcSign1 = m_pFpRegFile->ReadUInt32(operand.rs1) >> 31;
-    const auto srcSign2 = m_pFpRegFile->ReadUInt32(operand.rs2) >> 31;
-
-    int roundMode = operand.funct3;
-    if (roundMode == 7)
-    {
-        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
-    }
-
-    fp::ScopedFpRound scopedFpRound(roundMode);
-
-    float value;
-
-    switch (op.opCode)
-    {
-    case OpCode::fadd_s:
-        value = fp::Add(fpSrc1, fpSrc2);
-        break;
-    case OpCode::fsub_s:
-        value = fp::Sub(fpSrc1, fpSrc2);
-        break;
-    case OpCode::fmul_s:
-        value = fp::Mul(fpSrc1, fpSrc2);
-        break;
-    case OpCode::fdiv_s:
-        value = fp::Div(fpSrc1, fpSrc2);
-        break;
-    case OpCode::fsqrt_s:
-        value = fp::Sqrt(fpSrc1);
-        break;
-    case OpCode::fmin_s:
-        value = fp::Le(fpSrc1, fpSrc2) ? fpSrc1 : fpSrc2;
-        break;
-    case OpCode::fmax_s:
-        value = fp::Le(fpSrc1, fpSrc2) ? fpSrc2 : fpSrc1;
-        break;
-    case OpCode::fcvt_s_w:
-        value = fp::ConvertToFloat(intSrc1);
-        break;
-    case OpCode::fcvt_s_wu:
-        value = fp::ConvertToFloat(uintSrc1);
+        result = fp::NegMulSub(src1, src2, src3);
         break;
     default:
         Error(op);
@@ -999,18 +940,73 @@ void Executor::ProcessFloatCompute(const Op& op)
 
     UpdateFpCsr();
 
-    m_pFpRegFile->WriteFloat(operand.rd, value);
+    m_pFpRegFile->WriteUInt32(operand.rd, result);
+}
+
+void Executor::ProcessFloatCompute(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto fpSrc1 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto fpSrc2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    const auto intSrc1 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto uintSrc1 = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    fp::ScopedFpRound scopedFpRound(roundMode);
+
+    uint32_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fadd_s:
+        result = fp::Add(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fsub_s:
+        result = fp::Sub(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fmul_s:
+        result = fp::Mul(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fdiv_s:
+        result = fp::Div(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fsqrt_s:
+        result = fp::Sqrt(fpSrc1);
+        break;
+    case OpCode::fmin_s:
+        result = fp::Min(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fmax_s:
+        result = fp::Max(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fcvt_s_w:
+        result = fp::Int32ToFloat(intSrc1);
+        break;
+    case OpCode::fcvt_s_wu:
+        result = fp::UInt32ToFloat(uintSrc1);
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
 void Executor::ProcessFloatCompare(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
-
-    const auto src1_u32 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2_u32 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
 
     int32_t value;
 
@@ -1067,15 +1063,15 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src = m_pFpRegFile->ReadFloat(operand.rs1);
+    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
 
     switch (op.opCode)
     {
     case OpCode::fcvt_w_s:
-        m_pIntRegFile->WriteInt32(operand.rd, fp::ConvertToInt32(src));
+        m_pIntRegFile->WriteInt32(operand.rd, fp::FloatToInt32(src));
         break;
     case OpCode::fcvt_wu_s:
-        m_pIntRegFile->WriteUInt32(operand.rd, fp::ConvertToUInt32(src));
+        m_pIntRegFile->WriteUInt32(operand.rd, fp::FloatToUInt32(src));
         break;
     default:
         Error(op);

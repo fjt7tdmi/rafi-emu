@@ -20,21 +20,27 @@
 
 namespace rafi { namespace fp {
 
-float Add(float x, float y);
-float Sub(float x, float y);
-float Mul(float x, float y);
-float Div(float x, float y);
-float Sqrt(float x);
-int Eq(float x, float y);
-int Le(float x, float y);
-int Lt(float x, float y);
+uint32_t Add(uint32_t x, uint32_t y);
+uint32_t Sub(uint32_t x, uint32_t y);
+uint32_t Mul(uint32_t x, uint32_t y);
+uint32_t Div(uint32_t x, uint32_t y);
+uint32_t Sqrt(uint32_t x);
+int Eq(uint32_t x, uint32_t y);
+int Le(uint32_t x, uint32_t y);
+int Lt(uint32_t x, uint32_t y);
+uint32_t Min(uint32_t x, uint32_t y);
+uint32_t Max(uint32_t x, uint32_t y);
+uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z);
+uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z);
+uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z);
+uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z);
 
-int32_t ConvertToInt32(float x);
-uint32_t ConvertToUInt32(float x);
-float ConvertToFloat(int32_t x);
-float ConvertToFloat(uint32_t x);
+int32_t FloatToInt32(uint32_t x);
+uint32_t FloatToUInt32(uint32_t x);
+uint32_t Int32ToFloat(int32_t x);
+uint32_t UInt32ToFloat(uint32_t x);
 
-uint32_t ConvertToRvFpClass(uint32_t rawValue);
+uint32_t ConvertToRvFpClass(uint32_t x);
 
 int GetRvExceptionFlags();
 void SetRvExceptionFlags(int flags);
