@@ -63,7 +63,7 @@ void PrintFpRegNode(const FpRegNode* node)
     for (int i = 0; i < 32; i++)
     {
         printf(
-            "    f%-2d: { u64: 0x%016lx, f32: %e, f64: %e } // %s\n",
+            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
             i,
             node->regs[i].u64.value,
             node->regs[i].f32.value,
