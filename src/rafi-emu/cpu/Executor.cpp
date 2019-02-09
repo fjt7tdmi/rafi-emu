@@ -981,10 +981,10 @@ void Executor::ProcessFloatCompute(const Op& op)
         result = fp::Sqrt(fpSrc1);
         break;
     case OpCode::fmin_s:
-        result = fp::Le(fpSrc1, fpSrc2) ? fpSrc1 : fpSrc2;
+        result = fp::Min(fpSrc1, fpSrc2);
         break;
     case OpCode::fmax_s:
-        result = fp::Le(fpSrc1, fpSrc2) ? fpSrc2 : fpSrc1;
+        result = fp::Max(fpSrc1, fpSrc2);
         break;
     case OpCode::fcvt_s_w:
         result = fp::Int32ToFloat(intSrc1);

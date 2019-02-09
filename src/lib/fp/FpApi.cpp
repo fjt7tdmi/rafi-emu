@@ -28,6 +28,11 @@ namespace rafi { namespace fp {
 
 namespace {
 
+const uint32_t FloatCanonicalQuietNan = 0x7fc00000;
+const uint32_t FloatCanonicalSignalingNan = 0x7f800001;
+const uint64_t DoubleCanonicalQuietNan = 0x7ff8000000000000ull;
+const uint64_t DoubleCanonicalSignalingNan = 0x7ff0000000000001ull;
+
 class Float : public BitField
 {
 public:
@@ -51,6 +56,26 @@ public:
         return GetMember<Fraction>();
     }
 
+    bool IsZero() const
+    {
+        return GetExponent() == 0 && GetFraction() == 0;
+    }
+
+    bool IsPositiveZero() const
+    {
+        return IsZero() && GetSign() == 0;
+    }
+
+    bool IsNegativeZero() const
+    {
+        return IsZero() && GetSign() == 1;
+    }
+
+    bool IsNan() const
+    {
+        return GetExponent() == 255 && GetFraction() != 0;
+    }
+
     bool IsQuietNan() const
     {
         return IsNan() && GetMember<FractionMsb>() != 0;
@@ -62,10 +87,6 @@ public:
     }
 
 private:
-    bool IsNan() const
-    {
-        return GetExponent() == 255 && GetFraction() != 0;
-    }
 
     using Sign = BitFieldMember<31>;
     using Exponent = BitFieldMember<30, 23>;
@@ -99,11 +120,11 @@ uint32_t AdjustNan(uint32_t value)
 
     if (f.IsQuietNan())
     {
-        return 0x7fc00000; // for double, use 0d:7ff8000000000000
+        return FloatCanonicalQuietNan;
     }
     else if (f.IsSignalingNan())
     {
-        return 0x7f800001; // for double, use 0d:7ff0000000000001
+        return FloatCanonicalSignalingNan;
     }
     else
     {
@@ -182,6 +203,90 @@ int Lt(uint32_t x, uint32_t y)
     float_exception_flags = 0;
 
     return float32_lt(ToFloat32(x), ToFloat32(y));
+}
+
+uint32_t Min(uint32_t x, uint32_t y)
+{
+    float_exception_flags = 0;
+
+    const auto cmpResult = float32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
+
+    if (Float(x).IsZero() && Float(y).IsZero())
+    {
+        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
+        {
+            return y;
+        }
+        else
+        {
+            return x;
+        }
+    }
+    else if (Float(x).IsNan() && Float(y).IsNan())
+    {
+        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
+        {
+            return FloatCanonicalSignalingNan;
+        }
+        else
+        {
+            return FloatCanonicalQuietNan;
+        }
+    }
+    else if (!Float(x).IsNan() && Float(y).IsNan())
+    {
+        return x;
+    }
+    else if (Float(x).IsNan() && !Float(y).IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
+}
+
+uint32_t Max(uint32_t x, uint32_t y)
+{
+    float_exception_flags = 0;
+
+    const auto cmpResult = float32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
+
+    if (Float(x).IsZero() && Float(y).IsZero())
+    {
+        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+    else if (Float(x).IsNan() && Float(y).IsNan())
+    {
+        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
+        {
+            return FloatCanonicalSignalingNan;
+        }
+        else
+        {
+            return FloatCanonicalQuietNan;
+        }
+    }
+    else if (!Float(x).IsNan() && Float(y).IsNan())
+    {
+        return x;
+    }
+    else if (Float(x).IsNan() && !Float(y).IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
 }
 
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)

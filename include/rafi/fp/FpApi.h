@@ -28,6 +28,8 @@ uint32_t Sqrt(uint32_t x);
 int Eq(uint32_t x, uint32_t y);
 int Le(uint32_t x, uint32_t y);
 int Lt(uint32_t x, uint32_t y);
+uint32_t Min(uint32_t x, uint32_t y);
+uint32_t Max(uint32_t x, uint32_t y);
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z);
 uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z);
 uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z);
