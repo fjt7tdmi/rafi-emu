@@ -111,78 +111,117 @@ uint32_t AdjustNan(uint32_t value)
     }
 }
 
+float32 Negate(float32 value)
+{
+    return value ^ 0x80000000;
+}
+
 }
 
 uint32_t Add(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
     
-    const auto result = ToUInt32(float32_add(ToFloat32(x), ToFloat32(y)));
+    const auto tmp = ToUInt32(float32_add(ToFloat32(x), ToFloat32(y)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t Sub(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
     
-    const auto result = ToUInt32(float32_sub(ToFloat32(x), ToFloat32(y)));
+    const auto tmp = ToUInt32(float32_sub(ToFloat32(x), ToFloat32(y)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t Mul(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    const auto result = ToUInt32(float32_mul(ToFloat32(x), ToFloat32(y)));
+    const auto tmp = ToUInt32(float32_mul(ToFloat32(x), ToFloat32(y)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t Div(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    const auto result = ToUInt32(float32_div(ToFloat32(x), ToFloat32(y)));
+    const auto tmp = ToUInt32(float32_div(ToFloat32(x), ToFloat32(y)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t Sqrt(uint32_t x)
 {
     float_exception_flags = 0;
 
-    const auto result = ToUInt32(float32_sqrt(ToFloat32(x)));
+    const auto tmp = ToUInt32(float32_sqrt(ToFloat32(x)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 int Eq(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    const auto result = float32_eq(ToFloat32(x), ToFloat32(y));
-
-    return AdjustNan(result);
+    return float32_eq(ToFloat32(x), ToFloat32(y));
 }
 
 int Le(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    const auto result = float32_le(ToFloat32(x), ToFloat32(y));
-
-    return AdjustNan(result);
+    return float32_le(ToFloat32(x), ToFloat32(y));
 }
 
 int Lt(uint32_t x, uint32_t y)
 {
     float_exception_flags = 0;
 
-    const auto result = float32_lt(ToFloat32(x), ToFloat32(y));
+    return float32_lt(ToFloat32(x), ToFloat32(y));
+}
 
-    return AdjustNan(result);
+uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)
+{
+    float_exception_flags = 0;
+
+    const auto tmp0 = float32_mul(ToFloat32(x), ToFloat32(y));
+    const auto tmp1 = float32_add(tmp0, ToFloat32(z));
+
+    return AdjustNan(ToUInt32(tmp1));
+}
+
+uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z)
+{
+    float_exception_flags = 0;
+
+    const auto tmp0 = float32_mul(ToFloat32(x), ToFloat32(y));
+    const auto tmp1 = float32_sub(tmp0, ToFloat32(z));
+
+    return AdjustNan(ToUInt32(tmp1));
+}
+
+uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z)
+{
+    float_exception_flags = 0;
+
+    const auto tmp0 = Negate(float32_mul(ToFloat32(x), ToFloat32(y)));
+    const auto tmp1 = float32_sub(tmp0, ToFloat32(z));
+
+    return AdjustNan(ToUInt32(tmp1));
+}
+
+uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z)
+{
+    float_exception_flags = 0;
+
+    const auto tmp0 = Negate(float32_mul(ToFloat32(x), ToFloat32(y)));
+    const auto tmp1 = float32_add(tmp0, ToFloat32(z));
+ 
+    return AdjustNan(ToUInt32(tmp1));
 }
 
 int32_t FloatToInt32(uint32_t x)
@@ -203,18 +242,18 @@ uint32_t Int32ToFloat(int32_t x)
 {
     float_exception_flags = 0;
 
-    const auto result = ToUInt32(int32_to_float32(x));
+    const auto tmp = ToUInt32(int32_to_float32(x));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t UInt32ToFloat(uint32_t x)
 {
     float_exception_flags = 0;
 
-    const auto result = ToUInt32(int32_to_float32(static_cast<int32_t>(x)));
+    const auto tmp = ToUInt32(int32_to_float32(static_cast<int32_t>(x)));
 
-    return AdjustNan(result);
+    return AdjustNan(tmp);
 }
 
 uint32_t ConvertToRvFpClass(uint32_t x)

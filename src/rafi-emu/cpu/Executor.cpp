@@ -906,9 +906,9 @@ void Executor::ProcessFloatMulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadFloat(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadFloat(operand.rs2);
-    const auto src3 = m_pFpRegFile->ReadFloat(operand.rs3);
+    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src3 = m_pFpRegFile->ReadUInt32(operand.rs3);
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -918,27 +918,29 @@ void Executor::ProcessFloatMulAdd(const Op& op)
 
     fp::ScopedFpRound scopedFpRound(roundMode);
 
-    float value;
+    uint32_t result;
 
     switch (op.opCode)
     {
     case OpCode::fmadd_s:
-        value = src1 * src2 + src3;
+        result = fp::MulAdd(src1, src2, src3);
         break;
     case OpCode::fmsub_s:
-        value = src1 * src2 - src3;
+        result = fp::MulSub(src1, src2, src3);
         break;
     case OpCode::fnmadd_s:
-        value = - src1 * src2 + src3;
+        result = fp::NegMulAdd(src1, src2, src3);
         break;
     case OpCode::fnmsub_s:
-        value = - src1 * src2 - src3;
+        result = fp::NegMulSub(src1, src2, src3);
         break;
     default:
         Error(op);
     }
 
-    m_pFpRegFile->WriteFloat(operand.rd, value);
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
 void Executor::ProcessFloatCompute(const Op& op)
