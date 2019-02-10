@@ -18,11 +18,12 @@
 #include <cstdint>
 
 #include <rafi/emu.h>
+#include <rafi/trace.h>
 
 #include "Trap.h"
 #include "Csr.h"
 
-using namespace rvtrace;
+using namespace rafi::trace;
 
 namespace rafi { namespace emu { namespace cpu {
 
@@ -115,17 +116,17 @@ const csr_addr_t DumpAddresses[] = {
 
 }
 
-Csr::Csr(int32_t initialPc)
+Csr::Csr(uint32_t initialPc)
     : m_ProgramCounter(initialPc)
 {
 }
 
-int32_t Csr::GetProgramCounter() const
+uint32_t Csr::GetProgramCounter() const
 {
     return m_ProgramCounter;
 }
 
-void Csr::SetProgramCounter(int32_t value)
+void Csr::SetProgramCounter(uint32_t value)
 {
     m_ProgramCounter = value;
 }
@@ -157,7 +158,7 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t insn) const
+std::optional<Trap> Csr::CheckTrap(int regId, bool write, uint32_t pc, uint32_t insn) const
 {
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
@@ -230,7 +231,7 @@ std::optional<Trap> Csr::CheckTrap(int regId, bool write, int32_t pc, int32_t in
 }
 
 
-int32_t Csr::Read(csr_addr_t addr) const
+uint32_t Csr::Read(csr_addr_t addr) const
 {
     if (IsMachineModeRegister(addr))
     {
@@ -251,7 +252,7 @@ int32_t Csr::Read(csr_addr_t addr) const
     }
 }
 
-void Csr::Write(csr_addr_t addr, int32_t value)
+void Csr::Write(csr_addr_t addr, uint32_t value)
 {
     if (IsMachineModeRegister(addr))
     {
@@ -309,22 +310,22 @@ void Csr::WriteInterruptPending(const xip_t& value)
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
 {
-    return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b00;
+    return ((static_cast<uint32_t>(addr) >> 8) & 0b11) == 0b00;
 }
 
 bool Csr::IsSupervisorModeRegister(csr_addr_t addr) const
 {
-    return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b01;
+    return ((static_cast<uint32_t>(addr) >> 8) & 0b11) == 0b01;
 }
 
 bool Csr::IsReservedModeRegister(csr_addr_t addr) const
 {
-    return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b10;
+    return ((static_cast<uint32_t>(addr) >> 8) & 0b11) == 0b10;
 }
 
 bool Csr::IsMachineModeRegister(csr_addr_t addr) const
 {
-    return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b11;
+    return ((static_cast<uint32_t>(addr) >> 8) & 0b11) == 0b11;
 }
 
 uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
@@ -695,8 +696,8 @@ void Csr::Copy(void* pOut, size_t size) const
 
     for (int i = 0; i < GetRegisterCount(); i++)
     {
-        nodes[i].address = static_cast<int32_t>(DumpAddresses[i]);
-        nodes[i].value = static_cast<int32_t>(Read(DumpAddresses[i]));
+        nodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
+        nodes[i].value = Read(DumpAddresses[i]);
     }
 }
 

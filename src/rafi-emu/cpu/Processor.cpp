@@ -20,12 +20,9 @@
 #include <fstream>
 #include <iostream>
 
-#include <rvtrace/common.h>
+#include <rafi/common.h>
 
 #include "Processor.h"
-
-using namespace std;
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 
@@ -39,9 +36,9 @@ void Processor::RegisterTimerInterruptSource(IInterruptSource* pInterruptSource)
     m_InterruptController.RegisterTimerInterruptSource(pInterruptSource);
 }
 
-void Processor::SetIntReg(int regId, int32_t regValue)
+void Processor::SetIntReg(int regId, uint32_t regValue)
 {
-    m_IntRegFile.WriteInt32(regId, regValue);
+    m_IntRegFile.WriteUInt32(regId, regValue);
 }
 
 void Processor::ProcessOneCycle()
@@ -85,7 +82,7 @@ void Processor::ProcessOneCycle()
         return;
     }
 
-    const auto insn = m_MemAccessUnit.FetchInt32(&physicalPc, pc);
+    const auto insn = m_MemAccessUnit.FetchUInt32(&physicalPc, pc);
 
     // Decode
     const auto op = m_Decoder.Decode(insn);
@@ -206,12 +203,12 @@ void Processor::ClearOpEvent()
     m_OpEventValid = false;
 }
 
-void Processor::SetOpEvent(int32_t virtualPc, PrivilegeLevel privilegeLevel)
+void Processor::SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel)
 {
     SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown, privilegeLevel);
 }
 
-void Processor::SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
+void Processor::SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
 {
     m_OpEvent.insn = insn;
     m_OpEvent.opCode = opCode;

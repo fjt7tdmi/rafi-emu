@@ -20,9 +20,9 @@
 
 #include <gtest/gtest.h>
 
-#include <rvtrace/common.h>
+#include <rafi/common.h>
 
-using namespace rvtrace;
+using namespace rafi;
 
 TEST(OpTest, GetString)
 {

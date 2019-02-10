@@ -20,14 +20,15 @@
 #include <string>
 #include <vector>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
-using namespace rvtrace;
+using namespace rafi;
+using namespace rafi::trace;
 
 namespace {
     const char* Pass = "[  PASS  ]";
     const char* Failed = "[ FAILED ]";
-    int32_t ExpectedHostIoValue = 1;
+    uint32_t ExpectedHostIoValue = 1;
 }
 
 bool Check(const char* name, const char* path)
@@ -43,7 +44,7 @@ bool Check(const char* name, const char* path)
         }
         reader.MoveToPreviousCycle();
 
-        TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+        CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
         // Find IoNode
         const auto ioNode = cycle.GetIoNode();

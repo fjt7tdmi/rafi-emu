@@ -19,11 +19,10 @@
 #include <memory>
 #include <cstdlib>
 
-#include <rvtrace/reader.h>
-#include <rvtrace/writer.h>
+#include <rafi/trace.h>
 
 void FillRandom(void* buffer, size_t size);
 
 void FillZero(void* buffer, size_t size);
 
-std::unique_ptr<rvtrace::TraceCycleBuilder> MakeTestBuilder();
+std::unique_ptr<rafi::trace::CycleBuilder> MakeTestBuilder();

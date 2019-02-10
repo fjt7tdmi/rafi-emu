@@ -22,12 +22,11 @@
 
 #include <boost/program_options.hpp>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
 #include "CycleComparator.h"
 
-using namespace std;
-using namespace rvtrace;
+using namespace rafi::trace;
 
 namespace po = boost::program_options;
 
@@ -36,7 +35,7 @@ namespace {
 const char* Pass = "[  PASS  ]";
 const char* Failed = "[ FAILED ]";
 
-void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
+void CompareTrace(const std::string& expectPath, const std::string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
 {
     CycleComparator comparator(cmpPhysicalPc, cmpCsr, cmpMemory);
 
@@ -48,8 +47,8 @@ void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPh
 
     while (!expectReader.IsEnd() && !actualReader.IsEnd())
     {
-        TraceCycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
-        TraceCycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
+        CycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
+        CycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
 
         if (!comparator.AreMatched(expectCycle, actualCycle))
         {
@@ -94,8 +93,8 @@ int main(int argc, char** argv)
         ("cmp-physical-pc", "enable comparing physical PC")
         ("cmp-csr", "enable comparing physical PC")
         ("cmp-memory", "enable comparing physical PC")
-        ("expect", po::value<string>()->required(), "expect trace binary")
-        ("actual", po::value<string>()->required(), "actual trace binary")
+        ("expect", po::value<std::string>()->required(), "expect trace binary")
+        ("actual", po::value<std::string>()->required(), "actual trace binary")
         ("help", "show help");
 
     po::variables_map optionMap;
@@ -131,15 +130,11 @@ int main(int argc, char** argv)
 
     try
     {
-        CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+        CompareTrace(optionMap["expect"].as<std::string>(), optionMap["actual"].as<std::string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
     }
-    catch (const rvtrace::TraceException& e)
+    catch (const TraceException& e)
     {
         e.PrintMessage();
-    }
-    catch (const rvtrace::TraceCycleException& e)
-    {
-        std::cout << e.GetMessage() << std::endl;
     }
 
     return 0;

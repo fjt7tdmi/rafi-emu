@@ -17,7 +17,8 @@
 #pragma once
 
 #include <cfenv>
-#include <rvtrace/common.h>
+
+#include <rafi/common.h>
 
 #include "Csr.h"
 #include "CsrAccessor.h"
@@ -26,8 +27,6 @@
 #include "MemoryAccessUnit.h"
 #include "Trap.h"
 #include "TrapProcessor.h"
-
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 
@@ -44,24 +43,24 @@ public:
     {
     }
 
-    std::optional<Trap> PreCheckTrap(const Op& op, int32_t pc, int32_t insn) const;
+    std::optional<Trap> PreCheckTrap(const Op& op, uint32_t pc, uint32_t insn) const;
 
-    std::optional<Trap> PostCheckTrap(const Op& op, int32_t pc) const;
+    std::optional<Trap> PostCheckTrap(const Op& op, uint32_t pc) const;
 
-    void ProcessOp(const Op& op, int32_t pc);
+    void ProcessOp(const Op& op, uint32_t pc);
 
 private:
-    std::optional<Trap> PreCheckTrapForLoad(const Op& op, int32_t pc) const;
-    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, int32_t pc) const;
-    std::optional<Trap> PreCheckTrapForStore(const Op& op, int32_t pc) const;
-    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, int32_t pc) const;
-    std::optional<Trap> PreCheckTrapForCsr(const Op& op, int32_t pc, int32_t insn) const;
-    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, int32_t pc, int32_t insn) const;
-    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, int32_t pc) const;
+    std::optional<Trap> PreCheckTrapForLoad(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PreCheckTrapForStore(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PreCheckTrapForCsr(const Op& op, uint32_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, uint32_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, uint32_t pc) const;
 
-    std::optional<Trap> PostCheckTrapForEcall(int32_t pc) const;
+    std::optional<Trap> PostCheckTrapForEcall(uint32_t pc) const;
 
-    void ProcessRV32I(const Op& op, int32_t pc);
+    void ProcessRV32I(const Op& op, uint32_t pc);
     void ProcessRV32M(const Op& op);
     void ProcessRV32A(const Op& op);
     void ProcessRV32F(const Op& op);
@@ -69,10 +68,10 @@ private:
 
     // RV32I
     void ProcessLui(const Op& op);
-    void ProcessAuipc(const Op& op, int32_t pc);
-    void ProcessJal(const Op& op, int32_t pc);
-    void ProcessJalr(const Op& op, int32_t pc);
-    void ProcessBranch(const Op& op, int32_t pc);
+    void ProcessAuipc(const Op& op, uint32_t pc);
+    void ProcessJal(const Op& op, uint32_t pc);
+    void ProcessJalr(const Op& op, uint32_t pc);
+    void ProcessBranch(const Op& op, uint32_t pc);
     void ProcessLoad(const Op& op);
     void ProcessStore(const Op& op);
     void ProcessAlu(const Op& op);
@@ -118,7 +117,7 @@ private:
     FpRegFile* m_pFpRegFile;
     MemoryAccessUnit* m_pMemAccessUnit;
 
-    int32_t m_ReserveAddress = 0;
+    uint32_t m_ReserveAddress = 0;
 };
 
 }}}

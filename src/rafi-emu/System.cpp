@@ -19,7 +19,7 @@
 
 namespace rafi { namespace emu {
 
-System::System(int32_t pc, int ramSize)
+System::System(uint32_t pc, int ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Uart()
@@ -65,11 +65,11 @@ int System::GetMemoryAccessEventCount() const
     return m_Processor.GetMemoryAccessEventCount();
 }
 
-int32_t System::GetHostIoValue() const
+uint32_t System::GetHostIoValue() const
 {
     const auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
 
-    int32_t value;
+    uint32_t value;
     m_Ram.Read(&value, sizeof(value), location.offset);
 
     return value;

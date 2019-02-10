@@ -30,7 +30,7 @@ void Bus::Read(void* pOutBuffer, size_t size, PhysicalAddress address)
         const auto location = ConvertToMemoryLocation(address);
         return location.pMemory->Read(pOutBuffer, size, location.offset);
     }
-    else if (IsIoAddress(address, sizeof(int8_t)))
+    else if (IsIoAddress(address, sizeof(uint8_t)))
     {
         const auto location = ConvertToIoLocation(address);
         return location.pIo->Read(pOutBuffer, size, location.offset);
@@ -59,7 +59,7 @@ void Bus::Write(const void* pBuffer, size_t size, PhysicalAddress address)
     }
 }
 
-int8_t Bus::ReadInt8(PhysicalAddress address)
+uint8_t Bus::ReadUInt8(PhysicalAddress address)
 {
     int8_t value;
     Read(&value, sizeof(value), address);
@@ -67,7 +67,7 @@ int8_t Bus::ReadInt8(PhysicalAddress address)
     return value;
 }
 
-int16_t Bus::ReadInt16(PhysicalAddress address)
+uint16_t Bus::ReadUInt16(PhysicalAddress address)
 {
     int16_t value;
     Read(&value, sizeof(value), address);
@@ -75,15 +75,15 @@ int16_t Bus::ReadInt16(PhysicalAddress address)
     return value;
 }
 
-int32_t Bus::ReadInt32(PhysicalAddress address)
+uint32_t Bus::ReadUInt32(PhysicalAddress address)
 {
-    int32_t value;
+    uint32_t value;
     Read(&value, sizeof(value), address);
 
     return value;
 }
 
-int64_t Bus::ReadInt64(PhysicalAddress address)
+uint64_t Bus::ReadUInt64(PhysicalAddress address)
 {
     int64_t value;
     Read(&value, sizeof(value), address);
@@ -91,22 +91,22 @@ int64_t Bus::ReadInt64(PhysicalAddress address)
     return value;
 }
 
-void Bus::WriteInt8(PhysicalAddress address, int8_t value)
+void Bus::WriteUInt8(PhysicalAddress address, uint8_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteInt16(PhysicalAddress address, int16_t value)
+void Bus::WriteUInt16(PhysicalAddress address, uint16_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteInt32(PhysicalAddress address, int32_t value)
+void Bus::WriteUInt32(PhysicalAddress address, uint32_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteInt64(PhysicalAddress address, int64_t value)
+void Bus::WriteUInt64(PhysicalAddress address, uint64_t value)
 {
     Write(&value, sizeof(value), address);
 }

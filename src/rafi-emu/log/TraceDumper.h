@@ -18,7 +18,7 @@
 
 #include <cstdio>
 
-#include <rvtrace/writer.h>
+#include <rafi/trace.h>
 
 #include "../System.h"
 
@@ -28,7 +28,6 @@ class TraceDumper final
 {
 public:
     TraceDumper(const char* path, const System* pSystem);
-
     ~TraceDumper();
 
     void EnableDump();
@@ -47,7 +46,7 @@ public:
     }
 
 private:
-    FileTraceWriter m_FileTraceWriter;
+    rafi::trace::FileTraceWriter m_FileTraceWriter;
 
     const System* m_pSystem;
 

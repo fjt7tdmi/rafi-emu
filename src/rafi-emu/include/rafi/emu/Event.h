@@ -18,30 +18,28 @@
 
 #include <cstdint>
 
-#include <rvtrace/common.h>
+#include <rafi/trace.h>
 
 #include "BasicTypes.h"
-
-using namespace rvtrace;
 
 namespace rafi { namespace emu {
 
 struct CsrReadEvent
 {
     csr_addr_t address;
-    int32_t value;
+    uint32_t value;
 };
 
 struct CsrWriteEvent
 {
     csr_addr_t address;
-    int32_t value;
+    uint32_t value;
 };
 
 struct MemoryAccessEvent
 {
     MemoryAccessType accessType;
-    int32_t size;
+    uint32_t size;
     uint64_t value;
     uint64_t virtualAddress;
     PhysicalAddress physicalAddress;
@@ -49,10 +47,10 @@ struct MemoryAccessEvent
 
 struct OpEvent
 {
-    int32_t opId;
-    int32_t virtualPc;
+    uint32_t opId;
+    uint32_t virtualPc;
     PhysicalAddress physicalPc;
-    int32_t insn;
+    uint32_t insn;
     OpCode opCode;
     PrivilegeLevel privilegeLevel;
 };
@@ -60,10 +58,10 @@ struct OpEvent
 struct TrapEvent
 {
     TrapType trapType;
-    int32_t trapCause;
+    uint32_t trapCause;
     PrivilegeLevel from;
     PrivilegeLevel to;
-    int32_t trapValue;
+    uint32_t trapValue;
 };
 
 }}

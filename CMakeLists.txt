@@ -37,7 +37,7 @@ else()
     set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 endif()
 
-set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/lib/fp/include)
+set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/librafi_fp/include)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${GoogleTest_INCLUDE_DIRS})
@@ -45,15 +45,31 @@ include_directories(${GoogleTest_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GoogleTest_LIBRARY_DIRS})
 
+add_library(librafi_common
+    include/rafi/common.h
+    include/rafi/common/BitField.h
+    include/rafi/common/Decoder.h
+    include/rafi/common/Macro.h
+    include/rafi/common/OpApi.h
+    include/rafi/common/OpTypes.h
+    include/rafi/common/RvApi.h
+    include/rafi/common/RvTypes.h
+    src/librafi_common/Decoder.cpp
+    src/librafi_common/DecoderImpl.cpp
+    src/librafi_common/DecoderImpl.h
+    src/librafi_common/OpApi.cpp
+    src/librafi_common/RvApi.cpp
+)
+
 add_library(librafi_fp
     include/rafi/common.h
     include/rafi/fp.h
     include/rafi/common/BitField.h
     include/rafi/fp/FpApi.h
     include/rafi/fp/ScopedFpRound.h
-    src/lib/fp/include/platform.h
-    src/lib/fp/FpApi.cpp
-    src/lib/fp/ScopedFpRound.cpp
+    src/librafi_fp/include/platform.h
+    src/librafi_fp/FpApi.cpp
+    src/librafi_fp/ScopedFpRound.cpp
 
     # berkeley-softfloat-3 include
     third_party/berkeley-softfloat-3/source/include/internals.h
@@ -175,7 +191,8 @@ add_library(librafi_fp
     third_party/berkeley-softfloat-3/source/f64_eq_signaling.c
     third_party/berkeley-softfloat-3/source/f64_le_quiet.c
     third_party/berkeley-softfloat-3/source/f64_lt_quiet.c
-    third_party/berkeley-softfloat-3/source/f64_isSignalingNaN.c)
+    third_party/berkeley-softfloat-3/source/f64_isSignalingNaN.c
+)
 
 if (MSVC)
     target_compile_options(librafi_fp
@@ -190,48 +207,36 @@ if (MSVC)
         )
 endif()
 
-add_library(librvtrace
-    include/rvtrace/common.h
-    include/rvtrace/common/Decoder.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/OpApi.h
-    include/rvtrace/common/OpTypes.h
-    include/rvtrace/common/RvApi.h
-    include/rvtrace/common/RvTypes.h
-    include/rvtrace/common/TraceCycleTypes.h
-    include/rvtrace/reader.h
-    include/rvtrace/reader/FileTraceReader.h
-    include/rvtrace/reader/ITraceReader.h
-    include/rvtrace/reader/MemoryTraceReader.h
-    include/rvtrace/reader/TraceCycleReader.h
-    include/rvtrace/writer.h
-    include/rvtrace/writer/FileTraceWriter.h
-    include/rvtrace/writer/ITraceWriter.h
-    include/rvtrace/writer/MemoryTraceWriter.h
-    include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/common/Decoder.cpp
-    src/librvtrace/common/DecoderImpl.cpp
-    src/librvtrace/common/DecoderImpl.h
-    src/librvtrace/common/OpApi.cpp
-    src/librvtrace/common/RvApi.cpp
-    src/librvtrace/reader/FileTraceReader.cpp
-    src/librvtrace/reader/FileTraceReaderImpl.cpp
-    src/librvtrace/reader/FileTraceReaderImpl.h
-    src/librvtrace/reader/MemoryTraceReader.cpp
-    src/librvtrace/reader/MemoryTraceReaderImpl.cpp
-    src/librvtrace/reader/MemoryTraceReaderImpl.h
-    src/librvtrace/reader/TraceCycleReader.cpp
-    src/librvtrace/reader/TraceCycleReaderImpl.cpp
-    src/librvtrace/reader/TraceCycleReaderImpl.h
-    src/librvtrace/writer/FileTraceWriter.cpp
-    src/librvtrace/writer/FileTraceWriterImpl.cpp
-    src/librvtrace/writer/FileTraceWriterImpl.h
-    src/librvtrace/writer/MemoryTraceWriter.cpp
-    src/librvtrace/writer/MemoryTraceWriterImpl.cpp
-    src/librvtrace/writer/MemoryTraceWriterImpl.h
-    src/librvtrace/writer/TraceCycleBuilder.cpp
-    src/librvtrace/writer/TraceCycleBuilderImpl.cpp
-    src/librvtrace/writer/TraceCycleBuilderImpl.h
+add_library(librafi_trace
+    include/rafi/trace.h
+    include/rafi/trace/FileTraceReader.h
+    include/rafi/trace/FileTraceWriter.h
+    include/rafi/trace/ITraceReader.h
+    include/rafi/trace/ITraceWriter.h
+    include/rafi/trace/MemoryTraceReader.h
+    include/rafi/trace/MemoryTraceWriter.h
+    include/rafi/trace/CycleBuilder.h
+    include/rafi/trace/CycleConfig.h
+    include/rafi/trace/CycleReader.h
+    include/rafi/trace/CycleTypes.h
+    src/librafi_trace/FileTraceReader.cpp
+    src/librafi_trace/FileTraceReaderImpl.cpp
+    src/librafi_trace/FileTraceReaderImpl.h
+    src/librafi_trace/FileTraceWriter.cpp
+    src/librafi_trace/FileTraceWriterImpl.cpp
+    src/librafi_trace/FileTraceWriterImpl.h
+    src/librafi_trace/MemoryTraceReader.cpp
+    src/librafi_trace/MemoryTraceReaderImpl.cpp
+    src/librafi_trace/MemoryTraceReaderImpl.h
+    src/librafi_trace/MemoryTraceWriter.cpp
+    src/librafi_trace/MemoryTraceWriterImpl.cpp
+    src/librafi_trace/MemoryTraceWriterImpl.h
+    src/librafi_trace/CycleBuilder.cpp
+    src/librafi_trace/CycleBuilderImpl.cpp
+    src/librafi_trace/CycleBuilderImpl.h
+    src/librafi_trace/CycleReader.cpp
+    src/librafi_trace/CycleReaderImpl.cpp
+    src/librafi_trace/CycleReaderImpl.h
 )
 
 add_executable(rafi-check-io
@@ -327,10 +332,10 @@ include_directories(rafi-emu include src/rafi-emu/include)
 include_directories(test-op include)
 include_directories(test-trace include)
 
-target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-emu librvtrace librafi_fp ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(test-op librvtrace ${GoogleTest_LIBRARIES})
-target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})
+target_link_libraries(rafi-check-io librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-diff librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump-pc librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librafi_common librafi_fp librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test-op librafi_common librafi_trace ${GoogleTest_LIBRARIES})
+target_link_libraries(test-trace librafi_common librafi_trace ${GoogleTest_LIBRARIES})

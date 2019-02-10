@@ -23,11 +23,12 @@
 
 #include <boost/program_options.hpp>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
 #pragma warning(disable:4477)
 
-using namespace rvtrace;
+using namespace rafi;
+using namespace rafi::trace;
 
 namespace po = boost::program_options;
 
@@ -218,7 +219,7 @@ void PrintIoNode(const IoNode* node)
     );
 }
 
-void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
+void PrintCycle(const CycleReader& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
@@ -274,9 +275,9 @@ void PrintTrace(const std::string& path, int startCycle, int count)
 
         if (i >= startCycle)
         {
-            TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+            CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
-            PrintTraceCycle(cycle, i);
+            PrintCycle(cycle, i);
         }
 
         reader.MoveToNextCycle();

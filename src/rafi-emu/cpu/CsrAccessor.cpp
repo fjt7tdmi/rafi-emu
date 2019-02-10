@@ -19,11 +19,9 @@
 
 #include "CsrAccessor.h"
 
-using namespace rvtrace;
-
 namespace rafi { namespace emu { namespace cpu {
 
-int32_t CsrAccessor::Read(int addr)
+uint32_t CsrAccessor::Read(int addr)
 {
     const auto csrAddr = static_cast<csr_addr_t>(addr);
     const auto value = m_pCsr->Read(csrAddr);
@@ -36,7 +34,7 @@ int32_t CsrAccessor::Read(int addr)
     return value;
 }
 
-void CsrAccessor::Write(int addr, int32_t value)
+void CsrAccessor::Write(int addr, uint32_t value)
 {
     const auto csrAddr = static_cast<csr_addr_t>(addr);
     m_pCsr->Write(csrAddr, value);
