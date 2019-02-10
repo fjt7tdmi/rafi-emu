@@ -28,16 +28,12 @@ namespace rafi { namespace fp {
 
 namespace {
 
-const uint32_t FloatCanonicalQuietNan = 0x7fc00000;
-const uint32_t FloatCanonicalSignalingNan = 0x7f800001;
-const uint64_t DoubleCanonicalQuietNan = 0x7ff8000000000000ull;
-const uint64_t DoubleCanonicalSignalingNan = 0x7ff0000000000001ull;
-
-class Float : public BitField32
+template<typename BaseInteger, int ExponentWidth, int FractionWidth>
+class FpBase : public BitField<BaseInteger>
 {
 public:
-    explicit Float(uint32_t value)
-        : BitField32(value)
+    explicit FpBase(BaseInteger value)
+        : BitField<BaseInteger>(value)
     {
     }
 
@@ -73,7 +69,7 @@ public:
 
     bool IsNan() const
     {
-        return GetExponent() == 255 && GetFraction() != 0;
+        return GetExponent() == ((1 << ExponentWidth) - 1) && GetFraction() != 0;
     }
 
     bool IsQuietNan() const
@@ -87,10 +83,34 @@ public:
     }
 
 private:
-    using Sign = Member<31>;
-    using Exponent = Member<30, 23>;
-    using Fraction = Member<22, 0>;
-    using FractionMsb = Member<22>;
+    using Sign = BitFieldMember<BaseInteger, FractionWidth + ExponentWidth>;
+    using Exponent = BitFieldMember<BaseInteger, FractionWidth + ExponentWidth - 1, FractionWidth>;
+    using Fraction = BitFieldMember<BaseInteger, FractionWidth - 1, 0>;
+    using FractionMsb = BitFieldMember<BaseInteger, FractionWidth - 1>;
+};
+
+class Fp32 : public FpBase<uint32_t, 8, 23>
+{
+public:
+    explicit Fp32(uint32_t value)
+        : FpBase<uint32_t, 8, 23>(value)
+    {
+    }
+
+    static const uint32_t CanonicalQuietNan = 0x7fc00000;
+    static const uint32_t CanonicalSignalingNan = 0x7f800001;
+};
+
+class Fp64 : public FpBase<uint64_t, 11, 52>
+{
+public:
+    explicit Fp64(uint64_t value)
+        : FpBase<uint64_t, 11, 52>(value)
+    {
+    }
+
+    static const uint64_t CanonicalQuietNan = 0x7ff8000000000000ull;
+    static const uint64_t CanonicalSignalingNan = 0x7ff0000000000001ull;
 };
 
 float32_t ToFloat32(uint32_t value)
@@ -178,9 +198,9 @@ uint32_t Min(uint32_t x, uint32_t y)
 
     const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
 
-    if (Float(x).IsZero() && Float(y).IsZero())
+    if (Fp32(x).IsZero() && Fp32(y).IsZero())
     {
-        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
+        if (Fp32(x).IsPositiveZero() && Fp32(y).IsNegativeZero())
         {
             return y;
         }
@@ -189,22 +209,22 @@ uint32_t Min(uint32_t x, uint32_t y)
             return x;
         }
     }
-    else if (Float(x).IsNan() && Float(y).IsNan())
+    else if (Fp32(x).IsNan() && Fp32(y).IsNan())
     {
-        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
+        if (Fp32(x).IsSignalingNan() || Fp32(y).IsSignalingNan())
         {
-            return FloatCanonicalSignalingNan;
+            return Fp32::CanonicalSignalingNan;
         }
         else
         {
-            return FloatCanonicalQuietNan;
+            return Fp32::CanonicalQuietNan;
         }
     }
-    else if (!Float(x).IsNan() && Float(y).IsNan())
+    else if (!Fp32(x).IsNan() && Fp32(y).IsNan())
     {
         return x;
     }
-    else if (Float(x).IsNan() && !Float(y).IsNan())
+    else if (Fp32(x).IsNan() && !Fp32(y).IsNan())
     {
         return y;
     }
@@ -220,9 +240,9 @@ uint32_t Max(uint32_t x, uint32_t y)
 
     const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
 
-    if (Float(x).IsZero() && Float(y).IsZero())
+    if (Fp32(x).IsZero() && Fp32(y).IsZero())
     {
-        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
+        if (Fp32(x).IsPositiveZero() && Fp32(y).IsNegativeZero())
         {
             return x;
         }
@@ -231,22 +251,22 @@ uint32_t Max(uint32_t x, uint32_t y)
             return y;
         }
     }
-    else if (Float(x).IsNan() && Float(y).IsNan())
+    else if (Fp32(x).IsNan() && Fp32(y).IsNan())
     {
-        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
+        if (Fp32(x).IsSignalingNan() || Fp32(y).IsSignalingNan())
         {
-            return FloatCanonicalSignalingNan;
+            return Fp32::CanonicalSignalingNan;
         }
         else
         {
-            return FloatCanonicalQuietNan;
+            return Fp32::CanonicalQuietNan;
         }
     }
-    else if (!Float(x).IsNan() && Float(y).IsNan())
+    else if (!Fp32(x).IsNan() && Fp32(y).IsNan())
     {
         return x;
     }
-    else if (Float(x).IsNan() && !Float(y).IsNan())
+    else if (Fp32(x).IsNan() && !Fp32(y).IsNan())
     {
         return y;
     }
@@ -318,7 +338,7 @@ uint32_t UInt32ToFloat(uint32_t x)
 
 uint32_t ConvertToRvFpClass(uint32_t x)
 {
-    Float f(x);
+    Fp32 f(x);
 
     if (f.GetSign() == 1 && f.GetExponent() == 255 && f.GetFraction() == 0)
     {
