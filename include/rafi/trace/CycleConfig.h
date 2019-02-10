@@ -24,14 +24,14 @@
 
 #include <rafi/common.h>
 
-#include "TraceCycleTypes.h"
+#include "CycleTypes.h"
 
 namespace rafi { namespace trace {
 
-class TraceCycleConfig
+class CycleConfig
 {
 public:
-    TraceCycleConfig()
+    CycleConfig()
     {
         m_NodeCounts.fill(0);
     }

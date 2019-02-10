@@ -219,7 +219,7 @@ void PrintIoNode(const IoNode* node)
     );
 }
 
-void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
+void PrintCycle(const CycleReader& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
@@ -275,9 +275,9 @@ void PrintTrace(const std::string& path, int startCycle, int count)
 
         if (i >= startCycle)
         {
-            TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+            CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
-            PrintTraceCycle(cycle, i);
+            PrintCycle(cycle, i);
         }
 
         reader.MoveToNextCycle();

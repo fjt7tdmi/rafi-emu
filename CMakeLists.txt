@@ -215,10 +215,10 @@ add_library(librafi_trace
     include/rafi/trace/ITraceWriter.h
     include/rafi/trace/MemoryTraceReader.h
     include/rafi/trace/MemoryTraceWriter.h
-    include/rafi/trace/TraceCycleBuilder.h
-    include/rafi/trace/TraceCycleConfig.h
-    include/rafi/trace/TraceCycleReader.h
-    include/rafi/trace/TraceCycleTypes.h
+    include/rafi/trace/CycleBuilder.h
+    include/rafi/trace/CycleConfig.h
+    include/rafi/trace/CycleReader.h
+    include/rafi/trace/CycleTypes.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
     src/librafi_trace/FileTraceReaderImpl.h
@@ -231,12 +231,12 @@ add_library(librafi_trace
     src/librafi_trace/MemoryTraceWriter.cpp
     src/librafi_trace/MemoryTraceWriterImpl.cpp
     src/librafi_trace/MemoryTraceWriterImpl.h
-    src/librafi_trace/TraceCycleBuilder.cpp
-    src/librafi_trace/TraceCycleBuilderImpl.cpp
-    src/librafi_trace/TraceCycleBuilderImpl.h
-    src/librafi_trace/TraceCycleReader.cpp
-    src/librafi_trace/TraceCycleReaderImpl.cpp
-    src/librafi_trace/TraceCycleReaderImpl.h
+    src/librafi_trace/CycleBuilder.cpp
+    src/librafi_trace/CycleBuilderImpl.cpp
+    src/librafi_trace/CycleBuilderImpl.h
+    src/librafi_trace/CycleReader.cpp
+    src/librafi_trace/CycleReaderImpl.cpp
+    src/librafi_trace/CycleReaderImpl.h
 )
 
 add_executable(rafi-check-io

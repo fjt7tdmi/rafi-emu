@@ -20,91 +20,91 @@
 
 #include <rafi/trace.h>
 
-#include "TraceCycleBuilderImpl.h"
+#include "CycleBuilderImpl.h"
 
 namespace rafi { namespace trace {
 
-TraceCycleBuilder::TraceCycleBuilder(const TraceCycleConfig& config)
+CycleBuilder::CycleBuilder(const CycleConfig& config)
 {
-    m_pImpl = new TraceCycleBuilderImpl(config);
+    m_pImpl = new CycleBuilderImpl(config);
 }
 
-TraceCycleBuilder::~TraceCycleBuilder()
+CycleBuilder::~CycleBuilder()
 {
     delete m_pImpl;
 }
 
-void* TraceCycleBuilder::GetData()
+void* CycleBuilder::GetData()
 {
     return m_pImpl->GetData();
 }
 
-int64_t TraceCycleBuilder::GetDataSize()
+int64_t CycleBuilder::GetDataSize()
 {
     return m_pImpl->GetDataSize();
 }
 
-int64_t TraceCycleBuilder::GetNodeSize(NodeType nodeType)
+int64_t CycleBuilder::GetNodeSize(NodeType nodeType)
 {
     return m_pImpl->GetNodeSize(nodeType);
 }
 
-void* TraceCycleBuilder::GetPointerToNode(NodeType nodeType)
+void* CycleBuilder::GetPointerToNode(NodeType nodeType)
 {
     return m_pImpl->GetPointerToNode(nodeType);
 }
 
-void TraceCycleBuilder::SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize)
+void CycleBuilder::SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize)
 {
     m_pImpl->SetNode(nodeType, index, buffer, bufferSize);
 }
 
-void TraceCycleBuilder::SetNode(const BasicInfoNode& node)
+void CycleBuilder::SetNode(const BasicInfoNode& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const FpRegNode& node)
+void CycleBuilder::SetNode(const FpRegNode& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const Pc32Node& node)
+void CycleBuilder::SetNode(const Pc32Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const Pc64Node& node)
+void CycleBuilder::SetNode(const Pc64Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const IntReg32Node& node)
+void CycleBuilder::SetNode(const IntReg32Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const IntReg64Node& node)
+void CycleBuilder::SetNode(const IntReg64Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const Trap32Node& node)
+void CycleBuilder::SetNode(const Trap32Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const Trap64Node& node)
+void CycleBuilder::SetNode(const Trap64Node& node)
 {
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const MemoryAccessNode& node, int index)
+void CycleBuilder::SetNode(const MemoryAccessNode& node, int index)
 {
     m_pImpl->SetNode(node, index);
 }
 
-void TraceCycleBuilder::SetNode(const IoNode& node)
+void CycleBuilder::SetNode(const IoNode& node)
 {
     m_pImpl->SetNode(node);
 }

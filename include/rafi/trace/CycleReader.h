@@ -18,20 +18,25 @@
 
 #include <stdint.h>
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
 
 namespace rafi { namespace trace {
 
-class TraceCycleReaderImpl
+class CycleReaderImpl;
+
+class CycleReader
 {
 public:
-    TraceCycleReaderImpl(const void* buffer, int64_t bufferSize);
+    CycleReader(const void* buffer, int64_t bufferSize);
+    ~CycleReader();
 
     int64_t GetOffsetOfPreviousCycle() const;
     int64_t GetOffsetOfNextCycle() const;
 
+    const void* GetNode(NodeType nodeType) const;
     const void* GetNode(NodeType nodeType, int index) const;
 
+    int64_t GetNodeSize(NodeType nodeType) const;
     int64_t GetNodeSize(NodeType nodeType, int index) const;
 
     int GetNodeCount(NodeType nodeType) const;
@@ -52,18 +57,7 @@ public:
     const void* GetMemoryNode() const;
 
 private:
-    void CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const;
-    void CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const;
-
-    const TraceCycleHeader* GetPointerToHeader() const;
-
-    const TraceCycleMetaNode* GetPointerToMeta(uint32_t index) const;
-    const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index) const;
-
-    const void* GetPointerToNode(NodeType nodeType, int index) const;
-
-    const void* m_pData;
-    int64_t m_BufferSize;
+    CycleReaderImpl* m_pImpl;
 };
 
 }}

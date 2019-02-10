@@ -45,17 +45,17 @@ namespace {
 
 TEST(TraceCycleTest, BuilderGetData)
 {
-    TraceCycleConfig config0;
-    TraceCycleConfig config1;
-    TraceCycleConfig config2;
+    CycleConfig config0;
+    CycleConfig config1;
+    CycleConfig config2;
 
     config1.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::Pc32, 1);
 
-    TraceCycleBuilder builder0(config0);
-    TraceCycleBuilder builder1(config1);
-    TraceCycleBuilder builder2(config2);
+    CycleBuilder builder0(config0);
+    CycleBuilder builder1(config1);
+    CycleBuilder builder2(config2);
 
     ASSERT_NE(nullptr, builder0.GetData());
     ASSERT_NE(nullptr, builder1.GetData());
@@ -64,31 +64,31 @@ TEST(TraceCycleTest, BuilderGetData)
 
 TEST(TraceCycleTest, BuilderGetDataSize)
 {
-    TraceCycleConfig config0;
-    TraceCycleConfig config1;
-    TraceCycleConfig config2;
+    CycleConfig config0;
+    CycleConfig config1;
+    CycleConfig config2;
 
     config1.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::Pc32, 1);
 
-    TraceCycleBuilder builder0(config0);
-    TraceCycleBuilder builder1(config1);
-    TraceCycleBuilder builder2(config2);
+    CycleBuilder builder0(config0);
+    CycleBuilder builder1(config1);
+    CycleBuilder builder2(config2);
 
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter), builder0.GetDataSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter) + sizeof(TraceCycleMetaNode) + sizeof(BasicInfoNode), builder1.GetDataSize());
-    ASSERT_EQ(sizeof(TraceCycleHeader) + sizeof(TraceCycleFooter) + sizeof(TraceCycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetDataSize());
+    ASSERT_EQ(sizeof(CycleHeader) + sizeof(CycleFooter), builder0.GetDataSize());
+    ASSERT_EQ(sizeof(CycleHeader) + sizeof(CycleFooter) + sizeof(CycleMetaNode) + sizeof(BasicInfoNode), builder1.GetDataSize());
+    ASSERT_EQ(sizeof(CycleHeader) + sizeof(CycleFooter) + sizeof(CycleMetaNode) * 2 + sizeof(BasicInfoNode) + sizeof(Pc32Node), builder2.GetDataSize());
 }
 
 TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)
 {
-    TraceCycleConfig config;
+    CycleConfig config;
 
     config.SetNodeCount(NodeType::BasicInfo, 1);
     config.SetNodeCount(NodeType::Pc32, 1);
 
-    TraceCycleBuilder builder(config);
+    CycleBuilder builder(config);
 
     BasicInfoNode basicInfo;
     Pc32Node pc32;
@@ -101,7 +101,7 @@ TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)
     builder.SetNode(NodeType::BasicInfo, 0, &basicInfo, sizeof(basicInfo));
     builder.SetNode(NodeType::Pc32, 0, &pc32, sizeof(pc32));
 
-    TraceCycleReader reader(builder.GetData(), builder.GetDataSize());
+    CycleReader reader(builder.GetData(), builder.GetDataSize());
 
     ASSERT_EQ(sizeof(basicInfo), reader.GetNodeSize(NodeType::BasicInfo));
     ASSERT_EQ(sizeof(pc32), reader.GetNodeSize(NodeType::Pc32));
@@ -112,21 +112,21 @@ TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)
 
 TEST(TraceCycleTest, ReaderIsNodeExist)
 {
-    TraceCycleConfig config0;
-    TraceCycleConfig config1;
-    TraceCycleConfig config2;
+    CycleConfig config0;
+    CycleConfig config1;
+    CycleConfig config2;
 
     config1.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::BasicInfo, 1);
     config2.SetNodeCount(NodeType::Pc32, 1);
 
-    TraceCycleBuilder builder0(config0);
-    TraceCycleBuilder builder1(config1);
-    TraceCycleBuilder builder2(config2);
+    CycleBuilder builder0(config0);
+    CycleBuilder builder1(config1);
+    CycleBuilder builder2(config2);
 
-    TraceCycleReader reader0(builder0.GetData(), builder0.GetDataSize());
-    TraceCycleReader reader1(builder1.GetData(), builder1.GetDataSize());
-    TraceCycleReader reader2(builder2.GetData(), builder2.GetDataSize());
+    CycleReader reader0(builder0.GetData(), builder0.GetDataSize());
+    CycleReader reader1(builder1.GetData(), builder1.GetDataSize());
+    CycleReader reader2(builder2.GetData(), builder2.GetDataSize());
 
     ASSERT_EQ(0, reader0.GetNodeCount(NodeType::BasicInfo));
     ASSERT_EQ(1, reader1.GetNodeCount(NodeType::BasicInfo));

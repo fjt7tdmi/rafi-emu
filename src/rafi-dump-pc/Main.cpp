@@ -44,7 +44,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
 
         if (i >= startCycle)
         {
-            TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+            CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
             if (cycle.GetNodeCount(NodeType::Pc32) > 0)
             {

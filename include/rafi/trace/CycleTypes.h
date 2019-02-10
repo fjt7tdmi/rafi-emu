@@ -42,31 +42,31 @@ enum class NodeType : uint32_t
     Io = 12,
 };
 
-struct TraceCycleHeader
+struct CycleHeader
 {
-    // Byte offset to TraceCycleFooter from this TraceCycleHeader.
+    // Byte offset to CycleFooter from this CycleHeader.
     int64_t footerOffset;
 
-    // Number of TraceCycleMetaNode
+    // Number of CycleMetaNode
     uint32_t metaCount;
 
     uint32_t reserved;
 };
 
-struct TraceCycleFooter
+struct CycleFooter
 {
-    // Byte offset to TraceCycleHeader from this TraceCycleFooter.
-    // This value is positive and equal to TraceCycleHeader::footerOffset.
+    // Byte offset to CycleHeader from this CycleFooter.
+    // This value is positive and equal to CycleHeader::footerOffset.
     int64_t headerOffset;
 };
 
-struct TraceCycleMetaNode
+struct CycleMetaNode
 {
     NodeType nodeType;
 
     uint32_t reserved;
 
-    // Byte offset from the head of TraceCycleHeader
+    // Byte offset from the head of CycleHeader
     int64_t offset;
 
     // Byte size

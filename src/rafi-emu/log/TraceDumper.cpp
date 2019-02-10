@@ -68,7 +68,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     }
 
     // TraceHeader
-    TraceCycleConfig config;
+    CycleConfig config;
     config.SetNodeCount(NodeType::BasicInfo, 1);
     config.SetNodeCount(NodeType::Pc32, 1);
     config.SetNodeCount(NodeType::IntReg32, 1);
@@ -95,7 +95,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     config.SetCsrCount(m_pSystem->GetCsrCount());
     config.SetRamSize(m_pSystem->GetRamSize());
 
-    TraceCycleBuilder builder(config);
+    CycleBuilder builder(config);
 
     // OpEvent
     OpEvent opEvent;

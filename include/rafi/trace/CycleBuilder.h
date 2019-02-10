@@ -16,15 +16,19 @@
 
 #pragma once
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
+
+#include "CycleConfig.h"
 
 namespace rafi { namespace trace {
 
-class TraceCycleBuilderImpl final
+class CycleBuilderImpl;
+
+class CycleBuilder final
 {
 public:
-    explicit TraceCycleBuilderImpl(const TraceCycleConfig& config);
-    ~TraceCycleBuilderImpl();
+    explicit CycleBuilder(const CycleConfig& config);
+    ~CycleBuilder();
 
     // Get pointer to raw data
     void* GetData();
@@ -33,12 +37,9 @@ public:
     int64_t GetDataSize();
 
     int64_t GetNodeSize(NodeType nodeType);
-    int64_t GetNodeSize(NodeType nodeType, int index);
 
     void* GetPointerToNode(NodeType nodeType);
-    void* GetPointerToNode(NodeType nodeType, int index);
 
-    void SetNode(NodeType nodeType, const void* buffer, int64_t bufferSize);
     void SetNode(NodeType nodeType, int index, const void* buffer, int64_t bufferSize);
 
     // utility
@@ -54,21 +55,7 @@ public:
     void SetNode(const IoNode& node);
 
 private:
-    int64_t CalculateDataSize();
-
-    void InitializeMetaNodes();
-
-    int64_t GetProperNodeSize(NodeType nodeType);
-
-    TraceCycleHeader* GetPointerToHeader();
-    TraceCycleFooter* GetPointerToFooter();
-
-    TraceCycleMetaNode* GetPointerToMeta(uint32_t index);
-    TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index);
-
-    TraceCycleConfig m_Config;
-    void* m_pData;
-    int64_t m_DataSize;
+    CycleBuilderImpl* m_pImpl;
 };
 
 }}

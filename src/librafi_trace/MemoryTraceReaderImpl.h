@@ -38,8 +38,8 @@ public:
     void MoveToPreviousCycle();
 
 private:
-    const TraceCycleHeader* GetCurrentCycleHeader();
-    const TraceCycleFooter* GetPreviousCycleFooter();
+    const CycleHeader* GetCurrentCycleHeader();
+    const CycleFooter* GetPreviousCycleFooter();
 
     void CheckBufferSize();
     void CheckOffset(int64_t offset);

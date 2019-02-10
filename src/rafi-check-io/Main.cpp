@@ -44,7 +44,7 @@ bool Check(const char* name, const char* path)
         }
         reader.MoveToPreviousCycle();
 
-        TraceCycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+        CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
         // Find IoNode
         const auto ioNode = cycle.GetIoNode();

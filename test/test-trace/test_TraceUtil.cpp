@@ -37,13 +37,13 @@ void FillZero(void* buffer, size_t size)
     std::memset(buffer, 0, size);
 }
 
-std::unique_ptr<TraceCycleBuilder> MakeTestBuilder()
+std::unique_ptr<CycleBuilder> MakeTestBuilder()
 {
-    TraceCycleConfig config;
+    CycleConfig config;
 
     config.SetNodeCount(NodeType::BasicInfo, 1);
 
-    auto builder = std::make_unique<TraceCycleBuilder>(config);
+    auto builder = std::make_unique<CycleBuilder>(config);
 
     BasicInfoNode basicInfo;
 

@@ -55,26 +55,4 @@ private:
     bool m_OffsetValid {false};
 };
 
-class TraceCycleException
-{
-public:
-    explicit TraceCycleException()
-        : m_pMessage("TraceCycleException occurred.")
-    {
-    }
-
-    explicit TraceCycleException(const char *pMessage)
-        : m_pMessage(pMessage)
-    {
-    }
-
-    const char* GetMessage() const
-    {
-        return m_pMessage;
-    }
-
-private:
-    const char* m_pMessage;
-};
-
 }}
