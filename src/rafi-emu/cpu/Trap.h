@@ -22,8 +22,10 @@
 #include <iostream>
 #include <variant>
 
+#include <rafi/common.h>
 #include <rvtrace/common.h>
 
+using namespace rafi::common;
 using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
@@ -31,22 +33,22 @@ namespace rafi { namespace emu { namespace cpu {
 struct Trap
 {
     ExceptionType type;
-    int32_t pc;
-    int32_t trapValue;
+    uint32_t pc;
+    uint32_t trapValue;
 };
 
-Trap MakeInstructionAddressMisalignedException(int32_t pc);
-Trap MakeInstructionAccessFaultException(int32_t pc);
-Trap MakeIllegalInstructionException(int32_t pc, int32_t insn);
-Trap MakeBreakpointException(int32_t pc);
-Trap MakeLoadAddressMisalignedException(int32_t pc, int32_t address);
-Trap MakeLoadAccessFaultException(int32_t pc, int32_t address);
-Trap MakeStoreAccessFaultException(int32_t pc, int32_t address);
-Trap MakeEnvironmentCallFromUserException(int32_t pc);
-Trap MakeEnvironmentCallFromSupervisorException(int32_t pc);
-Trap MakeEnvironmentCallFromMachineException(int32_t pc);
-Trap MakeInstructionPageFaultException(int32_t pc);
-Trap MakeLoadPageFaultException(int32_t pc, int32_t address);
-Trap MakeStorePageFaultException(int32_t pc, int32_t address);
+Trap MakeInstructionAddressMisalignedException(uint32_t pc);
+Trap MakeInstructionAccessFaultException(uint32_t pc);
+Trap MakeIllegalInstructionException(uint32_t pc, uint32_t insn);
+Trap MakeBreakpointException(uint32_t pc);
+Trap MakeLoadAddressMisalignedException(uint32_t pc, uint32_t address);
+Trap MakeLoadAccessFaultException(uint32_t pc, uint32_t address);
+Trap MakeStoreAccessFaultException(uint32_t pc, uint32_t address);
+Trap MakeEnvironmentCallFromUserException(uint32_t pc);
+Trap MakeEnvironmentCallFromSupervisorException(uint32_t pc);
+Trap MakeEnvironmentCallFromMachineException(uint32_t pc);
+Trap MakeInstructionPageFaultException(uint32_t pc);
+Trap MakeLoadPageFaultException(uint32_t pc, uint32_t address);
+Trap MakeStorePageFaultException(uint32_t pc, uint32_t address);
 
 }}}

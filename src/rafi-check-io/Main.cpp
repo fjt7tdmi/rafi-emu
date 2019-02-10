@@ -22,6 +22,7 @@
 
 #include <rvtrace/reader.h>
 
+using namespace rafi::common;
 using namespace rvtrace;
 
 namespace {

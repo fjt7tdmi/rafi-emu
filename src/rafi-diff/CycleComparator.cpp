@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 
+#include <rafi/common.h>
 #include <rvtrace/reader.h>
 
 #include "CycleComparator.h"
@@ -26,6 +27,7 @@
 // Suppress VC warning for printf "%16lx"
 #pragma warning(disable:4477)
 
+using namespace rafi::common;
 using namespace rvtrace;
 
 bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const

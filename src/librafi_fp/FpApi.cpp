@@ -17,12 +17,15 @@
 #pragma fenv_access (on)
 
 #include <cfenv>
+#include <rafi/common.h>
 #include <rafi/fp.h>
 
 extern "C"
 {
 #include <softfloat.h>
 }
+
+using namespace rafi::common;
 
 namespace rafi { namespace fp {
 

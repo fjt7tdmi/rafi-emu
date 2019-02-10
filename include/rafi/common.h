@@ -20,4 +20,10 @@
 #include <cstdio>
 
 #include "common/BitField.h"
+#include "common/Decoder.h"
+#include "common/Exception.h"
 #include "common/Macro.h"
+#include "common/OpApi.h"
+#include "common/OpTypes.h"
+#include "common/RvApi.h"
+#include "common/RvTypes.h"

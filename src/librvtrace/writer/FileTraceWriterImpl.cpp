@@ -16,9 +16,11 @@
 
 #include <cstdio>
 
+#include <rafi/common.h>
 #include <rvtrace/writer.h>
 
 using namespace std;
+using namespace rafi::common;
 
 #include "FileTraceWriterImpl.h"
 

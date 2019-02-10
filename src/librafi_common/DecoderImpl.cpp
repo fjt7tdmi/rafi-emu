@@ -21,7 +21,7 @@
 
 #include "DecoderImpl.h"
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
 namespace {
 
@@ -827,4 +827,4 @@ Operand DecoderImpl::DecodeOperandFence(uint32_t insn) const
     });
 }
 
-}
+}}

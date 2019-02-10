@@ -18,9 +18,11 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <rafi/common.h>
 #include <rvtrace/writer.h>
 
 using namespace std;
+using namespace rafi::common;
 
 #include "MemoryTraceWriterImpl.h"
 

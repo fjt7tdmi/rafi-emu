@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <rafi/common.h>
 
-#include <string>
+#include "DecoderImpl.h"
 
-#include "OpTypes.h"
+namespace rafi { namespace common {
 
-namespace rvtrace {
-
-class DecoderImpl;
-
-class Decoder
+Op Decoder::Decode(uint32_t insn) const
 {
-public:
-    Op Decode(uint32_t insn) const;
-
-private:
-    DecoderImpl* m_pImpl;
-};
-
+    return m_pImpl->Decode(insn);
 }
+
+}}

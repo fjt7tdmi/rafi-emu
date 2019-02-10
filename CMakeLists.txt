@@ -45,6 +45,21 @@ include_directories(${GoogleTest_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 link_directories(${GoogleTest_LIBRARY_DIRS})
 
+add_library(librafi_common
+    include/rafi/common.h
+    include/rafi/common/BitField.h
+    include/rafi/common/Decoder.h
+    include/rafi/common/Macro.h
+    include/rafi/common/OpApi.h
+    include/rafi/common/OpTypes.h
+    include/rafi/common/RvApi.h
+    include/rafi/common/RvTypes.h
+    src/librafi_common/Decoder.cpp
+    src/librafi_common/DecoderImpl.cpp
+    src/librafi_common/DecoderImpl.h
+    src/librafi_common/OpApi.cpp
+    src/librafi_common/RvApi.cpp)
+
 add_library(librafi_fp
     include/rafi/common.h
     include/rafi/fp.h
@@ -192,12 +207,7 @@ endif()
 
 add_library(librvtrace
     include/rvtrace/common.h
-    include/rvtrace/common/Decoder.h
-    include/rvtrace/common/Exception.h
-    include/rvtrace/common/OpApi.h
-    include/rvtrace/common/OpTypes.h
-    include/rvtrace/common/RvApi.h
-    include/rvtrace/common/RvTypes.h
+    include/rvtrace/common/TraceCycleConfig.h
     include/rvtrace/common/TraceCycleTypes.h
     include/rvtrace/reader.h
     include/rvtrace/reader/FileTraceReader.h
@@ -209,11 +219,6 @@ add_library(librvtrace
     include/rvtrace/writer/ITraceWriter.h
     include/rvtrace/writer/MemoryTraceWriter.h
     include/rvtrace/writer/TraceCycleBuilder.h
-    src/librvtrace/common/Decoder.cpp
-    src/librvtrace/common/DecoderImpl.cpp
-    src/librvtrace/common/DecoderImpl.h
-    src/librvtrace/common/OpApi.cpp
-    src/librvtrace/common/RvApi.cpp
     src/librvtrace/reader/FileTraceReader.cpp
     src/librvtrace/reader/FileTraceReaderImpl.cpp
     src/librvtrace/reader/FileTraceReaderImpl.h
@@ -327,10 +332,10 @@ include_directories(rafi-emu include src/rafi-emu/include)
 include_directories(test-op include)
 include_directories(test-trace include)
 
-target_link_libraries(rafi-check-io librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-diff librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump-pc librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-emu librvtrace librafi_fp ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(test-op librvtrace ${GoogleTest_LIBRARIES})
-target_link_libraries(test-trace librvtrace ${GoogleTest_LIBRARIES})
+target_link_libraries(rafi-check-io librafi_common librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-diff librafi_common librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump librafi_common librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-dump-pc librafi_common librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librafi_common librafi_fp librvtrace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(test-op librafi_common librvtrace ${GoogleTest_LIBRARIES})
+target_link_libraries(test-trace librafi_common librvtrace ${GoogleTest_LIBRARIES})

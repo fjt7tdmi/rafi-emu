@@ -24,9 +24,12 @@
 #include <cstdint>
 #include <fstream>
 
+#include <rafi/common.h>
 #include <rvtrace/reader.h>
 
 #include "FileTraceReaderImpl.h"
+
+using namespace rafi::common;
 
 namespace fs = std::experimental::filesystem;
 

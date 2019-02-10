@@ -23,10 +23,12 @@
 
 #include <boost/program_options.hpp>
 
+#include <rafi/common.h>
 #include <rvtrace/reader.h>
 
 #pragma warning(disable:4477)
 
+using namespace rafi::common;
 using namespace rvtrace;
 
 namespace po = boost::program_options;

@@ -16,18 +16,33 @@
 
 #pragma once
 
-#include "RvTypes.h"
+#include <iostream>
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
-const char* GetString(MemoryAccessType accessType);
-const char* GetString(PrivilegeLevel level);
-const char* GetString(TrapType trapType);
-const char* GetString(ExceptionType exceptionType);
-const char* GetString(InterruptType interruptType);
-const char* GetString(csr_addr_t addr);
-const char* GetString(csr_addr_t addr, const char* defaultValue);
+class FileOpenFailureException
+{
+public:
+    explicit FileOpenFailureException(const char* path)
+        : m_Path(path)
+        , m_Message("")
+    {
+    }
 
-const char* GetFpRegName(int index);
+    FileOpenFailureException(const char* path, const char* message)
+        : m_Path(path)
+        , m_Message(message)
+    {
+    }
 
-}
+    virtual void PrintMessage() const
+    {
+        std::cout << "[FileOpenFailureException] " << m_Path << " " << m_Message << std::endl;
+    }
+
+private:
+    const char* m_Path;
+    const char* m_Message;
+};
+
+}}

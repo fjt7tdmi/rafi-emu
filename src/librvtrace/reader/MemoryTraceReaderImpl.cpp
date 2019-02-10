@@ -17,7 +17,12 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <rafi/common.h>
+#include <rvtrace/common.h>
+
 #include "MemoryTraceReaderImpl.h"
+
+using namespace rafi::common;
 
 namespace rvtrace {
 

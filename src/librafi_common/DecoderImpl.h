@@ -18,7 +18,7 @@
 
 #include <rvtrace/common.h>
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
 class DecoderImpl
 {
@@ -45,4 +45,4 @@ private:
     Operand DecodeOperandFence(uint32_t insn) const;
 };
 
-}
+}}

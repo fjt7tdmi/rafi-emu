@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-#include <cstdlib>
-#include <cstring>
-#include <memory>
+#pragma once
 
-#include <gtest/gtest.h>
+#include "RvTypes.h"
 
-#include <rafi/common.h>
-#include <rvtrace/common.h>
+namespace rafi { namespace common {
 
-using namespace rafi::common;
-using namespace rvtrace;
+const char* GetString(MemoryAccessType accessType);
+const char* GetString(PrivilegeLevel level);
+const char* GetString(TrapType trapType);
+const char* GetString(ExceptionType exceptionType);
+const char* GetString(InterruptType interruptType);
+const char* GetString(csr_addr_t addr);
+const char* GetString(csr_addr_t addr, const char* defaultValue);
 
-TEST(OpTest, GetString)
-{
-    Decoder decoder;
+const char* GetFpRegName(int index);
 
-    const Op& auipc = Op{ OpClass::RV32I, OpCode::auipc, OperandI {10, 3} };
-    const Op& lui = decoder.Decode(0xfffff8b7);
-
-    char buffer[64];
-
-    SNPrintOp(buffer, sizeof(buffer), auipc);
-    printf("%s\n", buffer);
-
-    SNPrintOp(buffer, sizeof(buffer), lui);
-    printf("%s\n", buffer);
-}
-
+}}

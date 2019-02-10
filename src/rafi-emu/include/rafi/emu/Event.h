@@ -22,6 +22,7 @@
 
 #include "BasicTypes.h"
 
+using namespace rafi::common;
 using namespace rvtrace;
 
 namespace rafi { namespace emu {

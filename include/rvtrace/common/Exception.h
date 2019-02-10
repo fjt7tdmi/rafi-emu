@@ -20,31 +20,6 @@
 
 namespace rvtrace {
 
-class FileOpenFailureException
-{
-public:
-    explicit FileOpenFailureException(const char* path)
-        : m_Path(path)
-        , m_Message("")
-    {
-    }
-
-    FileOpenFailureException(const char* path, const char* message)
-        : m_Path(path)
-        , m_Message(message)
-    {
-    }
-
-    virtual void PrintMessage() const
-    {
-        std::cout << "[FileOpenFailureException] " << m_Path << " " << m_Message << std::endl;
-    }
-
-private:
-    const char* m_Path;
-    const char* m_Message;
-};
-
 class TraceException
 {
 public:

@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <rafi/common.h>
 #include <rvtrace/writer.h>
 
 #include "TraceCycleBuilderImpl.h"

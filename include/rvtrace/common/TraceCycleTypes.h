@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "RvTypes.h"
+#include <rafi/common.h>
 
 namespace rvtrace {
 
@@ -78,7 +78,7 @@ struct BasicInfoNode
     uint32_t cycle;
     uint32_t opId;
     uint32_t insn;
-    PrivilegeLevel privilegeLevel;
+    rafi::common::PrivilegeLevel privilegeLevel;
 };
 
 union FpRegNodeUnion
@@ -140,9 +140,9 @@ struct Csr64Node
 
 struct Trap32Node
 {
-    TrapType trapType;
-    PrivilegeLevel from;
-    PrivilegeLevel to;
+    rafi::common::TrapType trapType;
+    rafi::common::PrivilegeLevel from;
+    rafi::common::PrivilegeLevel to;
     uint32_t cause;
     uint32_t trapValue;
     uint32_t reserved;
@@ -150,9 +150,9 @@ struct Trap32Node
 
 struct Trap64Node
 {
-    TrapType trapType;
-    PrivilegeLevel from;
-    PrivilegeLevel to;
+    rafi::common::TrapType trapType;
+    rafi::common::PrivilegeLevel from;
+    rafi::common::PrivilegeLevel to;
     int8_t cause;
     int8_t reserved[3];
     int64_t trapValue;
@@ -160,7 +160,7 @@ struct Trap64Node
 
 struct MemoryAccessNode
 {
-    MemoryAccessType accessType;
+    rafi::common::MemoryAccessType accessType;
     uint32_t size;
     uint64_t value;
     uint64_t virtualAddress;

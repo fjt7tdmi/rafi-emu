@@ -18,10 +18,9 @@
 #include <cstring>
 #include <variant>
 
-#include <rvtrace/common/OpApi.h>
-#include <rvtrace/common/RvApi.h>
+#include <rafi/common.h>
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
 namespace {
 
@@ -340,4 +339,4 @@ int SNPrintOp(char* buffer, int bufferSize, const Op& op)
     return std::visit(SNPrintOpVisitor(buffer, bufferSize, op.opCode), op.operand);
 }
 
-}
+}}

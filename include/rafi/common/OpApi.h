@@ -18,11 +18,11 @@
 
 #include "OpTypes.h"
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
 const char* GetString(const OpClass& op);
 const char* GetString(const OpCode& op);
 
 int SNPrintOp(char* buffer, int bufferSize, const Op& op);
 
-}
+}}

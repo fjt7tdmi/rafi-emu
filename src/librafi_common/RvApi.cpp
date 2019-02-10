@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include <rvtrace/common/RvApi.h>
+#include <rafi/common.h>
 
-namespace rvtrace {
+namespace rafi { namespace common {
 
 namespace {
     const char* FpRegNames[32] =
@@ -230,4 +230,4 @@ const char* GetFpRegName(int index)
     return FpRegNames[index];
 }
 
-}
+}}

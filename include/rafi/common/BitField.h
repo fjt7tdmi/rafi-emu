@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-namespace rafi {
+namespace rafi { namespace common {
 
 template <typename BaseInteger, int msb, int lsb = msb>
 class BitFieldMember
@@ -93,4 +93,4 @@ private:
 using BitField32 = BitField<uint32_t>;
 using BitField64 = BitField<uint64_t>;
 
-}
+}}

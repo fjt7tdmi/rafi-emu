@@ -28,7 +28,6 @@ class TraceDumper final
 {
 public:
     TraceDumper(const char* path, const System* pSystem);
-
     ~TraceDumper();
 
     void EnableDump();

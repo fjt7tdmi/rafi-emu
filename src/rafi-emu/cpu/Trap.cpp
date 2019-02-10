@@ -20,67 +20,67 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
-Trap MakeInstructionAddressMisalignedException(int32_t pc)
+Trap MakeInstructionAddressMisalignedException(uint32_t pc)
 {
     return Trap { ExceptionType::InstructionAddressMisaligned, pc, pc };
 }
 
-Trap MakeInstructionAccessFaultException(int32_t pc)
+Trap MakeInstructionAccessFaultException(uint32_t pc)
 {
     return Trap { ExceptionType::InstructionAccessFault, pc, pc };
 }
 
-Trap MakeIllegalInstructionException(int32_t pc, int32_t insn)
+Trap MakeIllegalInstructionException(uint32_t pc, uint32_t insn)
 {
     return Trap { ExceptionType::IllegalInstruction, pc, insn };
 }
 
-Trap MakeBreakpointException(int32_t pc)
+Trap MakeBreakpointException(uint32_t pc)
 {
     return Trap { ExceptionType::Breakpoint, pc, pc };
 }
 
-Trap MakeLoadAddressMisalignedException(int32_t pc, int32_t address)
+Trap MakeLoadAddressMisalignedException(uint32_t pc, uint32_t address)
 {
     return Trap { ExceptionType::LoadAddressMisaligned, pc, address };
 }
 
-Trap MakeLoadAccessFaultException(int32_t pc, int32_t address)
+Trap MakeLoadAccessFaultException(uint32_t pc, uint32_t address)
 {
     return Trap { ExceptionType::LoadAccessFault, pc, address };
 }
 
-Trap MakeStoreAccessFaultException(int32_t pc, int32_t address)
+Trap MakeStoreAccessFaultException(uint32_t pc, uint32_t address)
 {
     return Trap { ExceptionType::StoreAccessFault, pc, address };
 }
 
-Trap MakeEnvironmentCallFromUserException(int32_t pc)
+Trap MakeEnvironmentCallFromUserException(uint32_t pc)
 {
     return Trap { ExceptionType::EnvironmentCallFromUser, pc, pc };
 }
 
-Trap MakeEnvironmentCallFromSupervisorException(int32_t pc)
+Trap MakeEnvironmentCallFromSupervisorException(uint32_t pc)
 {
     return Trap { ExceptionType::EnvironmentCallFromSupervisor, pc, pc };
 }
 
-Trap MakeEnvironmentCallFromMachineException(int32_t pc)
+Trap MakeEnvironmentCallFromMachineException(uint32_t pc)
 {
     return Trap { ExceptionType::EnvironmentCallFromMachine, pc, pc };
 }
 
-Trap MakeInstructionPageFaultException(int32_t pc)
+Trap MakeInstructionPageFaultException(uint32_t pc)
 {
     return Trap { ExceptionType::InstructionPageFault, pc, pc };
 }
 
-Trap MakeLoadPageFaultException(int32_t pc, int32_t address)
+Trap MakeLoadPageFaultException(uint32_t pc, uint32_t address)
 {
     return Trap { ExceptionType::LoadPageFault, pc, address };
 }
 
-Trap MakeStorePageFaultException(int32_t pc, int32_t address)
+Trap MakeStorePageFaultException(uint32_t pc, uint32_t address)
 {
     return Trap { ExceptionType::StorePageFault, pc, address };
 }

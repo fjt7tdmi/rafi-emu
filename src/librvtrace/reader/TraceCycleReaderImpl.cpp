@@ -18,9 +18,12 @@
 #include <cstddef>
 #include <cstdint>
 
+#include <rafi/common.h>
 #include <rvtrace/reader.h>
 
 #include "TraceCycleReaderImpl.h"
+
+using namespace rafi::common;
 
 namespace rvtrace {
 
