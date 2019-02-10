@@ -529,17 +529,21 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fle_d:
         ProcessDoubleCompare(op);
         return;
-    case OpCode::fclass_s:
-        ProcessFloatClass(op);
+    case OpCode::fclass_d:
+        ProcessDoubleClass(op);
         return;
-    case OpCode::fcvt_w_s:
-    case OpCode::fcvt_wu_s:
+    case OpCode::fcvt_w_d:
+    case OpCode::fcvt_wu_d:
         ProcessDoubleConvertToInt(op);
         return;
-    case OpCode::fsgnj_s:
-    case OpCode::fsgnjn_s:
-    case OpCode::fsgnjx_s:
-        ProcessDoubleConvertToFp(op);
+    case OpCode::fcvt_s_d:
+        ProcessDoubleConvertToFp32(op);
+        return;
+    case OpCode::fcvt_d_s:
+    case OpCode::fsgnj_d:
+    case OpCode::fsgnjn_d:
+    case OpCode::fsgnjx_d:
+        ProcessDoubleConvertToFp64(op);
         return;
     default:
         Error(op);
@@ -1038,7 +1042,7 @@ void Executor::ProcessFloatClass(const Op& op)
 
     const auto value = fp::ConvertToRvFpClass(src);
 
-    m_pIntRegFile->WriteInt32(operand.rd, static_cast<int32_t>(value));
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessFloatMoveToInt(const Op& op)
@@ -1198,7 +1202,7 @@ void Executor::ProcessDoubleCompute(const Op& op)
 
     fp::ScopedFpRound scopedFpRound(roundMode);
 
-    uint32_t result;
+    uint64_t result;
 
     switch (op.opCode)
     {
@@ -1224,7 +1228,11 @@ void Executor::ProcessDoubleCompute(const Op& op)
         result = fp::Max(fpSrc1, fpSrc2);
         break;
     case OpCode::fcvt_d_w:
+        result = fp::Int32ToDouble(intSrc1);
+        break;
     case OpCode::fcvt_d_wu:
+        result = fp::UInt32ToDouble(uintSrc1);
+        break;
     default:
         Error(op);
     }
@@ -1232,6 +1240,17 @@ void Executor::ProcessDoubleCompute(const Op& op)
     UpdateFpCsr();
 
     m_pFpRegFile->WriteUInt64(operand.rd, result);
+}
+
+void Executor::ProcessDoubleClass(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
+
+    const auto value = fp::ConvertToRvFpClass(src);
+
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessDoubleCompare(const Op& op)
@@ -1294,25 +1313,18 @@ void Executor::ProcessDoubleConvertToInt(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessDoubleConvertToFp(const Op& op)
+void Executor::ProcessDoubleConvertToFp32(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt64(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
 
-    uint32_t value;
+    uint32_t result;
 
     switch (op.opCode)
     {
-    case OpCode::fsgnj_d:
-        value = (src1 & ((1ull << 63) - 1)) | (src2 & (1ull << 63));
-        break;
-    case OpCode::fsgnjn_d:
-        value = (src1 & ((1ull << 63) - 1)) | ((~src2) & (1ull << 63));
-        break;
-    case OpCode::fsgnjx_d:
-        value = src1 ^ (src2 & (1ull << 63));
+    case OpCode::fcvt_s_d:
+        result = fp::DoubleToFloat(src);
         break;
     default:
         Error(op);
@@ -1320,7 +1332,41 @@ void Executor::ProcessDoubleConvertToFp(const Op& op)
 
     UpdateFpCsr();
 
-    m_pFpRegFile->WriteUInt64(operand.rd, value);
+    m_pFpRegFile->WriteUInt32(operand.rd, result);
+}
+
+void Executor::ProcessDoubleConvertToFp64(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadUInt64(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    const auto src1_s = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    uint64_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fcvt_d_s:
+        result = fp::FloatToDouble(src1_s);
+        break;
+    case OpCode::fsgnj_d:
+        result = (src1 & ((1ull << 63) - 1)) | (src2 & (1ull << 63));
+        break;
+    case OpCode::fsgnjn_d:
+        result = (src1 & ((1ull << 63) - 1)) | ((~src2) & (1ull << 63));
+        break;
+    case OpCode::fsgnjx_d:
+        result = src1 ^ (src2 & (1ull << 63));
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
 void Executor::UpdateFpCsr()

@@ -71,8 +71,14 @@ uint64_t DoubleToUInt64(uint64_t x, int roundMode);
 int32_t FloatToInt32(uint32_t x, int roundMode);
 uint32_t FloatToUInt32(uint32_t x, int roundMode);
 
+uint64_t Int32ToDouble(int32_t x);
+uint64_t UInt32ToDouble(uint32_t x);
+
 uint32_t Int32ToFloat(int32_t x);
 uint32_t UInt32ToFloat(uint32_t x);
+
+uint32_t DoubleToFloat(uint64_t x);
+uint64_t FloatToDouble(uint32_t x);
 
 uint32_t ConvertToRvFpClass(uint32_t x);
 uint32_t ConvertToRvFpClass(uint64_t x);

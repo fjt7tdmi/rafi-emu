@@ -40,54 +40,54 @@ public:
     {
     }
 
-    uint32_t GetSign() const
+    BaseInteger GetSign() const
     {
         return GetMember<Sign>();
     }
 
-    uint32_t GetExponent() const
+    BaseInteger GetExponent() const
     {
         return GetMember<Exponent>();
     }
 
-    uint32_t GetFraction() const
+    BaseInteger GetFraction() const
     {
         return GetMember<Fraction>();
     }
 
     bool IsZero() const
     {
-        return GetExponent() == 0 && GetFraction() == 0;
+        return GetExponent() == BaseInteger(0) && GetFraction() == BaseInteger(0);
     }
 
     bool IsInf() const
     {
-        return GetExponent() == ((1 << ExponentWidth) - 1) && GetFraction() == 0;
+        return GetExponent() == MaxExponent && GetFraction() == BaseInteger(0);
     }
 
     bool IsNormal() const
     {
-        return 1 <= GetExponent() && GetExponent() <= 254;
+        return 1 <= GetExponent() && GetExponent() < MaxExponent;
     }
 
     bool IsSubNormal() const
     {
-        return GetExponent() == 0 && GetFraction() != 0;
+        return GetExponent() == BaseInteger(0) && GetFraction() != BaseInteger(0);
     }
 
     bool IsNan() const
     {
-        return GetExponent() == ((1 << ExponentWidth) - 1) && GetFraction() != 0;
+        return GetExponent() == MaxExponent && GetFraction() != BaseInteger(0);
     }
 
     bool IsQuietNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() != 0;
+        return IsNan() && GetMember<FractionMsb>() != BaseInteger(0);
     }
 
     bool IsSignalingNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() == 0;
+        return IsNan() && GetMember<FractionMsb>() == BaseInteger(0);
     }
 
 private:
@@ -95,6 +95,8 @@ private:
     using Exponent = BitFieldMember<BaseInteger, FractionWidth + ExponentWidth - 1, FractionWidth>;
     using Fraction = BitFieldMember<BaseInteger, FractionWidth - 1, 0>;
     using FractionMsb = BitFieldMember<BaseInteger, FractionWidth - 1>;
+
+    static const BaseInteger MaxExponent = (BaseInteger(1) << ExponentWidth) - BaseInteger(1);
 };
 
 class Fp32 : public FpBase<uint32_t, 8, 23>
@@ -469,6 +471,18 @@ uint32_t FloatToUInt32(uint32_t x, int roundMode)
     return f32_to_ui32(ToFloat32(x), roundMode, true);
 }
 
+uint64_t Int32ToDouble(int32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return i32_to_f64(x).v;
+}
+
+uint64_t UInt32ToDouble(uint32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return ui32_to_f64(x).v;
+}
+
 uint32_t Int32ToFloat(int32_t x)
 {
     softfloat_exceptionFlags = 0;
@@ -479,6 +493,18 @@ uint32_t UInt32ToFloat(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
     return ui32_to_f32(x).v;
+}
+
+uint32_t DoubleToFloat(uint64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_f32(ToFloat64(x)).v;
+}
+
+uint64_t FloatToDouble(uint32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return f32_to_f64(ToFloat32(x)).v;
 }
 
 namespace {
