@@ -30,11 +30,11 @@ namespace {
     const int MegaPageSize = 1 << 22;
     const int PageTableEntrySize = 4;
 
-    class VirtualAddress : public BitField
+    class VirtualAddress : public BitField32
     {
     public:
         explicit VirtualAddress(int32_t value)
-            : BitField(static_cast<uint32_t>(value))
+            : BitField32(static_cast<uint32_t>(value))
         {
         }
 

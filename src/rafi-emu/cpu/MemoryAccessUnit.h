@@ -30,11 +30,11 @@ using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 
-class PageTableEntry : public BitField
+class PageTableEntry : public BitField32
 {
 public:
-    explicit PageTableEntry(int32_t value)
-        : BitField(value)
+    explicit PageTableEntry(uint32_t value)
+        : BitField32(value)
     {
     }
 

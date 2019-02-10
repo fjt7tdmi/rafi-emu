@@ -33,11 +33,11 @@ const uint32_t FloatCanonicalSignalingNan = 0x7f800001;
 const uint64_t DoubleCanonicalQuietNan = 0x7ff8000000000000ull;
 const uint64_t DoubleCanonicalSignalingNan = 0x7ff0000000000001ull;
 
-class Float : public BitField
+class Float : public BitField32
 {
 public:
     explicit Float(uint32_t value)
-        : BitField(value)
+        : BitField32(value)
     {
     }
 

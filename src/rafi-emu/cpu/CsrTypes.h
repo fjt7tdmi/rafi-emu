@@ -34,7 +34,7 @@ enum XLEN
 };
 
 // Defintion for each register
-struct misa_t : public BitField
+struct misa_t : public BitField32
 {
     misa_t()
     {
@@ -86,13 +86,13 @@ struct mimpid
 };
 
 // fcsr
-struct fcsr_t : BitField
+struct fcsr_t : BitField32
 {
-    fcsr_t() : BitField(0)
+    fcsr_t()
     {
     }
 
-    fcsr_t(uint32_t value) : BitField(value)
+    fcsr_t(uint32_t value) : BitField32(value)
     {
     }
 
@@ -109,13 +109,13 @@ struct fcsr_t : BitField
 };
 
 // mstatus, sstatus, ustatus
-struct xstatus_t : BitField
+struct xstatus_t : BitField32
 {
     xstatus_t()
     {
     }
 
-    xstatus_t(uint32_t value) : BitField(value)
+    xstatus_t(uint32_t value) : BitField32(value)
     {
     }
 
@@ -147,13 +147,13 @@ struct xstatus_t : BitField
 };
 
 // mtvec, stvec, utvec
-struct xtvec_t : BitField
+struct xtvec_t : BitField32
 {
     xtvec_t()
     {
     }
 
-    xtvec_t(uint32_t value) : BitField(value)
+    xtvec_t(uint32_t value) : BitField32(value)
     {
     }
 
@@ -168,13 +168,13 @@ struct xtvec_t : BitField
 };
 
 // mip, sip, uip
-struct xip_t : BitField
+struct xip_t : BitField32
 {
-    xip_t() : BitField(0)
+    xip_t() : BitField32(0)
     {
     }
 
-    xip_t(uint32_t value) : BitField(value)
+    xip_t(uint32_t value) : BitField32(value)
     {
     }
 
@@ -196,13 +196,13 @@ struct xip_t : BitField
 };
 
 // mie, sie, uie
-struct xie_t : BitField
+struct xie_t : BitField32
 {
-    xie_t() : BitField(0)
+    xie_t() : BitField32(0)
     {
     }
 
-    xie_t(uint32_t value) : BitField(value)
+    xie_t(uint32_t value) : BitField32(value)
     {
     }
 
@@ -224,13 +224,13 @@ struct xie_t : BitField
 };
 
 // satp
-struct satp_t : BitField
+struct satp_t : BitField32
 {
-    satp_t() : BitField(0)
+    satp_t() : BitField32(0)
     {
     }
 
-    satp_t(uint32_t value) : BitField(value)
+    satp_t(uint32_t value) : BitField32(value)
     {
     }
 

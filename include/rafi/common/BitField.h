@@ -30,6 +30,7 @@ public:
     static const uint32_t Mask = ((1u << Width) - 1u) << Lsb;
 };
 
+template <typename T>
 class BitField
 {
 public:
@@ -37,53 +38,56 @@ public:
     {
     }
 
-    explicit BitField(uint32_t value)
+    explicit BitField(T value)
     {
         m_Value = value;
     }
 
-    operator uint32_t() const
+    operator T() const
     {
         return GetValue();
     }
 
-    uint32_t GetValue() const
+    T GetValue() const
     {
         return m_Value;
     }
 
-    BitField& SetValue(uint32_t value)
+    BitField& SetValue(T value)
     {
         m_Value = value;
         return *this;
     }
 
-    uint32_t GetWithMask(uint32_t mask) const
+    T GetWithMask(T mask) const
     {
         return (m_Value & mask);
     }
 
-    BitField& SetWithMask(uint32_t value, uint32_t mask)
+    BitField& SetWithMask(T value, T mask)
     {
         m_Value = (m_Value & ~mask) | (value & mask);
         return *this;
     }
 
-    template <typename Member>
-    uint32_t GetMember() const
+    template <typename TMember>
+    T GetMember() const
     {
-        return (m_Value & Member::Mask) >> Member::Lsb;
+        return (m_Value & TMember::Mask) >> TMember::Lsb;
     }
 
-    template <typename Member>
-    BitField& SetMember(uint32_t value)
+    template <typename TMember>
+    BitField& SetMember(T value)
     {
-        m_Value = (m_Value & ~Member::Mask) | ((value << Member::Lsb) & Member::Mask);
+        m_Value = (m_Value & ~TMember::Mask) | ((value << TMember::Lsb) & TMember::Mask);
         return *this;
     }
 
 private:
-    uint32_t m_Value{};
+    T m_Value{};
 };
+
+using BitField32 = BitField<uint32_t>;
+using BitField64 = BitField<uint64_t>;
 
 }
