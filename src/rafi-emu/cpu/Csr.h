@@ -31,16 +31,16 @@ namespace rafi { namespace emu { namespace cpu {
 class Csr
 {
 public:
-    explicit Csr(int32_t initialPc);
+    explicit Csr(uint32_t initialPc);
 
-    std::optional<Trap> CheckTrap(int addr, bool write, int32_t pc, int32_t insn) const;
+    std::optional<Trap> CheckTrap(int addr, bool write, uint32_t pc, uint32_t insn) const;
 
     // Update registers for cycle
     void Update();
 
     // Special register access
-    int32_t GetProgramCounter() const;
-    void SetProgramCounter(int32_t value);
+    uint32_t GetProgramCounter() const;
+    void SetProgramCounter(uint32_t value);
 
     PrivilegeLevel GetPrivilegeLevel() const;
     void SetPrivilegeLevel(PrivilegeLevel level);
@@ -49,8 +49,8 @@ public:
     void SetHaltFlag(bool flag);
 
     // Register access
-    int32_t Read(csr_addr_t addr) const;
-    void Write(csr_addr_t addr, int32_t value);
+    uint32_t Read(csr_addr_t addr) const;
+    void Write(csr_addr_t addr, uint32_t value);
 
     template <typename T>
     T ReadAs(csr_addr_t addr) const
@@ -137,12 +137,12 @@ private:
     satp_t m_SupervisorAddressTranslationProtection {0};
 
     // Performance Counters
-    int64_t m_CycleCounter {0};
-    int64_t m_TimeCounter {0};
-    int64_t m_InstructionRetiredCounter {0};
+    uint64_t m_CycleCounter {0};
+    uint64_t m_TimeCounter {0};
+    uint64_t m_InstructionRetiredCounter {0};
 
     // Special registers
-    int32_t m_ProgramCounter {0};
+    uint32_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
     bool m_HaltFlag {false};
 };

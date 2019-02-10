@@ -43,7 +43,7 @@ void TrapProcessor::ProcessException(const Trap& trap)
     ProcessTrapEnter(false, exceptionCode, trap.trapValue, trap.pc, nextPrivilegeLevel);
 }
 
-void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
+void TrapProcessor::ProcessInterrupt(InterruptType type, uint32_t pc)
 {
     PrivilegeLevel nextPrivilegeLevel;
 
@@ -68,7 +68,7 @@ void TrapProcessor::ProcessInterrupt(InterruptType type, int32_t pc)
         RAFI_EMU_NOT_IMPLEMENTED();
     }
 
-    ProcessTrapEnter(true, static_cast<int32_t>(type), 0, pc, nextPrivilegeLevel);
+    ProcessTrapEnter(true, static_cast<uint32_t>(type), 0, pc, nextPrivilegeLevel);
 }
 
 void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
@@ -138,9 +138,9 @@ bool TrapProcessor::IsTrapEventExist() const
     return m_TrapEventValid;
 }
 
-void TrapProcessor::ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, int32_t trapValue, int32_t pc, PrivilegeLevel nextPrivilegeLevel)
+void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, uint32_t pc, PrivilegeLevel nextPrivilegeLevel)
 {
-    const auto prevPrivilegeLevel = static_cast<int>(m_pCsr->GetPrivilegeLevel());
+    const auto prevPrivilegeLevel = static_cast<uint32_t>(m_pCsr->GetPrivilegeLevel());
 
     m_pCsr->SetPrivilegeLevel(nextPrivilegeLevel);
 

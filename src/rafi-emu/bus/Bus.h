@@ -58,15 +58,15 @@ public:
     void Read(void* pOutBuffer, size_t size, PhysicalAddress address);
     void Write(const void* pBuffer, size_t size, PhysicalAddress address);
 
-    int8_t ReadInt8(PhysicalAddress address);
-    int16_t ReadInt16(PhysicalAddress address);
-    int32_t ReadInt32(PhysicalAddress address);
-    int64_t ReadInt64(PhysicalAddress address);
+    uint8_t ReadUInt8(PhysicalAddress address);
+    uint16_t ReadUInt16(PhysicalAddress address);
+    uint32_t ReadUInt32(PhysicalAddress address);
+    uint64_t ReadUInt64(PhysicalAddress address);
 
-    void WriteInt8(PhysicalAddress address, int8_t value);
-    void WriteInt16(PhysicalAddress address, int16_t value);
-    void WriteInt32(PhysicalAddress address, int32_t value);
-    void WriteInt64(PhysicalAddress address, int64_t value);
+    void WriteUInt8(PhysicalAddress address, uint8_t value);
+    void WriteUInt16(PhysicalAddress address, uint16_t value);
+    void WriteUInt32(PhysicalAddress address, uint32_t value);
+    void WriteUInt64(PhysicalAddress address, uint64_t value);
 
     void RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size);
     void RegisterIo(io::IIo* pIo, PhysicalAddress address, int size);

@@ -113,7 +113,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     Pc32Node pc32Node
     {
         opEvent.virtualPc,
-        static_cast<int32_t>(opEvent.physicalPc),
+        static_cast<uint32_t>(opEvent.physicalPc),
     };
     builder.SetNode(pc32Node);
 
@@ -144,7 +144,7 @@ void TraceDumper::DumpOneCycle(int cycle)
             trapEvent.trapType,
             trapEvent.from,
             trapEvent.to,
-            static_cast<int32_t>(trapEvent.trapCause),
+            trapEvent.trapCause,
             trapEvent.trapValue,
             0,
         };
@@ -190,7 +190,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     // IoNode
     IoNode ioNode
     {
-        static_cast<int32_t>(m_pSystem->GetHostIoValue()),
+        m_pSystem->GetHostIoValue(),
         0,
     };
     builder.SetNode(ioNode);

@@ -58,7 +58,7 @@ int TraceCycleReaderImpl::GetNodeCount(NodeType nodeType) const
 {
     int count = 0;
 
-    for (int i = 0; i < GetPointerToHeader()->metaCount; i++)
+    for (auto i = 0u; i < GetPointerToHeader()->metaCount; i++)
     {
         auto pMeta = GetPointerToMeta(i);
 
@@ -170,7 +170,7 @@ const TraceCycleHeader* TraceCycleReaderImpl::GetPointerToHeader() const
     return reinterpret_cast<const TraceCycleHeader*>(m_pData);
 }
 
-const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(int32_t index) const
+const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(uint32_t index) const
 {
     assert(0 <= index);
     assert(index < GetPointerToHeader()->metaCount);
@@ -186,7 +186,7 @@ const TraceCycleMetaNode* TraceCycleReaderImpl::GetPointerToMeta(NodeType nodeTy
 
     int matched = 0;
 
-    for (int i = 0; i < metaCount; i++)
+    for (auto i = 0u; i < metaCount; i++)
     {
         auto pMeta = GetPointerToMeta(i);
 

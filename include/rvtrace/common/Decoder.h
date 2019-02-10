@@ -27,7 +27,7 @@ class DecoderImpl;
 class Decoder
 {
 public:
-    Op Decode(int32_t insn) const;
+    Op Decode(uint32_t insn) const;
 
 private:
     DecoderImpl* m_pImpl;

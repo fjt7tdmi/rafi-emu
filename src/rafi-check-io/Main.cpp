@@ -27,7 +27,7 @@ using namespace rvtrace;
 namespace {
     const char* Pass = "[  PASS  ]";
     const char* Failed = "[ FAILED ]";
-    int32_t ExpectedHostIoValue = 1;
+    uint32_t ExpectedHostIoValue = 1;
 }
 
 bool Check(const char* name, const char* path)

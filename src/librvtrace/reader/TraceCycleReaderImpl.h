@@ -57,7 +57,7 @@ private:
 
     const TraceCycleHeader* GetPointerToHeader() const;
 
-    const TraceCycleMetaNode* GetPointerToMeta(int32_t index) const;
+    const TraceCycleMetaNode* GetPointerToMeta(uint32_t index) const;
     const TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index) const;
 
     const void* GetPointerToNode(NodeType nodeType, int index) const;

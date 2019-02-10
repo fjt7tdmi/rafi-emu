@@ -266,7 +266,7 @@ TraceCycleFooter* TraceCycleBuilderImpl::GetPointerToFooter()
     return reinterpret_cast<TraceCycleFooter*>(reinterpret_cast<uint8_t*>(m_pData) + offset);
 }
 
-TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(int32_t index)
+TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(uint32_t index)
 {
     assert(0 <= index);
     assert(index < GetPointerToHeader()->metaCount);
@@ -282,7 +282,7 @@ TraceCycleMetaNode* TraceCycleBuilderImpl::GetPointerToMeta(NodeType nodeType, i
 
     int matched = 0;
 
-    for (int i = 0; i < metaCount; i++)
+    for (auto i = 0u; i < metaCount; i++)
     {
         auto pMeta = GetPointerToMeta(i);
 

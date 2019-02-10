@@ -28,7 +28,7 @@ void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
     RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
-    int32_t value;
+    uint32_t value;
 
     if (size != sizeof(value))
     {
@@ -60,14 +60,14 @@ void Timer::Write(const void* pBuffer, size_t size, uint64_t address)
 {
     RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
-    int32_t value;
+    uint32_t value;
 
     if (size != sizeof(value))
     {
         RAFI_EMU_ERROR("Invalid access size (%zd byte).\n", size);
     }
 
-    std::memcpy(&value, pBuffer, sizeof(int32_t));
+    std::memcpy(&value, pBuffer, sizeof(uint32_t));
 
     switch (address)
     {

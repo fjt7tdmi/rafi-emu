@@ -40,7 +40,7 @@ inline int32_t sext(int32_t value, int msb)
     }
 }
 
-inline int32_t Pick(int32_t insn, int lsb, int width)
+inline int32_t Pick(uint32_t insn, int lsb, int width)
 {
     assert(0 <= lsb && lsb < 32);
     assert(1 <= width && width < 32);
@@ -49,7 +49,7 @@ inline int32_t Pick(int32_t insn, int lsb, int width)
 
 }
 
-Op DecoderImpl::Decode(int32_t insn) const
+Op DecoderImpl::Decode(uint32_t insn) const
 {
     const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
@@ -91,7 +91,7 @@ Op DecoderImpl::Decode(int32_t insn) const
     }
 }
 
-Op DecoderImpl::DecodeRV32I(int32_t insn) const
+Op DecoderImpl::DecodeRV32I(uint32_t insn) const
 {
     const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
@@ -367,7 +367,7 @@ Op DecoderImpl::DecodeRV32I(int32_t insn) const
     }
 }
 
-Op DecoderImpl::DecodeRV32M(int32_t insn) const
+Op DecoderImpl::DecodeRV32M(uint32_t insn) const
 {
     const auto funct3 = Pick(insn, 12, 3);
 
@@ -394,7 +394,7 @@ Op DecoderImpl::DecodeRV32M(int32_t insn) const
     }
 }
 
-Op DecoderImpl::DecodeRV32A(int32_t insn) const
+Op DecoderImpl::DecodeRV32A(uint32_t insn) const
 {
     const auto funct5 = Pick(insn, 27, 5);
     const auto rs2 = Pick(insn, 20, 5);
@@ -435,7 +435,7 @@ Op DecoderImpl::DecodeRV32A(int32_t insn) const
     }
 }
 
-Op DecoderImpl::DecodeRV32F(int32_t insn) const
+Op DecoderImpl::DecodeRV32F(uint32_t insn) const
 {
     const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
@@ -572,7 +572,7 @@ Op DecoderImpl::DecodeRV32F(int32_t insn) const
     }
 }
 
-Op DecoderImpl::DecodeRV32D(int32_t insn) const
+Op DecoderImpl::DecodeRV32D(uint32_t insn) const
 {
     const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
@@ -712,7 +712,7 @@ Op DecoderImpl::DecodeRV32D(int32_t insn) const
     }
 }
 
-Operand DecoderImpl::DecodeOperandR(int32_t insn) const
+Operand DecoderImpl::DecodeOperandR(uint32_t insn) const
 {
     return Operand(OperandR
     {
@@ -724,7 +724,7 @@ Operand DecoderImpl::DecodeOperandR(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandR4(int32_t insn) const
+Operand DecoderImpl::DecodeOperandR4(uint32_t insn) const
 {
     return Operand(OperandR4
     {
@@ -737,7 +737,7 @@ Operand DecoderImpl::DecodeOperandR4(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandI(int32_t insn) const
+Operand DecoderImpl::DecodeOperandI(uint32_t insn) const
 {
     return Operand(OperandI
     {
@@ -748,7 +748,7 @@ Operand DecoderImpl::DecodeOperandI(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandS(int32_t insn) const
+Operand DecoderImpl::DecodeOperandS(uint32_t insn) const
 {
     return Operand(OperandS
     {
@@ -759,7 +759,7 @@ Operand DecoderImpl::DecodeOperandS(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandB(int32_t insn) const
+Operand DecoderImpl::DecodeOperandB(uint32_t insn) const
 {
     return Operand(OperandB
     {
@@ -770,7 +770,7 @@ Operand DecoderImpl::DecodeOperandB(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandU(int32_t insn) const
+Operand DecoderImpl::DecodeOperandU(uint32_t insn) const
 {
     return Operand(OperandU
     {
@@ -779,7 +779,7 @@ Operand DecoderImpl::DecodeOperandU(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandJ(int32_t insn) const
+Operand DecoderImpl::DecodeOperandJ(uint32_t insn) const
 {
     return Operand(OperandJ
     {
@@ -788,7 +788,7 @@ Operand DecoderImpl::DecodeOperandJ(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandShiftImm(int32_t insn) const
+Operand DecoderImpl::DecodeOperandShiftImm(uint32_t insn) const
 {
     return Operand(OperandShiftImm
     {
@@ -798,7 +798,7 @@ Operand DecoderImpl::DecodeOperandShiftImm(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandCsr(int32_t insn) const
+Operand DecoderImpl::DecodeOperandCsr(uint32_t insn) const
 {
     return Operand(OperandCsr
     {
@@ -808,7 +808,7 @@ Operand DecoderImpl::DecodeOperandCsr(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandCsrImm(int32_t insn) const
+Operand DecoderImpl::DecodeOperandCsrImm(uint32_t insn) const
 {
     return Operand(OperandCsrImm
     {
@@ -818,7 +818,7 @@ Operand DecoderImpl::DecodeOperandCsrImm(int32_t insn) const
     });
 }
 
-Operand DecoderImpl::DecodeOperandFence(int32_t insn) const
+Operand DecoderImpl::DecodeOperandFence(uint32_t insn) const
 {
     return Operand(OperandFence
     {

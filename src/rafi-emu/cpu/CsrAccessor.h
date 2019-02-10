@@ -36,8 +36,8 @@ public:
         std::memset(&m_WriteEvent, 0, sizeof(m_WriteEvent));
 	}
 
-    int32_t Read(int addr);
-    void Write(int addr, int32_t value);
+    uint32_t Read(int addr);
+    void Write(int addr, uint32_t value);
 
     void ClearEvent();
     void CopyReadEvent(CsrReadEvent* pOut) const;

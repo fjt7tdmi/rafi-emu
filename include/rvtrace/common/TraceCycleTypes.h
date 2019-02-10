@@ -25,7 +25,7 @@ namespace rvtrace {
 
 const int NodeTypeMax = 32;
 
-enum class NodeType : int32_t
+enum class NodeType : uint32_t
 {
     BasicInfo = 0,
     FpReg = 1,
@@ -48,9 +48,9 @@ struct TraceCycleHeader
     int64_t footerOffset;
 
     // Number of TraceCycleMetaNode
-    int32_t metaCount;
+    uint32_t metaCount;
 
-    int32_t reserved;
+    uint32_t reserved;
 };
 
 struct TraceCycleFooter
@@ -64,7 +64,7 @@ struct TraceCycleMetaNode
 {
     NodeType nodeType;
 
-    int32_t reserved;
+    uint32_t reserved;
 
     // Byte offset from the head of TraceCycleHeader
     int64_t offset;
@@ -75,9 +75,9 @@ struct TraceCycleMetaNode
 
 struct BasicInfoNode
 {
-    int32_t cycle;
-    int32_t opId;
-    int32_t insn;
+    uint32_t cycle;
+    uint32_t opId;
+    uint32_t insn;
     PrivilegeLevel privilegeLevel;
 };
 
@@ -105,7 +105,7 @@ struct FpRegNode
 
 struct IntReg32Node
 {
-    int32_t regs[32];
+    uint32_t regs[32];
 };
 
 struct IntReg64Node
@@ -115,8 +115,8 @@ struct IntReg64Node
 
 struct Pc32Node
 {
-    int32_t virtualPc;
-    int32_t physicalPc;
+    uint32_t virtualPc;
+    uint32_t physicalPc;
 };
 
 struct Pc64Node
@@ -127,14 +127,14 @@ struct Pc64Node
 
 struct Csr32Node
 {
-    int32_t address;
-    int32_t value;
+    uint32_t address;
+    uint32_t value;
 };
 
 struct Csr64Node
 {
-    int32_t address;
-    int32_t reserved;
+    uint32_t address;
+    uint32_t reserved;
     int64_t value;
 };
 
@@ -143,9 +143,9 @@ struct Trap32Node
     TrapType trapType;
     PrivilegeLevel from;
     PrivilegeLevel to;
-    int32_t cause;
-    int32_t trapValue;
-    int32_t reserved;
+    uint32_t cause;
+    uint32_t trapValue;
+    uint32_t reserved;
 };
 
 struct Trap64Node
@@ -161,7 +161,7 @@ struct Trap64Node
 struct MemoryAccessNode
 {
     MemoryAccessType accessType;
-    int32_t size;
+    uint32_t size;
     uint64_t value;
     uint64_t virtualAddress;
     uint64_t physicalAddress;
@@ -169,8 +169,8 @@ struct MemoryAccessNode
 
 struct IoNode
 {
-    int32_t hostIoValue;
-    int32_t reserved;
+    uint32_t hostIoValue;
+    uint32_t reserved;
 };
 
 }

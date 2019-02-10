@@ -20,7 +20,7 @@
 
 namespace rvtrace {
 
-Op Decoder::Decode(int32_t insn) const
+Op Decoder::Decode(uint32_t insn) const
 {
     return m_pImpl->Decode(insn);
 }

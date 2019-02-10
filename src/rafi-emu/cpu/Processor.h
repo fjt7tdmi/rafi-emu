@@ -35,7 +35,7 @@ class Processor
 {
 public:
     // Setup
-    Processor(bus::Bus* pBus, int32_t initialPc)
+    Processor(bus::Bus* pBus, uint32_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
         , m_InterruptController(&m_Csr)
@@ -45,7 +45,7 @@ public:
         m_MemAccessUnit.Initialize(pBus, &m_Csr);
     }
 
-    void SetIntReg(int regId, int32_t regValue);
+    void SetIntReg(int regId, uint32_t regValue);
 
     // Interrupt source
     void RegisterExternalInterruptSource(IInterruptSource* pInterruptSource);
@@ -77,11 +77,11 @@ public:
 private:
     void ClearOpEvent();
 
-    void SetOpEvent(int32_t virtualPc, PrivilegeLevel privilegeLevel);
-    void SetOpEvent(int32_t virtualPc, PhysicalAddress physicalPc, int32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
 
     // TODO: refactor and remove this def
-    const int32_t InvalidValue = 0xcdcdcdcd;
+    const uint32_t InvalidValue = 0xcdcdcdcd;
 
     Csr m_Csr;
     CsrAccessor m_CsrAccessor;
@@ -95,7 +95,7 @@ private:
 
     Executor m_Executor;
 
-    int32_t m_OpCount { 0 };
+    uint32_t m_OpCount { 0 };
 
     // for dump
     bool m_OpEventValid { false };

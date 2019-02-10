@@ -37,7 +37,7 @@ public:
 	}
 
     void ProcessException(const Trap& trap);
-    void ProcessInterrupt(InterruptType type, int32_t pc);
+    void ProcessInterrupt(InterruptType type, uint32_t pc);
     void ProcessTrapReturn(PrivilegeLevel level);
 
     // for Dump
@@ -46,7 +46,7 @@ public:
     bool IsTrapEventExist() const;
 
 private:
-    void ProcessTrapEnter(bool isInterrupt, int32_t exceptionCode, int32_t trapValue, int32_t pc, PrivilegeLevel nextPrivilegeLevel);
+    void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, uint32_t pc, PrivilegeLevel nextPrivilegeLevel);
 
     Csr* m_pCsr;
 

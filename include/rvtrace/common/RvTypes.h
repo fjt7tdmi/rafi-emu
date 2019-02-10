@@ -21,14 +21,14 @@
 
 namespace rvtrace {
 
-enum class MemoryAccessType : int32_t
+enum class MemoryAccessType : uint32_t
 {
     Instruction = 0,
     Load = 2,
     Store = 3,
 };
 
-enum class PrivilegeLevel : int32_t
+enum class PrivilegeLevel : uint32_t
 {
     User = 0,
     Supervisor = 1,
@@ -36,14 +36,14 @@ enum class PrivilegeLevel : int32_t
     Machine = 3,
 };
 
-enum class TrapType : int32_t
+enum class TrapType : uint32_t
 {
     Interrupt = 0,
     Exception = 1,
     Return = 2,
 };
 
-enum class InterruptType : int32_t
+enum class InterruptType : uint32_t
 {
     UserSoftware = 0,
     SupervisorSoftware = 1,
@@ -56,7 +56,7 @@ enum class InterruptType : int32_t
     MachineExternal = 11,
 };
 
-enum class ExceptionType : int32_t
+enum class ExceptionType : uint32_t
 {
     InstructionAddressMisaligned = 0,
     InstructionAccessFault = 1,
@@ -74,7 +74,7 @@ enum class ExceptionType : int32_t
     StorePageFault = 15,
 };
 
-enum class csr_addr_t : int32_t
+enum class csr_addr_t : uint32_t
 {
     // User Trap Setup
     ustatus = 0x000,

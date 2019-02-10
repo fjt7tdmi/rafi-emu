@@ -23,26 +23,26 @@ namespace rvtrace {
 class DecoderImpl
 {
 public:
-    Op Decode(int32_t insn) const;
+    Op Decode(uint32_t insn) const;
 
 private:
-    Op DecodeRV32I(int32_t insn) const;
-    Op DecodeRV32M(int32_t insn) const;
-    Op DecodeRV32A(int32_t insn) const;
-    Op DecodeRV32F(int32_t insn) const;
-    Op DecodeRV32D(int32_t insn) const;
+    Op DecodeRV32I(uint32_t insn) const;
+    Op DecodeRV32M(uint32_t insn) const;
+    Op DecodeRV32A(uint32_t insn) const;
+    Op DecodeRV32F(uint32_t insn) const;
+    Op DecodeRV32D(uint32_t insn) const;
 
-    Operand DecodeOperandR(int32_t insn) const;
-    Operand DecodeOperandR4(int32_t insn) const;
-    Operand DecodeOperandI(int32_t insn) const;
-    Operand DecodeOperandS(int32_t insn) const;
-    Operand DecodeOperandB(int32_t insn) const;
-    Operand DecodeOperandU(int32_t insn) const;
-    Operand DecodeOperandJ(int32_t insn) const;
-    Operand DecodeOperandShiftImm(int32_t insn) const;
-    Operand DecodeOperandCsr(int32_t insn) const;
-    Operand DecodeOperandCsrImm(int32_t insn) const;
-    Operand DecodeOperandFence(int32_t insn) const;
+    Operand DecodeOperandR(uint32_t insn) const;
+    Operand DecodeOperandR4(uint32_t insn) const;
+    Operand DecodeOperandI(uint32_t insn) const;
+    Operand DecodeOperandS(uint32_t insn) const;
+    Operand DecodeOperandB(uint32_t insn) const;
+    Operand DecodeOperandU(uint32_t insn) const;
+    Operand DecodeOperandJ(uint32_t insn) const;
+    Operand DecodeOperandShiftImm(uint32_t insn) const;
+    Operand DecodeOperandCsr(uint32_t insn) const;
+    Operand DecodeOperandCsrImm(uint32_t insn) const;
+    Operand DecodeOperandFence(uint32_t insn) const;
 };
 
 }

@@ -63,7 +63,7 @@ private:
     TraceCycleHeader* GetPointerToHeader();
     TraceCycleFooter* GetPointerToFooter();
 
-    TraceCycleMetaNode* GetPointerToMeta(int32_t index);
+    TraceCycleMetaNode* GetPointerToMeta(uint32_t index);
     TraceCycleMetaNode* GetPointerToMeta(NodeType nodeType, int index);
 
     TraceCycleConfig m_Config;
