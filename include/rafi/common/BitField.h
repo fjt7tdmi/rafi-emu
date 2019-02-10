@@ -20,20 +20,23 @@
 
 namespace rafi {
 
-template <int msb, int lsb = msb>
+template <typename T, int msb, int lsb = msb>
 class BitFieldMember
 {
 public:
-    static const uint32_t Msb = msb;
-    static const uint32_t Lsb = lsb;
-    static const uint32_t Width = Msb - Lsb + 1u;
-    static const uint32_t Mask = ((1u << Width) - 1u) << Lsb;
+    static const T Msb = msb;
+    static const T Lsb = lsb;
+    static const T Width = Msb - Lsb + 1u;
+    static const T Mask = ((1u << Width) - 1u) << Lsb;
 };
 
 template <typename T>
 class BitField
 {
 public:
+    template <int msb, int lsb = msb>
+    using Member = BitFieldMember<T, msb, lsb>;
+
     BitField()
     {
     }

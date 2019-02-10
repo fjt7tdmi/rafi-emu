@@ -30,8 +30,8 @@ struct InterruptEnable : BitField32
     {
     }
 
-    using TXIE = BitFieldMember<1>;
-    using RXIE = BitFieldMember<2>;
+    using TXIE = Member<1>;
+    using RXIE = Member<2>;
 };
 
 struct InterruptPending : BitField32
@@ -44,8 +44,8 @@ struct InterruptPending : BitField32
     {
     }
 
-    using TXIP = BitFieldMember<1>;
-    using RXIP = BitFieldMember<2>;
+    using TXIP = Member<1>;
+    using RXIP = Member<2>;
 };
 
 }}}

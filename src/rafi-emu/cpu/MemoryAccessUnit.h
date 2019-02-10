@@ -38,18 +38,18 @@ public:
     {
     }
 
-    using Valid = BitFieldMember<0>;
-    using Read = BitFieldMember<1>;
-    using Write = BitFieldMember<2>;
-    using Execute = BitFieldMember<3>;
-    using User = BitFieldMember<4>;
-    using Global = BitFieldMember<5>;
-    using Accessed = BitFieldMember<6>;
-    using Dirty = BitFieldMember<7>;
+    using Valid = Member<0>;
+    using Read = Member<1>;
+    using Write = Member<2>;
+    using Execute = Member<3>;
+    using User = Member<4>;
+    using Global = Member<5>;
+    using Accessed = Member<6>;
+    using Dirty = Member<7>;
 
-    using PhysicalPageNumber = BitFieldMember<31, 10>;
-    using PhysicalPageNumber0 = BitFieldMember<19, 10>;
-    using PhysicalPageNumber1 = BitFieldMember<31, 20>;
+    using PhysicalPageNumber = Member<31, 10>;
+    using PhysicalPageNumber0 = Member<19, 10>;
+    using PhysicalPageNumber1 = Member<31, 20>;
 };
 
 class MemoryAccessUnit

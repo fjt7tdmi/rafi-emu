@@ -38,10 +38,10 @@ namespace {
         {
         }
 
-        using Offset = BitFieldMember<11, 0>;
-        using MegaOffset = BitFieldMember<21, 0>;
-        using VirtualPageNumber0 = BitFieldMember<21, 12>;
-        using VirtualPageNumber1 = BitFieldMember<31, 22>;
+        using Offset = Member<11, 0>;
+        using MegaOffset = Member<21, 0>;
+        using VirtualPageNumber0 = Member<21, 12>;
+        using VirtualPageNumber1 = Member<31, 22>;
     };
 }
 

@@ -87,11 +87,10 @@ public:
     }
 
 private:
-
-    using Sign = BitFieldMember<31>;
-    using Exponent = BitFieldMember<30, 23>;
-    using Fraction = BitFieldMember<22, 0>;
-    using FractionMsb = BitFieldMember<22>;
+    using Sign = Member<31>;
+    using Exponent = Member<30, 23>;
+    using Fraction = Member<22, 0>;
+    using FractionMsb = Member<22>;
 };
 
 float32_t ToFloat32(uint32_t value)
