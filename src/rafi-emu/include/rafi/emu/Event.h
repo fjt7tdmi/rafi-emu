@@ -42,8 +42,8 @@ struct MemoryAccessEvent
 {
     MemoryAccessType accessType;
     int32_t size;
-    int64_t value;
-    int32_t virtualAddress;
+    uint64_t value;
+    uint64_t virtualAddress;
     PhysicalAddress physicalAddress;
 };
 

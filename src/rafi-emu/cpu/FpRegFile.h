@@ -48,7 +48,7 @@ private:
         struct
         {
             uint32_t value;
-            uint32_t zero;
+            uint32_t invalid;
         } u32;
         struct
         {
@@ -57,7 +57,7 @@ private:
         struct
         {
             float value;
-            uint32_t zero;
+            uint32_t invalid;
         } f;
         struct
         {

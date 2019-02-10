@@ -169,14 +169,9 @@ void TraceCycleBuilderImpl::SetNode(const Trap64Node& node)
     SetNode(NodeType::Trap64, &node, sizeof(node));
 }
 
-void TraceCycleBuilderImpl::SetNode(const MemoryAccess32Node& node, int index)
+void TraceCycleBuilderImpl::SetNode(const MemoryAccessNode& node, int index)
 {
-    SetNode(NodeType::MemoryAccess32, index, &node, sizeof(node));
-}
-
-void TraceCycleBuilderImpl::SetNode(const MemoryAccess64Node& node, int index)
-{
-    SetNode(NodeType::MemoryAccess64, index, &node, sizeof(node));
+    SetNode(NodeType::MemoryAccess, index, &node, sizeof(node));
 }
 
 void TraceCycleBuilderImpl::SetNode(const IoNode& node)
@@ -248,10 +243,8 @@ int64_t TraceCycleBuilderImpl::GetProperNodeSize(NodeType nodeType)
         return sizeof(Trap32Node);
     case NodeType::Trap64:
         return sizeof(Trap64Node);
-    case NodeType::MemoryAccess32:
-        return sizeof(MemoryAccess32Node);
-    case NodeType::MemoryAccess64:
-        return sizeof(MemoryAccess64Node);
+    case NodeType::MemoryAccess:
+        return sizeof(MemoryAccessNode);
     case NodeType::Io:
         return sizeof(IoNode);
     case NodeType::Memory:

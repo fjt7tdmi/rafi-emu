@@ -49,8 +49,7 @@ public:
     void SetNode(const Pc64Node& node);
     void SetNode(const Trap32Node& node);
     void SetNode(const Trap64Node& node);
-    void SetNode(const MemoryAccess32Node& node, int index);
-    void SetNode(const MemoryAccess64Node& node, int index);
+    void SetNode(const MemoryAccessNode& node, int index);
     void SetNode(const IoNode& node);
 
 private:

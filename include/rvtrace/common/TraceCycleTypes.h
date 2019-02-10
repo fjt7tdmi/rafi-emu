@@ -37,10 +37,9 @@ enum class NodeType : int32_t
     Csr64 = 7,
     Trap32 = 8,
     Trap64 = 9,
-    MemoryAccess32 = 10,
-    MemoryAccess64 = 11,
+    MemoryAccess = 10,
+    Memory = 11,
     Io = 12,
-    Memory = 13,
 };
 
 struct TraceCycleHeader
@@ -159,22 +158,13 @@ struct Trap64Node
     int64_t trapValue;
 };
 
-struct MemoryAccess32Node
+struct MemoryAccessNode
 {
     MemoryAccessType accessType;
     int32_t size;
-    int64_t value;
-    int32_t virtualAddress;
-    int32_t physicalAddress;
-};
-
-struct MemoryAccess64Node
-{
-    MemoryAccessType accessType;
-    int32_t size;
-    int64_t value;
-    int64_t virtualAddress;
-    int64_t physicalAddress;
+    uint64_t value;
+    uint64_t virtualAddress;
+    uint64_t physicalAddress;
 };
 
 struct IoNode

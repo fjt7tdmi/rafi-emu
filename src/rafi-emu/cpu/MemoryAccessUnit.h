@@ -81,7 +81,7 @@ public:
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress) const;
 
     // for Dump
-    void AddEvent(MemoryAccessType accessType, int32_t size,  int64_t value, int32_t vaddr, PhysicalAddress paddr);
+    void AddEvent(MemoryAccessType accessType, int32_t size,  uint64_t value, uint64_t vaddr, PhysicalAddress paddr);
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;

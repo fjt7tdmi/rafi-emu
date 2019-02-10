@@ -50,7 +50,7 @@ int8_t MemoryAccessUnit::LoadInt8(int32_t virtualAddress)
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadInt8(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 
     return value;
 }
@@ -60,7 +60,7 @@ int16_t MemoryAccessUnit::LoadInt16(int32_t virtualAddress)
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadInt16(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 
     return value;
 }
@@ -70,7 +70,7 @@ int32_t MemoryAccessUnit::LoadInt32(int32_t virtualAddress)
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadInt32(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 
     return value;
 }
@@ -80,7 +80,7 @@ int64_t MemoryAccessUnit::LoadInt64(int32_t virtualAddress)
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadInt64(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 
     return value;
 }
@@ -90,7 +90,7 @@ void MemoryAccessUnit::StoreInt8(int32_t virtualAddress, int8_t value)
     auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteInt8(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 }
 
 void MemoryAccessUnit::StoreInt16(int32_t virtualAddress, int16_t value)
@@ -98,7 +98,7 @@ void MemoryAccessUnit::StoreInt16(int32_t virtualAddress, int16_t value)
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteInt16(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 }
 
 void MemoryAccessUnit::StoreInt32(int32_t virtualAddress, int32_t value)
@@ -106,7 +106,7 @@ void MemoryAccessUnit::StoreInt32(int32_t virtualAddress, int32_t value)
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteInt32(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 }
 
 void MemoryAccessUnit::StoreInt64(int32_t virtualAddress, int64_t value)
@@ -114,7 +114,7 @@ void MemoryAccessUnit::StoreInt64(int32_t virtualAddress, int64_t value)
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteInt64(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), static_cast<uint64_t>(value), static_cast<uint64_t>(virtualAddress), physicalAddress);
 }
 
 int32_t MemoryAccessUnit::FetchInt32(PhysicalAddress* outPhysicalAddress, int32_t virtualAddress)
@@ -180,10 +180,9 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, int
     return std::nullopt;
 }
 
-void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int32_t size, int64_t value, int32_t vaddr, PhysicalAddress paddr)
+void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int32_t size, uint64_t value, uint64_t vaddr, PhysicalAddress paddr)
 {
-    // TODO: 64bit 値をイベントに記録
-    m_Events.push_back({ accessType, size, static_cast<int32_t>(value), vaddr, paddr });
+    m_Events.push_back({ accessType, size, value, vaddr, paddr });
 }
 
 void MemoryAccessUnit::ClearEvent()

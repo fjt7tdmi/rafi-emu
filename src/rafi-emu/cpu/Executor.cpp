@@ -1136,7 +1136,7 @@ void Executor::ProcessDoubleStore(const Op& op)
     const auto address = m_pIntRegFile->ReadInt32(operand.rs1) + operand.imm;
     const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
 
-    m_pMemAccessUnit->StoreInt64(address, static_cast<int32_t>(value));
+    m_pMemAccessUnit->StoreInt64(address, value);
 }
 
 void Executor::ProcessDoubleMulAdd(const Op& op)

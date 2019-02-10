@@ -78,7 +78,7 @@ void TraceDumper::DumpOneCycle(int cycle)
         config.SetNodeCount(NodeType::Trap32, 1);
     }
 
-    config.SetNodeCount(NodeType::MemoryAccess32, m_pSystem->GetMemoryAccessEventCount());
+    config.SetNodeCount(NodeType::MemoryAccess, m_pSystem->GetMemoryAccessEventCount());
 
     if (m_EnableDumpCsr)
     {
@@ -151,24 +151,6 @@ void TraceDumper::DumpOneCycle(int cycle)
         builder.SetNode(trap32Node);
     }
 
-    // MemoryAccess32Node
-    // TODO: optimize (values are double copied now)
-    for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
-    {
-        MemoryAccessEvent memoryAccessEvent;
-        m_pSystem->CopyMemoryAccessEvent(&memoryAccessEvent, index);
-
-        MemoryAccess32Node memoryAccessNode
-        {
-            memoryAccessEvent.accessType,
-            memoryAccessEvent.size,
-            memoryAccessEvent.value,
-            memoryAccessEvent.virtualAddress,
-            static_cast<int32_t>(memoryAccessEvent.physicalAddress),
-        };
-        builder.SetNode(memoryAccessNode, index);
-    }
-
     // Csr32Node
     if (m_EnableDumpCsr)
     {
@@ -176,6 +158,24 @@ void TraceDumper::DumpOneCycle(int cycle)
         auto buffer = builder.GetPointerToNode(NodeType::Csr32);
 
         m_pSystem->CopyCsr(buffer, size);
+    }
+
+    // MemoryAccessNode
+    // TODO: optimize (values are double copied now)
+    for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
+    {
+        MemoryAccessEvent memoryAccessEvent;
+        m_pSystem->CopyMemoryAccessEvent(&memoryAccessEvent, index);
+
+        MemoryAccessNode memoryAccessNode
+        {
+            memoryAccessEvent.accessType,
+            memoryAccessEvent.size,
+            memoryAccessEvent.value,
+            memoryAccessEvent.virtualAddress,
+            memoryAccessEvent.physicalAddress,
+        };
+        builder.SetNode(memoryAccessNode, index);
     }
 
     // Memory

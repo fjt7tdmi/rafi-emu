@@ -113,14 +113,9 @@ const Trap64Node* TraceCycleReader::GetTrap64Node() const
     return m_pImpl->GetTrap64Node();
 }
 
-const MemoryAccess32Node* TraceCycleReader::GetMemoryAccess32Node(int index) const
+const MemoryAccessNode* TraceCycleReader::GetMemoryAccessNode(int index) const
 {
-    return m_pImpl->GetMemoryAccess32Node(index);
-}
-
-const MemoryAccess64Node* TraceCycleReader::GetMemoryAccess64Node(int index) const
-{
-    return m_pImpl->GetMemoryAccess64Node(index);
+    return m_pImpl->GetMemoryAccessNode(index);
 }
 
 const IoNode* TraceCycleReader::GetIoNode() const

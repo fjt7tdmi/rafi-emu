@@ -99,12 +99,7 @@ void TraceCycleBuilder::SetNode(const Trap64Node& node)
     m_pImpl->SetNode(node);
 }
 
-void TraceCycleBuilder::SetNode(const MemoryAccess32Node& node, int index)
-{
-    m_pImpl->SetNode(node, index);
-}
-
-void TraceCycleBuilder::SetNode(const MemoryAccess64Node& node, int index)
+void TraceCycleBuilder::SetNode(const MemoryAccessNode& node, int index)
 {
     m_pImpl->SetNode(node, index);
 }

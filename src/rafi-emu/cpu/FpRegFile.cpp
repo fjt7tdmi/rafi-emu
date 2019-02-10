@@ -67,7 +67,7 @@ void FpRegFile::WriteUInt32(int regId, uint32_t value)
     RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].u32.value = value;
-    m_Entries[regId].u32.zero = 0;
+    m_Entries[regId].u32.invalid = 0xffffffff;
 }
 
 void FpRegFile::WriteUInt64(int regId, uint64_t value)
@@ -82,7 +82,7 @@ void FpRegFile::WriteFloat(int regId, float value)
     RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
 
     m_Entries[regId].f.value = value;
-    m_Entries[regId].f.zero = 0;
+    m_Entries[regId].f.invalid = 0xffffffff;
 }
 
 void FpRegFile::WriteDouble(int regId, double value)
