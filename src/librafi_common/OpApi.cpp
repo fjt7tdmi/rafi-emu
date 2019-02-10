@@ -20,7 +20,7 @@
 
 #include <rafi/common.h>
 
-namespace rafi { namespace common {
+namespace rafi {
 
 namespace {
 
@@ -339,4 +339,4 @@ int SNPrintOp(char* buffer, int bufferSize, const Op& op)
     return std::visit(SNPrintOpVisitor(buffer, bufferSize, op.opCode), op.operand);
 }
 
-}}
+}

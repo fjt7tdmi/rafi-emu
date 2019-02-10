@@ -22,8 +22,6 @@
 
 #include "TraceCycleBuilderImpl.h"
 
-using namespace std;
-
 namespace rafi { namespace trace {
 
 TraceCycleBuilderImpl::TraceCycleBuilderImpl(const TraceCycleConfig& config)

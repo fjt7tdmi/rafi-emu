@@ -28,8 +28,6 @@
 
 #include "FileTraceReaderImpl.h"
 
-using namespace rafi::common;
-
 namespace fs = std::experimental::filesystem;
 
 namespace rafi { namespace trace {

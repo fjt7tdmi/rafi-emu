@@ -20,9 +20,6 @@
 
 #include <rafi/trace.h>
 
-using namespace std;
-using namespace rafi::common;
-
 #include "MemoryTraceWriterImpl.h"
 
 namespace rafi { namespace trace {

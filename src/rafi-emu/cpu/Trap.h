@@ -24,8 +24,6 @@
 
 #include <rafi/common.h>
 
-using namespace rafi::common;
-
 namespace rafi { namespace emu { namespace cpu {
 
 struct Trap

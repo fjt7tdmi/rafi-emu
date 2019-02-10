@@ -21,8 +21,6 @@
 
 #include "MemoryTraceReaderImpl.h"
 
-using namespace rafi::common;
-
 namespace rafi { namespace trace {
 
 MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize)

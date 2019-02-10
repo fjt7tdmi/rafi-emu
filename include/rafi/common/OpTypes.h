@@ -21,7 +21,7 @@
 
 #include "RvTypes.h"
 
-namespace rafi { namespace common {
+namespace rafi {
 
 enum class OpClass
 {
@@ -279,4 +279,4 @@ struct Op
     Operand operand;
 };
 
-}}
+}

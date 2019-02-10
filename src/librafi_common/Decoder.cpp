@@ -18,11 +18,11 @@
 
 #include "DecoderImpl.h"
 
-namespace rafi { namespace common {
+namespace rafi {
 
 Op Decoder::Decode(uint32_t insn) const
 {
     return m_pImpl->Decode(insn);
 }
 
-}}
+}

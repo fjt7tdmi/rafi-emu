@@ -24,7 +24,7 @@
 
 #include "test_TraceUtil.h"
 
-using namespace rafi::common;
+using namespace rafi;
 using namespace rafi::trace;
 
 TEST(TraceReaderTest, Basic)

@@ -24,8 +24,6 @@
 
 #include "Processor.h"
 
-using namespace std;
-
 namespace rafi { namespace emu { namespace cpu {
 
 void Processor::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)

@@ -22,8 +22,6 @@
 
 #include "TraceCycleReaderImpl.h"
 
-using namespace rafi::common;
-
 namespace rafi { namespace trace {
 
 TraceCycleReaderImpl::TraceCycleReaderImpl(const void* buffer, int64_t bufferSize)

@@ -29,8 +29,6 @@
 
 #pragma fenv_access (on)
 
-using namespace std;
-
 namespace rafi { namespace emu { namespace cpu {
 
 std::optional<Trap> Executor::PreCheckTrap(const Op& op, uint32_t pc, uint32_t insn) const

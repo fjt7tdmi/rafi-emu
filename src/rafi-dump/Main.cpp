@@ -27,7 +27,7 @@
 
 #pragma warning(disable:4477)
 
-using namespace rafi::common;
+using namespace rafi;
 using namespace rafi::trace;
 
 namespace po = boost::program_options;

@@ -18,7 +18,7 @@
 
 #include "RvTypes.h"
 
-namespace rafi { namespace common {
+namespace rafi {
 
 const char* GetString(MemoryAccessType accessType);
 const char* GetString(PrivilegeLevel level);
@@ -30,4 +30,4 @@ const char* GetString(csr_addr_t addr, const char* defaultValue);
 
 const char* GetFpRegName(int index);
 
-}}
+}

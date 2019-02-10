@@ -21,7 +21,7 @@
 
 #include "DecoderImpl.h"
 
-namespace rafi { namespace common {
+namespace rafi {
 
 namespace {
 
@@ -827,4 +827,4 @@ Operand DecoderImpl::DecodeOperandFence(uint32_t insn) const
     });
 }
 
-}}
+}

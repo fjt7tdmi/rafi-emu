@@ -30,6 +30,9 @@
 
 #include "System.h"
 
+using namespace rafi;
+using namespace rafi::trace;
+
 namespace po = boost::program_options;
 
 namespace {

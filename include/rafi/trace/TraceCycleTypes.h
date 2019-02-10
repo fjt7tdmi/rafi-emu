@@ -78,7 +78,7 @@ struct BasicInfoNode
     uint32_t cycle;
     uint32_t opId;
     uint32_t insn;
-    rafi::common::PrivilegeLevel privilegeLevel;
+    PrivilegeLevel privilegeLevel;
 };
 
 union FpRegNodeUnion
@@ -140,9 +140,9 @@ struct Csr64Node
 
 struct Trap32Node
 {
-    rafi::common::TrapType trapType;
-    rafi::common::PrivilegeLevel from;
-    rafi::common::PrivilegeLevel to;
+    TrapType trapType;
+    PrivilegeLevel from;
+    PrivilegeLevel to;
     uint32_t cause;
     uint32_t trapValue;
     uint32_t reserved;
@@ -150,9 +150,9 @@ struct Trap32Node
 
 struct Trap64Node
 {
-    rafi::common::TrapType trapType;
-    rafi::common::PrivilegeLevel from;
-    rafi::common::PrivilegeLevel to;
+    TrapType trapType;
+    PrivilegeLevel from;
+    PrivilegeLevel to;
     int8_t cause;
     int8_t reserved[3];
     int64_t trapValue;
@@ -160,7 +160,7 @@ struct Trap64Node
 
 struct MemoryAccessNode
 {
-    rafi::common::MemoryAccessType accessType;
+    MemoryAccessType accessType;
     uint32_t size;
     uint64_t value;
     uint64_t virtualAddress;

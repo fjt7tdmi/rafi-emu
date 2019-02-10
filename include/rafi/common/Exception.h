@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-namespace rafi { namespace common {
+namespace rafi {
 
 class FileOpenFailureException
 {
@@ -45,4 +45,4 @@ private:
     const char* m_Message;
 };
 
-}}
+}

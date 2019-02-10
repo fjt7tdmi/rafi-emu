@@ -16,7 +16,7 @@
 
 #include <rafi/common.h>
 
-namespace rafi { namespace common {
+namespace rafi {
 
 namespace {
     const char* FpRegNames[32] =
@@ -230,4 +230,4 @@ const char* GetFpRegName(int index)
     return FpRegNames[index];
 }
 
-}}
+}

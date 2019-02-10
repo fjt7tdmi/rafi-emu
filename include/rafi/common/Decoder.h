@@ -20,7 +20,7 @@
 
 #include "OpTypes.h"
 
-namespace rafi { namespace common {
+namespace rafi {
 
 class DecoderImpl;
 
@@ -33,4 +33,4 @@ private:
     DecoderImpl* m_pImpl;
 };
 
-}}
+}

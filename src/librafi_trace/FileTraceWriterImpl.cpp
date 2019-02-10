@@ -18,9 +18,6 @@
 
 #include <rafi/trace.h>
 
-using namespace std;
-using namespace rafi::common;
-
 #include "FileTraceWriterImpl.h"
 
 namespace rafi { namespace trace {

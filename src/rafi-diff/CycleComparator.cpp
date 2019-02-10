@@ -26,7 +26,7 @@
 // Suppress VC warning for printf "%16lx"
 #pragma warning(disable:4477)
 
-using namespace rafi::common;
+using namespace rafi;
 using namespace rafi::trace;
 
 bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const

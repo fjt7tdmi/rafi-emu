@@ -22,9 +22,6 @@
 
 #include "../System.h"
 
-using namespace rafi::common;
-using namespace rafi::trace;
-
 namespace rafi { namespace emu { namespace log {
 
 class TraceDumper final
@@ -49,7 +46,7 @@ public:
     }
 
 private:
-    FileTraceWriter m_FileTraceWriter;
+    rafi::trace::FileTraceWriter m_FileTraceWriter;
 
     const System* m_pSystem;
 

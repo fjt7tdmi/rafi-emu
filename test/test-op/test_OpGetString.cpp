@@ -22,7 +22,7 @@
 
 #include <rafi/common.h>
 
-using namespace rafi::common;
+using namespace rafi;
 
 TEST(OpTest, GetString)
 {

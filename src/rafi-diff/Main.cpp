@@ -26,8 +26,6 @@
 
 #include "CycleComparator.h"
 
-using namespace std;
-using namespace rafi::common;
 using namespace rafi::trace;
 
 namespace po = boost::program_options;
@@ -37,7 +35,7 @@ namespace {
 const char* Pass = "[  PASS  ]";
 const char* Failed = "[ FAILED ]";
 
-void CompareTrace(const string& expectPath, const string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
+void CompareTrace(const std::string& expectPath, const std::string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
 {
     CycleComparator comparator(cmpPhysicalPc, cmpCsr, cmpMemory);
 
@@ -95,8 +93,8 @@ int main(int argc, char** argv)
         ("cmp-physical-pc", "enable comparing physical PC")
         ("cmp-csr", "enable comparing physical PC")
         ("cmp-memory", "enable comparing physical PC")
-        ("expect", po::value<string>()->required(), "expect trace binary")
-        ("actual", po::value<string>()->required(), "actual trace binary")
+        ("expect", po::value<std::string>()->required(), "expect trace binary")
+        ("actual", po::value<std::string>()->required(), "actual trace binary")
         ("help", "show help");
 
     po::variables_map optionMap;
@@ -132,7 +130,7 @@ int main(int argc, char** argv)
 
     try
     {
-        CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+        CompareTrace(optionMap["expect"].as<std::string>(), optionMap["actual"].as<std::string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
     }
     catch (const TraceException& e)
     {

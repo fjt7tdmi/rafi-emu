@@ -25,8 +25,6 @@ extern "C"
 #include <softfloat.h>
 }
 
-using namespace rafi::common;
-
 namespace rafi { namespace fp {
 
 namespace {

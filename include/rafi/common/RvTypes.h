@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace rafi { namespace common {
+namespace rafi {
 
 enum class MemoryAccessType : uint32_t
 {
@@ -304,4 +304,4 @@ enum class counter_addr_t
     instret = 2,
 };
 
-}}
+}

@@ -22,7 +22,7 @@
 
 #include <rafi/trace.h>
 
-using namespace rafi::common;
+using namespace rafi;
 using namespace rafi::trace;
 
 namespace {

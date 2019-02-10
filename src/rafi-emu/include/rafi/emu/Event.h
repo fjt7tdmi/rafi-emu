@@ -22,8 +22,6 @@
 
 #include "BasicTypes.h"
 
-using namespace rafi::common;
-
 namespace rafi { namespace emu {
 
 struct CsrReadEvent

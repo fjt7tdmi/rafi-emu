@@ -23,7 +23,6 @@
 #include "Trap.h"
 #include "Csr.h"
 
-using namespace rafi::common;
 using namespace rafi::trace;
 
 namespace rafi { namespace emu { namespace cpu {

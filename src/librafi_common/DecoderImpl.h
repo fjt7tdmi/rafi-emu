@@ -18,7 +18,7 @@
 
 #include <rafi/common.h>
 
-namespace rafi { namespace common {
+namespace rafi {
 
 class DecoderImpl
 {
@@ -45,4 +45,4 @@ private:
     Operand DecodeOperandFence(uint32_t insn) const;
 };
 
-}}
+}

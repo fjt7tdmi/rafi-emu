@@ -25,7 +25,6 @@
 
 #include <rafi/trace.h>
 
-using namespace rafi::common;
 using namespace rafi::trace;
 
 namespace po = boost::program_options;
