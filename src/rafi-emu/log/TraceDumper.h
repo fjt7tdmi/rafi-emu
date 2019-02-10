@@ -18,9 +18,12 @@
 
 #include <cstdio>
 
-#include <rvtrace/writer.h>
+#include <rafi/trace.h>
 
 #include "../System.h"
+
+using namespace rafi::common;
+using namespace rafi::trace;
 
 namespace rafi { namespace emu { namespace log {
 

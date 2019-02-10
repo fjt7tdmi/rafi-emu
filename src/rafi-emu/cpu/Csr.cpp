@@ -18,11 +18,13 @@
 #include <cstdint>
 
 #include <rafi/emu.h>
+#include <rafi/trace.h>
 
 #include "Trap.h"
 #include "Csr.h"
 
-using namespace rvtrace;
+using namespace rafi::common;
+using namespace rafi::trace;
 
 namespace rafi { namespace emu { namespace cpu {
 

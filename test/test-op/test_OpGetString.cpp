@@ -21,10 +21,8 @@
 #include <gtest/gtest.h>
 
 #include <rafi/common.h>
-#include <rvtrace/common.h>
 
 using namespace rafi::common;
-using namespace rvtrace;
 
 TEST(OpTest, GetString)
 {

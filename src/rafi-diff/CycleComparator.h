@@ -18,7 +18,9 @@
 
 #include <cstdio>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
+
+using namespace rafi::trace;
 
 class CycleComparator final
 {
@@ -31,22 +33,22 @@ public:
     }
 
     // compare
-    bool IsPc32NodeMatched(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
-    bool IsIntReg32NodeMatched(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
+    bool IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const;
+    bool IsIntReg32NodeMatched(const IntReg32Node* pExpect, const IntReg32Node* pActual) const;
     bool IsMemoryNodeMatched(const void* pExpect, int64_t expectSize, const void* pActual, int64_t actualSize) const;
 
-    bool AreCsr32NodesMatched(const rvtrace::Csr32Node* pExpectNodes, int expectNodeCount, const rvtrace::Csr32Node* pActualNodes, int actualNodeCount) const;
+    bool AreCsr32NodesMatched(const Csr32Node* pExpectNodes, int expectNodeCount, const Csr32Node* pActualNodes, int actualNodeCount) const;
 
-    bool AreMatched(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
+    bool AreMatched(const TraceCycleReader& expect, const TraceCycleReader& actual) const;
 
     // print diff
-    void PrintPc32Diff(const rvtrace::Pc32Node* pExpect, const rvtrace::Pc32Node* pActual) const;
-    void PrintIntReg32Diff(const rvtrace::IntReg32Node* pExpect, const rvtrace::IntReg32Node* pActual) const;
+    void PrintPc32Diff(const Pc32Node* pExpect, const Pc32Node* pActual) const;
+    void PrintIntReg32Diff(const IntReg32Node* pExpect, const IntReg32Node* pActual) const;
     void PrintMemoryDiff(const void* pExpect, size_t expectMemorySize, const void* pActual, size_t actualMemorySize) const;
 
-    void PrintCsr32Diff(const rvtrace::Csr32Node* pExpectNodes, int expectNodeCount, const rvtrace::Csr32Node* pActualNodes, int actualNodeCount) const;
+    void PrintCsr32Diff(const Csr32Node* pExpectNodes, int expectNodeCount, const Csr32Node* pActualNodes, int actualNodeCount) const;
 
-    void PrintDiff(const rvtrace::TraceCycleReader& expect, const rvtrace::TraceCycleReader& actual) const;
+    void PrintDiff(const TraceCycleReader& expect, const TraceCycleReader& actual) const;
 
 private:
     bool m_CmpPhysicalPc;

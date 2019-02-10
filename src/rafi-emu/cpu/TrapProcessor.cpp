@@ -17,11 +17,10 @@
 #include <cassert>
 #include <cstdint>
 
+#include <rafi/common.h>
 #include <rafi/emu.h>
 
 #include "TrapProcessor.h"
-
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 

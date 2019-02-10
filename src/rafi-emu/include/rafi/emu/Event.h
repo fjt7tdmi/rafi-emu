@@ -18,12 +18,11 @@
 
 #include <cstdint>
 
-#include <rvtrace/common.h>
+#include <rafi/trace.h>
 
 #include "BasicTypes.h"
 
 using namespace rafi::common;
-using namespace rvtrace;
 
 namespace rafi { namespace emu {
 

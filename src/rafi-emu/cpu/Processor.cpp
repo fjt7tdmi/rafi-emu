@@ -20,12 +20,11 @@
 #include <fstream>
 #include <iostream>
 
-#include <rvtrace/common.h>
+#include <rafi/common.h>
 
 #include "Processor.h"
 
 using namespace std;
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 

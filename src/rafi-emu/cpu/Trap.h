@@ -23,10 +23,8 @@
 #include <variant>
 
 #include <rafi/common.h>
-#include <rvtrace/common.h>
 
 using namespace rafi::common;
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 

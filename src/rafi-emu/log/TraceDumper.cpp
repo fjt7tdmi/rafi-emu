@@ -18,13 +18,15 @@
 #include <string>
 #include <sstream>
 
+#include <rafi/trace.h>
+
 #include "../bus/Bus.h"
 
 #include "TraceDumper.h"
 
 #pragma warning (disable: 4996)
 
-using namespace rvtrace;
+using namespace rafi::trace;
 
 namespace rafi { namespace emu { namespace log {
 

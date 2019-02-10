@@ -18,8 +18,7 @@
 #include <cstdint>
 #include <fstream>
 
-#include <rvtrace/common.h>
-
+#include <rafi/common.h>
 #include <rafi/emu.h>
 
 #include "Ram.h"

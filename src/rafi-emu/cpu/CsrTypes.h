@@ -22,8 +22,6 @@
 
 #include "Trap.h"
 
-using namespace rvtrace;
-
 namespace rafi { namespace emu { namespace cpu {
 
 enum XLEN

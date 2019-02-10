@@ -22,12 +22,13 @@
 
 #include <boost/program_options.hpp>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
 #include "CycleComparator.h"
 
 using namespace std;
-using namespace rvtrace;
+using namespace rafi::common;
+using namespace rafi::trace;
 
 namespace po = boost::program_options;
 
@@ -133,11 +134,11 @@ int main(int argc, char** argv)
     {
         CompareTrace(optionMap["expect"].as<string>(), optionMap["actual"].as<string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
     }
-    catch (const rvtrace::TraceException& e)
+    catch (const TraceException& e)
     {
         e.PrintMessage();
     }
-    catch (const rvtrace::TraceCycleException& e)
+    catch (const TraceCycleException& e)
     {
         std::cout << e.GetMessage() << std::endl;
     }

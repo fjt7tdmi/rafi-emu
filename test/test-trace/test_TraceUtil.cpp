@@ -18,10 +18,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <rvtrace/reader.h>
-#include <rvtrace/writer.h>
+#include <rafi/trace.h>
 
-using namespace rvtrace;
+using namespace rafi::trace;
 
 void FillRandom(void* buffer, size_t size)
 {

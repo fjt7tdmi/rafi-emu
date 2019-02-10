@@ -19,12 +19,11 @@
 
 #include <gtest/gtest.h>
 
-#include <rvtrace/reader.h>
-#include <rvtrace/writer.h>
+#include <rafi/trace.h>
 
 #include "test_TraceUtil.h"
 
-using namespace rvtrace;
+using namespace rafi::trace;
 
 TEST(TraceWriterTest, Overflow)
 {

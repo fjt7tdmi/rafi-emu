@@ -22,7 +22,6 @@
 #include <iostream>
 #include <limits>
 
-#include <rvtrace/common.h>
 #include <rafi/emu.h>
 #include <rafi/fp.h>
 
@@ -31,7 +30,6 @@
 #pragma fenv_access (on)
 
 using namespace std;
-using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 

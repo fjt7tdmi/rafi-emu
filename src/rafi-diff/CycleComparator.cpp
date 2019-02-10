@@ -19,8 +19,7 @@
 #include <string>
 #include <sstream>
 
-#include <rafi/common.h>
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
 #include "CycleComparator.h"
 
@@ -28,7 +27,7 @@
 #pragma warning(disable:4477)
 
 using namespace rafi::common;
-using namespace rvtrace;
+using namespace rafi::trace;
 
 bool CycleComparator::IsPc32NodeMatched(const Pc32Node* pExpect, const Pc32Node* pActual) const
 {
@@ -126,7 +125,7 @@ bool CycleComparator::AreMatched(const TraceCycleReader& expect, const TraceCycl
             return false;
         }
     }
-    if (m_CmpMemory && !IsMemoryNodeMatched(expect.GetMemoryNode(), expect.GetNodeSize(rvtrace::NodeType::Memory), actual.GetMemoryNode(), actual.GetNodeSize(rvtrace::NodeType::Memory)))
+    if (m_CmpMemory && !IsMemoryNodeMatched(expect.GetMemoryNode(), expect.GetNodeSize(NodeType::Memory), actual.GetMemoryNode(), actual.GetNodeSize(NodeType::Memory)))
     {
         return false;
     }

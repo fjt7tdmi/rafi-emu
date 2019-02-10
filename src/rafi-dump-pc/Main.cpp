@@ -23,9 +23,10 @@
 
 #include <boost/program_options.hpp>
 
-#include <rvtrace/reader.h>
+#include <rafi/trace.h>
 
-using namespace rvtrace;
+using namespace rafi::common;
+using namespace rafi::trace;
 
 namespace po = boost::program_options;
 

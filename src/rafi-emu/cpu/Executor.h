@@ -17,7 +17,8 @@
 #pragma once
 
 #include <cfenv>
-#include <rvtrace/common.h>
+
+#include <rafi/common.h>
 
 #include "Csr.h"
 #include "CsrAccessor.h"

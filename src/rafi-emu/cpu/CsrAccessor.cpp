@@ -19,8 +19,6 @@
 
 #include "CsrAccessor.h"
 
-using namespace rvtrace;
-
 namespace rafi { namespace emu { namespace cpu {
 
 uint32_t CsrAccessor::Read(int addr)

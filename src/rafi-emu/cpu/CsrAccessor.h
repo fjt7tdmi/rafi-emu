@@ -22,8 +22,6 @@
 
 #include "Csr.h"
 
-using namespace rvtrace;
-
 namespace rafi { namespace emu { namespace cpu {
 
 class CsrAccessor

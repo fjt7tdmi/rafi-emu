@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <rvtrace/common.h>
+#include <rafi/common.h>
 
 namespace rafi { namespace common {
 

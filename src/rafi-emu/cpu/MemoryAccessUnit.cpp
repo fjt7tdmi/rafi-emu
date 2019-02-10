@@ -21,8 +21,6 @@
 
 #include "MemoryAccessUnit.h"
 
-using namespace rvtrace;
-
 namespace rafi { namespace emu { namespace cpu {
 
 namespace {

@@ -20,10 +20,11 @@
 
 #include <gtest/gtest.h>
 
-#include <rvtrace/reader.h>
-#include <rvtrace/writer.h>
+#include <rafi/common.h>
+#include <rafi/trace.h>
 
-using namespace rvtrace;
+using namespace rafi::common;
+using namespace rafi::trace;
 
 namespace {
     void FillRandom(void* buffer, size_t size)

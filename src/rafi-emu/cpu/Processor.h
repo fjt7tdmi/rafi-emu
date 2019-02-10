@@ -26,7 +26,7 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-#include <rvtrace/common.h>
+#include <rafi/common.h>
 #include <rafi/emu.h>
 
 namespace rafi { namespace emu { namespace cpu {
