@@ -20,97 +20,77 @@
 
 namespace rafi {
 
-template <int msb, int lsb = msb>
+template <typename BaseInteger, int msb, int lsb = msb>
 class BitFieldMember
 {
 public:
-    static const int Msb = msb;
-    static const int Lsb = lsb;
-    static const int Width = Msb - Lsb + 1;
-    static const int Mask = ((1 << Width) - 1) << Lsb;
+    static const BaseInteger Msb = msb;
+    static const BaseInteger Lsb = lsb;
+    static const BaseInteger Width = Msb - Lsb + BaseInteger(1);
+    static const BaseInteger Mask = ((BaseInteger(1) << Width) - BaseInteger(1)) << Lsb;
 };
 
+template <typename BaseInteger>
 class BitField
 {
 public:
-    explicit BitField(uint32_t value)
+    template <int msb, int lsb = msb>
+    using Member = BitFieldMember<BaseInteger, msb, lsb>;
+
+    BitField()
+    {
+    }
+
+    explicit BitField(BaseInteger value)
     {
         m_Value = value;
     }
 
-    explicit BitField(int32_t value)
+    operator BaseInteger() const
     {
-        m_Value = static_cast<uint32_t>(value);
+        return GetValue();
     }
 
-    uint32_t GetWithMask(uint32_t mask) const
+    BaseInteger GetValue() const
+    {
+        return m_Value;
+    }
+
+    BitField& SetValue(BaseInteger value)
+    {
+        m_Value = value;
+        return *this;
+    }
+
+    BaseInteger GetWithMask(BaseInteger mask) const
     {
         return (m_Value & mask);
     }
 
-    uint32_t GetWithMask(int32_t mask) const
-    {
-        return GetWithMask(static_cast<uint32_t>(mask));
-    }
-
-    BitField& SetWithMask(uint32_t value, uint32_t mask)
+    BitField& SetWithMask(BaseInteger value, BaseInteger mask)
     {
         m_Value = (m_Value & ~mask) | (value & mask);
         return *this;
     }
 
-    BitField& SetWithMask(int32_t value, int32_t mask)
+    template <typename TMember>
+    BaseInteger GetMember() const
     {
-        SetWithMask(static_cast<uint32_t>(value), static_cast<uint32_t>(mask));
+        return (m_Value & TMember::Mask) >> TMember::Lsb;
+    }
+
+    template <typename TMember>
+    BitField& SetMember(BaseInteger value)
+    {
+        m_Value = (m_Value & ~TMember::Mask) | ((value << TMember::Lsb) & TMember::Mask);
         return *this;
     }
 
-    template <typename Member>
-    uint32_t GetMember() const
-    {
-        return (m_Value & Member::Mask) >> Member::Lsb;
-    }
-
-    template <typename Member>
-    BitField& SetMember(uint32_t value)
-    {
-        m_Value = (m_Value & ~Member::Mask) | ((value << Member::Lsb) & Member::Mask);
-        return *this;
-    }
-
-    BitField& Set(int32_t value)
-    {
-        m_Value = value;
-        return *this;
-    }
-
-    BitField& Set(uint32_t value)
-    {
-        m_Value = value;
-        return *this;
-    }
-
-    int32_t GetInt32() const
-    {
-        return m_Value;
-    }
-
-    uint32_t GetUInt32() const
-    {
-        return m_Value;
-    }
-
-    operator int32_t() const
-    {
-        return GetInt32();
-    }
-
-    operator uint32_t() const
-    {
-        return GetUInt32();
-    }
 private:
-    uint32_t m_Value;
+    BaseInteger m_Value{};
 };
+
+using BitField32 = BitField<uint32_t>;
+using BitField64 = BitField<uint64_t>;
 
 }

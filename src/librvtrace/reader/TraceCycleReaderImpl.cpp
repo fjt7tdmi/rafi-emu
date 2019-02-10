@@ -131,16 +131,10 @@ const Trap64Node* TraceCycleReaderImpl::GetTrap64Node() const
     return reinterpret_cast<const Trap64Node*>(GetNode(NodeType::Trap64, 0));
 }
 
-const MemoryAccess32Node* TraceCycleReaderImpl::GetMemoryAccess32Node(int index) const
+const MemoryAccessNode* TraceCycleReaderImpl::GetMemoryAccessNode(int index) const
 {
-    CheckNodeSizeEqualTo(NodeType::MemoryAccess32, index, sizeof(MemoryAccess32Node));
-    return reinterpret_cast<const MemoryAccess32Node*>(GetNode(NodeType::MemoryAccess32, index));
-}
-
-const MemoryAccess64Node* TraceCycleReaderImpl::GetMemoryAccess64Node(int index) const
-{
-    CheckNodeSizeEqualTo(NodeType::MemoryAccess64, index, sizeof(MemoryAccess64Node));
-    return reinterpret_cast<const MemoryAccess64Node*>(GetNode(NodeType::MemoryAccess64, index));
+    CheckNodeSizeEqualTo(NodeType::MemoryAccess, index, sizeof(MemoryAccessNode));
+    return reinterpret_cast<const MemoryAccessNode*>(GetNode(NodeType::MemoryAccess, index));
 }
 
 const IoNode* TraceCycleReaderImpl::GetIoNode() const

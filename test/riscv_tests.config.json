@@ -140,6 +140,86 @@
         "cycle": 256000
     },
     {
+        "name": "rv32ud-p-fadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fclass",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fcmp",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fcvt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fcvt_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fdiv",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fmadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-fmin",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-ldst",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-p-recoding",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fclass",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fcmp",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fcvt",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fcvt_w",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fdiv",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fmadd",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-fmin",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-ldst",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32ud-v-recoding",
+        "cycle": 32000
+    },
+    {
         "name": "rv32uf-p-fadd",
         "cycle": 32000
     },

@@ -28,71 +28,117 @@ namespace rafi { namespace fp {
 
 namespace {
 
-const uint32_t FloatCanonicalQuietNan = 0x7fc00000;
-const uint32_t FloatCanonicalSignalingNan = 0x7f800001;
-const uint64_t DoubleCanonicalQuietNan = 0x7ff8000000000000ull;
-const uint64_t DoubleCanonicalSignalingNan = 0x7ff0000000000001ull;
+// ----------------------------------------------------------------------------
+// Fp classes
 
-class Float : public BitField
+template<typename BaseInteger, int ExponentWidth, int FractionWidth>
+class FpBase : public BitField<BaseInteger>
 {
 public:
-    explicit Float(uint32_t value)
-        : BitField(value)
+    explicit FpBase(BaseInteger value)
+        : BitField<BaseInteger>(value)
     {
     }
 
-    int32_t GetSign() const
+    BaseInteger GetSign() const
     {
         return GetMember<Sign>();
     }
 
-    int32_t GetExponent() const
+    BaseInteger GetExponent() const
     {
         return GetMember<Exponent>();
     }
 
-    int32_t GetFraction() const
+    BaseInteger GetFraction() const
     {
         return GetMember<Fraction>();
     }
 
     bool IsZero() const
     {
-        return GetExponent() == 0 && GetFraction() == 0;
+        return GetExponent() == BaseInteger(0) && GetFraction() == BaseInteger(0);
     }
 
-    bool IsPositiveZero() const
+    bool IsInf() const
     {
-        return IsZero() && GetSign() == 0;
+        return GetExponent() == MaxExponent && GetFraction() == BaseInteger(0);
     }
 
-    bool IsNegativeZero() const
+    bool IsNormal() const
     {
-        return IsZero() && GetSign() == 1;
+        return 1 <= GetExponent() && GetExponent() < MaxExponent;
+    }
+
+    bool IsSubNormal() const
+    {
+        return GetExponent() == BaseInteger(0) && GetFraction() != BaseInteger(0);
     }
 
     bool IsNan() const
     {
-        return GetExponent() == 255 && GetFraction() != 0;
+        return GetExponent() == MaxExponent && GetFraction() != BaseInteger(0);
     }
 
     bool IsQuietNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() != 0;
+        return IsNan() && GetMember<FractionMsb>() != BaseInteger(0);
     }
 
     bool IsSignalingNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() == 0;
+        return IsNan() && GetMember<FractionMsb>() == BaseInteger(0);
     }
 
 private:
+    using Sign = BitFieldMember<BaseInteger, FractionWidth + ExponentWidth>;
+    using Exponent = BitFieldMember<BaseInteger, FractionWidth + ExponentWidth - 1, FractionWidth>;
+    using Fraction = BitFieldMember<BaseInteger, FractionWidth - 1, 0>;
+    using FractionMsb = BitFieldMember<BaseInteger, FractionWidth - 1>;
 
-    using Sign = BitFieldMember<31>;
-    using Exponent = BitFieldMember<30, 23>;
-    using Fraction = BitFieldMember<22, 0>;
-    using FractionMsb = BitFieldMember<22>;
+    static const BaseInteger MaxExponent = (BaseInteger(1) << ExponentWidth) - BaseInteger(1);
 };
+
+class Fp32 : public FpBase<uint32_t, 8, 23>
+{
+public:
+    explicit Fp32(uint32_t value)
+        : FpBase<uint32_t, 8, 23>(value)
+    {
+    }
+
+    static Fp32 GetCanonicalQuietNan()
+    {
+        return Fp32(0x7fc00000);
+    }
+
+    static Fp32 GetCanonicalSignalingNan()
+    {
+        return Fp32(0x7f800001);
+    }
+};
+
+class Fp64 : public FpBase<uint64_t, 11, 52>
+{
+public:
+    explicit Fp64(uint64_t value)
+        : FpBase<uint64_t, 11, 52>(value)
+    {
+    }
+
+    static Fp64 GetCanonicalQuietNan()
+    {
+        return Fp64(0x7ff8000000000000ull);
+    }
+
+    static Fp64 GetCanonicalSignalingNan()
+    {
+        return Fp64(0x7ff0000000000001ull);
+    }
+};
+
+// ----------------------------------------------------------------------------
+// float32_t, float64_t utilities
 
 float32_t ToFloat32(uint32_t value)
 {
@@ -111,259 +157,413 @@ float64_t ToFloat64(uint64_t value)
 float32_t Negate(float32_t value)
 {
     float32_t result;
-    result.v = value.v ^ 0x80000000;
+    result.v = value.v ^ (1ul << 31);
     return result;
 }
 
+float64_t Negate(float64_t value)
+{
+    float64_t result;
+    result.v = value.v ^ (1ull << 63);
+    return result;
 }
+
+// ----------------------------------------------------------------------------
+// min/max utilities
+
+bool LeQuiet(const Fp32& x, const Fp32& y)
+{
+    return f32_le_quiet(ToFloat32(x.GetValue()), ToFloat32(y.GetValue()));
+}
+
+bool LeQuiet(const Fp64& x, const Fp64& y)
+{
+    return f64_le_quiet(ToFloat64(x.GetValue()), ToFloat64(y.GetValue()));
+}
+
+template<typename T>
+T MinImpl(const T& x, const T& y)
+{
+    const auto cmpResult = LeQuiet(x, y) ? x : y;
+
+    if (x.IsZero() && x.IsZero())
+    {
+        if (x.GetSign() == 1 && y.GetSign() == 0)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+    else if (x.IsNan() && y.IsNan())
+    {
+        if (x.IsSignalingNan() || y.IsSignalingNan())
+        {
+            return T::GetCanonicalSignalingNan();
+        }
+        else
+        {
+            return T::GetCanonicalQuietNan();
+        }
+    }
+    else if (!x.IsNan() && y.IsNan())
+    {
+        return x;
+    }
+    else if (x.IsNan() && !y.IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
+}
+
+template<typename T>
+T MaxImpl(const T& x, const T& y)
+{
+    const auto cmpResult = LeQuiet(x, y) ? y : x;
+
+    if (x.IsZero() && y.IsZero())
+    {
+        if (x.GetSign() == 0 && y.GetSign() == 1)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+    else if (x.IsNan() && y.IsNan())
+    {
+        if (x.IsSignalingNan() || y.IsSignalingNan())
+        {
+            return T::GetCanonicalSignalingNan();
+        }
+        else
+        {
+            return T::GetCanonicalQuietNan();
+        }
+    }
+    else if (!x.IsNan() && y.IsNan())
+    {
+        return x;
+    }
+    else if (x.IsNan() && !y.IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+} // namespace
 
 uint32_t Add(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-    
     return f32_add(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Add(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Sub(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-    
     return f32_sub(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Sub(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Mul(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_mul(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Mul(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_mul(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Div(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_div(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Div(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_div(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Sqrt(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_sqrt(ToFloat32(x)).v;
+}
+
+uint64_t Sqrt(uint64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sqrt(ToFloat64(x)).v;
 }
 
 bool Eq(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_eq(ToFloat32(x), ToFloat32(y));
+}
+
+bool Eq(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_eq(ToFloat64(x), ToFloat64(y));
 }
 
 bool Le(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_le(ToFloat32(x), ToFloat32(y));
+}
+
+bool Le(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_le(ToFloat64(x), ToFloat64(y));
 }
 
 bool Lt(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_lt(ToFloat32(x), ToFloat32(y));
+}
+
+bool Lt(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_lt(ToFloat64(x), ToFloat64(y));
 }
 
 uint32_t Min(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
+    return MinImpl(Fp32(x), Fp32(y)).GetValue();
+}
 
-    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
-
-    if (Float(x).IsZero() && Float(y).IsZero())
-    {
-        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
-        {
-            return y;
-        }
-        else
-        {
-            return x;
-        }
-    }
-    else if (Float(x).IsNan() && Float(y).IsNan())
-    {
-        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
-        {
-            return FloatCanonicalSignalingNan;
-        }
-        else
-        {
-            return FloatCanonicalQuietNan;
-        }
-    }
-    else if (!Float(x).IsNan() && Float(y).IsNan())
-    {
-        return x;
-    }
-    else if (Float(x).IsNan() && !Float(y).IsNan())
-    {
-        return y;
-    }
-    else
-    {
-        return cmpResult;
-    }
+uint64_t Min(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return MinImpl(Fp64(x), Fp64(y)).GetValue();
 }
 
 uint32_t Max(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
+    return MaxImpl(Fp32(x), Fp32(y)).GetValue();
+}
 
-    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
-
-    if (Float(x).IsZero() && Float(y).IsZero())
-    {
-        if (Float(x).IsPositiveZero() && Float(y).IsNegativeZero())
-        {
-            return x;
-        }
-        else
-        {
-            return y;
-        }
-    }
-    else if (Float(x).IsNan() && Float(y).IsNan())
-    {
-        if (Float(x).IsSignalingNan() || Float(y).IsSignalingNan())
-        {
-            return FloatCanonicalSignalingNan;
-        }
-        else
-        {
-            return FloatCanonicalQuietNan;
-        }
-    }
-    else if (!Float(x).IsNan() && Float(y).IsNan())
-    {
-        return x;
-    }
-    else if (Float(x).IsNan() && !Float(y).IsNan())
-    {
-        return y;
-    }
-    else
-    {
-        return cmpResult;
-    }
+uint64_t Max(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return MaxImpl(Fp64(x), Fp64(y)).GetValue();
 }
 
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_add(f32_mul(ToFloat32(x), ToFloat32(y)), ToFloat32(z)).v;
+}
 
-    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
-    return f32_add(tmp, ToFloat32(z)).v;
+uint64_t MulAdd(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(f64_mul(ToFloat64(x), ToFloat64(y)), ToFloat64(z)).v;
 }
 
 uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_sub(f32_mul(ToFloat32(x), ToFloat32(y)), ToFloat32(z)).v;
+}
 
-    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
-    return f32_sub(tmp, ToFloat32(z)).v;
+uint64_t MulSub(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(f64_mul(ToFloat64(x), ToFloat64(y)), ToFloat64(z)).v;
 }
 
 uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_sub(Negate(f32_mul(ToFloat32(x), ToFloat32(y))), ToFloat32(z)).v;
+}
 
-    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
-    return f32_sub(tmp, ToFloat32(z)).v;
+uint64_t NegMulAdd(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(Negate(f64_mul(ToFloat64(x), ToFloat64(y))), ToFloat64(z)).v;
 }
 
 uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_add(Negate(f32_mul(ToFloat32(x), ToFloat32(y))), ToFloat32(z)).v;
+}
 
-    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
-    return f32_add(tmp, ToFloat32(z)).v;
+uint64_t NegMulSub(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(Negate(f64_mul(ToFloat64(x), ToFloat64(y))), ToFloat64(z)).v;
+}
+
+int32_t DoubleToInt32(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_i32(ToFloat64(x), roundMode, true);
+}
+
+uint32_t DoubleToUInt32(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_ui32(ToFloat64(x), roundMode, true);
+}
+
+int64_t DoubleToInt64(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_i64(ToFloat64(x), roundMode, true);
+}
+
+uint64_t DoubleToUInt64(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_ui64(ToFloat64(x), roundMode, true);
 }
 
 int32_t FloatToInt32(uint32_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_to_i32(ToFloat32(x), roundMode, true);
 }
 
 uint32_t FloatToUInt32(uint32_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_to_ui32(ToFloat32(x), roundMode, true);
+}
+
+uint64_t Int32ToDouble(int32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return i32_to_f64(x).v;
+}
+
+uint64_t UInt32ToDouble(uint32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return ui32_to_f64(x).v;
 }
 
 uint32_t Int32ToFloat(int32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return i32_to_f32(x).v;
 }
 
 uint32_t UInt32ToFloat(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return ui32_to_f32(x).v;
 }
 
-uint32_t ConvertToRvFpClass(uint32_t x)
+uint32_t DoubleToFloat(uint64_t x)
 {
-    Float f(x);
+    softfloat_exceptionFlags = 0;
+    return f64_to_f32(ToFloat64(x)).v;
+}
 
-    if (f.GetSign() == 1 && f.GetExponent() == 255 && f.GetFraction() == 0)
+uint64_t FloatToDouble(uint32_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return f32_to_f64(ToFloat32(x)).v;
+}
+
+namespace {
+
+template <typename T>
+uint32_t ConvertToRvFpClassImpl(const T& x)
+{
+    if (x.GetSign() == 1 && x.IsInf())
     {
         return 1 << 0; // negative infinity
     }
-    else if (f.GetSign() == 1 && 1 <= f.GetExponent() && f.GetExponent() <= 254)
+    else if (x.GetSign() == 1 && x.IsNormal())
     {
         return 1 << 1; // negative normal
     }
-    else if (f.GetSign() == 1 && f.GetExponent() == 0 && f.GetFraction() != 0)
+    else if (x.GetSign() == 1 && x.IsSubNormal())
     {
         return 1 << 2; // negative subnormal
     }
-    else if (f.GetSign() == 1 && f.GetExponent() == 0 && f.GetFraction() == 0)
+    else if (x.GetSign() == 1 && x.IsZero())
     {
         return 1 << 3; // negative zero
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 0 && f.GetFraction() == 0)
+    else if (x.GetSign() == 0 && x.IsZero())
     {
         return 1 << 4; // positive zero
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 0 && f.GetFraction() != 0)
+    else if (x.GetSign() == 0 && x.IsSubNormal())
     {
         return 1 << 5; // positive subnormal
     }
-    else if (f.GetSign() == 0 && 1 <= f.GetExponent() && f.GetExponent() <= 254)
+    else if (x.GetSign() == 0 && x.IsNormal())
     {
         return 1 << 6; // positive normal
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 255 && f.GetFraction() == 0)
+    else if (x.GetSign() == 0 && x.IsInf())
     {
         return 1 << 7; // positive infinity
     }
+    else if (x.IsSignalingNan())
+    {
+        return 1 << 8; // signaling NaN
+    }
     else
     {
-        if (f.IsSignalingNan())
-        {
-            return 1 << 8; // signaling NaN
-        }
-        else
-        {
-            return 1 << 9; // quiet NaN
-        }
+        return 1 << 9; // quiet NaN
     }
+}
+
+} // namespace
+
+uint32_t ConvertToRvFpClass(uint32_t x)
+{
+    return ConvertToRvFpClassImpl(Fp32(x));
+}
+
+uint32_t ConvertToRvFpClass(uint64_t x)
+{
+    return ConvertToRvFpClassImpl(Fp64(x));
 }
 
 int GetRvExceptionFlags()

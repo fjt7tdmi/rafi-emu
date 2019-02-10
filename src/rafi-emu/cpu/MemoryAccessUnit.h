@@ -30,26 +30,26 @@ using namespace rvtrace;
 
 namespace rafi { namespace emu { namespace cpu {
 
-class PageTableEntry : public BitField
+class PageTableEntry : public BitField32
 {
 public:
-    explicit PageTableEntry(int32_t value)
-        : BitField(value)
+    explicit PageTableEntry(uint32_t value)
+        : BitField32(value)
     {
     }
 
-    using Valid = BitFieldMember<0>;
-    using Read = BitFieldMember<1>;
-    using Write = BitFieldMember<2>;
-    using Execute = BitFieldMember<3>;
-    using User = BitFieldMember<4>;
-    using Global = BitFieldMember<5>;
-    using Accessed = BitFieldMember<6>;
-    using Dirty = BitFieldMember<7>;
+    using Valid = Member<0>;
+    using Read = Member<1>;
+    using Write = Member<2>;
+    using Execute = Member<3>;
+    using User = Member<4>;
+    using Global = Member<5>;
+    using Accessed = Member<6>;
+    using Dirty = Member<7>;
 
-    using PhysicalPageNumber = BitFieldMember<31, 10>;
-    using PhysicalPageNumber0 = BitFieldMember<19, 10>;
-    using PhysicalPageNumber1 = BitFieldMember<31, 20>;
+    using PhysicalPageNumber = Member<31, 10>;
+    using PhysicalPageNumber0 = Member<19, 10>;
+    using PhysicalPageNumber1 = Member<31, 20>;
 };
 
 class MemoryAccessUnit
@@ -81,7 +81,7 @@ public:
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, int32_t pc, int32_t virtualAddress) const;
 
     // for Dump
-    void AddEvent(MemoryAccessType accessType, int32_t size,  int64_t value, int32_t vaddr, PhysicalAddress paddr);
+    void AddEvent(MemoryAccessType accessType, int32_t size,  uint64_t value, uint64_t vaddr, PhysicalAddress paddr);
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;

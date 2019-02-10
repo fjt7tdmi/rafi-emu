@@ -20,32 +20,32 @@
 
 namespace rafi { namespace emu { namespace io {
 
-struct InterruptEnable : BitField
+struct InterruptEnable : BitField32
 {
-    InterruptEnable() : BitField(0)
+    InterruptEnable()
     {
     }
 
-    InterruptEnable(int32_t value) : BitField(value)
+    InterruptEnable(uint32_t value) : BitField32(value)
     {
     }
 
-    using TXIE = BitFieldMember<1>;
-    using RXIE = BitFieldMember<2>;
+    using TXIE = Member<1>;
+    using RXIE = Member<2>;
 };
 
-struct InterruptPending : BitField
+struct InterruptPending : BitField32
 {
-    InterruptPending() : BitField(0)
+    InterruptPending()
     {
     }
 
-    InterruptPending(int32_t value) : BitField(value)
+    InterruptPending(uint32_t value) : BitField32(value)
     {
     }
 
-    using TXIP = BitFieldMember<1>;
-    using RXIP = BitFieldMember<2>;
+    using TXIP = Member<1>;
+    using RXIP = Member<2>;
 };
 
 }}}

@@ -177,15 +177,15 @@ void PrintTrap32Node(const Trap32Node* node)
     );
 }
 
-void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
+void PrintMemoryAccessNode(const MemoryAccessNode* node)
 {
     printf(
-        "  MemoryAccess32 {\n"
+        "  MemoryAccess {\n"
         "    accessType: %s\n"
         "    size: %d // byte\n"
-        "    value: 0x%16lx\n"
-        "    vaddr: 0x%08x\n"
-        "    paddr: 0x%08x\n"
+        "    value: 0x%016llx\n"
+        "    vaddr: 0x%016llx\n"
+        "    paddr: 0x%016llx\n"
         "  }\n",
         GetString(node->accessType),
         node->size,
@@ -251,9 +251,9 @@ void PrintTraceCycle(const TraceCycleReader& cycle, int cycleNum)
         PrintTrap32Node(cycle.GetTrap32Node());
     }
 
-    for (int index = 0; index < cycle.GetNodeCount(NodeType::MemoryAccess32); index++)
+    for (int index = 0; index < cycle.GetNodeCount(NodeType::MemoryAccess); index++)
     {
-        PrintMemoryAccess32Node(cycle.GetMemoryAccess32Node(index));
+        PrintMemoryAccessNode(cycle.GetMemoryAccessNode(index));
     }
 
     // TODO: implement PrintMemory()

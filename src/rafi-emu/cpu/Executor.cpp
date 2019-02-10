@@ -529,17 +529,21 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fle_d:
         ProcessDoubleCompare(op);
         return;
-    case OpCode::fclass_s:
-        ProcessFloatClass(op);
+    case OpCode::fclass_d:
+        ProcessDoubleClass(op);
         return;
-    case OpCode::fcvt_w_s:
-    case OpCode::fcvt_wu_s:
+    case OpCode::fcvt_w_d:
+    case OpCode::fcvt_wu_d:
         ProcessDoubleConvertToInt(op);
         return;
-    case OpCode::fsgnj_s:
-    case OpCode::fsgnjn_s:
-    case OpCode::fsgnjx_s:
-        ProcessDoubleConvertToFp(op);
+    case OpCode::fcvt_s_d:
+        ProcessDoubleConvertToFp32(op);
+        return;
+    case OpCode::fcvt_d_s:
+    case OpCode::fsgnj_d:
+    case OpCode::fsgnjn_d:
+    case OpCode::fsgnjx_d:
+        ProcessDoubleConvertToFp64(op);
         return;
     default:
         Error(op);
@@ -1038,7 +1042,7 @@ void Executor::ProcessFloatClass(const Op& op)
 
     const auto value = fp::ConvertToRvFpClass(src);
 
-    m_pIntRegFile->WriteInt32(operand.rd, static_cast<int32_t>(value));
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessFloatMoveToInt(const Op& op)
@@ -1121,37 +1125,248 @@ void Executor::ProcessFloatConvertToFp(const Op& op)
 
 void Executor::ProcessDoubleLoad(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandI>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadInt32(operand.rs1) + operand.imm;
+    const auto value = static_cast<uint64_t>(m_pMemAccessUnit->LoadInt64(address));
+
+    m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
 void Executor::ProcessDoubleStore(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadInt32(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreInt64(address, value);
 }
 
 void Executor::ProcessDoubleMulAdd(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandR4>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadUInt64(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+    const auto src3 = m_pFpRegFile->ReadUInt64(operand.rs3);
+
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    fp::ScopedFpRound scopedFpRound(roundMode);
+
+    uint64_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fmadd_d:
+        result = fp::MulAdd(src1, src2, src3);
+        break;
+    case OpCode::fmsub_d:
+        result = fp::MulSub(src1, src2, src3);
+        break;
+    case OpCode::fnmadd_d:
+        result = fp::NegMulAdd(src1, src2, src3);
+        break;
+    case OpCode::fnmsub_d:
+        result = fp::NegMulSub(src1, src2, src3);
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
 void Executor::ProcessDoubleCompute(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto fpSrc1 = m_pFpRegFile->ReadUInt64(operand.rs1);
+    const auto fpSrc2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    const auto intSrc1 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto uintSrc1 = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    fp::ScopedFpRound scopedFpRound(roundMode);
+
+    uint64_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fadd_d:
+        result = fp::Add(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fsub_d:
+        result = fp::Sub(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fmul_d:
+        result = fp::Mul(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fdiv_d:
+        result = fp::Div(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fsqrt_d:
+        result = fp::Sqrt(fpSrc1);
+        break;
+    case OpCode::fmin_d:
+        result = fp::Min(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fmax_d:
+        result = fp::Max(fpSrc1, fpSrc2);
+        break;
+    case OpCode::fcvt_d_w:
+        result = fp::Int32ToDouble(intSrc1);
+        break;
+    case OpCode::fcvt_d_wu:
+        result = fp::UInt32ToDouble(uintSrc1);
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt64(operand.rd, result);
+}
+
+void Executor::ProcessDoubleClass(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
+
+    const auto value = fp::ConvertToRvFpClass(src);
+
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessDoubleCompare(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadUInt64(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    uint32_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::feq_d:
+        value = fp::Eq(src1, src2) ? 1 : 0;
+        break;
+    case OpCode::flt_d:
+        value = fp::Lt(src1, src2) ? 1 : 0;
+        break;
+    case OpCode::fle_d:
+        value = fp::Le(src1, src2) ? 1 : 0;
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
 void Executor::ProcessDoubleConvertToInt(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
+
+    int roundMode = operand.funct3;
+    if (roundMode == 7)
+    {
+        roundMode = m_pCsr->ReadFpCsr().GetMember<fcsr_t::RM>();
+    }
+
+    uint32_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fcvt_w_d:
+        result = static_cast<uint32_t>(fp::DoubleToInt32(src, roundMode));
+        break;
+    case OpCode::fcvt_wu_d:
+        result = fp::DoubleToUInt32(src, roundMode);
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pIntRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessDoubleConvertToFp(const Op& op)
+void Executor::ProcessDoubleConvertToFp32(const Op& op)
 {
-    Error(op);
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
+
+    uint32_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fcvt_s_d:
+        result = fp::DoubleToFloat(src);
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt32(operand.rd, result);
+}
+
+void Executor::ProcessDoubleConvertToFp64(const Op& op)
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pFpRegFile->ReadUInt64(operand.rs1);
+    const auto src2 = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    const auto src1_s = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    uint64_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::fcvt_d_s:
+        result = fp::FloatToDouble(src1_s);
+        break;
+    case OpCode::fsgnj_d:
+        result = (src1 & ((1ull << 63) - 1)) | (src2 & (1ull << 63));
+        break;
+    case OpCode::fsgnjn_d:
+        result = (src1 & ((1ull << 63) - 1)) | ((~src2) & (1ull << 63));
+        break;
+    case OpCode::fsgnjx_d:
+        result = src1 ^ (src2 & (1ull << 63));
+        break;
+    default:
+        Error(op);
+    }
+
+    UpdateFpCsr();
+
+    m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
 void Executor::UpdateFpCsr()

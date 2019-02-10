@@ -118,6 +118,7 @@ add_library(librafi_fp
     third_party/berkeley-softfloat-3/source/s_addMagsF64.c
     third_party/berkeley-softfloat-3/source/s_subMagsF64.c
     third_party/berkeley-softfloat-3/source/s_mulAddF64.c
+    third_party/berkeley-softfloat-3/source/s_mul64To128M.c
     third_party/berkeley-softfloat-3/source/softfloat_state.c
     third_party/berkeley-softfloat-3/source/ui32_to_f32.c
     third_party/berkeley-softfloat-3/source/ui32_to_f64.c

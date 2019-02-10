@@ -104,7 +104,8 @@ private:
     void ProcessDoubleCompare(const Op& op);
     void ProcessDoubleClass(const Op& op);
     void ProcessDoubleConvertToInt(const Op& op);
-    void ProcessDoubleConvertToFp(const Op& op);
+    void ProcessDoubleConvertToFp32(const Op& op);
+    void ProcessDoubleConvertToFp64(const Op& op);
 
     // Common
     void UpdateFpCsr();
