@@ -268,130 +268,216 @@ T MaxImpl(const T& x, const T& y)
 uint32_t Add(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_add(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Add(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Sub(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_sub(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Sub(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Mul(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_mul(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Mul(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_mul(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Div(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_div(ToFloat32(x), ToFloat32(y)).v;
+}
+
+uint64_t Div(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_div(ToFloat64(x), ToFloat64(y)).v;
 }
 
 uint32_t Sqrt(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_sqrt(ToFloat32(x)).v;
+}
+
+uint64_t Sqrt(uint64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sqrt(ToFloat64(x)).v;
 }
 
 bool Eq(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_eq(ToFloat32(x), ToFloat32(y));
+}
+
+bool Eq(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_eq(ToFloat64(x), ToFloat64(y));
 }
 
 bool Le(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_le(ToFloat32(x), ToFloat32(y));
+}
+
+bool Le(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_le(ToFloat64(x), ToFloat64(y));
 }
 
 bool Lt(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_lt(ToFloat32(x), ToFloat32(y));
+}
+
+bool Lt(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_lt(ToFloat64(x), ToFloat64(y));
 }
 
 uint32_t Min(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return MinImpl(Fp32(x), Fp32(y)).GetValue();
+}
+
+uint64_t Min(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return MinImpl(Fp64(x), Fp64(y)).GetValue();
 }
 
 uint32_t Max(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-
     return MaxImpl(Fp32(x), Fp32(y)).GetValue();
+}
+
+uint64_t Max(uint64_t x, uint64_t y)
+{
+    softfloat_exceptionFlags = 0;
+    return MaxImpl(Fp64(x), Fp64(y)).GetValue();
 }
 
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_add(f32_mul(ToFloat32(x), ToFloat32(y)), ToFloat32(z)).v;
+}
 
-    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
-    return f32_add(tmp, ToFloat32(z)).v;
+uint64_t MulAdd(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(f64_mul(ToFloat64(x), ToFloat64(y)), ToFloat64(z)).v;
 }
 
 uint32_t MulSub(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_sub(f32_mul(ToFloat32(x), ToFloat32(y)), ToFloat32(z)).v;
+}
 
-    const auto tmp = f32_mul(ToFloat32(x), ToFloat32(y));
-    return f32_sub(tmp, ToFloat32(z)).v;
+uint64_t MulSub(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(f64_mul(ToFloat64(x), ToFloat64(y)), ToFloat64(z)).v;
 }
 
 uint32_t NegMulAdd(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_sub(Negate(f32_mul(ToFloat32(x), ToFloat32(y))), ToFloat32(z)).v;
+}
 
-    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
-    return f32_sub(tmp, ToFloat32(z)).v;
+uint64_t NegMulAdd(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_sub(Negate(f64_mul(ToFloat64(x), ToFloat64(y))), ToFloat64(z)).v;
 }
 
 uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z)
 {
     softfloat_exceptionFlags = 0;
+    return f32_add(Negate(f32_mul(ToFloat32(x), ToFloat32(y))), ToFloat32(z)).v;
+}
 
-    const auto tmp = Negate(f32_mul(ToFloat32(x), ToFloat32(y)));
-    return f32_add(tmp, ToFloat32(z)).v;
+uint64_t NegMulSub(uint64_t x, uint64_t y, uint64_t z)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_add(Negate(f64_mul(ToFloat64(x), ToFloat64(y))), ToFloat64(z)).v;
+}
+
+int32_t DoubleToInt32(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_i32(ToFloat64(x), roundMode, true);
+}
+
+uint32_t DoubleToUInt32(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_ui32(ToFloat64(x), roundMode, true);
+}
+
+int64_t DoubleToInt64(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_i64(ToFloat64(x), roundMode, true);
+}
+
+uint64_t DoubleToUInt64(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_ui64(ToFloat64(x), roundMode, true);
 }
 
 int32_t FloatToInt32(uint32_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_to_i32(ToFloat32(x), roundMode, true);
 }
 
 uint32_t FloatToUInt32(uint32_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
-
     return f32_to_ui32(ToFloat32(x), roundMode, true);
 }
 
 uint32_t Int32ToFloat(int32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return i32_to_f32(x).v;
 }
 
 uint32_t UInt32ToFloat(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
-
     return ui32_to_f32(x).v;
 }
 

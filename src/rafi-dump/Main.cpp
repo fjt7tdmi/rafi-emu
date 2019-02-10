@@ -183,7 +183,7 @@ void PrintMemoryAccess32Node(const MemoryAccess32Node* node)
         "  MemoryAccess32 {\n"
         "    accessType: %s\n"
         "    size: %d // byte\n"
-        "    value: 0x%16lx\n"
+        "    value: 0x%16llx\n"
         "    vaddr: 0x%08x\n"
         "    paddr: 0x%08x\n"
         "  }\n",

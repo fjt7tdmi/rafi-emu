@@ -585,7 +585,7 @@ Op DecoderImpl::DecodeRV32D(int32_t insn) const
     case 0b0000111:
         switch (funct3)
         {
-        case 0b010:
+        case 0b011:
             return Op{ OpClass::RV32D, OpCode::fld, DecodeOperandI(insn) };
         default:
             return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
@@ -593,7 +593,7 @@ Op DecoderImpl::DecodeRV32D(int32_t insn) const
     case 0b0100111:
         switch (funct3)
         {
-        case 0b010:
+        case 0b011:
             return Op{ OpClass::RV32D, OpCode::fsd, DecodeOperandS(insn) };
         default:
             return Op{ OpClass::RV32D, OpCode::unknown, OperandNone() };
