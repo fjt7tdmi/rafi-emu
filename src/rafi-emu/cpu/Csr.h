@@ -82,13 +82,13 @@ private:
     bool IsReservedModeRegister(csr_addr_t addr) const;
     bool IsMachineModeRegister(csr_addr_t addr) const;
 
-    int32_t ReadMachineModeRegister(csr_addr_t addr) const;
-	int32_t ReadSupervisorModeRegister(csr_addr_t addr) const;
-	int32_t ReadUserModeRegister(csr_addr_t addr) const;
+    uint32_t ReadMachineModeRegister(csr_addr_t addr) const;
+	uint32_t ReadSupervisorModeRegister(csr_addr_t addr) const;
+	uint32_t ReadUserModeRegister(csr_addr_t addr) const;
 
-	void WriteMachineModeRegister(csr_addr_t addr, int32_t value);
-    void WriteSupervisorModeRegister(csr_addr_t addr, int32_t value);
-    void WriteUserModeRegister(csr_addr_t addr, int32_t value);
+	void WriteMachineModeRegister(csr_addr_t addr, uint32_t value);
+    void WriteSupervisorModeRegister(csr_addr_t addr, uint32_t value);
+    void WriteUserModeRegister(csr_addr_t addr, uint32_t value);
 
     int GetPerformanceCounterIndex(csr_addr_t addr) const;
     void PrintRegisterUnimplementedMessage(csr_addr_t addr) const;
@@ -103,31 +103,31 @@ private:
     xtvec_t m_SupervisorTrapVector {0};
     xtvec_t m_UserTrapVector {0};
 
-    int32_t m_MachineExceptionDelegation {0};
-    int32_t m_SupervisorExceptionDelegation {0};
+    uint32_t m_MachineExceptionDelegation {0};
+    uint32_t m_SupervisorExceptionDelegation {0};
 
-    int32_t m_MachineInterruptDelegation {0};
-    int32_t m_SupervisorInterruptDelegation {0};
+    uint32_t m_MachineInterruptDelegation {0};
+    uint32_t m_SupervisorInterruptDelegation {0};
 
-    int32_t m_MachineCounterEnable {0};
-    int32_t m_SupervisorCounterEnable {0};
+    uint32_t m_MachineCounterEnable {0};
+    uint32_t m_SupervisorCounterEnable {0};
 
     // Trap Handling (0x040-0x07f, 0x140-0x17f and 0x340-0x37f)
-    int32_t m_MachineScratch {0};
-    int32_t m_SupervisorScratch {0};
-    int32_t m_UserScratch {0};
+    uint32_t m_MachineScratch {0};
+    uint32_t m_SupervisorScratch {0};
+    uint32_t m_UserScratch {0};
 
-    int32_t m_MachineExceptionProgramCounter {0};
-    int32_t m_SupervisorExceptionProgramCounter {0};
-    int32_t m_UserExceptionProgramCounter {0};
+    uint32_t m_MachineExceptionProgramCounter {0};
+    uint32_t m_SupervisorExceptionProgramCounter {0};
+    uint32_t m_UserExceptionProgramCounter {0};
 
-    int32_t m_MachineCause {0};
-    int32_t m_SupervisorCause {0};
-    int32_t m_UserCause {0};
+    uint32_t m_MachineCause {0};
+    uint32_t m_SupervisorCause {0};
+    uint32_t m_UserCause {0};
 
-    int32_t m_MachineTrapValue {0};
-    int32_t m_SupervisorTrapValue {0};
-    int32_t m_UserTrapValue {0};
+    uint32_t m_MachineTrapValue {0};
+    uint32_t m_SupervisorTrapValue {0};
+    uint32_t m_UserTrapValue {0};
 
     // Interrupt
     xie_t m_InterruptEnable {0};

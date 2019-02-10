@@ -327,7 +327,7 @@ bool Csr::IsMachineModeRegister(csr_addr_t addr) const
     return ((static_cast<int32_t>(addr) >> 8) & 0b11) == 0b11;
 }
 
-int32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
+uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -394,7 +394,7 @@ int32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     }
 }
 
-int32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
+uint32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
@@ -428,7 +428,7 @@ int32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     }
 }
 
-int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
+uint32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
@@ -472,7 +472,7 @@ int32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
 	}
 }
 
-void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteMachineModeRegister(csr_addr_t addr, uint32_t value)
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -483,7 +483,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
     switch(addr)
     {
     case csr_addr_t::mstatus:
-        m_Status.Set(value);
+        m_Status.SetValue(value);
         return;
     case csr_addr_t::medeleg:
         m_MachineExceptionDelegation = value;
@@ -498,7 +498,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
         m_MachineCounterEnable = value;
         return;
     case csr_addr_t::mtvec:
-        m_MachineTrapVector.Set(value);
+        m_MachineTrapVector.SetValue(value);
         return;
     case csr_addr_t::mscratch:
         m_MachineScratch = value;
@@ -542,7 +542,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, int32_t value)
     }
 }
 
-void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint32_t value)
 {
     switch(addr)
     {
@@ -559,7 +559,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
         m_InterruptEnable.SetWithMask(value, xie_t::SupervisorMask);
         return;
     case csr_addr_t::stvec:
-        m_SupervisorTrapVector.Set(value);
+        m_SupervisorTrapVector.SetValue(value);
         return;
     case csr_addr_t::scounteren:
         m_SupervisorCounterEnable = value;
@@ -580,7 +580,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
         m_InterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::SupervisorMask);
         return;
     case csr_addr_t::satp:
-        m_SupervisorAddressTranslationProtection.Set(value);
+        m_SupervisorAddressTranslationProtection.SetValue(value);
         return;
     default:
         PrintRegisterUnimplementedMessage(addr);
@@ -588,7 +588,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, int32_t value)
     }
 }
 
-void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
+void Csr::WriteUserModeRegister(csr_addr_t addr, uint32_t value)
 {
     switch (addr)
     {
@@ -608,7 +608,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, int32_t value)
         m_InterruptEnable.SetWithMask(value, xie_t::UserMask);
         return;
     case csr_addr_t::utvec:
-        m_UserTrapVector.Set(value);
+        m_UserTrapVector.SetValue(value);
         return;
     case csr_addr_t::uscratch:
         m_UserScratch = value;

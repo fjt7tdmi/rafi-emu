@@ -41,17 +41,17 @@ public:
     {
     }
 
-    int32_t GetSign() const
+    uint32_t GetSign() const
     {
         return GetMember<Sign>();
     }
 
-    int32_t GetExponent() const
+    uint32_t GetExponent() const
     {
         return GetMember<Exponent>();
     }
 
-    int32_t GetFraction() const
+    uint32_t GetFraction() const
     {
         return GetMember<Fraction>();
     }

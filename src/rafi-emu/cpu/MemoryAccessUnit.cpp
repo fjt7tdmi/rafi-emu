@@ -340,7 +340,7 @@ void MemoryAccessUnit::UpdateEntry(PhysicalAddress entryAddress, bool isWrite)
     {
         entry.SetMember<PageTableEntry::Dirty>(1);
     }
-    m_pBus->WriteInt32(entryAddress, entry.GetInt32());
+    m_pBus->WriteInt32(entryAddress, entry.GetValue());
 }
 
 }}}

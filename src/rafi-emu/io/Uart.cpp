@@ -46,10 +46,10 @@ void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
         value = m_RxChar;
         break;
     case Address_InterruptEnable:
-        value = m_InterruptEnable.GetInt32();
+        value = m_InterruptEnable.GetValue();
         break;
     case Address_InterruptPending:
-        value = m_InterruptPending.GetInt32();
+        value = m_InterruptPending.GetValue();
         break;
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
@@ -75,12 +75,15 @@ void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
     {
     case Address_TxData:
         m_TxChars.push_back(static_cast<char>(value));
+        break;
     case Address_RxData:
         break;
     case Address_InterruptEnable:
-        m_InterruptEnable.Set(value);
+        m_InterruptEnable.SetValue(value);
+        break;
     case Address_InterruptPending:
-        m_InterruptPending.Set(value);
+        m_InterruptPending.SetValue(value);
+        break;
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
     }

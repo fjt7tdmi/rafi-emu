@@ -24,23 +24,38 @@ template <int msb, int lsb = msb>
 class BitFieldMember
 {
 public:
-    static const int Msb = msb;
-    static const int Lsb = lsb;
-    static const int Width = Msb - Lsb + 1;
-    static const int Mask = ((1 << Width) - 1) << Lsb;
+    static const uint32_t Msb = msb;
+    static const uint32_t Lsb = lsb;
+    static const uint32_t Width = Msb - Lsb + 1u;
+    static const uint32_t Mask = ((1u << Width) - 1u) << Lsb;
 };
 
 class BitField
 {
 public:
+    BitField()
+    {
+    }
+
     explicit BitField(uint32_t value)
     {
         m_Value = value;
     }
 
-    explicit BitField(int32_t value)
+    operator uint32_t() const
     {
-        m_Value = static_cast<uint32_t>(value);
+        return GetValue();
+    }
+
+    uint32_t GetValue() const
+    {
+        return m_Value;
+    }
+
+    BitField& SetValue(uint32_t value)
+    {
+        m_Value = value;
+        return *this;
     }
 
     uint32_t GetWithMask(uint32_t mask) const
@@ -48,20 +63,9 @@ public:
         return (m_Value & mask);
     }
 
-    uint32_t GetWithMask(int32_t mask) const
-    {
-        return GetWithMask(static_cast<uint32_t>(mask));
-    }
-
     BitField& SetWithMask(uint32_t value, uint32_t mask)
     {
         m_Value = (m_Value & ~mask) | (value & mask);
-        return *this;
-    }
-
-    BitField& SetWithMask(int32_t value, int32_t mask)
-    {
-        SetWithMask(static_cast<uint32_t>(value), static_cast<uint32_t>(mask));
         return *this;
     }
 
@@ -78,39 +82,8 @@ public:
         return *this;
     }
 
-    BitField& Set(int32_t value)
-    {
-        m_Value = value;
-        return *this;
-    }
-
-    BitField& Set(uint32_t value)
-    {
-        m_Value = value;
-        return *this;
-    }
-
-    int32_t GetInt32() const
-    {
-        return m_Value;
-    }
-
-    uint32_t GetUInt32() const
-    {
-        return m_Value;
-    }
-
-    operator int32_t() const
-    {
-        return GetInt32();
-    }
-
-    operator uint32_t() const
-    {
-        return GetUInt32();
-    }
 private:
-    uint32_t m_Value;
+    uint32_t m_Value{};
 };
 
 }

@@ -36,7 +36,7 @@ enum XLEN
 // Defintion for each register
 struct misa_t : public BitField
 {
-    misa_t() : BitField(0)
+    misa_t()
     {
     }
 
@@ -92,7 +92,7 @@ struct fcsr_t : BitField
     {
     }
 
-    fcsr_t(int32_t value) : BitField(value)
+    fcsr_t(uint32_t value) : BitField(value)
     {
     }
 
@@ -105,17 +105,17 @@ struct fcsr_t : BitField
     using UF    = BitFieldMember<1>;    // Underflow
     using NX    = BitFieldMember<0>;    // Inexact
 
-    static const int32_t UserMask = RM::Mask | AE::Mask;
+    static const uint32_t UserMask = RM::Mask | AE::Mask;
 };
 
 // mstatus, sstatus, ustatus
 struct xstatus_t : BitField
 {
-    xstatus_t() : BitField(0)
+    xstatus_t()
     {
     }
 
-    xstatus_t(int32_t value) : BitField(value)
+    xstatus_t(uint32_t value) : BitField(value)
     {
     }
 
@@ -142,25 +142,25 @@ struct xstatus_t : BitField
     using SIE   = BitFieldMember<1>;    // Machine Interrupt Enable
     using UIE   = BitFieldMember<0>;    // User Interrupt Enable
 
-    static const int32_t SupervisorMask = SD::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
-    static const int32_t UserMask = UPIE::Mask | UIE::Mask;
+    static const uint32_t SupervisorMask = SD::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
+    static const uint32_t UserMask = UPIE::Mask | UIE::Mask;
 };
 
 // mtvec, stvec, utvec
 struct xtvec_t : BitField
 {
-    xtvec_t() : BitField(0)
+    xtvec_t()
     {
     }
 
-    xtvec_t(int32_t value) : BitField(value)
+    xtvec_t(uint32_t value) : BitField(value)
     {
     }
 
     using BASE = BitFieldMember<31, 2>;
     using MODE = BitFieldMember<1, 0>;
 
-    enum class Mode : int32_t
+    enum class Mode : uint32_t
     {
         Directed = 0,
         Vectored = 1,
@@ -174,7 +174,7 @@ struct xip_t : BitField
     {
     }
 
-    xip_t(int32_t value) : BitField(value)
+    xip_t(uint32_t value) : BitField(value)
     {
     }
 
@@ -188,11 +188,11 @@ struct xip_t : BitField
     using SSIP = BitFieldMember<1>;     // Supervisor Software Interrupt Pending
     using USIP = BitFieldMember<0>;     // User Software Interrupt Pending
 
-    static const int32_t WriteMask = MEIP::Mask | SEIP::Mask | UEIP::Mask | MSIP::Mask | SSIP::Mask | USIP::Mask;
+    static const uint32_t WriteMask = MEIP::Mask | SEIP::Mask | UEIP::Mask | MSIP::Mask | SSIP::Mask | USIP::Mask;
 
-    static const int32_t UserMask = UEIP::Mask | UTIP::Mask | USIP::Mask;
-    static const int32_t SupervisorMask = SEIP::Mask | STIP::Mask | SSIP::Mask | UserMask;
-    static const int32_t MachineMask =  MEIP::Mask | MTIP::Mask | MSIP::Mask | SupervisorMask;
+    static const uint32_t UserMask = UEIP::Mask | UTIP::Mask | USIP::Mask;
+    static const uint32_t SupervisorMask = SEIP::Mask | STIP::Mask | SSIP::Mask | UserMask;
+    static const uint32_t MachineMask =  MEIP::Mask | MTIP::Mask | MSIP::Mask | SupervisorMask;
 };
 
 // mie, sie, uie
@@ -202,7 +202,7 @@ struct xie_t : BitField
     {
     }
 
-    xie_t(int32_t value) : BitField(value)
+    xie_t(uint32_t value) : BitField(value)
     {
     }
 
@@ -216,11 +216,11 @@ struct xie_t : BitField
     using SSIE = BitFieldMember<1>;     // Supervisor Software Interrupt Enable
     using USIE = BitFieldMember<0>;     // User Software Interrupt Enable
 
-    static const int32_t WriteMask = MEIE::Mask | SEIE::Mask | UEIE::Mask | MSIE::Mask | SSIE::Mask | USIE::Mask;
+    static const uint32_t WriteMask = MEIE::Mask | SEIE::Mask | UEIE::Mask | MSIE::Mask | SSIE::Mask | USIE::Mask;
 
-    static const int32_t UserMask = UEIE::Mask | UTIE::Mask | USIE::Mask;
-    static const int32_t SupervisorMask = SEIE::Mask | STIE::Mask | SSIE::Mask | UserMask;
-    static const int32_t MachineMask = MEIE::Mask | MTIE::Mask | MSIE::Mask | SupervisorMask;
+    static const uint32_t UserMask = UEIE::Mask | UTIE::Mask | USIE::Mask;
+    static const uint32_t SupervisorMask = SEIE::Mask | STIE::Mask | SSIE::Mask | UserMask;
+    static const uint32_t MachineMask = MEIE::Mask | MTIE::Mask | MSIE::Mask | SupervisorMask;
 };
 
 // satp
@@ -230,7 +230,7 @@ struct satp_t : BitField
     {
     }
 
-    satp_t(int32_t value) : BitField(value)
+    satp_t(uint32_t value) : BitField(value)
     {
     }
 
@@ -238,7 +238,7 @@ struct satp_t : BitField
     using ASID = BitFieldMember<30, 22>;
     using PPN = BitFieldMember<21, 0>;
 
-    enum class Mode : int32_t
+    enum class Mode : uint32_t
     {
         Bare = 0,
         Sv32 = 1,
