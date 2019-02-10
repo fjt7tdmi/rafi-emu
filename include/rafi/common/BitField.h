@@ -20,74 +20,74 @@
 
 namespace rafi {
 
-template <typename T, int msb, int lsb = msb>
+template <typename BaseInteger, int msb, int lsb = msb>
 class BitFieldMember
 {
 public:
-    static const T Msb = msb;
-    static const T Lsb = lsb;
-    static const T Width = Msb - Lsb + 1u;
-    static const T Mask = ((1u << Width) - 1u) << Lsb;
+    static const BaseInteger Msb = msb;
+    static const BaseInteger Lsb = lsb;
+    static const BaseInteger Width = Msb - Lsb + BaseInteger(1);
+    static const BaseInteger Mask = ((BaseInteger(1) << Width) - BaseInteger(1)) << Lsb;
 };
 
-template <typename T>
+template <typename BaseInteger>
 class BitField
 {
 public:
     template <int msb, int lsb = msb>
-    using Member = BitFieldMember<T, msb, lsb>;
+    using Member = BitFieldMember<BaseInteger, msb, lsb>;
 
     BitField()
     {
     }
 
-    explicit BitField(T value)
+    explicit BitField(BaseInteger value)
     {
         m_Value = value;
     }
 
-    operator T() const
+    operator BaseInteger() const
     {
         return GetValue();
     }
 
-    T GetValue() const
+    BaseInteger GetValue() const
     {
         return m_Value;
     }
 
-    BitField& SetValue(T value)
+    BitField& SetValue(BaseInteger value)
     {
         m_Value = value;
         return *this;
     }
 
-    T GetWithMask(T mask) const
+    BaseInteger GetWithMask(BaseInteger mask) const
     {
         return (m_Value & mask);
     }
 
-    BitField& SetWithMask(T value, T mask)
+    BitField& SetWithMask(BaseInteger value, BaseInteger mask)
     {
         m_Value = (m_Value & ~mask) | (value & mask);
         return *this;
     }
 
     template <typename TMember>
-    T GetMember() const
+    BaseInteger GetMember() const
     {
         return (m_Value & TMember::Mask) >> TMember::Lsb;
     }
 
     template <typename TMember>
-    BitField& SetMember(T value)
+    BitField& SetMember(BaseInteger value)
     {
         m_Value = (m_Value & ~TMember::Mask) | ((value << TMember::Lsb) & TMember::Mask);
         return *this;
     }
 
 private:
-    T m_Value{};
+    BaseInteger m_Value{};
 };
 
 using BitField32 = BitField<uint32_t>;

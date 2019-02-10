@@ -28,6 +28,9 @@ namespace rafi { namespace fp {
 
 namespace {
 
+// ----------------------------------------------------------------------------
+// Fp classes
+
 template<typename BaseInteger, int ExponentWidth, int FractionWidth>
 class FpBase : public BitField<BaseInteger>
 {
@@ -57,14 +60,19 @@ public:
         return GetExponent() == 0 && GetFraction() == 0;
     }
 
-    bool IsPositiveZero() const
+    bool IsInf() const
     {
-        return IsZero() && GetSign() == 0;
+        return GetExponent() == ((1 << ExponentWidth) - 1) && GetFraction() == 0;
     }
 
-    bool IsNegativeZero() const
+    bool IsNormal() const
     {
-        return IsZero() && GetSign() == 1;
+        return 1 <= GetExponent() && GetExponent() <= 254;
+    }
+
+    bool IsSubNormal() const
+    {
+        return GetExponent() == 0 && GetFraction() != 0;
     }
 
     bool IsNan() const
@@ -97,8 +105,15 @@ public:
     {
     }
 
-    static const uint32_t CanonicalQuietNan = 0x7fc00000;
-    static const uint32_t CanonicalSignalingNan = 0x7f800001;
+    static Fp32 GetCanonicalQuietNan()
+    {
+        return Fp32(0x7fc00000);
+    }
+
+    static Fp32 GetCanonicalSignalingNan()
+    {
+        return Fp32(0x7f800001);
+    }
 };
 
 class Fp64 : public FpBase<uint64_t, 11, 52>
@@ -109,9 +124,19 @@ public:
     {
     }
 
-    static const uint64_t CanonicalQuietNan = 0x7ff8000000000000ull;
-    static const uint64_t CanonicalSignalingNan = 0x7ff0000000000001ull;
+    static Fp64 GetCanonicalQuietNan()
+    {
+        return Fp64(0x7ff8000000000000ull);
+    }
+
+    static Fp64 GetCanonicalSignalingNan()
+    {
+        return Fp64(0x7ff0000000000001ull);
+    }
 };
+
+// ----------------------------------------------------------------------------
+// float32_t, float64_t utilities
 
 float32_t ToFloat32(uint32_t value)
 {
@@ -130,23 +155,127 @@ float64_t ToFloat64(uint64_t value)
 float32_t Negate(float32_t value)
 {
     float32_t result;
-    result.v = value.v ^ 0x80000000;
+    result.v = value.v ^ (1ul << 31);
     return result;
 }
 
+float64_t Negate(float64_t value)
+{
+    float64_t result;
+    result.v = value.v ^ (1ull << 63);
+    return result;
 }
+
+// ----------------------------------------------------------------------------
+// min/max utilities
+
+bool LeQuiet(const Fp32& x, const Fp32& y)
+{
+    return f32_le_quiet(ToFloat32(x.GetValue()), ToFloat32(y.GetValue()));
+}
+
+bool LeQuiet(const Fp64& x, const Fp64& y)
+{
+    return f64_le_quiet(ToFloat64(x.GetValue()), ToFloat64(y.GetValue()));
+}
+
+template<typename T>
+T MinImpl(const T& x, const T& y)
+{
+    const auto cmpResult = LeQuiet(x, y) ? x : y;
+
+    if (x.IsZero() && x.IsZero())
+    {
+        if (x.GetSign() == 1 && y.GetSign() == 0)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+    else if (x.IsNan() && y.IsNan())
+    {
+        if (x.IsSignalingNan() || y.IsSignalingNan())
+        {
+            return T::GetCanonicalSignalingNan();
+        }
+        else
+        {
+            return T::GetCanonicalQuietNan();
+        }
+    }
+    else if (!x.IsNan() && y.IsNan())
+    {
+        return x;
+    }
+    else if (x.IsNan() && !y.IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
+}
+
+template<typename T>
+T MaxImpl(const T& x, const T& y)
+{
+    const auto cmpResult = LeQuiet(x, y) ? y : x;
+
+    if (x.IsZero() && y.IsZero())
+    {
+        if (x.GetSign() == 0 && y.GetSign() == 1)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+    else if (x.IsNan() && y.IsNan())
+    {
+        if (x.IsSignalingNan() || y.IsSignalingNan())
+        {
+            return T::GetCanonicalSignalingNan();
+        }
+        else
+        {
+            return T::GetCanonicalQuietNan();
+        }
+    }
+    else if (!x.IsNan() && y.IsNan())
+    {
+        return x;
+    }
+    else if (x.IsNan() && !y.IsNan())
+    {
+        return y;
+    }
+    else
+    {
+        return cmpResult;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+} // namespace
 
 uint32_t Add(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-    
+
     return f32_add(ToFloat32(x), ToFloat32(y)).v;
 }
 
 uint32_t Sub(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
-    
+
     return f32_sub(ToFloat32(x), ToFloat32(y)).v;
 }
 
@@ -196,84 +325,14 @@ uint32_t Min(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
 
-    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? x : y;
-
-    if (Fp32(x).IsZero() && Fp32(y).IsZero())
-    {
-        if (Fp32(x).IsPositiveZero() && Fp32(y).IsNegativeZero())
-        {
-            return y;
-        }
-        else
-        {
-            return x;
-        }
-    }
-    else if (Fp32(x).IsNan() && Fp32(y).IsNan())
-    {
-        if (Fp32(x).IsSignalingNan() || Fp32(y).IsSignalingNan())
-        {
-            return Fp32::CanonicalSignalingNan;
-        }
-        else
-        {
-            return Fp32::CanonicalQuietNan;
-        }
-    }
-    else if (!Fp32(x).IsNan() && Fp32(y).IsNan())
-    {
-        return x;
-    }
-    else if (Fp32(x).IsNan() && !Fp32(y).IsNan())
-    {
-        return y;
-    }
-    else
-    {
-        return cmpResult;
-    }
+    return MinImpl(Fp32(x), Fp32(y)).GetValue();
 }
 
 uint32_t Max(uint32_t x, uint32_t y)
 {
     softfloat_exceptionFlags = 0;
 
-    const auto cmpResult = f32_le_quiet(ToFloat32(x), ToFloat32(y)) ? y : x;
-
-    if (Fp32(x).IsZero() && Fp32(y).IsZero())
-    {
-        if (Fp32(x).IsPositiveZero() && Fp32(y).IsNegativeZero())
-        {
-            return x;
-        }
-        else
-        {
-            return y;
-        }
-    }
-    else if (Fp32(x).IsNan() && Fp32(y).IsNan())
-    {
-        if (Fp32(x).IsSignalingNan() || Fp32(y).IsSignalingNan())
-        {
-            return Fp32::CanonicalSignalingNan;
-        }
-        else
-        {
-            return Fp32::CanonicalQuietNan;
-        }
-    }
-    else if (!Fp32(x).IsNan() && Fp32(y).IsNan())
-    {
-        return x;
-    }
-    else if (Fp32(x).IsNan() && !Fp32(y).IsNan())
-    {
-        return y;
-    }
-    else
-    {
-        return cmpResult;
-    }
+    return MaxImpl(Fp32(x), Fp32(y)).GetValue();
 }
 
 uint32_t MulAdd(uint32_t x, uint32_t y, uint32_t z)
@@ -336,53 +395,63 @@ uint32_t UInt32ToFloat(uint32_t x)
     return ui32_to_f32(x).v;
 }
 
-uint32_t ConvertToRvFpClass(uint32_t x)
-{
-    Fp32 f(x);
+namespace {
 
-    if (f.GetSign() == 1 && f.GetExponent() == 255 && f.GetFraction() == 0)
+template <typename T>
+uint32_t ConvertToRvFpClassImpl(const T& x)
+{
+    if (x.GetSign() == 1 && x.IsInf())
     {
         return 1 << 0; // negative infinity
     }
-    else if (f.GetSign() == 1 && 1 <= f.GetExponent() && f.GetExponent() <= 254)
+    else if (x.GetSign() == 1 && x.IsNormal())
     {
         return 1 << 1; // negative normal
     }
-    else if (f.GetSign() == 1 && f.GetExponent() == 0 && f.GetFraction() != 0)
+    else if (x.GetSign() == 1 && x.IsSubNormal())
     {
         return 1 << 2; // negative subnormal
     }
-    else if (f.GetSign() == 1 && f.GetExponent() == 0 && f.GetFraction() == 0)
+    else if (x.GetSign() == 1 && x.IsZero())
     {
         return 1 << 3; // negative zero
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 0 && f.GetFraction() == 0)
+    else if (x.GetSign() == 0 && x.IsZero())
     {
         return 1 << 4; // positive zero
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 0 && f.GetFraction() != 0)
+    else if (x.GetSign() == 0 && x.IsSubNormal())
     {
         return 1 << 5; // positive subnormal
     }
-    else if (f.GetSign() == 0 && 1 <= f.GetExponent() && f.GetExponent() <= 254)
+    else if (x.GetSign() == 0 && x.IsNormal())
     {
         return 1 << 6; // positive normal
     }
-    else if (f.GetSign() == 0 && f.GetExponent() == 255 && f.GetFraction() == 0)
+    else if (x.GetSign() == 0 && x.IsInf())
     {
         return 1 << 7; // positive infinity
     }
+    else if (x.IsSignalingNan())
+    {
+        return 1 << 8; // signaling NaN
+    }
     else
     {
-        if (f.IsSignalingNan())
-        {
-            return 1 << 8; // signaling NaN
-        }
-        else
-        {
-            return 1 << 9; // quiet NaN
-        }
+        return 1 << 9; // quiet NaN
     }
+}
+
+} // namespace
+
+uint32_t ConvertToRvFpClass(uint32_t x)
+{
+    return ConvertToRvFpClassImpl(Fp32(x));
+}
+
+uint32_t ConvertToRvFpClass(uint64_t x)
+{
+    return ConvertToRvFpClassImpl(Fp64(x));
 }
 
 int GetRvExceptionFlags()
