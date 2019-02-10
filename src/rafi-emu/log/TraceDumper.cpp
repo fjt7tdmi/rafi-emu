@@ -102,7 +102,7 @@ void TraceDumper::DumpOneCycle(int cycle)
     // BasicInfoNode
     BasicInfoNode basicInfoNode
     {
-        cycle,
+        static_cast<uint32_t>(cycle),
         opEvent.opId,
         opEvent.insn,
         opEvent.privilegeLevel,

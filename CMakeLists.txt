@@ -37,7 +37,7 @@ else()
     set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 endif()
 
-set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/lib/fp/include)
+set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/librafi_fp/include)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${GoogleTest_INCLUDE_DIRS})
@@ -51,9 +51,9 @@ add_library(librafi_fp
     include/rafi/common/BitField.h
     include/rafi/fp/FpApi.h
     include/rafi/fp/ScopedFpRound.h
-    src/lib/fp/include/platform.h
-    src/lib/fp/FpApi.cpp
-    src/lib/fp/ScopedFpRound.cpp
+    src/librafi_fp/include/platform.h
+    src/librafi_fp/FpApi.cpp
+    src/librafi_fp/ScopedFpRound.cpp
 
     # berkeley-softfloat-3 include
     third_party/berkeley-softfloat-3/source/include/internals.h
