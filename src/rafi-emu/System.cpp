@@ -43,6 +43,11 @@ void System::LoadFileToMemory(const char* path, PhysicalAddress address)
     location.pMemory->LoadFile(path, location.offset);
 }
 
+void System::SetHostIoAddress(uint32_t address)
+{
+    m_HostIoAddress = address;
+}
+
 void System::ProcessOneCycle()
 {
     m_Uart.ProcessCycle();
@@ -67,7 +72,7 @@ int System::GetMemoryAccessEventCount() const
 
 uint32_t System::GetHostIoValue() const
 {
-    const auto location = m_Bus.ConvertToMemoryLocation(HostIoAddr);
+    const auto location = m_Bus.ConvertToMemoryLocation(m_HostIoAddress);
 
     uint32_t value;
     m_Ram.Read(&value, sizeof(value), location.offset);
