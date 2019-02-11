@@ -20,9 +20,24 @@
 
 namespace rafi {
 
+Op Decoder::Decode(uint16_t insn) const
+{
+    return m_pImpl->Decode(insn);
+}
+
 Op Decoder::Decode(uint32_t insn) const
 {
     return m_pImpl->Decode(insn);
+}
+
+bool Decoder::IsCompressedInstruction(uint16_t insn) const
+{
+    return m_pImpl->IsCompressedInstruction(insn);
+}
+
+bool Decoder::IsCompressedInstruction(uint32_t insn) const
+{
+    return m_pImpl->IsCompressedInstruction(insn);
 }
 
 }

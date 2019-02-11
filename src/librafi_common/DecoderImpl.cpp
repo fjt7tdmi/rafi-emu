@@ -40,13 +40,33 @@ inline int32_t sext(int32_t value, int msb)
     }
 }
 
-inline int32_t Pick(uint32_t insn, int lsb, int width)
+inline int32_t SignExtend(int srcWidth, int32_t srcValue)
+{
+    assert(srcWidth > 0);
+    return sext(srcValue, srcWidth - 1);
+}
+
+inline int32_t ZeroExtend(int srcWidth, int32_t srcValue)
+{
+    assert(srcWidth > 0);
+
+    const int32_t mask = (1 << srcWidth) - 1;
+
+    return srcValue & mask;
+}
+
+inline int32_t Pick(uint32_t insn, int lsb, int width = 1)
 {
     assert(0 <= lsb && lsb < 32);
     assert(1 <= width && width < 32);
     return (insn >> lsb) & ((1 << width) - 1);
 }
 
+}
+
+Op DecoderImpl::Decode(uint16_t insn) const
+{
+    return DecodeRV32C(insn);
 }
 
 Op DecoderImpl::Decode(uint32_t insn) const
@@ -56,7 +76,11 @@ Op DecoderImpl::Decode(uint32_t insn) const
     const auto funct7 = Pick(insn, 25, 7);
     const auto funct2 = Pick(insn, 25, 2);
 
-    if (opcode == 0b0110011 && funct7 == 0b0000001)
+    if (IsCompressedInstruction(insn))
+    {
+        return DecodeRV32C(static_cast<uint16_t>(insn));
+    }
+    else if (opcode == 0b0110011 && funct7 == 0b0000001)
     {
         return DecodeRV32M(insn);
     }
@@ -75,7 +99,7 @@ Op DecoderImpl::Decode(uint32_t insn) const
         return DecodeRV32F(insn);
     }
     else if ((opcode == 0b0000111 && funct3 == 0b011) ||
-             (opcode == 0b0100111 && funct3 == 0b011) ||             
+             (opcode == 0b0100111 && funct3 == 0b011) ||
              (opcode == 0b1000011 && funct2 == 0b01) ||
              (opcode == 0b1000111 && funct2 == 0b01) ||
              (opcode == 0b1001011 && funct2 == 0b01) ||
@@ -89,6 +113,16 @@ Op DecoderImpl::Decode(uint32_t insn) const
     {
         return DecodeRV32I(insn);
     }
+}
+
+bool DecoderImpl::IsCompressedInstruction(uint16_t insn) const
+{
+    return (insn & 0b11) != 0b11;
+}
+
+bool DecoderImpl::IsCompressedInstruction(uint32_t insn) const
+{
+    return (insn & 0b11) != 0b11;
 }
 
 Op DecoderImpl::DecodeRV32I(uint32_t insn) const
@@ -532,7 +566,7 @@ Op DecoderImpl::DecodeRV32F(uint32_t insn) const
             else
             {
                 return Op{ OpClass::RV32F, OpCode::unknown, OperandNone() };
-            }        
+            }
         case 0b1010000:
             switch (funct3)
             {
@@ -712,6 +746,181 @@ Op DecoderImpl::DecodeRV32D(uint32_t insn) const
     }
 }
 
+Op DecoderImpl::DecodeRV32C(uint16_t insn) const
+{
+    const auto opcode = Pick(insn, 0, 2);
+    const auto funct4 = Pick(insn, 12, 4);
+    const auto funct3 = Pick(insn, 13, 3);
+    const auto funct2_rs1 = Pick(insn, 10, 2);
+    const auto funct2_rs2 = Pick(insn, 5, 2);
+    const auto funct1 = Pick(insn, 12);
+    
+    const auto rd = Pick(insn, 7, 5);
+    const auto rs1 = Pick(insn, 7, 5);
+    const auto rs2 = Pick(insn, 2, 5);
+
+    switch (opcode)
+    {
+    case 0b00:
+        if (funct3 == 0b000 && rs1 != 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_addi4spn, DecodeOperandCIW(insn) };
+        }
+        else if (funct3 == 0b001)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fld, DecodeOperandCL(insn, 8) };
+        }
+        else if (funct3 == 0b010)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_lw, DecodeOperandCL(insn, 4) };
+        }
+        else if (funct3 == 0b011)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_flw, DecodeOperandCL(insn, 4) };
+        }
+        else if (funct3 == 0b101)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fsd, DecodeOperandCS(insn, 8) };
+        }
+        else if (funct3 == 0b110)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_sw, DecodeOperandCS(insn, 4) };
+        }
+        else if (funct3 == 0b111)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fsw, DecodeOperandCS(insn, 4) };
+        }
+        else
+        {
+            return Op{ OpClass::RV32C, OpCode::unknown, OperandNone() };
+        }
+    case 0b01:
+        if (funct4 == 0b0000 && rd == 0 && rs2 == 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_nop, OperandNone() };
+        }
+        else if (funct3 == 0b000)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_addi, DecodeOperandCI(insn, true) };
+        }
+        else if (funct3 == 0b001)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_jal, DecodeOperandCJ(insn) };
+        }
+        else if (funct3 == 0b010 && rd != 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_li, DecodeOperandCI(insn, true) };
+        }
+        else if (funct3 == 0b011 && rd == 2)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_addi16sp, DecodeOperandCI_ADDI16SP(insn) };
+        }
+        else if (funct3 == 0b011 && rd != 0 && rd != 2)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_lui, DecodeOperandCI_LUI(insn) };
+        }
+        else if (funct3 == 0b100 && funct2_rs1 == 0b00)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_srli, DecodeOperandCI_AluImm(insn, false) };
+        }
+        else if (funct3 == 0b100 && funct2_rs1 == 0b01)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_srai, DecodeOperandCI_AluImm(insn, false) };
+        }
+        else if (funct3 == 0b100 && funct2_rs1 == 0b10)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_andi, DecodeOperandCI_AluImm(insn, true) };
+        }
+        else if (funct4 == 0b1000 && funct2_rs1 == 0b11 && funct2_rs2 == 0b00)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_sub, DecodeOperandCR_Alu(insn) };
+        }
+        else if (funct4 == 0b1000 && funct2_rs1 == 0b11 && funct2_rs2 == 0b01)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_xor, DecodeOperandCR_Alu(insn) };
+        }
+        else if (funct4 == 0b1000 && funct2_rs1 == 0b11 && funct2_rs2 == 0b10)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_or, DecodeOperandCR_Alu(insn) };
+        }
+        else if (funct4 == 0b1000 && funct2_rs1 == 0b11 && funct2_rs2 == 0b11)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_and, DecodeOperandCR_Alu(insn) };
+        }
+        else if (funct3 == 0b101)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_j, DecodeOperandCJ(insn) };
+        }
+        else if (funct3 == 0b110)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_beqz, DecodeOperandCB(insn) };
+        }
+        else if (funct3 == 0b111)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_bnez, DecodeOperandCB(insn) };
+        }
+        else
+        {
+            return Op{ OpClass::RV32C, OpCode::unknown, OperandNone() };
+        }
+    case 0b10:
+        if (funct4 == 0b000)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_slli, DecodeOperandCI(insn, true) };
+        }
+        else if (funct3 == 0b001)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fldsp, DecodeOperandCI_LoadSP(insn, 8) };
+        }
+        else if (funct3 == 0b010 && rd != 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_lwsp, DecodeOperandCI_LoadSP(insn, 4) };
+        }
+        else if (funct3 == 0b011)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_flwsp, DecodeOperandCI_LoadSP(insn, 4) };
+        }
+        else if (funct4 == 0b1000 && rs1 != 0 && rs2 == 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_jr, DecodeOperandCR(insn) };
+        }
+        else if (funct4 == 0b1000 && rd != 0 && rs2 != 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_mv, DecodeOperandCR(insn) };
+        }
+        else if (funct4 == 0b1001 && rd == 0 && rs2 == 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_ebreak, DecodeOperandCR(insn) };
+        }
+        else if (funct4 == 0b1001 && rs1 != 0 && rs2 == 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_jalr, DecodeOperandCR(insn) };
+        }
+        else if (funct4 == 0b1001 && rs1 != 0 && rs2 != 0)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_add, DecodeOperandCR(insn) };
+        }
+        else if (funct3 == 0b101)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fsdsp, DecodeOperandCSS(insn, 8) };
+        }
+        else if (funct3 == 0b110)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_swsp, DecodeOperandCSS(insn, 4) };
+        }
+        else if (funct3 == 0b111)
+        {
+            return Op{ OpClass::RV32C, OpCode::c_fswsp, DecodeOperandCSS(insn, 4) };
+        }
+        else
+        {
+            return Op{ OpClass::RV32C, OpCode::unknown, OperandNone() };
+        }
+    default:
+        return Op{ OpClass::RV32C, OpCode::unknown, OperandNone() };
+    }
+}
+
 Operand DecoderImpl::DecodeOperandR(uint32_t insn) const
 {
     return Operand(OperandR
@@ -824,6 +1033,297 @@ Operand DecoderImpl::DecodeOperandFence(uint32_t insn) const
     {
         Pick(insn, 24, 4), // pred
         Pick(insn, 20, 4), // succ
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCR(uint16_t insn) const
+{
+    return Operand(OperandCR
+    {
+        Pick(insn, 7, 5), // rd
+        Pick(insn, 7, 5), // rs1
+        Pick(insn, 2, 5), // rs2
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCR_Alu(uint16_t insn) const
+{
+    return Operand(OperandCR
+    {
+        Pick(insn, 7, 3) + 8, // rd
+        Pick(insn, 7, 3) + 8, // rs1
+        Pick(insn, 2, 3) + 8, // rs2
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCI(uint16_t insn, bool immSigned) const
+{
+    return Operand(OperandCI
+    {
+        immSigned ?
+            SignExtend(6,
+                Pick(insn, 12, 1) << 5 |
+                Pick(insn, 2, 5)
+            ) :
+            ZeroExtend(6,
+                Pick(insn, 12, 1) << 5 |
+                Pick(insn, 2, 5)
+            ), // imm
+        Pick(insn, 7, 5), // rd
+        Pick(insn, 7, 5), // rs1
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCI_ADDI16SP(uint16_t insn) const
+{
+    return Operand(OperandCI
+    {
+        SignExtend(10,
+            Pick(insn, 12) << 9 |
+            Pick(insn, 6) << 4 |
+            Pick(insn, 5) << 6 |
+            Pick(insn, 3, 2) << 7 |
+            Pick(insn, 2) << 5
+        ), // imm
+        Pick(insn, 7, 5), // rd
+        Pick(insn, 7, 5), // rs1
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCI_AluImm(uint16_t insn, bool immSigned) const
+{
+    return Operand(OperandCI
+    {
+        immSigned ?
+            SignExtend(6,
+                Pick(insn, 12, 1) << 5 |
+                Pick(insn, 2, 5)
+            ) :
+            ZeroExtend(6,
+                Pick(insn, 12, 1) << 5 |
+                Pick(insn, 2, 5)
+            ), // imm
+        Pick(insn, 7, 3) + 8, // rd
+        Pick(insn, 7, 3) + 8, // rs1
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCI_LoadSP(uint16_t insn, int accessSize) const
+{
+    switch (accessSize)
+    {
+    case 4:
+        return Operand(OperandCI
+        {
+            ZeroExtend(8,
+                Pick(insn, 12) << 5 |
+                Pick(insn, 4, 3) << 2 |
+                Pick(insn, 2, 2) << 6
+            ), // imm
+            Pick(insn, 7, 5), // rd
+            Pick(insn, 7, 5), // rs1
+        });
+    case 8:
+        return Operand(OperandCI
+        {
+            ZeroExtend(9,
+                Pick(insn, 12) << 5 |
+                Pick(insn, 5, 2) << 3 |
+                Pick(insn, 2, 3) << 6
+            ), // imm
+            Pick(insn, 7, 5), // rd
+            Pick(insn, 7, 5), // rs1
+        });
+    case 16:
+        return Operand(OperandCI
+        {
+            ZeroExtend(10,
+                Pick(insn, 12) << 5 |
+                Pick(insn, 6, 1) << 4 |
+                Pick(insn, 2, 4) << 6
+            ), // imm
+            Pick(insn, 7, 5), // rd
+            Pick(insn, 7, 5), // rs1
+        });
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+Operand DecoderImpl::DecodeOperandCI_LUI(uint16_t insn) const
+{
+    return Operand(OperandCI
+    {
+        SignExtend(18,
+            Pick(insn, 12) << 17 |
+            Pick(insn, 2, 5) << 12
+        ), // imm
+        Pick(insn, 7, 5), // rd
+        Pick(insn, 7, 5), // rs1
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCSS(uint16_t insn, int accessSize) const
+{
+    switch (accessSize)
+    {
+    case 4:
+        return Operand(OperandCSS
+        {
+            ZeroExtend(6,
+                Pick(insn, 9, 4) << 2 |
+                Pick(insn, 7, 2) << 6
+            ), // imm
+            Pick(insn, 2, 5), // rs2
+        });
+    case 8:
+        return Operand(OperandCSS
+        {
+            ZeroExtend(6,
+                Pick(insn, 10, 3) << 3 |
+                Pick(insn, 7, 3) << 6
+            ), // imm
+            Pick(insn, 2, 5), // rs2
+        });
+    case 16:
+        return Operand(OperandCSS
+        {
+            ZeroExtend(6,
+                Pick(insn, 11, 2) << 4 |
+                Pick(insn, 7, 4) << 6
+            ), // imm
+            Pick(insn, 2, 5), // rs2
+        });
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+Operand DecoderImpl::DecodeOperandCIW(uint16_t insn) const
+{
+    return Operand(OperandCIW
+    {
+        ZeroExtend(10,
+            Pick(insn, 11, 2) << 4 |
+            Pick(insn, 7, 4) << 6 |
+            Pick(insn, 6) << 2 |
+            Pick(insn, 5) << 3
+        ), // imm
+        Pick(insn, 2, 3) + 8, // rd
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCL(uint16_t insn, int accessSize) const
+{
+    switch (accessSize)
+    {
+    case 4:
+        return Operand(OperandCL
+        {
+            ZeroExtend(7,
+                Pick(insn, 10, 3) << 3 |
+                Pick(insn, 6) << 2 |
+                Pick(insn, 5) << 6
+            ), // imm
+            Pick(insn, 2, 3) + 8, // rd
+            Pick(insn, 7, 3) + 8, // rs1
+        });
+    case 8:
+        return Operand(OperandCL
+        {
+            ZeroExtend(7,
+                Pick(insn, 10, 3) << 3 |
+                Pick(insn, 5, 2) << 6
+            ), // imm
+            Pick(insn, 2, 3) + 8, // rd
+            Pick(insn, 7, 3) + 8, // rs1
+        });
+    case 16:
+        return Operand(OperandCL
+        {
+            ZeroExtend(7,
+                Pick(insn, 11, 2) << 4 |
+                Pick(insn, 10) << 8 |
+                Pick(insn, 5, 2) << 6
+            ), // imm
+            Pick(insn, 2, 3) + 8, // rd
+            Pick(insn, 7, 3) + 8, // rs1
+        });
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+Operand DecoderImpl::DecodeOperandCS(uint16_t insn, int accessSize) const
+{
+    switch (accessSize)
+    {
+    case 4:
+        return Operand(OperandCS
+        {
+            ZeroExtend(7,
+                Pick(insn, 10, 3) << 3 |
+                Pick(insn, 6) << 2 |
+                Pick(insn, 5) << 6
+            ), // imm
+            Pick(insn, 7, 3) + 8, // rs1
+            Pick(insn, 2, 3) + 8, // rs2
+        });
+    case 8:
+        return Operand(OperandCS
+        {
+            ZeroExtend(7,
+                Pick(insn, 10, 3) << 3 |
+                Pick(insn, 5, 2) << 6
+            ), // imm
+            Pick(insn, 7, 3) + 8, // rs1
+            Pick(insn, 2, 3) + 8, // rs2
+        });
+    case 16:
+        return Operand(OperandCS
+        {
+            ZeroExtend(7,
+                Pick(insn, 11, 2) << 4 |
+                Pick(insn, 10) << 8 |
+                Pick(insn, 5, 2) << 6
+            ), // imm
+            Pick(insn, 7, 3) + 8, // rs1
+            Pick(insn, 2, 3) + 8, // rs2
+        });
+    default:
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+Operand DecoderImpl::DecodeOperandCB(uint16_t insn) const
+{
+    return Operand(OperandCB
+    {
+        SignExtend(12,
+            Pick(insn, 12, 1) << 8 |
+            Pick(insn, 10, 2) << 3 |
+            Pick(insn, 5, 2) << 6 |
+            Pick(insn, 3, 2) << 1 |
+            Pick(insn, 2, 1) << 5
+        ), // imm
+        Pick(insn, 7, 3) + 8, // rs1
+    });
+}
+
+Operand DecoderImpl::DecodeOperandCJ(uint16_t insn) const
+{
+    return Operand(OperandCJ
+    {
+        SignExtend(12,
+            Pick(insn, 12, 1) << 11 |
+            Pick(insn, 11, 1) << 4 |
+            Pick(insn, 9, 2) << 8 |
+            Pick(insn, 8, 1) << 10 |
+            Pick(insn, 7, 1) << 6 |
+            Pick(insn, 6, 1) << 7 |
+            Pick(insn, 3, 3) << 1 |
+            Pick(insn, 2, 1) << 5
+        ), // imm
     });
 }
 

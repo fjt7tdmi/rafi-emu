@@ -23,7 +23,11 @@ namespace rafi {
 class DecoderImpl
 {
 public:
+    Op Decode(uint16_t insn) const;
     Op Decode(uint32_t insn) const;
+
+    bool IsCompressedInstruction(uint16_t insn) const;
+    bool IsCompressedInstruction(uint32_t insn) const;
 
 private:
     Op DecodeRV32I(uint32_t insn) const;
@@ -31,6 +35,8 @@ private:
     Op DecodeRV32A(uint32_t insn) const;
     Op DecodeRV32F(uint32_t insn) const;
     Op DecodeRV32D(uint32_t insn) const;
+
+    Op DecodeRV32C(uint16_t insn) const;
 
     Operand DecodeOperandR(uint32_t insn) const;
     Operand DecodeOperandR4(uint32_t insn) const;
@@ -43,6 +49,20 @@ private:
     Operand DecodeOperandCsr(uint32_t insn) const;
     Operand DecodeOperandCsrImm(uint32_t insn) const;
     Operand DecodeOperandFence(uint32_t insn) const;
+
+    Operand DecodeOperandCR(uint16_t insn) const;
+    Operand DecodeOperandCR_Alu(uint16_t insn) const;
+    Operand DecodeOperandCI(uint16_t insn, bool immSigned) const;
+    Operand DecodeOperandCI_ADDI16SP(uint16_t insn) const;
+    Operand DecodeOperandCI_AluImm(uint16_t insn, bool immSigned) const;
+    Operand DecodeOperandCI_LoadSP(uint16_t insn, int accessSize) const;
+    Operand DecodeOperandCI_LUI(uint16_t insn) const;
+    Operand DecodeOperandCSS(uint16_t insn, int accessSize) const;
+    Operand DecodeOperandCIW(uint16_t insn) const;
+    Operand DecodeOperandCL(uint16_t insn, int accessSize) const;
+    Operand DecodeOperandCS(uint16_t insn, int accessSize) const;
+    Operand DecodeOperandCB(uint16_t insn) const;
+    Operand DecodeOperandCJ(uint16_t insn) const;
 };
 
 }

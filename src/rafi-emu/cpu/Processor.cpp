@@ -71,7 +71,7 @@ void Processor::ProcessOneCycle()
     }
 
     // Fetch
-    PhysicalAddress physicalPc = InvalidValue;
+    PhysicalAddress physicalPc;
 
     const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
     if (fetchTrap)
@@ -106,7 +106,14 @@ void Processor::ProcessOneCycle()
         return;
     }
 
-    m_Csr.SetProgramCounter(pc + 4);
+    if (m_Decoder.IsCompressedInstruction(insn))
+    {
+        m_Csr.SetProgramCounter(pc + 2);
+    }
+    else
+    {
+        m_Csr.SetProgramCounter(pc + 4);
+    }
 
     m_Executor.ProcessOp(op, pc);
 
