@@ -258,6 +258,14 @@ add_executable(rafi-dump
 )
 
 add_executable(rafi-emu
+    include/rafi/emu.h
+    include/rafi/emu/BasicTypes.h
+    include/rafi/emu/Event.h
+    include/rafi/emu/Exception.h
+    include/rafi/emu/IInterruptSource.h
+    include/rafi/emu/Macro.h
+    include/rafi/emu/MemoryMap.h
+    include/rafi/emu/Util.h
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
     src/rafi-emu/cpu/Csr.cpp
@@ -281,14 +289,6 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
-    src/rafi-emu/include/rafi/emu.h
-    src/rafi-emu/include/rafi/emu/BasicTypes.h
-    src/rafi-emu/include/rafi/emu/Event.h
-    src/rafi-emu/include/rafi/emu/Exception.h
-    src/rafi-emu/include/rafi/emu/IInterruptSource.h
-    src/rafi-emu/include/rafi/emu/Macro.h
-    src/rafi-emu/include/rafi/emu/MemoryMap.h
-    src/rafi-emu/include/rafi/emu/Util.h
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
     src/rafi-emu/io/IoInterruptSource.h
@@ -297,18 +297,20 @@ add_executable(rafi-emu
     src/rafi-emu/io/UartTypes.h
     src/rafi-emu/io/Timer.cpp
     src/rafi-emu/io/Timer.h
-    src/rafi-emu/log/Profiler.cpp
-    src/rafi-emu/log/Profiler.h
-    src/rafi-emu/log/TraceDumper.cpp
-    src/rafi-emu/log/TraceDumper.h
     src/rafi-emu/mem/IMemory.h
     src/rafi-emu/mem/Ram.cpp
     src/rafi-emu/mem/Ram.h
     src/rafi-emu/mem/Rom.cpp
     src/rafi-emu/mem/Rom.h
+    src/rafi-emu/CommandLineOption.cpp
+    src/rafi-emu/CommandLineOption.h
     src/rafi-emu/Main.cpp
+    src/rafi-emu/Profiler.cpp
+    src/rafi-emu/Profiler.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
+    src/rafi-emu/TraceDumper.cpp
+    src/rafi-emu/TraceDumper.h
 )
 
 add_executable(test-op

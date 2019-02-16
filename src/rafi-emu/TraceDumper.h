@@ -22,7 +22,7 @@
 
 #include "../System.h"
 
-namespace rafi { namespace emu { namespace log {
+namespace rafi { namespace emu {
 
 class TraceDumper final
 {
@@ -55,4 +55,4 @@ private:
     bool m_EnableDumpMemory = false;
 };
 
-}}}
+}}

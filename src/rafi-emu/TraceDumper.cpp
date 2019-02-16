@@ -28,7 +28,7 @@
 
 using namespace rafi::trace;
 
-namespace rafi { namespace emu { namespace log {
+namespace rafi { namespace emu {
 
 TraceDumper::TraceDumper(const char* path, const System* pSystem)
     : m_FileTraceWriter(path)
@@ -200,4 +200,4 @@ void TraceDumper::DumpOneCycle(int cycle)
     m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
 }
 
-}}}
+}}
