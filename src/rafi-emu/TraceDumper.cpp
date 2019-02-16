@@ -30,9 +30,10 @@ using namespace rafi::trace;
 
 namespace rafi { namespace emu {
 
-TraceDumper::TraceDumper(const char* path, const System* pSystem)
+TraceDumper::TraceDumper(XLEN xlen, const char* path, const System* pSystem)
     : m_FileTraceWriter(path)
     , m_pSystem(pSystem)
+    , m_XLEN(xlen)
 {
 }
 
@@ -55,7 +56,7 @@ void TraceDumper::EnableDumpMemory()
     m_EnableDumpMemory = true;
 }
 
-void TraceDumper::DumpOneCycle(int cycle)
+void TraceDumper::DumpCycle(int cycle)
 {
     if (!m_Enabled)
     {
@@ -67,6 +68,22 @@ void TraceDumper::DumpOneCycle(int cycle)
         return;
     }
 
+    switch (m_XLEN)
+    {
+    case XLEN::XLEN32:
+        DumpCycle32(cycle);
+        break;
+    case XLEN::XLEN64:
+        DumpCycle64(cycle);
+        break;
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
+
+}
+
+void TraceDumper::DumpCycle32(int cycle)
+{
     // TraceHeader
     CycleConfig config;
     config.SetNodeCount(NodeType::BasicInfo, 1);
@@ -158,6 +175,141 @@ void TraceDumper::DumpOneCycle(int cycle)
     {
         const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Csr32));
         auto buffer = builder.GetPointerToNode(NodeType::Csr32);
+
+        m_pSystem->CopyCsr(buffer, size);
+    }
+
+    // MemoryAccessNode
+    // TODO: optimize (values are double copied now)
+    for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
+    {
+        MemoryAccessEvent memoryAccessEvent;
+        m_pSystem->CopyMemoryAccessEvent(&memoryAccessEvent, index);
+
+        MemoryAccessNode memoryAccessNode
+        {
+            memoryAccessEvent.accessType,
+            memoryAccessEvent.size,
+            memoryAccessEvent.value,
+            memoryAccessEvent.virtualAddress,
+            memoryAccessEvent.physicalAddress,
+        };
+        builder.SetNode(memoryAccessNode, index);
+    }
+
+    // Memory
+    if (m_EnableDumpMemory)
+    {
+        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Memory));
+        auto buffer = builder.GetPointerToNode(NodeType::Memory);
+
+        m_pSystem->CopyRam(buffer, size);
+    }
+
+    // IoNode
+    IoNode ioNode
+    {
+        m_pSystem->GetHostIoValue(),
+        0,
+    };
+    builder.SetNode(ioNode);
+
+    m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
+}
+
+void TraceDumper::DumpCycle64(int cycle)
+{
+    // TraceHeader
+    CycleConfig config;
+    config.SetNodeCount(NodeType::BasicInfo, 1);
+    config.SetNodeCount(NodeType::Pc64, 1);
+    config.SetNodeCount(NodeType::IntReg64, 1);
+    config.SetNodeCount(NodeType::FpReg, 1);
+    config.SetNodeCount(NodeType::Io, 1);
+
+    if (m_pSystem->IsTrapEventExist())
+    {
+        config.SetNodeCount(NodeType::Trap64, 1);
+    }
+
+    config.SetNodeCount(NodeType::MemoryAccess, m_pSystem->GetMemoryAccessEventCount());
+
+    if (m_EnableDumpCsr)
+    {
+        config.SetNodeCount(NodeType::Csr64, 1);
+    }
+
+    if (m_EnableDumpMemory)
+    {
+        config.SetNodeCount(NodeType::Memory, 1);
+    }
+
+    config.SetCsrCount(m_pSystem->GetCsrCount());
+    config.SetRamSize(m_pSystem->GetRamSize());
+
+    CycleBuilder builder(config);
+
+    // OpEvent
+    OpEvent opEvent;
+    m_pSystem->CopyOpEvent(&opEvent);
+
+    // BasicInfoNode
+    BasicInfoNode basicInfoNode
+    {
+        static_cast<uint32_t>(cycle),
+        opEvent.opId,
+        opEvent.insn,
+        opEvent.privilegeLevel,
+    };
+    builder.SetNode(basicInfoNode);
+
+    // Pc64Node
+    Pc64Node pc64Node
+    {
+        opEvent.virtualPc,
+        opEvent.physicalPc,
+    };
+    builder.SetNode(pc64Node);
+
+    // IntReg64Node
+    // TODO: optimize (values are double copied now)
+    IntReg64Node intRegNode;
+
+    m_pSystem->CopyIntReg64(&intRegNode, sizeof(intRegNode));
+
+    builder.SetNode(intRegNode);
+
+    // FpRegNode
+    // TODO: optimize (values are double copied now)
+    FpRegNode fpRegNode;
+
+    m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
+
+    builder.SetNode(fpRegNode);
+
+    // Trap64Node
+    if (m_pSystem->IsTrapEventExist())
+    {
+        TrapEvent trapEvent;
+        m_pSystem->CopyTrapEvent(&trapEvent);
+
+        Trap64Node trap64Node
+        {
+            trapEvent.trapType,
+            trapEvent.from,
+            trapEvent.to,
+            trapEvent.trapCause,
+            trapEvent.trapValue,
+            0,
+        };
+        builder.SetNode(trap64Node);
+    }
+
+    // Csr64Node
+    if (m_EnableDumpCsr)
+    {
+        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Csr64));
+        auto buffer = builder.GetPointerToNode(NodeType::Csr64);
 
         m_pSystem->CopyCsr(buffer, size);
     }

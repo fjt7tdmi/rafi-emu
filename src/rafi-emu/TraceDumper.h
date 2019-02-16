@@ -27,14 +27,14 @@ namespace rafi { namespace emu {
 class TraceDumper final
 {
 public:
-    TraceDumper(const char* path, const System* pSystem);
+    TraceDumper(XLEN xlen, const char* path, const System* pSystem);
     ~TraceDumper();
 
     void EnableDump();
     void EnableDumpCsr();
     void EnableDumpMemory();
 
-    void DumpOneCycle(int cycle);
+    void DumpCycle(int cycle);
 
     void DumpHeader()
     {
@@ -46,13 +46,17 @@ public:
     }
 
 private:
+    void DumpCycle32(int cycle);
+    void DumpCycle64(int cycle);
+
     rafi::trace::FileTraceWriter m_FileTraceWriter;
 
     const System* m_pSystem;
 
-    bool m_Enabled = false;
-    bool m_EnableDumpCsr = false;
-    bool m_EnableDumpMemory = false;
+    XLEN m_XLEN;
+    bool m_Enabled {false};
+    bool m_EnableDumpCsr {false};
+    bool m_EnableDumpMemory {false};
 };
 
 }}

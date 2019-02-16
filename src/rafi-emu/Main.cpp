@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     rafi::emu::CommandLineOption option(argc, argv);
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
-    rafi::emu::TraceDumper dumper(option.GetDumpPath().c_str(), &system);
+    rafi::emu::TraceDumper dumper(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
     rafi::emu::Profiler profiler;
 
     try
