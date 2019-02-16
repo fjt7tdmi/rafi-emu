@@ -90,11 +90,13 @@ Op DecoderImpl::Decode(uint32_t insn) const
     {
         return DecodeC(static_cast<uint16_t>(insn));
     }
-    else if (opcode == 0b0110011 && funct7 == 0b0000001)
+    else if ((opcode == 0b0110011 && funct7 == 0b0000001) ||
+             (opcode == 0b0111011 && funct7 == 0b0000001))
     {
         return DecodeM(insn);
     }
-    else if (opcode == 0b0101111 && funct3 == 0b010)
+    else if ((opcode == 0b0101111 && funct3 == 0b010) ||
+             (opcode == 0b0101111 && funct3 == 0b011))
     {
         return DecodeA(insn);
     }
@@ -497,35 +499,81 @@ Op DecoderImpl::DecodeI(uint32_t insn) const
 Op DecoderImpl::DecodeM(uint32_t insn) const
 {
     OpClass opClass;
-    if (m_XLEN == XLEN::XLEN32)
+    switch (m_XLEN)
     {
+    case XLEN::XLEN32:
         opClass = OpClass::RV32M;
-    }
-    else
-    {
+        break;
+    case XLEN::XLEN64:
+        opClass = OpClass::RV64M;
+        break;
+    default:
         RAFI_NOT_IMPLEMENTED();
     }
 
+    const auto opcode = Pick(insn, 0, 7);
     const auto funct3 = Pick(insn, 12, 3);
 
-    switch (funct3)
+    switch (opcode)
     {
-    case 0:
-        return Op{ opClass, OpCode::mul, DecodeOperandR(insn) };
-    case 1:
-        return Op{ opClass, OpCode::mulh, DecodeOperandR(insn) };
-    case 2:
-        return Op{ opClass, OpCode::mulhsu, DecodeOperandR(insn) };
-    case 3:
-        return Op{ opClass, OpCode::mulhu, DecodeOperandR(insn) };
-    case 4:
-        return Op{ opClass, OpCode::div, DecodeOperandR(insn) };
-    case 5:
-        return Op{ opClass, OpCode::divu, DecodeOperandR(insn) };
-    case 6:
-        return Op{ opClass, OpCode::rem, DecodeOperandR(insn) };
-    case 7:
-        return Op{ opClass, OpCode::remu, DecodeOperandR(insn) };
+    case 0b0110011:
+        if (funct3 == 0b000)
+        {
+            return Op{ opClass, OpCode::mul, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b001)
+        {
+            return Op{ opClass, OpCode::mulh, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b010)
+        {
+            return Op{ opClass, OpCode::mulhsu, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b011)
+        {
+            return Op{ opClass, OpCode::mulhu, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b100)
+        {
+            return Op{ opClass, OpCode::div, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b101)
+        {
+            return Op{ opClass, OpCode::divu, DecodeOperandR(insn) };
+        }
+        else if (funct3 == 0b110)
+        {
+            return Op{ opClass, OpCode::rem, DecodeOperandR(insn) };
+        }
+        else
+        {
+            return Op{ opClass, OpCode::remu, DecodeOperandR(insn) };
+        }
+    case 0b0111011:
+        if (opClass == OpClass::RV64M && funct3 == 0b000)
+        {
+            return Op{ opClass, OpCode::mulw, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64M && funct3 == 0b100)
+        {
+            return Op{ opClass, OpCode::divw, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64M && funct3 == 0b101)
+        {
+            return Op{ opClass, OpCode::divuw, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64M && funct3 == 0b110)
+        {
+            return Op{ opClass, OpCode::remw, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64M && funct3 == 0b111)
+        {
+            return Op{ opClass, OpCode::remuw, DecodeOperandR(insn) };
+        }
+        else
+        {
+            return Op{ opClass, OpCode::unknown, DecodeOperandR(insn) };
+        }
     default:
         RAFI_NOT_IMPLEMENTED();
     }
@@ -534,49 +582,122 @@ Op DecoderImpl::DecodeM(uint32_t insn) const
 Op DecoderImpl::DecodeA(uint32_t insn) const
 {
     OpClass opClass;
-    if (m_XLEN == XLEN::XLEN32)
+    switch (m_XLEN)
     {
+    case XLEN::XLEN32:
         opClass = OpClass::RV32A;
-    }
-    else
-    {
+        break;
+    case XLEN::XLEN64:
+        opClass = OpClass::RV64A;
+        break;
+    default:
         RAFI_NOT_IMPLEMENTED();
     }
 
+    const auto funct3 = Pick(insn, 12, 3);
     const auto funct5 = Pick(insn, 27, 5);
     const auto rs2 = Pick(insn, 20, 5);
 
-    switch (funct5)
+    switch (funct3)
     {
-    case 0b00010:
-        if (rs2 == 0b00000)
+    case 0b010:
+        if (funct5 == 0b00010 && rs2 == 0b00000)
         {
             return Op{ opClass, OpCode::lr_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b00011)
+        {
+            return Op{ opClass, OpCode::sc_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b00001)
+        {
+            return Op{ opClass, OpCode::amoswap_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b00000)
+        {
+            return Op{ opClass, OpCode::amoadd_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b00100)
+        {
+            return Op{ opClass, OpCode::amoxor_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b01100)
+        {
+            return Op{ opClass, OpCode::amoand_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b01000)
+        {
+            return Op{ opClass, OpCode::amoor_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b10000)
+        {
+            return Op{ opClass, OpCode::amomin_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b10100)
+        {
+            return Op{ opClass, OpCode::amomax_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b11000)
+        {
+            return Op{ opClass, OpCode::amominu_w, DecodeOperandR(insn) };
+        }
+        else if (funct5 == 0b11100)
+        {
+            return Op{ opClass, OpCode::amomaxu_w, DecodeOperandR(insn) };
         }
         else
         {
             RAFI_RETURN_UNKNOWN_OP(opClass);
         }
-    case 0b00011:
-        return Op{ opClass, OpCode::sc_w, DecodeOperandR(insn) };
-    case 0b00001:
-        return Op{ opClass, OpCode::amoswap_w, DecodeOperandR(insn) };
-    case 0b00000:
-        return Op{ opClass, OpCode::amoadd_w, DecodeOperandR(insn) };
-    case 0b00100:
-        return Op{ opClass, OpCode::amoxor_w, DecodeOperandR(insn) };
-    case 0b01100:
-        return Op{ opClass, OpCode::amoand_w, DecodeOperandR(insn) };
-    case 0b01000:
-        return Op{ opClass, OpCode::amoor_w, DecodeOperandR(insn) };
-    case 0b10000:
-        return Op{ opClass, OpCode::amomin_w, DecodeOperandR(insn) };
-    case 0b10100:
-        return Op{ opClass, OpCode::amomax_w, DecodeOperandR(insn) };
-    case 0b11000:
-        return Op{ opClass, OpCode::amominu_w, DecodeOperandR(insn) };
-    case 0b11100:
-        return Op{ opClass, OpCode::amomaxu_w, DecodeOperandR(insn) };
+    case 0b011:
+        if (opClass == OpClass::RV64A && funct5 == 0b00010 && rs2 == 0b00000)
+        {
+            return Op{ opClass, OpCode::lr_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b00011)
+        {
+            return Op{ opClass, OpCode::sc_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b00001)
+        {
+            return Op{ opClass, OpCode::amoswap_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b00000)
+        {
+            return Op{ opClass, OpCode::amoadd_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b00100)
+        {
+            return Op{ opClass, OpCode::amoxor_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b01100)
+        {
+            return Op{ opClass, OpCode::amoand_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b01000)
+        {
+            return Op{ opClass, OpCode::amoor_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b10000)
+        {
+            return Op{ opClass, OpCode::amomin_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b10100)
+        {
+            return Op{ opClass, OpCode::amomax_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b11000)
+        {
+            return Op{ opClass, OpCode::amominu_w, DecodeOperandR(insn) };
+        }
+        else if (opClass == OpClass::RV64A && funct5 == 0b11100)
+        {
+            return Op{ opClass, OpCode::amomaxu_w, DecodeOperandR(insn) };
+        }
+        else
+        {
+            RAFI_RETURN_UNKNOWN_OP(opClass);
+        }
     default:
         RAFI_RETURN_UNKNOWN_OP(opClass);
     }
@@ -585,12 +706,15 @@ Op DecoderImpl::DecodeA(uint32_t insn) const
 Op DecoderImpl::DecodeF(uint32_t insn) const
 {
     OpClass opClass;
-    if (m_XLEN == XLEN::XLEN32)
+    switch (m_XLEN)
     {
+    case XLEN::XLEN32:
         opClass = OpClass::RV32F;
-    }
-    else
-    {
+        break;
+    case XLEN::XLEN64:
+        opClass = OpClass::RV64F;
+        break;
+    default:
         RAFI_NOT_IMPLEMENTED();
     }
 
@@ -668,13 +792,24 @@ Op DecoderImpl::DecodeF(uint32_t insn) const
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1100000:
-            switch (rs2)
+            if (rs2 == 0b00000)
             {
-            case 0b00000:
                 return Op{ opClass, OpCode::fcvt_w_s, DecodeOperandR(insn) };
-            case 0b00001:
+            }
+            else if (rs2 == 0b00001)
+            {
                 return Op{ opClass, OpCode::fcvt_wu_s, DecodeOperandR(insn) };
-            default:
+            }
+            else if (rs2 == 0b00010 && opClass == OpClass::RV64F)
+            {
+                return Op{ opClass, OpCode::fcvt_l_s, DecodeOperandR(insn) };
+            }
+            else if (rs2 == 0b00011 && opClass == OpClass::RV64F)
+            {
+                return Op{ opClass, OpCode::fcvt_lu_s, DecodeOperandR(insn) };
+            }
+            else
+            {
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1110000:
@@ -703,13 +838,24 @@ Op DecoderImpl::DecodeF(uint32_t insn) const
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1101000:
-            switch (rs2)
+            if (rs2 == 0b00000)
             {
-            case 0b00000:
                 return Op{ opClass, OpCode::fcvt_s_w, DecodeOperandR(insn) };
-            case 0b00001:
+            }
+            else if (rs2 == 0b00001)
+            {
                 return Op{ opClass, OpCode::fcvt_s_wu, DecodeOperandR(insn) };
-            default:
+            }
+            else if (rs2 == 0b00010 && opClass == OpClass::RV64F)
+            {
+                return Op{ opClass, OpCode::fcvt_s_l, DecodeOperandR(insn) };
+            }
+            else if (rs2 == 0b00011 && opClass == OpClass::RV64F)
+            {
+                return Op{ opClass, OpCode::fcvt_s_lu, DecodeOperandR(insn) };
+            }
+            else
+            {
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1111000:
@@ -732,12 +878,15 @@ Op DecoderImpl::DecodeF(uint32_t insn) const
 Op DecoderImpl::DecodeD(uint32_t insn) const
 {
     OpClass opClass;
-    if (m_XLEN == XLEN::XLEN32)
+    switch (m_XLEN)
     {
+    case XLEN::XLEN32:
         opClass = OpClass::RV32D;
-    }
-    else
-    {
+        break;
+    case XLEN::XLEN64:
+        opClass = OpClass::RV64D;
+        break;
+    default:
         RAFI_NOT_IMPLEMENTED();
     }
 
@@ -843,6 +992,10 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1110001:
+            if (rs2 == 0b00000 && funct3 == 0b000)
+            {
+                return Op{ opClass, OpCode::fmv_x_d, DecodeOperandR(insn) };
+            }
             if (rs2 == 0b00000 && funct3 == 0b001)
             {
                 return Op{ opClass, OpCode::fclass_d, DecodeOperandR(insn) };
@@ -852,13 +1005,24 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1100001:
-            switch (rs2)
+            if (rs2 == 0b00000)
             {
-            case 0b00000:
                 return Op{ opClass, OpCode::fcvt_w_d, DecodeOperandR(insn) };
-            case 0b00001:
+            }
+            else if (rs2 == 0b00001)
+            {
                 return Op{ opClass, OpCode::fcvt_wu_d, DecodeOperandR(insn) };
-            default:
+            }
+            else if (rs2 == 0b00010)
+            {
+                return Op{ opClass, OpCode::fcvt_l_d, DecodeOperandR(insn) };
+            }
+            else if (rs2 == 0b00011)
+            {
+                return Op{ opClass, OpCode::fcvt_lu_d, DecodeOperandR(insn) };
+            }
+            else
+            {
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1101001:
@@ -869,6 +1033,15 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
             case 0b00001:
                 return Op{ opClass, OpCode::fcvt_d_wu, DecodeOperandR(insn) };
             default:
+                RAFI_RETURN_UNKNOWN_OP(opClass);
+            }
+        case 0b1111001:
+            if (rs2 == 0b00000 && funct3 == 0b000)
+            {
+                return Op{ opClass, OpCode::fmv_d_x, DecodeOperandR(insn) };
+            }
+            else
+            {
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         default:
