@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 #include "OpTypes.h"
@@ -24,9 +25,12 @@ namespace rafi {
 
 class DecoderImpl;
 
-class Decoder
+class Decoder final
 {
 public:
+    explicit Decoder(XLEN xlen);
+    ~Decoder();
+
     Op Decode(uint16_t insn) const;
     Op Decode(uint32_t insn) const;
 

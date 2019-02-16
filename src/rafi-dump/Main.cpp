@@ -36,7 +36,7 @@ namespace {
 
 void PrintBasicInfoNode(const BasicInfoNode* node)
 {
-    Decoder decoder;
+    Decoder decoder(XLEN::XLEN32);
     auto op = decoder.Decode(node->insn);
 
     char opStr[64];

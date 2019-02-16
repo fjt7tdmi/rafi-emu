@@ -1055,12 +1055,15 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
 Op DecoderImpl::DecodeC(uint16_t insn) const
 {
     OpClass opClass;
-    if (m_XLEN == XLEN::XLEN32)
+    switch (m_XLEN)
     {
+    case XLEN::XLEN32:
         opClass = OpClass::RV32C;
-    }
-    else
-    {
+        break;
+    case XLEN::XLEN64:
+        opClass = OpClass::RV64C;
+        break;
+    default:
         RAFI_NOT_IMPLEMENTED();
     }
 
@@ -1090,9 +1093,13 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_lw, DecodeOperandCL(insn, 4) };
         }
-        else if (funct3 == 0b011)
+        else if (funct3 == 0b011 && opClass == OpClass::RV32C)
         {
             return Op{ opClass, OpCode::c_flw, DecodeOperandCL(insn, 4) };
+        }
+        else if (funct3 == 0b011 && opClass == OpClass::RV64C)
+        {
+            return Op{ opClass, OpCode::c_ld, DecodeOperandCL(insn, 8) };
         }
         else if (funct3 == 0b101)
         {
@@ -1102,9 +1109,13 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_sw, DecodeOperandCS(insn, 4) };
         }
-        else if (funct3 == 0b111)
+        else if (funct3 == 0b111 && opClass == OpClass::RV32C)
         {
             return Op{ opClass, OpCode::c_fsw, DecodeOperandCS(insn, 4) };
+        }
+        else if (funct3 == 0b111 && opClass == OpClass::RV64C)
+        {
+            return Op{ opClass, OpCode::c_sd, DecodeOperandCS(insn, 8) };
         }
         else
         {
@@ -1119,9 +1130,13 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_addi, DecodeOperandCI(insn, true) };
         }
-        else if (funct3 == 0b001)
+        else if (funct3 == 0b001 && opClass == OpClass::RV32C)
         {
             return Op{ opClass, OpCode::c_jal, DecodeOperandCJ(insn) };
+        }
+        else if (funct3 == 0b001 && opClass == OpClass::RV64C && rd != 0)
+        {
+            return Op{ opClass, OpCode::c_addiw, DecodeOperandCI(insn, true) };
         }
         else if (funct3 == 0b010 && rd != 0)
         {
@@ -1163,6 +1178,14 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_and, DecodeOperandCR_Alu(insn) };
         }
+        else if (funct4 == 0b1001 && funct2_rs1 == 0b11 && funct2_rs2 == 0b00)
+        {
+            return Op{ opClass, OpCode::c_subw, DecodeOperandCR_Alu(insn) };
+        }
+        else if (funct4 == 0b1001 && funct2_rs1 == 0b11 && funct2_rs2 == 0b01)
+        {
+            return Op{ opClass, OpCode::c_addw, DecodeOperandCR_Alu(insn) };
+        }
         else if (funct3 == 0b101)
         {
             return Op{ opClass, OpCode::c_j, DecodeOperandCJ(insn) };
@@ -1192,9 +1215,13 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_lwsp, DecodeOperandCI_LoadSP(insn, 4) };
         }
-        else if (funct3 == 0b011)
+        else if (funct3 == 0b011 && opClass == OpClass::RV32C)
         {
             return Op{ opClass, OpCode::c_flwsp, DecodeOperandCI_LoadSP(insn, 4) };
+        }
+        else if (funct3 == 0b011 && opClass == OpClass::RV64C && rd != 0)
+        {
+            return Op{ opClass, OpCode::c_ldsp, DecodeOperandCI_LoadSP(insn, 8) };
         }
         else if (funct4 == 0b1000 && rs1 != 0 && rs2 == 0)
         {
@@ -1224,9 +1251,13 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         {
             return Op{ opClass, OpCode::c_swsp, DecodeOperandCSS(insn, 4) };
         }
-        else if (funct3 == 0b111)
+        else if (funct3 == 0b111 && opClass == OpClass::RV32C)
         {
             return Op{ opClass, OpCode::c_fswsp, DecodeOperandCSS(insn, 4) };
+        }
+        else if (funct3 == 0b111 && opClass == OpClass::RV64C)
+        {
+            return Op{ opClass, OpCode::c_sdsp, DecodeOperandCSS(insn, 8) };
         }
         else
         {

@@ -35,11 +35,12 @@ class Processor
 {
 public:
     // Setup
-    Processor(bus::Bus* pBus, uint32_t initialPc)
+    Processor(XLEN xlen, bus::Bus* pBus, uint32_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
         , m_InterruptController(&m_Csr)
         , m_TrapProcessor(&m_Csr)
+        , m_Decoder(xlen)
         , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
     {
         m_MemAccessUnit.Initialize(pBus, &m_Csr);

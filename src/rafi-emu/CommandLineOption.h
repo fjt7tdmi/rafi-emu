@@ -49,6 +49,7 @@ public:
 
     const std::string& GetDumpPath() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
+    XLEN GetXLEN() const;
 
     int GetCycle() const;
     int GetDumpSkipCycle() const;
@@ -57,7 +58,7 @@ public:
 
     uint64_t GetHostIoAddress() const;
     uint64_t GetPc() const;
-    
+   
 private:
     static const int DefaultRamSize = 64 * 1024 * 1024;
 
@@ -65,6 +66,8 @@ private:
 
     std::string m_DumpPath;
     std::vector<LoadOption> m_LoadOptions;
+
+    XLEN m_XLEN {XLEN::XLEN32};
 
     int m_Cycle {0};
     int m_DumpSkipCycle {0};

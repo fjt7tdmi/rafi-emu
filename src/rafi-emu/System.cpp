@@ -19,14 +19,14 @@
 
 namespace rafi { namespace emu {
 
-System::System(uint32_t pc, int ramSize)
+System::System(XLEN xlen, uint32_t pc, int ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
     , m_TimerInterruptSource(&m_Timer)
-    , m_Processor(&m_Bus, pc)
+    , m_Processor(xlen, &m_Bus, pc)
 {
     m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.GetCapacity());
     m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.GetCapacity());

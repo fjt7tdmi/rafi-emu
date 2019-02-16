@@ -110,7 +110,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
         ("pc", po::value<std::string>(), "initial program counter value (hex)")
         ("ram-size", po::value<size_t>(&m_RamSize)->default_value(DefaultRamSize), "ram size (byte)")
-        ("xlen", "XLEN");
+        ("xlen", po::value<int>(), "XLEN");
 
     po::variables_map variables;
     try
@@ -160,6 +160,23 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         e.PrintMessage();
         exit(1);
     }
+
+    if (variables.count("xlen"))
+    {
+        switch (variables["xlen"].as<int>())
+        {
+        case 32:
+            m_XLEN = XLEN::XLEN32;
+            break;
+        case 64:
+            m_XLEN = XLEN::XLEN64;
+            break;
+        default:
+            std::cout << "--xlen must be 32 or 64." << std::endl;
+            std::exit(0);
+            break;
+        }
+    }
 }
 
 bool CommandLineOption::IsDumpEnabled() const
@@ -190,6 +207,11 @@ const std::string& CommandLineOption::GetDumpPath() const
 const std::vector<LoadOption>& CommandLineOption::GetLoadOptions() const
 {
     return m_LoadOptions;
+}
+
+XLEN CommandLineOption::GetXLEN() const
+{
+    return m_XLEN;
 }
 
 int CommandLineOption::GetCycle() const

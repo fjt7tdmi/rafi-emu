@@ -20,6 +20,16 @@
 
 namespace rafi {
 
+Decoder::Decoder(XLEN xlen)
+{
+    m_pImpl = new DecoderImpl(xlen);
+}
+
+Decoder::~Decoder()
+{
+    delete m_pImpl;
+}
+
 Op Decoder::Decode(uint16_t insn) const
 {
     return m_pImpl->Decode(insn);
