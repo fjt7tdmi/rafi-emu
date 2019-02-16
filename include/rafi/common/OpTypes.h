@@ -30,6 +30,7 @@ enum class OpClass
     RV32A,
     RV32F,
     RV32D,
+    RV32C,
 };
 
 enum class OpCode
@@ -169,6 +170,57 @@ enum class OpCode
     fcvt_wu_d,
     fcvt_d_w,
     fcvt_d_wu,
+
+    // RVC
+    c_addi4spn,
+    c_fld,
+    c_lq,
+    c_lw,
+    c_flw,
+    c_ld,
+    c_fsd,
+    c_sq,
+    c_sw,
+    c_fsw,
+    c_sd,
+    c_nop,
+    c_addi,
+    c_jal,
+    c_addiw,
+    c_li,
+    c_addi16sp,
+    c_lui,
+    c_srli,
+    c_srli64,
+    c_srai,
+    c_srai64,
+    c_andi,
+    c_sub,
+    c_xor,
+    c_or,
+    c_and,
+    c_subw,
+    c_addw,
+    c_j,
+    c_beqz,
+    c_bnez,
+    c_slli,
+    c_slli64,
+    c_fldsp,
+    c_lqsp,
+    c_lwsp,
+    c_flwsp,
+    c_ldsp,
+    c_jr,
+    c_mv,
+    c_ebreak,
+    c_jalr,
+    c_add,
+    c_fsdsp,
+    c_sqsp,
+    c_swsp,
+    c_fswsp,
+    c_sdsp,
 };
 
 struct OperandR
@@ -253,6 +305,57 @@ struct OperandFence
     int succ;
 };
 
+struct OperandCR
+{
+    int rd;
+    int rs1;
+    int rs2;
+};
+
+struct OperandCI
+{
+    int32_t imm;
+    int rd;
+    int rs1;
+};
+
+struct OperandCSS
+{
+    int32_t imm;
+    int rs2;
+};
+
+struct OperandCIW
+{
+    int32_t imm;
+    int rd;
+};
+
+struct OperandCL
+{
+    int32_t imm;
+    int rd;
+    int rs1;
+};
+
+struct OperandCS
+{
+    int32_t imm;
+    int rs1;
+    int rs2;
+};
+
+struct OperandCB
+{
+    int32_t imm;
+    int rs1;
+};
+
+struct OperandCJ
+{
+    int32_t imm;
+};
+
 struct OperandNone
 {
 };
@@ -269,6 +372,14 @@ using Operand = std::variant<
     OperandCsr,
     OperandCsrImm,
     OperandFence,
+    OperandCR,
+    OperandCI,
+    OperandCSS,
+    OperandCIW,
+    OperandCL,
+    OperandCS,
+    OperandCB,
+    OperandCJ,
     OperandNone
 >;
 

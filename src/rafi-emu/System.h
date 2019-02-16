@@ -33,8 +33,9 @@ class System
 public:
     explicit System(uint32_t pc, int ramSize);
 
-    // Setup
+    // Setup    
     void LoadFileToMemory(const char* path, PhysicalAddress address);
+    void SetHostIoAddress(uint32_t address);
 
     // Process
     void ProcessOneCycle();
@@ -74,6 +75,8 @@ private:
     io::IoInterruptSource m_TimerInterruptSource;
 
     cpu::Processor m_Processor;
+
+    uint32_t m_HostIoAddress{0};
 };
 
 }}

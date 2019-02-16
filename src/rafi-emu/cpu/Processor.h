@@ -80,8 +80,7 @@ private:
     void SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel);
     void SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
 
-    // TODO: refactor and remove this def
-    const uint32_t InvalidValue = 0xcdcdcdcd;
+    const uint32_t InvalidValue = 0xffffffff;
 
     Csr m_Csr;
     CsrAccessor m_CsrAccessor;

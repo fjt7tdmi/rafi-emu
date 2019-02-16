@@ -1,674 +1,852 @@
 [
     {
         "name": "rv32mi-p-breakpoint",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-csr",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-illegal",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-ma_addr",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-ma_fetch",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-mcsr",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-sbreak",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-scall",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32mi-p-shamt",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-csr",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-dirty",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-ma_fetch",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-sbreak",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-scall",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32si-p-wfi",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amoadd_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amoand_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amomax_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amomaxu_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amomin_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amominu_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amoor_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amoswap_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-amoxor_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-p-lrsc",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ua-v-amoadd_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amoand_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amomax_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amomaxu_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amomin_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amominu_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amoor_w",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ua-v-amoswap_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-amoxor_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ua-v-lrsc",
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
+    },
+    {
+        "name": "rv32uc-p-rvc",
+        "host-io-addr": "0x80003000",
+        "cycle": 32000
+    },
+    {
+        "name": "rv32uc-v-rvc",
+        "host-io-addr": "0x80003000",
         "cycle": 256000
     },
     {
         "name": "rv32ud-p-fadd",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fclass",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fcmp",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fcvt",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fcvt_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fdiv",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fmadd",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-fmin",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-ldst",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-p-recoding",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ud-v-fadd",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fclass",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fcmp",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fcvt",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fcvt_w",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fdiv",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fmadd",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-fmin",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-ldst",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32ud-v-recoding",
-        "cycle": 32000
+        "host-io-addr": "0x80001000",
+        "cycle": 256000
     },
     {
         "name": "rv32uf-p-fadd",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fclass",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fcmp",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fcvt",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fcvt_w",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fdiv",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fmadd",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-fmin",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-ldst",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-move",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-p-recoding",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32uf-v-fadd",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fclass",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fcmp",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fcvt",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fcvt_w",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fdiv",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fmadd",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-fmin",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-ldst",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-move",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32uf-v-recoding",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-p-add",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-p-addi",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-p-and",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-andi",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-auipc",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-beq",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-bge",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-bgeu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-blt",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-bltu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-bne",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-fence_i",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-jal",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-jalr",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lb",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lbu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lh",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lhu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lui",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-lw",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-or",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-ori",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sb",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sh",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-simple",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sll",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-slli",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-slt",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-slti",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sltiu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sltu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sra",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-srai",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-srl",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-srli",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sub",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-sw",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-xor",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-p-xori",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32ui-v-add",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-addi",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-and",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-andi",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-auipc",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-beq",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-bge",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-bgeu",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-blt",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-bltu",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-bne",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-fence_i",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-jal",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-jalr",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-lh",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-lhu",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-lui",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-lw",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-or",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-ori",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-sh",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-simple",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-sll",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-slli",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-slt",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-slti",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-sltiu",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-sltu",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-sra",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-srai",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-srl",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-srli",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32ui-v-sub",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-sw",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32ui-v-xor",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32ui-v-xori",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32um-p-div",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-divu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-mul",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-mulh",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-mulhsu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-mulhu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-rem",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-p-remu",
+        "host-io-addr": "0x80001000",
         "cycle": 32000
     },
     {
         "name": "rv32um-v-div",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32um-v-divu",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     },
     {
         "name": "rv32um-v-mul",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32um-v-mulh",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32um-v-mulhsu",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32um-v-mulhu",
+        "host-io-addr": "0x80001000",
         "cycle": 256000
     },
     {
         "name": "rv32um-v-rem",
+        "host-io-addr": "0x80001000",
         "cycle": 384000
     },
     {
         "name": "rv32um-v-remu",
+        "host-io-addr": "0x80001000",
         "cycle": 128000
     }
 ]

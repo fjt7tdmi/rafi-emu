@@ -150,9 +150,9 @@ int main(int argc, char** argv)
         ("dump-skip-cycle", po::value<int>(&dumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
         ("enable-dump-memory", "output memory contents to dump file")
-        ("enable-monitor-host-io", "stop emulation when host io value is changed")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("pc", po::value<std::string>(), "initial program counter value")
+        ("host-io-addr", po::value<std::string>(), "host io address")
         ("ram-size", po::value<int>(&ramSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("help", "show help");
 
@@ -175,9 +175,11 @@ int main(int argc, char** argv)
     }
 
     uint32_t pc;
+    uint32_t hostIoAddress;
     try
     {
         pc = GetHexProgramOption(optionMap, "pc", 0);
+        hostIoAddress = GetHexProgramOption(optionMap, "host-io-addr", 0);
     }
     catch (CommandLineOptionException e)
     {
@@ -195,6 +197,7 @@ int main(int argc, char** argv)
         {
             LoadOption loadOption(arg);
             pSystem->LoadFileToMemory(loadOption.GetPath().c_str(), loadOption.GetAddress());
+            pSystem->SetHostIoAddress(hostIoAddress);
         }
 
         dumper = new rafi::emu::log::TraceDumper(optionMap["dump-path"].as<std::string>().c_str(), pSystem);
@@ -239,7 +242,7 @@ int main(int argc, char** argv)
             }
 
             pProfiler->SwitchPhase(rafi::emu::log::Profiler::Phase_None);
-            if (optionMap.count("enable-monitor-host-io"))
+            if (optionMap.count("host-io-addr"))
             {
                 const auto hostIoValue = pSystem->GetHostIoValue();
                 if (hostIoValue != 0)

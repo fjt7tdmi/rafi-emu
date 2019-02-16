@@ -212,6 +212,57 @@ const char* GetString(const OpCode& opCode)
         GET_OP_NAME_CASE(fcvt_wu_d);
         GET_OP_NAME_CASE(fcvt_d_w);
         GET_OP_NAME_CASE(fcvt_d_wu);
+
+        // RVC
+        GET_OP_NAME_CASE(c_addi4spn);
+        GET_OP_NAME_CASE(c_fld);
+        GET_OP_NAME_CASE(c_lq);
+        GET_OP_NAME_CASE(c_lw);
+        GET_OP_NAME_CASE(c_flw);
+        GET_OP_NAME_CASE(c_ld);
+        GET_OP_NAME_CASE(c_fsd);
+        GET_OP_NAME_CASE(c_sq);
+        GET_OP_NAME_CASE(c_sw);
+        GET_OP_NAME_CASE(c_fsw);
+        GET_OP_NAME_CASE(c_sd);
+        GET_OP_NAME_CASE(c_nop);
+        GET_OP_NAME_CASE(c_addi);
+        GET_OP_NAME_CASE(c_jal);
+        GET_OP_NAME_CASE(c_addiw);
+        GET_OP_NAME_CASE(c_li);
+        GET_OP_NAME_CASE(c_addi16sp);
+        GET_OP_NAME_CASE(c_lui);
+        GET_OP_NAME_CASE(c_srli);
+        GET_OP_NAME_CASE(c_srli64);
+        GET_OP_NAME_CASE(c_srai);
+        GET_OP_NAME_CASE(c_srai64);
+        GET_OP_NAME_CASE(c_andi);
+        GET_OP_NAME_CASE(c_sub);
+        GET_OP_NAME_CASE(c_xor);
+        GET_OP_NAME_CASE(c_or);
+        GET_OP_NAME_CASE(c_and);
+        GET_OP_NAME_CASE(c_subw);
+        GET_OP_NAME_CASE(c_addw);
+        GET_OP_NAME_CASE(c_j);
+        GET_OP_NAME_CASE(c_beqz);
+        GET_OP_NAME_CASE(c_bnez);
+        GET_OP_NAME_CASE(c_slli);
+        GET_OP_NAME_CASE(c_slli64);
+        GET_OP_NAME_CASE(c_fldsp);
+        GET_OP_NAME_CASE(c_lqsp);
+        GET_OP_NAME_CASE(c_lwsp);
+        GET_OP_NAME_CASE(c_flwsp);
+        GET_OP_NAME_CASE(c_ldsp);
+        GET_OP_NAME_CASE(c_jr);
+        GET_OP_NAME_CASE(c_mv);
+        GET_OP_NAME_CASE(c_ebreak);
+        GET_OP_NAME_CASE(c_jalr);
+        GET_OP_NAME_CASE(c_add);
+        GET_OP_NAME_CASE(c_fsdsp);
+        GET_OP_NAME_CASE(c_sqsp);
+        GET_OP_NAME_CASE(c_swsp);
+        GET_OP_NAME_CASE(c_fswsp);
+        GET_OP_NAME_CASE(c_sdsp);
     default:
         return "unknown";
     }
@@ -231,36 +282,31 @@ public:
     int operator()(const OperandR& operand)
     {
         const char* opCode = GetString(m_OpCode);
-        const char* rd = IntRegNames[operand.rd];
-        const char* rs1 = IntRegNames[operand.rs1];
-        const char* rs2 = IntRegNames[operand.rs2];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%s,%s", opCode, rd, rs1, rs2);
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, rs2:%d)", opCode, operand.rd, operand.rs1, operand.rs2);
     }
 
     int operator()(const OperandR4& operand)
     {
         const char* opCode = GetString(m_OpCode);
-        const char* rd = IntRegNames[operand.rd];
-        const char* rs1 = IntRegNames[operand.rs1];
-        const char* rs2 = IntRegNames[operand.rs2];
-        const char* rs3 = IntRegNames[operand.rs3];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%s,%s,%s", opCode, rd, rs1, rs2, rs3);
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, rs2:%d, rs3:%d)", opCode, operand.rd, operand.rs1, operand.rs2, operand.rs3);
     }
 
     int operator()(const OperandI& operand)
     {
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,0x%x", GetString(m_OpCode), IntRegNames[operand.rd], operand.imm);
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", GetString(m_OpCode), operand.rd, operand.imm);
     }
 
     int operator()(const OperandS& operand)
     {
         const char* opCode = GetString(m_OpCode);
-        const char* rs1 = IntRegNames[operand.rs1];
-        const char* rs2 = IntRegNames[operand.rs2];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d(%s)", opCode, rs1, operand.imm, rs2);
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, operand.imm, operand.rs2);
     }
 
     int operator()(const OperandB& operand)
@@ -318,7 +364,70 @@ public:
     {
         const char* opCode = GetString(m_OpCode);
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s 0x%x,0x%x", opCode, operand.pred, operand.succ);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (pred:0x%x, succ:0x%x)", opCode, operand.pred, operand.succ);
+    }
+
+    int operator()(const OperandCR& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, rs2:%d)", opCode, operand.rd, operand.rs1, operand.rs2);
+    }
+
+    int operator()(const OperandCI& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, operand.imm);
+    }
+
+    int operator()(const OperandCSS& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (imm:0x%x, rs2:%d)", opCode, operand.imm, operand.rs2);
+    }
+
+    int operator()(const OperandCIW& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", opCode, operand.rd, operand.imm);
+    }
+
+    int operator()(const OperandCL& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, operand.imm);
+    }
+
+    int operator()(const OperandCS& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        // TODO: Print int/fp reg names
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, operand.imm, operand.rs2);
+    }
+
+    int operator()(const OperandCB& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+        const char* rs1 = IntRegNames[operand.rs1];
+
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d", opCode, rs1, operand.imm);
+    }
+
+    int operator()(const OperandCJ& operand)
+    {
+        const char* opCode = GetString(m_OpCode);
+
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %d", opCode, operand.imm);
     }
 
     int operator()(const OperandNone&)
