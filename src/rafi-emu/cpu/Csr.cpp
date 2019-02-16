@@ -344,7 +344,7 @@ uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     {
         misa_t value;
         return value
-            .SetMember<misa_t::XLEN>(XLEN::XLEN32)
+            .SetMember<misa_t::XLEN>(static_cast<uint32_t>(XLEN::XLEN32))
             .SetMember<misa_t::I>(1);
     }
     case csr_addr_t::medeleg:

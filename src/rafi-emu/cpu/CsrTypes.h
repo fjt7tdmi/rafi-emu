@@ -24,13 +24,6 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
-enum XLEN
-{
-    XLEN32 = 1,
-    XLEN64 = 2,
-    XLEN128 = 3,
-};
-
 // Defintion for each register
 struct misa_t : public BitField32
 {

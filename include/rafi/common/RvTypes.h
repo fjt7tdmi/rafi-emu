@@ -21,6 +21,13 @@
 
 namespace rafi {
 
+enum class XLEN : uint32_t
+{
+    XLEN32 = 1,
+    XLEN64 = 2,
+    XLEN128 = 3,
+};
+
 enum class MemoryAccessType : uint32_t
 {
     Instruction = 0,
