@@ -51,6 +51,11 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
                 const auto node = cycle.GetPc32Node();
                 printf("0x%08x\n", showVirtual ? node->virtualPc : node->physicalPc);
             }
+            else if (cycle.GetNodeCount(NodeType::Pc64) > 0)
+            {
+                const auto node = cycle.GetPc64Node();
+                printf("0x%016llx\n", showVirtual ? node->virtualPc : node->physicalPc);
+            }
             else
             {
                 printf("Error: no pc data. (cycle = %d)\n", i);
