@@ -137,15 +137,13 @@ void TraceDumper::DumpCycle32(int cycle)
     builder.SetNode(pc32Node);
 
     // IntReg32Node
-    // TODO: optimize (values are double copied now)
     IntReg32Node intRegNode;
 
-    m_pSystem->CopyIntReg(&intRegNode, sizeof(intRegNode));
+    m_pSystem->CopyIntReg(&intRegNode);
 
     builder.SetNode(intRegNode);
 
     // FpRegNode
-    // TODO: optimize (values are double copied now)
     FpRegNode fpRegNode;
 
     m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
@@ -272,15 +270,13 @@ void TraceDumper::DumpCycle64(int cycle)
     builder.SetNode(pc64Node);
 
     // IntReg64Node
-    // TODO: optimize (values are double copied now)
     IntReg64Node intRegNode;
 
-    m_pSystem->CopyIntReg64(&intRegNode, sizeof(intRegNode));
+    m_pSystem->CopyIntReg(&intRegNode);
 
     builder.SetNode(intRegNode);
 
     // FpRegNode
-    // TODO: optimize (values are double copied now)
     FpRegNode fpRegNode;
 
     m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
@@ -300,7 +296,6 @@ void TraceDumper::DumpCycle64(int cycle)
             trapEvent.to,
             trapEvent.trapCause,
             trapEvent.trapValue,
-            0,
         };
         builder.SetNode(trap64Node);
     }

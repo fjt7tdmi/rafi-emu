@@ -27,30 +27,39 @@ IntRegFile::IntRegFile()
     std::memset(m_Entries, 0, sizeof(m_Entries));
 }
 
-void IntRegFile::Copy(void* pOut, size_t size) const
+void IntRegFile::Copy(trace::IntReg32Node* pOut) const
 {
-    assert(size == sizeof(m_Entries));
+    for (int i = 0; i < IntRegCount; i++)
+    {
+        pOut->regs[i] = m_Entries[i].u32.value;
+    }
+}
 
-    std::memcpy(pOut, m_Entries, size);
+void IntRegFile::Copy(trace::IntReg64Node* pOut) const
+{
+    for (int i = 0; i < IntRegCount; i++)
+    {
+        pOut->regs[i] = m_Entries[i].u64.value;
+    }
 }
 
 int32_t IntRegFile::ReadInt32(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
     
     return m_Entries[regId].s32.value;
 }
 
 uint32_t IntRegFile::ReadUInt32(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
 
     return m_Entries[regId].u32.value;
 }
 
 void IntRegFile::WriteInt32(int regId, int32_t value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
 
     if (regId != 0)
     {
@@ -60,7 +69,7 @@ void IntRegFile::WriteInt32(int regId, int32_t value)
 
 void IntRegFile::WriteUInt32(int regId, uint32_t value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
     
     if (regId != 0)
     {

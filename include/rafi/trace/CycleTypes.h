@@ -100,17 +100,17 @@ union FpRegNodeUnion
 
 struct FpRegNode
 {
-    FpRegNodeUnion regs[32];
+    FpRegNodeUnion regs[FpRegCount];
 };
 
 struct IntReg32Node
 {
-    uint32_t regs[32];
+    uint32_t regs[IntRegCount];
 };
 
 struct IntReg64Node
 {
-    uint64_t regs[32];
+    uint64_t regs[IntRegCount];
 };
 
 struct Pc32Node

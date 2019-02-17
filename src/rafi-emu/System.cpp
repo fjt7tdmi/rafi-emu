@@ -80,14 +80,19 @@ uint32_t System::GetHostIoValue() const
     return value;
 }
 
+void System::CopyIntReg(trace::IntReg32Node* pOut) const
+{
+    m_Processor.CopyIntReg(pOut);
+}
+
+void System::CopyIntReg(trace::IntReg64Node* pOut) const
+{
+    m_Processor.CopyIntReg(pOut);    
+}
+
 void System::CopyCsr(void* pOut, size_t size) const
 {
     m_Processor.CopyCsr(pOut, size);
-}
-
-void System::CopyIntReg(void* pOut, size_t size) const
-{
-    m_Processor.CopyIntReg(pOut, size);
 }
 
 void System::CopyFpReg(void* pOut, size_t size) const

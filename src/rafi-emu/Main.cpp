@@ -82,7 +82,7 @@ int main(int argc, char** argv)
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
-                dumper.DumpOneCycle(cycle);
+                dumper.DumpCycle(cycle);
             }
 
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_None);

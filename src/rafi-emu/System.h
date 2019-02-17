@@ -47,8 +47,9 @@ public:
 
     uint32_t GetHostIoValue() const;
 
+    void CopyIntReg(trace::IntReg32Node* pOut) const;
+    void CopyIntReg(trace::IntReg64Node* pOut) const;
     void CopyCsr(void* pOut, size_t size) const;
-    void CopyIntReg(void* pOut, size_t size) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyRam(void* pOut, size_t size) const;
     void CopyCsrReadEvent(CsrReadEvent* pOut) const;

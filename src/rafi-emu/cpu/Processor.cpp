@@ -139,14 +139,19 @@ int Processor::GetMemoryAccessEventCount() const
     return m_MemAccessUnit.GetEventCount();
 }
 
+void Processor::CopyIntReg(trace::IntReg32Node* pOut) const
+{
+    m_IntRegFile.Copy(pOut);
+}
+
+void Processor::CopyIntReg(trace::IntReg64Node* pOut) const
+{
+    m_IntRegFile.Copy(pOut);
+}
+
 void Processor::CopyCsr(void* pOut, size_t size) const
 {
     m_Csr.Copy(pOut, size);
-}
-
-void Processor::CopyIntReg(void* pOut, size_t size) const
-{
-    m_IntRegFile.Copy(pOut, size);
 }
 
 void Processor::CopyFpReg(void* pOut, size_t size) const

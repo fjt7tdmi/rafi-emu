@@ -21,6 +21,9 @@
 
 namespace rafi {
 
+const int IntRegCount = 32;
+const int FpRegCount = 32;
+
 enum class XLEN : uint32_t
 {
     XLEN32 = 1,

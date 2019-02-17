@@ -26,8 +26,6 @@ namespace rafi { namespace emu { namespace cpu {
 class FpRegFile
 {
 public:
-    static const int RegCount = 32;
-
     FpRegFile();
 
     void Copy(void* pOut, size_t size) const;
@@ -65,7 +63,7 @@ private:
         } d;
     };
 
-	Entry m_Entries[RegCount];
+	Entry m_Entries[FpRegCount];
 };
 
 }}}
