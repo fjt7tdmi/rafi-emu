@@ -31,6 +31,16 @@ enum class XLEN : uint32_t
     XLEN128 = 3,
 };
 
+enum class AddressTranslationMode : uint32_t
+{
+    Bare = 0,
+    Sv32 = 1,
+    Sv39 = 8,
+    Sv48 = 9,
+    Sv57 = 10,
+    Sv64 = 11,
+};
+
 enum class MemoryAccessType : uint32_t
 {
     Instruction = 0,

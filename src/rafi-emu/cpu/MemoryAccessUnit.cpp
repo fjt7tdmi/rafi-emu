@@ -133,7 +133,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vad
     const auto va = VirtualAddress(virtualAddress);
     const auto satp = m_pCsr->ReadSatp();
 
-    const auto firstTableHead = PageSize * satp.GetMember<satp_t::PPN>();
+    const auto firstTableHead = PageSize * satp.GetMember<satp_t::PPN_RV32>();
     const auto firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
     const auto firstEntry = PageTableEntry(m_pBus->ReadUInt32(firstEntryAddress));
 
@@ -206,9 +206,9 @@ bool MemoryAccessUnit::IsAddresssTranslationEnabled() const
     }
 
     const auto satp = m_pCsr->ReadSatp();
-    const auto mode = static_cast<satp_t::Mode>(satp.GetMember<satp_t::MODE>());
+    const auto mode = static_cast<AddressTranslationMode>(satp.GetMember<satp_t::MODE_RV32>());
 
-    return mode != satp_t::Mode::Bare;
+    return mode != AddressTranslationMode::Bare;
 }
 
 bool MemoryAccessUnit::IsLeafEntry(const PageTableEntry& entry) const
@@ -301,7 +301,7 @@ paddr_t MemoryAccessUnit::ProcessTranslation(vaddr_t virtualAddress, bool isWrit
         const auto va = VirtualAddress(virtualAddress);
         const auto satp = m_pCsr->ReadSatp();
 
-        const paddr_t firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN>();
+        const paddr_t firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN_RV32>();
         const paddr_t firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
         const auto firstEntry = PageTableEntry(m_pBus->ReadUInt32(firstEntryAddress));
 

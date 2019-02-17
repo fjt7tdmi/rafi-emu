@@ -49,7 +49,8 @@ public:
 
     void CopyIntReg(trace::IntReg32Node* pOut) const;
     void CopyIntReg(trace::IntReg64Node* pOut) const;
-    void CopyCsr(void* pOut, size_t size) const;
+    void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
+    void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyRam(void* pOut, size_t size) const;
     void CopyOpEvent(OpEvent* pOut) const;

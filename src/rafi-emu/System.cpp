@@ -90,9 +90,14 @@ void System::CopyIntReg(trace::IntReg64Node* pOut) const
     m_Processor.CopyIntReg(pOut);
 }
 
-void System::CopyCsr(void* pOut, size_t size) const
+void System::CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const
 {
-    m_Processor.CopyCsr(pOut, size);
+    m_Processor.CopyCsr(pOutNodes, nodeCount);
+}
+
+void System::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
+{
+    m_Processor.CopyCsr(pOutNodes, nodeCount);
 }
 
 void System::CopyFpReg(void* pOut, size_t size) const

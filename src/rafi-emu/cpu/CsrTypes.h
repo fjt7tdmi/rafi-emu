@@ -25,7 +25,7 @@
 namespace rafi { namespace emu { namespace cpu {
 
 // Defintion for each register
-struct misa_t : public BitField32
+struct misa_t : public BitField64
 {
     misa_t()
     {
@@ -58,7 +58,8 @@ struct misa_t : public BitField32
     using Y = Member<24>;
     using Z = Member<25>;
 
-    using XLEN = Member<31, 30>;
+    using MXL_RV32 = Member<31, 30>;
+    using MXL_RV64 = Member<63, 62>;
 };
 
 struct mvendorid
@@ -100,17 +101,18 @@ struct fcsr_t : BitField32
 };
 
 // mstatus, sstatus, ustatus
-struct xstatus_t : BitField32
+struct xstatus_t : BitField64
 {
     xstatus_t()
     {
     }
 
-    xstatus_t(uint32_t value) : BitField32(value)
+    xstatus_t(uint32_t value) : BitField64(value)
     {
     }
 
-    using SD    = Member<31>;   // Status Dirty
+    using SD_RV64    = Member<63>;   // Status Dirty
+    using SD_RV32    = Member<31>;   // Status Dirty
 
     using TSR   = Member<22>;   // Trap SRET
     using TW    = Member<21>;   // Timeout Wait
@@ -133,22 +135,24 @@ struct xstatus_t : BitField32
     using SIE   = Member<1>;    // Machine Interrupt Enable
     using UIE   = Member<0>;    // User Interrupt Enable
 
-    static const uint32_t SupervisorMask = SD::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
-    static const uint32_t UserMask = UPIE::Mask | UIE::Mask;
+    static const uint64_t SupervisorMask_RV64 = SD_RV64::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
+    static const uint64_t SupervisorMask_RV32 = SD_RV32::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
+    static const uint64_t UserMask = UPIE::Mask | UIE::Mask;
 };
 
 // mtvec, stvec, utvec
-struct xtvec_t : BitField32
+struct xtvec_t : BitField64
 {
     xtvec_t()
     {
     }
 
-    xtvec_t(uint32_t value) : BitField32(value)
+    xtvec_t(uint32_t value) : BitField64(value)
     {
     }
 
-    using BASE = Member<31, 2>;
+    using BASE_RV32 = Member<31, 2>;
+    using BASE_RV64 = Member<63, 2>;
     using MODE = Member<1, 0>;
 
     enum class Mode : uint32_t
@@ -159,13 +163,13 @@ struct xtvec_t : BitField32
 };
 
 // mip, sip, uip
-struct xip_t : BitField32
+struct xip_t : BitField64
 {
-    xip_t() : BitField32(0)
+    xip_t() : BitField64(0)
     {
     }
 
-    xip_t(uint32_t value) : BitField32(value)
+    xip_t(uint64_t value) : BitField64(value)
     {
     }
 
@@ -179,21 +183,21 @@ struct xip_t : BitField32
     using SSIP = Member<1>;     // Supervisor Software Interrupt Pending
     using USIP = Member<0>;     // User Software Interrupt Pending
 
-    static const uint32_t WriteMask = MEIP::Mask | SEIP::Mask | UEIP::Mask | MSIP::Mask | SSIP::Mask | USIP::Mask;
+    static const uint64_t WriteMask = MEIP::Mask | SEIP::Mask | UEIP::Mask | MSIP::Mask | SSIP::Mask | USIP::Mask;
 
-    static const uint32_t UserMask = UEIP::Mask | UTIP::Mask | USIP::Mask;
-    static const uint32_t SupervisorMask = SEIP::Mask | STIP::Mask | SSIP::Mask | UserMask;
-    static const uint32_t MachineMask =  MEIP::Mask | MTIP::Mask | MSIP::Mask | SupervisorMask;
+    static const uint64_t UserMask = UEIP::Mask | UTIP::Mask | USIP::Mask;
+    static const uint64_t SupervisorMask = SEIP::Mask | STIP::Mask | SSIP::Mask | UserMask;
+    static const uint64_t MachineMask =  MEIP::Mask | MTIP::Mask | MSIP::Mask | SupervisorMask;
 };
 
 // mie, sie, uie
-struct xie_t : BitField32
+struct xie_t : BitField64
 {
-    xie_t() : BitField32(0)
+    xie_t() : BitField64(0)
     {
     }
 
-    xie_t(uint32_t value) : BitField32(value)
+    xie_t(uint64_t value) : BitField64(value)
     {
     }
 
@@ -207,33 +211,31 @@ struct xie_t : BitField32
     using SSIE = Member<1>;     // Supervisor Software Interrupt Enable
     using USIE = Member<0>;     // User Software Interrupt Enable
 
-    static const uint32_t WriteMask = MEIE::Mask | SEIE::Mask | UEIE::Mask | MSIE::Mask | SSIE::Mask | USIE::Mask;
+    static const uint64_t WriteMask = MEIE::Mask | SEIE::Mask | UEIE::Mask | MSIE::Mask | SSIE::Mask | USIE::Mask;
 
-    static const uint32_t UserMask = UEIE::Mask | UTIE::Mask | USIE::Mask;
-    static const uint32_t SupervisorMask = SEIE::Mask | STIE::Mask | SSIE::Mask | UserMask;
-    static const uint32_t MachineMask = MEIE::Mask | MTIE::Mask | MSIE::Mask | SupervisorMask;
+    static const uint64_t UserMask = UEIE::Mask | UTIE::Mask | USIE::Mask;
+    static const uint64_t SupervisorMask = SEIE::Mask | STIE::Mask | SSIE::Mask | UserMask;
+    static const uint64_t MachineMask = MEIE::Mask | MTIE::Mask | MSIE::Mask | SupervisorMask;
 };
 
 // satp
-struct satp_t : BitField32
+struct satp_t : BitField64
 {
-    satp_t() : BitField32(0)
+    satp_t() : BitField64(0)
     {
     }
 
-    satp_t(uint32_t value) : BitField32(value)
+    satp_t(uint64_t value) : BitField64(value)
     {
     }
 
-    using MODE = Member<31>;
-    using ASID = Member<30, 22>;
-    using PPN = Member<21, 0>;
+    using MODE_RV64 = Member<63, 60>;
+    using ASID_RV64 = Member<59, 44>;
+    using PPN_RV64 = Member<43, 0>;
 
-    enum class Mode : uint32_t
-    {
-        Bare = 0,
-        Sv32 = 1,
-    };
+    using MODE_RV32 = Member<31>;
+    using ASID_RV32 = Member<30, 22>;
+    using PPN_RV32 = Member<21, 0>;
 };
 
 }}}

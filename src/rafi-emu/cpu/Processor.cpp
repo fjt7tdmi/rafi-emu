@@ -26,6 +26,16 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
+Processor::Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc)
+    : m_Csr(xlen, initialPc)
+    , m_InterruptController(&m_Csr)
+    , m_TrapProcessor(&m_Csr)
+    , m_Decoder(xlen)
+    , m_Executor(&m_Csr, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
+{
+    m_MemAccessUnit.Initialize(pBus, &m_Csr);
+}
+
 void Processor::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)
 {
     m_InterruptController.RegisterExternalInterruptSource(pInterruptSource);
@@ -125,7 +135,7 @@ void Processor::ProcessOneCycle()
 
 int Processor::GetCsrCount() const
 {
-    return m_Csr.GetRegisterCount();
+    return m_Csr.GetRegCount();
 }
 
 int Processor::GetMemoryAccessEventCount() const
@@ -143,9 +153,14 @@ void Processor::CopyIntReg(trace::IntReg64Node* pOut) const
     m_IntRegFile.Copy(pOut);
 }
 
-void Processor::CopyCsr(void* pOut, size_t size) const
+void Processor::CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const
 {
-    m_Csr.Copy(pOut, size);
+    m_Csr.Copy(pOutNodes, nodeCount);
+}
+
+void Processor::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
+{
+    m_Csr.Copy(pOutNodes, nodeCount);
 }
 
 void Processor::CopyFpReg(void* pOut, size_t size) const

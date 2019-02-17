@@ -116,9 +116,28 @@ const csr_addr_t DumpAddresses[] = {
 
 }
 
-Csr::Csr(vaddr_t initialPc)
-    : m_ProgramCounter(initialPc)
+Csr::Csr(XLEN xlen, vaddr_t initialPc)
+    : m_XLEN(xlen)
+    , m_ProgramCounter(initialPc)
 {
+    m_ISA.SetMember<misa_t::I>(1)
+         .SetMember<misa_t::M>(1)
+         .SetMember<misa_t::A>(1)
+         .SetMember<misa_t::F>(1)
+         .SetMember<misa_t::D>(1)
+         .SetMember<misa_t::C>(1);
+
+    switch (m_XLEN)
+    {
+    case XLEN::XLEN32:
+        m_ISA.SetMember<misa_t::MXL_RV32>(static_cast<uint32_t>(XLEN::XLEN32));
+        break;
+    case XLEN::XLEN64:
+        m_ISA.SetMember<misa_t::MXL_RV64>(static_cast<uint32_t>(XLEN::XLEN64));
+        break;
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
 }
 
 vaddr_t Csr::GetProgramCounter() const
@@ -230,8 +249,12 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     return std::nullopt;
 }
 
-
 uint32_t Csr::ReadUInt32(csr_addr_t addr) const
+{
+    return static_cast<uint32_t>(ReadUInt64(addr));
+}
+
+uint64_t Csr::ReadUInt64(csr_addr_t addr) const
 {
     if (IsMachineModeRegister(addr))
     {
@@ -253,6 +276,11 @@ uint32_t Csr::ReadUInt32(csr_addr_t addr) const
 }
 
 void Csr::WriteUInt32(csr_addr_t addr, uint32_t value)
+{
+    WriteUInt64(addr, static_cast<uint32_t>(value));
+}
+
+void Csr::WriteUInt64(csr_addr_t addr, uint64_t value)
 {
     if (IsMachineModeRegister(addr))
     {
@@ -328,7 +356,7 @@ bool Csr::IsMachineModeRegister(csr_addr_t addr) const
     return ((static_cast<uint32_t>(addr) >> 8) & 0b11) == 0b11;
 }
 
-uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
+uint64_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -341,12 +369,7 @@ uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     case csr_addr_t::mstatus:
         return m_Status;
     case csr_addr_t::misa:
-    {
-        misa_t value;
-        return value
-            .SetMember<misa_t::XLEN>(static_cast<uint32_t>(XLEN::XLEN32))
-            .SetMember<misa_t::I>(1);
-    }
+        return m_ISA;
     case csr_addr_t::medeleg:
         return m_MachineExceptionDelegation;
     case csr_addr_t::mideleg:
@@ -373,14 +396,6 @@ uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     case csr_addr_t::pmpcfg3:
         // TODO: Implement PMP
         return 0;
-    case csr_addr_t::mcycle:
-        return GetLow32(m_CycleCounter);
-    case csr_addr_t::minstret:
-        return GetLow32(m_InstructionRetiredCounter);
-    case csr_addr_t::mcycleh:
-        return GetHigh32(m_CycleCounter);
-    case csr_addr_t::minstreth:
-        return GetHigh32(m_InstructionRetiredCounter);
     case csr_addr_t::mvendorid:
         return mvendorid::NonCommercial;
     case csr_addr_t::marchid:
@@ -390,17 +405,55 @@ uint32_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     case csr_addr_t::mhartid:
         return 0;
     default:
-        PrintRegisterUnimplementedMessage(addr);
-        return 0;
+        if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN32)
+        {
+            return GetLow32(m_CycleCounter);
+        }
+        else if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN64)
+        {
+            return m_CycleCounter;
+        }
+        else if (addr == csr_addr_t::minstret && m_XLEN == XLEN::XLEN32)
+        {
+            return GetLow32(m_InstructionRetiredCounter);
+        }
+        else if (addr == csr_addr_t::minstret && m_XLEN == XLEN::XLEN64)
+        {
+            return m_InstructionRetiredCounter;
+        }
+        else if (addr == csr_addr_t::mcycleh && m_XLEN == XLEN::XLEN32)
+        {
+            return GetHigh32(m_CycleCounter);
+        }
+        else if (addr == csr_addr_t::minstreth && m_XLEN == XLEN::XLEN32)
+        {
+            return GetHigh32(m_InstructionRetiredCounter);            
+        }
+        else
+        {
+            PrintRegisterUnimplementedMessage(addr);
+            return 0;
+        }
     }
 }
 
-uint32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
+uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
     case csr_addr_t::sstatus:
-        return m_Status.GetWithMask(xstatus_t::SupervisorMask);
+        if (m_XLEN == XLEN::XLEN32)
+        {
+            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV32);
+        }
+        else if (m_XLEN == XLEN::XLEN64)
+        {
+            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV64);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }        
     case csr_addr_t::sedeleg:
         return m_SupervisorExceptionDelegation;
     case csr_addr_t::sideleg:
@@ -429,7 +482,7 @@ uint32_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     }
 }
 
-uint32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
+uint64_t Csr::ReadUserModeRegister(csr_addr_t addr) const
 {
     switch (addr)
     {
@@ -455,25 +508,52 @@ uint32_t Csr::ReadUserModeRegister(csr_addr_t addr) const
         return m_UserTrapValue;
     case csr_addr_t::uip:
         return m_InterruptPending.GetWithMask(xip_t::UserMask);
-    case csr_addr_t::cycle:
-        return GetLow32(m_CycleCounter);
-    case csr_addr_t::time:
-        return GetLow32(m_TimeCounter);
-    case csr_addr_t::instret:
-        return GetLow32(m_InstructionRetiredCounter);
-    case csr_addr_t::cycleh:
-        return GetHigh32(m_CycleCounter);
-    case csr_addr_t::timeh:
-        return GetHigh32(m_TimeCounter);
-    case csr_addr_t::instreth:
-        return GetHigh32(m_InstructionRetiredCounter);
     default:
-        PrintRegisterUnimplementedMessage(addr);
-        return 0;
+        if (addr == csr_addr_t::cycle && m_XLEN == XLEN::XLEN32)
+        {
+            return GetLow32(m_CycleCounter);
+        }
+        else if (addr == csr_addr_t::cycle && m_XLEN == XLEN::XLEN64)
+        {
+            return m_CycleCounter;
+        }
+        else if (addr == csr_addr_t::time && m_XLEN == XLEN::XLEN32)
+        {
+            return GetLow32(m_CycleCounter);
+        }
+        else if (addr == csr_addr_t::time && m_XLEN == XLEN::XLEN64)
+        {
+            return m_TimeCounter;
+        }
+        else if (addr == csr_addr_t::instret && m_XLEN == XLEN::XLEN32)
+        {
+            return GetLow32(m_InstructionRetiredCounter);
+        }
+        else if (addr == csr_addr_t::instret && m_XLEN == XLEN::XLEN64)
+        {
+            return m_InstructionRetiredCounter;
+        }
+        else if (addr == csr_addr_t::cycleh && m_XLEN == XLEN::XLEN32)
+        {
+            return GetHigh32(m_CycleCounter);
+        }
+        else if (addr == csr_addr_t::timeh && m_XLEN == XLEN::XLEN32)
+        {
+            return GetHigh32(m_TimeCounter);
+        }
+        else if (addr == csr_addr_t::instreth && m_XLEN == XLEN::XLEN32)
+        {
+            return GetHigh32(m_InstructionRetiredCounter);            
+        }
+        else
+        {
+            PrintRegisterUnimplementedMessage(addr);
+            return 0;
+        }
 	}
 }
 
-void Csr::WriteMachineModeRegister(csr_addr_t addr, uint32_t value)
+void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
 {
     if (csr_addr_t::pmpaddr_begin <= addr && addr < csr_addr_t::pmpaddr_end)
     {
@@ -522,33 +602,59 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint32_t value)
     case csr_addr_t::pmpcfg3:
         // TODO: Implement PMP
         return;
-    case csr_addr_t::mcycle:
-        SetLow32(&m_CycleCounter, value);
-        return;
-    case csr_addr_t::minstret:
-        SetLow32(&m_InstructionRetiredCounter, value);
-        return;
-    case csr_addr_t::mcycleh:
-        SetHigh32(&m_CycleCounter, value);
-        return;
-    case csr_addr_t::minstreth:
-        SetHigh32(&m_InstructionRetiredCounter, value);
-        return;
     case csr_addr_t::mhartid:
         // Suppress warning by writing to mhartid
         return;
     default:
-        PrintRegisterUnimplementedMessage(addr);
+        if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN32)
+        {
+            SetLow32(&m_CycleCounter, value);
+        }
+        else if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN64)
+        {
+            m_CycleCounter = value;
+        }
+        else if (addr == csr_addr_t::minstret && m_XLEN == XLEN::XLEN32)
+        {
+            SetLow32(&m_InstructionRetiredCounter, value);
+        }
+        else if (addr == csr_addr_t::minstret && m_XLEN == XLEN::XLEN64)
+        {
+            m_InstructionRetiredCounter = value;
+        }
+        else if (addr == csr_addr_t::mcycleh && m_XLEN == XLEN::XLEN32)
+        {
+            SetHigh32(&m_CycleCounter, value);
+        }
+        else if (addr == csr_addr_t::minstreth && m_XLEN == XLEN::XLEN32)
+        {
+            SetHigh32(&m_InstructionRetiredCounter, value);
+        }
+        else
+        {
+            PrintRegisterUnimplementedMessage(addr);
+        }
         return;
     }
 }
 
-void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint32_t value)
+void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint64_t value)
 {
     switch(addr)
     {
     case csr_addr_t::sstatus:
-        m_Status.SetWithMask(value, xstatus_t::SupervisorMask);
+        if (m_XLEN == XLEN::XLEN32)
+        {
+            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV32);
+        }
+        else if (m_XLEN == XLEN::XLEN64)
+        {
+            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV64);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }        
         return;
     case csr_addr_t::sedeleg:
         m_SupervisorExceptionDelegation = value;
@@ -589,7 +695,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint32_t value)
     }
 }
 
-void Csr::WriteUserModeRegister(csr_addr_t addr, uint32_t value)
+void Csr::WriteUserModeRegister(csr_addr_t addr, uint64_t value)
 {
     switch (addr)
     {
@@ -597,13 +703,13 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, uint32_t value)
         m_Status.SetWithMask(value, xstatus_t::UserMask);
         return;
     case csr_addr_t::fflags:
-        m_FpCsr.SetMember<fcsr_t::AE>(value);
+        m_FpCsr.SetMember<fcsr_t::AE>(static_cast<uint32_t>(value));
         return;
     case csr_addr_t::frm:
-        m_FpCsr.SetMember<fcsr_t::RM>(value);
+        m_FpCsr.SetMember<fcsr_t::RM>(static_cast<uint32_t>(value));
         return;
     case csr_addr_t::fcsr:
-        m_FpCsr.SetWithMask(value, fcsr_t::UserMask);
+        m_FpCsr.SetWithMask(static_cast<uint32_t>(value), fcsr_t::UserMask);
         return;
     case csr_addr_t::uie:
         m_InterruptEnable.SetWithMask(value, xie_t::UserMask);
@@ -626,26 +732,47 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, uint32_t value)
     case csr_addr_t::uip:
         m_InterruptPending.SetWithMask(value, xip_t::WriteMask & xip_t::UserMask);
         return;
-    case csr_addr_t::cycle:
-        SetLow32(&m_CycleCounter, value);
-        return;
-    case csr_addr_t::time:
-        SetLow32(&m_TimeCounter, value);
-        return;
-    case csr_addr_t::instret:
-        SetLow32(&m_InstructionRetiredCounter, value);
-        return;
-    case csr_addr_t::cycleh:
-        SetHigh32(&m_CycleCounter, value);
-        return;
-    case csr_addr_t::timeh:
-        SetHigh32(&m_TimeCounter, value);
-        return;
-    case csr_addr_t::instreth:
-        SetHigh32(&m_InstructionRetiredCounter, value);
-        return;
     default:
-        PrintRegisterUnimplementedMessage(addr);
+        if (addr == csr_addr_t::cycle && m_XLEN == XLEN::XLEN32)
+        {
+            SetLow32(&m_CycleCounter, value);
+        }
+        else if (addr == csr_addr_t::cycle && m_XLEN == XLEN::XLEN64)
+        {
+            m_CycleCounter = value;
+        }
+        else if (addr == csr_addr_t::time && m_XLEN == XLEN::XLEN32)
+        {
+            SetLow32(&m_TimeCounter, value);
+        }
+        else if (addr == csr_addr_t::time && m_XLEN == XLEN::XLEN64)
+        {
+            m_TimeCounter = value;
+        }
+        else if (addr == csr_addr_t::instret && m_XLEN == XLEN::XLEN32)
+        {
+            SetLow32(&m_InstructionRetiredCounter, value);
+        }
+        else if (addr == csr_addr_t::instret && m_XLEN == XLEN::XLEN64)
+        {
+            m_InstructionRetiredCounter = value;
+        }
+        else if (addr == csr_addr_t::cycleh && m_XLEN == XLEN::XLEN32)
+        {
+            SetHigh32(&m_CycleCounter, value);
+        }
+        else if (addr == csr_addr_t::timeh && m_XLEN == XLEN::XLEN32)
+        {
+            SetHigh32(&m_CycleCounter, value);
+        }
+        else if (addr == csr_addr_t::instreth && m_XLEN == XLEN::XLEN32)
+        {
+            SetHigh32(&m_InstructionRetiredCounter, value);
+        }
+        else
+        {
+            PrintRegisterUnimplementedMessage(addr);
+        }
         return;
     }
 }
@@ -683,21 +810,30 @@ void Csr::PrintRegisterUnimplementedMessage(csr_addr_t addr) const
     printf("Detect unimplemented CSR access (addr=0x%03x).\n", static_cast<int>(addr));
 }
 
-int Csr::GetRegisterCount() const
+int Csr::GetRegCount() const
 {
     return sizeof(DumpAddresses) / sizeof(DumpAddresses[0]);
 }
 
-void Csr::Copy(void* pOut, size_t size) const
+void Csr::Copy(trace::Csr32Node* pOutNodes, int nodeCount) const
 {
-    assert(size != GetRegisterCount() * sizeof(Csr32Node));
+    assert(nodeCount != GetRegCount());
 
-    auto nodes = reinterpret_cast<Csr32Node*>(pOut);
-
-    for (int i = 0; i < GetRegisterCount(); i++)
+    for (int i = 0; i < GetRegCount(); i++)
     {
-        nodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
-        nodes[i].value = ReadUInt32(DumpAddresses[i]);
+        pOutNodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
+        pOutNodes[i].value = ReadUInt32(DumpAddresses[i]);
+    }
+}
+
+void Csr::Copy(trace::Csr64Node* pOutNodes, int nodeCount) const
+{
+    assert(nodeCount != GetRegCount());
+
+    for (int i = 0; i < GetRegCount(); i++)
+    {
+        pOutNodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
+        pOutNodes[i].value = ReadUInt64(DumpAddresses[i]);
     }
 }
 

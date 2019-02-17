@@ -171,10 +171,10 @@ void TraceDumper::DumpCycle32(int cycle)
     // Csr32Node
     if (m_EnableDumpCsr)
     {
-        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Csr32));
-        auto buffer = builder.GetPointerToNode(NodeType::Csr32);
+        auto pNode = reinterpret_cast<Csr32Node*>(builder.GetPointerToNode(NodeType::Csr32));
+        auto nodeCount = static_cast<int>(builder.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
 
-        m_pSystem->CopyCsr(buffer, size);
+        m_pSystem->CopyCsr(pNode, nodeCount);
     }
 
     // MemoryAccessNode
@@ -303,14 +303,13 @@ void TraceDumper::DumpCycle64(int cycle)
     // Csr64Node
     if (m_EnableDumpCsr)
     {
-        const auto size = static_cast<size_t>(builder.GetNodeSize(NodeType::Csr64));
-        auto buffer = builder.GetPointerToNode(NodeType::Csr64);
+        auto pNode = reinterpret_cast<Csr64Node*>(builder.GetPointerToNode(NodeType::Csr64));
+        auto nodeCount = static_cast<int>(builder.GetNodeSize(NodeType::Csr64) / sizeof(Csr64Node));
 
-        m_pSystem->CopyCsr(buffer, size);
+        m_pSystem->CopyCsr(pNode, nodeCount);
     }
 
     // MemoryAccessNode
-    // TODO: optimize (values are double copied now)
     for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
     {
         MemoryAccessEvent memoryAccessEvent;

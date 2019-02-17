@@ -195,7 +195,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
         RAFI_EMU_NOT_IMPLEMENTED();
     }
 
-    int32_t base = trapVector.GetWithMask(xtvec_t::BASE::Mask);
+    int32_t base = trapVector.GetWithMask(xtvec_t::BASE_RV32::Mask);
     int32_t mode = trapVector.GetMember<xtvec_t::MODE>();
 
     if (isInterrupt && mode == static_cast<int32_t>(xtvec_t::Mode::Vectored))
