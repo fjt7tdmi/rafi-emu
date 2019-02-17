@@ -19,6 +19,7 @@
 #include <iostream>
 #include <variant>
 
+#include "RvCsr.h"
 #include "RvTypes.h"
 
 namespace rafi {

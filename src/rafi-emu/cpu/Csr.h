@@ -21,7 +21,6 @@
 
 #include <rafi/emu.h>
 
-#include "CsrTypes.h"
 #include "Trap.h"
 
 namespace rafi { namespace emu { namespace cpu {

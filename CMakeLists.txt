@@ -53,6 +53,8 @@ add_library(librafi_common
     include/rafi/common/OpApi.h
     include/rafi/common/OpTypes.h
     include/rafi/common/RvApi.h
+    include/rafi/common/RvCsr.h
+    include/rafi/common/RvPageTable.h
     include/rafi/common/RvTypes.h
     src/librafi_common/Decoder.cpp
     src/librafi_common/DecoderImpl.cpp
@@ -270,7 +272,6 @@ add_executable(rafi-emu
     src/rafi-emu/bus/Bus.h
     src/rafi-emu/cpu/Csr.cpp
     src/rafi-emu/cpu/Csr.h
-    src/rafi-emu/cpu/CsrTypes.h
     src/rafi-emu/cpu/Executor.cpp
     src/rafi-emu/cpu/Executor.h
     src/rafi-emu/cpu/FpRegFile.cpp
