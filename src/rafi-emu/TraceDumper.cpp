@@ -178,7 +178,6 @@ void TraceDumper::DumpCycle32(int cycle)
     }
 
     // MemoryAccessNode
-    // TODO: optimize (values are double copied now)
     for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
     {
         MemoryAccessEvent memoryAccessEvent;

@@ -23,159 +23,117 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
-namespace {
-    const int PageSize = 1 << 12;
-    const int MegaPageSize = 1 << 22;
-    const int PageTableEntrySize = 4;
-
-    class VirtualAddress : public BitField32
-    {
-    public:
-        explicit VirtualAddress(uint32_t value)
-            : BitField32(static_cast<uint32_t>(value))
-        {
-        }
-
-        using Offset = Member<11, 0>;
-        using MegaOffset = Member<21, 0>;
-        using VirtualPageNumber0 = Member<21, 12>;
-        using VirtualPageNumber1 = Member<31, 22>;
-    };
+MemoryAccessUnit::MemoryAccessUnit(XLEN xlen)
+    : m_XLEN(xlen)
+{
+    m_Events.clear();
 }
 
-uint8_t MemoryAccessUnit::LoadUInt8(vaddr_t virtualAddress)
+void MemoryAccessUnit::Initialize(bus::Bus* pBus, Csr* pCsr)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    m_pBus = pBus;
+    m_pCsr = pCsr;
+}
+
+uint8_t MemoryAccessUnit::LoadUInt8(vaddr_t addr)
+{
+    const auto physicalAddress = Translate(addr, false);
     const auto value = m_pBus->ReadUInt8(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, physicalAddress);
 
     return value;
 }
 
-uint16_t MemoryAccessUnit::LoadUInt16(vaddr_t virtualAddress)
+uint16_t MemoryAccessUnit::LoadUInt16(vaddr_t addr)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto physicalAddress = Translate(addr, false);
     const auto value = m_pBus->ReadUInt16(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, physicalAddress);
 
     return value;
 }
 
-uint32_t MemoryAccessUnit::LoadUInt32(vaddr_t virtualAddress)
+uint32_t MemoryAccessUnit::LoadUInt32(vaddr_t addr)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto physicalAddress = Translate(addr, false);
     const auto value = m_pBus->ReadUInt32(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, physicalAddress);
 
     return value;
 }
 
-uint64_t MemoryAccessUnit::LoadUInt64(vaddr_t virtualAddress)
+uint64_t MemoryAccessUnit::LoadUInt64(vaddr_t addr)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, false);
+    const auto physicalAddress = Translate(addr, false);
     const auto value = m_pBus->ReadUInt64(physicalAddress);
 
-    AddEvent(MemoryAccessType::Load, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, physicalAddress);
 
     return value;
 }
 
-void MemoryAccessUnit::StoreUInt8(vaddr_t virtualAddress, uint8_t value)
+void MemoryAccessUnit::StoreUInt8(vaddr_t addr, uint8_t value)
 {
-    auto physicalAddress = ProcessTranslation(virtualAddress, true);
+    auto physicalAddress = Translate(addr, true);
     m_pBus->WriteUInt8(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt16(vaddr_t virtualAddress, uint16_t value)
+void MemoryAccessUnit::StoreUInt16(vaddr_t addr, uint16_t value)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, true);
+    const auto physicalAddress = Translate(addr, true);
     m_pBus->WriteUInt16(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt32(vaddr_t virtualAddress, uint32_t value)
+void MemoryAccessUnit::StoreUInt32(vaddr_t addr, uint32_t value)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, true);
+    const auto physicalAddress = Translate(addr, true);
     m_pBus->WriteUInt32(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt64(vaddr_t virtualAddress, uint64_t value)
+void MemoryAccessUnit::StoreUInt64(vaddr_t addr, uint64_t value)
 {
-    const auto physicalAddress = ProcessTranslation(virtualAddress, true);
+    const auto physicalAddress = Translate(addr, true);
     m_pBus->WriteUInt64(physicalAddress, value);
 
-    AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
+    AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, physicalAddress);
 }
 
-uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t virtualAddress)
+uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t addr)
 {
-    *outPhysicalAddress = ProcessTranslation(virtualAddress, false);
+    *outPhysicalAddress = Translate(addr, false);
     return m_pBus->ReadUInt32(*outPhysicalAddress);
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
     // TODO: Implement Physical Memory Protection (PMP)
 
-    if (!IsAddresssTranslationEnabled())
+    switch (GetAddresssTranslationMode())
     {
+    case AddressTranslationMode::Bare:
         return std::nullopt;
+    case AddressTranslationMode::Sv32:
+        return CheckTrapSv32(accessType, pc, addr);
+    case AddressTranslationMode::Sv39:
+        return CheckTrapSv39(accessType, pc, addr);
+    case AddressTranslationMode::Sv48:
+        return CheckTrapSv48(accessType, pc, addr);
+    case AddressTranslationMode::Sv57:
+        return CheckTrapSv57(accessType, pc, addr);
+    case AddressTranslationMode::Sv64:
+        return CheckTrapSv64(accessType, pc, addr);
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
-
-    const auto va = VirtualAddress(virtualAddress);
-    const auto satp = m_pCsr->ReadSatp();
-
-    const auto firstTableHead = PageSize * satp.GetMember<satp_t::PPN_RV32>();
-    const auto firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
-    const auto firstEntry = PageTableEntry(m_pBus->ReadUInt32(firstEntryAddress));
-
-    const auto firstTrap = CheckTrapForEntry(firstEntry, accessType, pc, virtualAddress);
-    if (firstTrap)
-    {
-        return firstTrap;
-    }
-
-    if (IsLeafEntry(firstEntry))
-    {
-        const auto leafTrap = CheckTrapForLeafEntry(firstEntry, accessType, pc, virtualAddress);
-        if (leafTrap)
-        {
-            return leafTrap;
-        }
-
-        if (firstEntry.GetMember<PageTableEntry::PhysicalPageNumber0>() != 0)
-        {
-            return MakeTrap(accessType, pc, virtualAddress);
-        }
-    }
-    else
-    {
-        const auto secondTableHead = PageSize * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
-        const auto secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
-        const auto secondEntry = PageTableEntry(m_pBus->ReadUInt32(secondEntryAddress));
-
-        const auto secondTrap = CheckTrapForEntry(secondEntry, accessType, pc, virtualAddress);
-        if (secondTrap)
-        {
-            return secondTrap;
-        }
-
-        const auto leafTrap = CheckTrapForLeafEntry(secondEntry, accessType, pc, virtualAddress);
-        if (leafTrap)
-        {
-            return leafTrap;
-        }
-    }
-
-    return std::nullopt;
 }
 
 void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int size, uint64_t value, vaddr_t vaddr, paddr_t paddr)
@@ -198,35 +156,119 @@ int MemoryAccessUnit::GetEventCount() const
     return m_Events.size();
 }
 
-bool MemoryAccessUnit::IsAddresssTranslationEnabled() const
+AddressTranslationMode MemoryAccessUnit::GetAddresssTranslationMode() const
 {
     if (m_pCsr->GetPrivilegeLevel() == PrivilegeLevel::Machine)
     {
-        return false;
+        return AddressTranslationMode::Bare;
     }
 
     const auto satp = m_pCsr->ReadSatp();
-    const auto mode = static_cast<AddressTranslationMode>(satp.GetMember<satp_t::MODE_RV32>());
 
-    return mode != AddressTranslationMode::Bare;
-}
-
-bool MemoryAccessUnit::IsLeafEntry(const PageTableEntry& entry) const
-{
-    return entry.GetMember<PageTableEntry::Read>() || entry.GetMember<PageTableEntry::Execute>();
-}
-
-std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
-{
-    if (!entry.GetMember<PageTableEntry::Valid>() || (!entry.GetMember<PageTableEntry::Read>() && entry.GetMember<PageTableEntry::Write>()))
+    switch (m_XLEN)
     {
-        return MakeTrap(accessType, pc, virtualAddress);
+    case XLEN::XLEN32:
+        return static_cast<AddressTranslationMode>(satp.GetMember<satp_t::MODE_RV32>());
+    case XLEN::XLEN64:
+        return static_cast<AddressTranslationMode>(satp.GetMember<satp_t::MODE_RV64>());
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    const auto va = VirtualAddressSv32(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    const auto tableAddr1 = PageTableEntrySv32::PageSize * satp.GetMember<satp_t::PPN_RV32>();
+    const auto entryAddr1 = tableAddr1 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN1>();
+    const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
+
+    const auto trap1 = CheckTrapForEntry(entry1, accessType, pc, addr);
+    if (trap1)
+    {
+        return trap1;
+    }
+
+    if (IsLeafEntry(entry1))
+    {
+        const auto trapLeaf = CheckTrapForLeafEntry(entry1, accessType, pc, addr);
+        if (trapLeaf)
+        {
+            return trapLeaf;
+        }
+
+        if (entry1.GetMember<PageTableEntrySv32::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    const auto tableAddr2 = PageTableEntrySv32::PageSize * entry1.GetMember<PageTableEntrySv32::PPN>();
+    const auto entryAddr2 = tableAddr2 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN0>();
+    const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
+
+    const auto trap2 = CheckTrapForEntry(entry2, accessType, pc, addr);
+    if (trap2)
+    {
+        return trap2;
+    }
+
+    const auto trapLeaf = CheckTrapForLeafEntry(entry2, accessType, pc, addr);
+    if (trapLeaf)
+    {
+        return trapLeaf;
     }
 
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    (void)accessType;
+    (void)pc;
+    (void)addr;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    (void)accessType;
+    (void)pc;
+    (void)addr;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    (void)accessType;
+    (void)pc;
+    (void)addr;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    (void)accessType;
+    (void)pc;
+    (void)addr;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+{
+    if (!entry.GetMember<PageTableEntrySv32::V>() || (!entry.GetMember<PageTableEntrySv32::R>() && entry.GetMember<PageTableEntrySv32::W>()))
+    {
+        return MakeTrap(accessType, pc, addr);
+    }
+
+    return std::nullopt;
+}
+
+std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
     const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
     const auto status = m_pCsr->ReadStatus();
@@ -237,15 +279,15 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
     switch (privilegeLevel)
     {
     case PrivilegeLevel::Supervisor:
-        if (!supervisorCanAccessUserMemory && entry.GetMember<PageTableEntry::User>())
+        if (!supervisorCanAccessUserMemory && entry.GetMember<PageTableEntrySv32::U>())
         {
-            return MakeTrap(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, addr);
         }
         break;
     case PrivilegeLevel::User:
-        if (!entry.GetMember<PageTableEntry::User>())
+        if (!entry.GetMember<PageTableEntrySv32::U>())
         {
-            return MakeTrap(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, addr);
         }
         break;
     default:
@@ -255,21 +297,21 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
     switch (accessType)
     {
     case MemoryAccessType::Instruction:
-        if (!entry.GetMember<PageTableEntry::Execute>())
+        if (!entry.GetMember<PageTableEntrySv32::E>())
         {
-            return MakeTrap(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, addr);
         }
         break;
     case MemoryAccessType::Load:
-        if (!entry.GetMember<PageTableEntry::Read>() && !(makeExecutableReadable && entry.GetMember<PageTableEntry::Execute>()))
+        if (!entry.GetMember<PageTableEntrySv32::R>() && !(makeExecutableReadable && entry.GetMember<PageTableEntrySv32::E>()))
         {
-            return MakeTrap(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, addr);
         }
         break;
     case MemoryAccessType::Store:
-        if (!entry.GetMember<PageTableEntry::Write>())
+        if (!entry.GetMember<PageTableEntrySv32::W>())
         {
-            return MakeTrap(accessType, pc, virtualAddress);
+            return MakeTrap(accessType, pc, addr);
         }
         break;
     default:
@@ -279,65 +321,121 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
     switch (accessType)
     {
     case MemoryAccessType::Instruction:
         return MakeInstructionPageFaultException(pc);
     case MemoryAccessType::Load:
-        return MakeLoadPageFaultException(pc, virtualAddress);
+        return MakeLoadPageFaultException(pc, addr);
     case MemoryAccessType::Store:
-        return MakeStorePageFaultException(pc, virtualAddress);
+        return MakeStorePageFaultException(pc, addr);
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
     }
 }
 
-paddr_t MemoryAccessUnit::ProcessTranslation(vaddr_t virtualAddress, bool isWrite)
+paddr_t MemoryAccessUnit::Translate(vaddr_t addr, bool isWrite)
 {
-    if (IsAddresssTranslationEnabled())
+    switch (GetAddresssTranslationMode())
     {
-        const auto va = VirtualAddress(virtualAddress);
-        const auto satp = m_pCsr->ReadSatp();
-
-        const paddr_t firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN_RV32>();
-        const paddr_t firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
-        const auto firstEntry = PageTableEntry(m_pBus->ReadUInt32(firstEntryAddress));
-
-        if (IsLeafEntry(firstEntry))
+    case AddressTranslationMode::Bare:
+        if (m_XLEN == XLEN::XLEN32)
         {
-            UpdateEntry(firstEntryAddress, isWrite);
-
-            return MegaPageSize * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber1>() + va.GetMember<VirtualAddress::MegaOffset>();
+            return addr & 0x00000000ffffffff;
         }
         else
         {
-            const paddr_t secondTableHead = static_cast<uint64_t>(PageSize) * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
-            const paddr_t secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
-            const auto secondEntry = PageTableEntry(m_pBus->ReadUInt32(secondEntryAddress));
-
-            UpdateEntry(secondEntryAddress, isWrite);
-
-            return PageSize * secondEntry.GetMember<PageTableEntry::PhysicalPageNumber>() + va.GetMember<VirtualAddress::Offset>();
+            return static_cast<uint64_t>(addr);
         }
+    case AddressTranslationMode::Sv32:
+        return TranslateSv32(addr, isWrite);
+    case AddressTranslationMode::Sv39:
+        return TranslateSv39(addr, isWrite);
+    case AddressTranslationMode::Sv48:
+        return TranslateSv48(addr, isWrite);
+    case AddressTranslationMode::Sv57:
+        return TranslateSv57(addr, isWrite);
+    case AddressTranslationMode::Sv64:
+        return TranslateSv64(addr, isWrite);
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
-    else
+}
+
+paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
+{
+    const auto va = VirtualAddressSv32(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    const paddr_t tableAddr1 = static_cast<uint64_t>(PageTableEntrySv32::PageSize) * satp.GetMember<satp_t::PPN_RV32>();
+    const paddr_t entryAddr1 = tableAddr1 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN1>();
+    const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
+
+    if (IsLeafEntry(entry1))
     {
-        return 0x00000000ffffffff & virtualAddress;
+        UpdateEntry(entryAddr1, isWrite);
+
+        const auto result = PageTableEntrySv32::MegaPageSize * entry1.GetMember<PageTableEntrySv32::PPN1>() + va.GetMember<VirtualAddressSv32::Offset_L1>();
+
+        return result & 0x00000000ffffffff;
     }
+
+    const paddr_t tableAddr2 = static_cast<uint64_t>(PageTableEntrySv32::PageSize) * entry1.GetMember<PageTableEntrySv32::PPN>();
+    const paddr_t entryAddr2 = tableAddr2 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN0>();
+    const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
+
+    UpdateEntry(entryAddr2, isWrite);
+
+    const auto result = PageTableEntrySv32::PageSize * entry2.GetMember<PageTableEntrySv32::PPN>() + va.GetMember<VirtualAddressSv32::Offset>();
+
+    return result & 0x00000000ffffffff;
+}
+
+paddr_t MemoryAccessUnit::TranslateSv39(vaddr_t addr, bool isWrite)
+{
+    (void)addr;
+    (void)isWrite;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+paddr_t MemoryAccessUnit::TranslateSv48(vaddr_t addr, bool isWrite)
+{
+    (void)addr;
+    (void)isWrite;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+paddr_t MemoryAccessUnit::TranslateSv57(vaddr_t addr, bool isWrite)
+{
+    (void)addr;
+    (void)isWrite;
+    RAFI_EMU_NOT_IMPLEMENTED();
+}
+
+paddr_t MemoryAccessUnit::TranslateSv64(vaddr_t addr, bool isWrite)
+{
+    (void)addr;
+    (void)isWrite;
+    RAFI_EMU_NOT_IMPLEMENTED();
 }
 
 void MemoryAccessUnit::UpdateEntry(paddr_t entryAddress, bool isWrite)
 {
-    auto entry = PageTableEntry(m_pBus->ReadUInt32(entryAddress));
+    auto entry = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddress));
 
-    entry.SetMember<PageTableEntry::Accessed>(1);
+    entry.SetMember<PageTableEntrySv32::A>(1);
     if (isWrite)
     {
-        entry.SetMember<PageTableEntry::Dirty>(1);
+        entry.SetMember<PageTableEntrySv32::D>(1);
     }
     m_pBus->WriteUInt32(entryAddress, entry.GetValue());
+}
+
+bool MemoryAccessUnit::IsLeafEntry(const PageTableEntrySv32& entry) const
+{
+    return entry.GetMember<PageTableEntrySv32::R>() || entry.GetMember<PageTableEntrySv32::E>();
 }
 
 }}}

@@ -26,4 +26,5 @@
 #include "common/OpApi.h"
 #include "common/OpTypes.h"
 #include "common/RvApi.h"
+#include "common/RvPageTable.h"
 #include "common/RvTypes.h"
