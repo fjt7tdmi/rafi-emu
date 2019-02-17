@@ -193,16 +193,16 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     switch (op.opCode)
     {
     case OpCode::lui:
-        ProcessLui(op);
+        ProcessRV32I_Lui(op);
         return;
     case OpCode::auipc:
-        ProcessAuipc(op, pc);
+        ProcessRV32I_Auipc(op, pc);
         return;
     case OpCode::jal:
-        ProcessJal(op, pc);
+        ProcessRV32I_Jal(op, pc);
         return;
     case OpCode::jalr:
-        ProcessJalr(op, pc);
+        ProcessRV32I_Jalr(op, pc);
         return;
     case OpCode::beq:
     case OpCode::bne:
@@ -210,19 +210,19 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::bge:
     case OpCode::bltu:
     case OpCode::bgeu:
-        ProcessBranch(op, pc);
+        ProcessRV32I_Branch(op, pc);
         return;
     case OpCode::lb:
     case OpCode::lh:
     case OpCode::lw:
     case OpCode::lbu:
     case OpCode::lhu:
-        ProcessLoad(op);
+        ProcessRV32I_Load(op);
         return;
     case OpCode::sb:
     case OpCode::sh:
     case OpCode::sw:
-        ProcessStore(op);
+        ProcessRV32I_Store(op);
         return;
     case OpCode::addi:
     case OpCode::slti:
@@ -230,17 +230,17 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::xori:
     case OpCode::ori:
     case OpCode::andi:
-        ProcessAluImm(op);
+        ProcessRV32I_AluImm(op);
         return;
     case OpCode::sll:
     case OpCode::srl:
     case OpCode::sra:
-        ProcessShift(op);
+        ProcessRV32I_Shift(op);
         return;
     case OpCode::slli:
     case OpCode::srli:
     case OpCode::srai:
-        ProcessShiftImm(op);
+        ProcessRV32I_ShiftImm(op);
         return;
     case OpCode::add:
     case OpCode::sub:
@@ -249,7 +249,7 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::xor_:
     case OpCode::or_:
     case OpCode::and_:
-        ProcessAlu(op);
+        ProcessRV32I_Alu(op);
         return;
     case OpCode::ecall:
     case OpCode::ebreak:
@@ -257,7 +257,7 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::sret:
     case OpCode::uret:
     case OpCode::wfi:
-        ProcessPriv(op);
+        ProcessRV32I_Priv(op);
         return;
     case OpCode::fence:
     case OpCode::fence_i:
@@ -267,12 +267,12 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::csrrw:
     case OpCode::csrrs:
     case OpCode::csrrc:
-        ProcessCsr(op);
+        ProcessRV32I_Csr(op);
         return;
     case OpCode::csrrwi:
     case OpCode::csrrsi:
     case OpCode::csrrci:
-        ProcessCsrImm(op);
+        ProcessRV32I_CsrImm(op);
         return;
     default:
         Error(op);
@@ -446,16 +446,16 @@ void Executor::ProcessRV32F(const Op& op)
     switch (op.opCode)
     {
     case OpCode::flw:
-        ProcessFloatLoad(op);
+        ProcessRV32F_Load(op);
         return;
     case OpCode::fsw:
-        ProcessFloatStore(op);
+        ProcessRV32F_Store(op);
         return;
     case OpCode::fmadd_s:
     case OpCode::fmsub_s:
     case OpCode::fnmadd_s:
     case OpCode::fnmsub_s:
-        ProcessFloatMulAdd(op);
+        ProcessRV32F_MulAdd(op);
         return;
     case OpCode::fadd_s:
     case OpCode::fsub_s:
@@ -466,30 +466,30 @@ void Executor::ProcessRV32F(const Op& op)
     case OpCode::fmax_s:
     case OpCode::fcvt_s_w:
     case OpCode::fcvt_s_wu:
-        ProcessFloatCompute(op);
+        ProcessRV32F_Compute(op);
         return;
     case OpCode::feq_s:
     case OpCode::flt_s:
     case OpCode::fle_s:
-        ProcessFloatCompare(op);
+        ProcessRV32F_Compare(op);
         return;
     case OpCode::fclass_s:
-        ProcessFloatClass(op);
+        ProcessRV32F_Class(op);
         return;
     case OpCode::fmv_x_w:
-        ProcessFloatMoveToInt(op);
+        ProcessRV32F_MoveToInt(op);
         return;
     case OpCode::fmv_w_x:
-        ProcessFloatMoveToFp(op);
+        ProcessRV32F_MoveToFp(op);
         return;
     case OpCode::fcvt_w_s:
     case OpCode::fcvt_wu_s:
-        ProcessFloatConvertToInt(op);
+        ProcessRV32F_ConvertToInt(op);
         return;
     case OpCode::fsgnj_s:
     case OpCode::fsgnjn_s:
     case OpCode::fsgnjx_s:
-        ProcessFloatConvertToFp(op);
+        ProcessRV32F_ConvertToFp(op);
         return;
     default:
         Error(op);
@@ -501,16 +501,16 @@ void Executor::ProcessRV32D(const Op& op)
     switch (op.opCode)
     {
     case OpCode::fld:
-        ProcessDoubleLoad(op);
+        ProcessRV32D_Load(op);
         return;
     case OpCode::fsd:
-        ProcessDoubleStore(op);
+        ProcessRV32D_Store(op);
         return;
     case OpCode::fmadd_d:
     case OpCode::fmsub_d:
     case OpCode::fnmadd_d:
     case OpCode::fnmsub_d:
-        ProcessDoubleMulAdd(op);
+        ProcessRV32D_MulAdd(op);
         return;
     case OpCode::fadd_d:
     case OpCode::fsub_d:
@@ -521,28 +521,28 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fmax_d:
     case OpCode::fcvt_d_w:
     case OpCode::fcvt_d_wu:
-        ProcessDoubleCompute(op);
+        ProcessRV32D_Compute(op);
         return;
     case OpCode::feq_d:
     case OpCode::flt_d:
     case OpCode::fle_d:
-        ProcessDoubleCompare(op);
+        ProcessRV32D_Compare(op);
         return;
     case OpCode::fclass_d:
-        ProcessDoubleClass(op);
+        ProcessRV32D_Class(op);
         return;
     case OpCode::fcvt_w_d:
     case OpCode::fcvt_wu_d:
-        ProcessDoubleConvertToInt(op);
+        ProcessRV32D_ConvertToInt(op);
         return;
     case OpCode::fcvt_s_d:
-        ProcessDoubleConvertToFp32(op);
+        ProcessRV32D_ConvertToFp32(op);
         return;
     case OpCode::fcvt_d_s:
     case OpCode::fsgnj_d:
     case OpCode::fsgnjn_d:
     case OpCode::fsgnjx_d:
-        ProcessDoubleConvertToFp64(op);
+        ProcessRV32D_ConvertToFp64(op);
         return;
     default:
         Error(op);
@@ -635,21 +635,21 @@ void Executor::ProcessRV32C(const Op& op, vaddr_t pc)
     }
 }
 
-void Executor::ProcessLui(const Op& op)
+void Executor::ProcessRV32I_Lui(const Op& op)
 {
     const auto& operand = std::get<OperandU>(op.operand);
 
     m_pIntRegFile->WriteInt32(operand.rd, operand.imm);
 }
 
-void Executor::ProcessAuipc(const Op& op, vaddr_t pc)
+void Executor::ProcessRV32I_Auipc(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandU>(op.operand);
 
     m_pIntRegFile->WriteInt32(operand.rd, pc + operand.imm);
 }
 
-void Executor::ProcessJal(const Op& op, vaddr_t pc)
+void Executor::ProcessRV32I_Jal(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandJ>(op.operand);
 
@@ -657,7 +657,7 @@ void Executor::ProcessJal(const Op& op, vaddr_t pc)
     m_pCsr->SetProgramCounter(pc + operand.imm);
 }
 
-void Executor::ProcessJalr(const Op& op, vaddr_t pc)
+void Executor::ProcessRV32I_Jalr(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
@@ -667,7 +667,7 @@ void Executor::ProcessJalr(const Op& op, vaddr_t pc)
     m_pCsr->SetProgramCounter(src + operand.imm);
 }
 
-void Executor::ProcessBranch(const Op& op, vaddr_t pc)
+void Executor::ProcessRV32I_Branch(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandB>(op.operand);
 
@@ -709,7 +709,7 @@ void Executor::ProcessBranch(const Op& op, vaddr_t pc)
     }
 }
 
-void Executor::ProcessLoad(const Op& op)
+void Executor::ProcessRV32I_Load(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
@@ -741,7 +741,7 @@ void Executor::ProcessLoad(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessStore(const Op& op)
+void Executor::ProcessRV32I_Store(const Op& op)
 {
     const auto& operand = std::get<OperandS>(op.operand);
 
@@ -764,7 +764,7 @@ void Executor::ProcessStore(const Op& op)
     }
 }
 
-void Executor::ProcessAlu(const Op& op)
+void Executor::ProcessRV32I_Alu(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -806,7 +806,7 @@ void Executor::ProcessAlu(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessAluImm(const Op& op)
+void Executor::ProcessRV32I_AluImm(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
@@ -842,7 +842,7 @@ void Executor::ProcessAluImm(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessShift(const Op& op)
+void Executor::ProcessRV32I_Shift(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -871,7 +871,7 @@ void Executor::ProcessShift(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessShiftImm(const Op& op)
+void Executor::ProcessRV32I_ShiftImm(const Op& op)
 {
     const auto& operand = std::get<OperandShiftImm>(op.operand);
 
@@ -898,7 +898,7 @@ void Executor::ProcessShiftImm(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessPriv(const Op& op)
+void Executor::ProcessRV32I_Priv(const Op& op)
 {
     switch (op.opCode)
     {
@@ -923,7 +923,7 @@ void Executor::ProcessPriv(const Op& op)
     }
 }
 
-void Executor::ProcessCsr(const Op& op)
+void Executor::ProcessRV32I_Csr(const Op& op)
 {
     const auto& operand = std::get<OperandCsr>(op.operand);
 
@@ -948,7 +948,7 @@ void Executor::ProcessCsr(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, srcCsr);
 }
 
-void Executor::ProcessCsrImm(const Op& op)
+void Executor::ProcessRV32I_CsrImm(const Op& op)
 {
     const auto& operand = std::get<OperandCsrImm>(op.operand);
     const auto srcCsr = m_pCsr->ReadUInt32(operand.csr);
@@ -971,7 +971,7 @@ void Executor::ProcessCsrImm(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, srcCsr);
 }
 
-void Executor::ProcessFloatLoad(const Op& op)
+void Executor::ProcessRV32F_Load(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
@@ -981,7 +981,7 @@ void Executor::ProcessFloatLoad(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessFloatStore(const Op& op)
+void Executor::ProcessRV32F_Store(const Op& op)
 {
     const auto& operand = std::get<OperandS>(op.operand);
 
@@ -991,7 +991,7 @@ void Executor::ProcessFloatStore(const Op& op)
     m_pMemAccessUnit->StoreUInt32(address, value);
 }
 
-void Executor::ProcessFloatMulAdd(const Op& op)
+void Executor::ProcessRV32F_MulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
@@ -1032,7 +1032,7 @@ void Executor::ProcessFloatMulAdd(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessFloatCompute(const Op& op)
+void Executor::ProcessRV32F_Compute(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1090,7 +1090,7 @@ void Executor::ProcessFloatCompute(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessFloatCompare(const Op& op)
+void Executor::ProcessRV32F_Compare(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1119,7 +1119,7 @@ void Executor::ProcessFloatCompare(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessFloatClass(const Op& op)
+void Executor::ProcessRV32F_Class(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1130,7 +1130,7 @@ void Executor::ProcessFloatClass(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessFloatMoveToInt(const Op& op)
+void Executor::ProcessRV32F_MoveToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1139,7 +1139,7 @@ void Executor::ProcessFloatMoveToInt(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessFloatMoveToFp(const Op& op)
+void Executor::ProcessRV32F_MoveToFp(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1148,7 +1148,7 @@ void Executor::ProcessFloatMoveToFp(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessFloatConvertToInt(const Op& op)
+void Executor::ProcessRV32F_ConvertToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1179,7 +1179,7 @@ void Executor::ProcessFloatConvertToInt(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, result);
 }
 
-void Executor::ProcessFloatConvertToFp(const Op& op)
+void Executor::ProcessRV32F_ConvertToFp(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1208,7 +1208,7 @@ void Executor::ProcessFloatConvertToFp(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessDoubleLoad(const Op& op)
+void Executor::ProcessRV32D_Load(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
@@ -1218,7 +1218,7 @@ void Executor::ProcessDoubleLoad(const Op& op)
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
-void Executor::ProcessDoubleStore(const Op& op)
+void Executor::ProcessRV32D_Store(const Op& op)
 {
     const auto& operand = std::get<OperandS>(op.operand);
 
@@ -1228,7 +1228,7 @@ void Executor::ProcessDoubleStore(const Op& op)
     m_pMemAccessUnit->StoreUInt64(address, value);
 }
 
-void Executor::ProcessDoubleMulAdd(const Op& op)
+void Executor::ProcessRV32D_MulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
@@ -1269,7 +1269,7 @@ void Executor::ProcessDoubleMulAdd(const Op& op)
     m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
-void Executor::ProcessDoubleCompute(const Op& op)
+void Executor::ProcessRV32D_Compute(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1327,7 +1327,7 @@ void Executor::ProcessDoubleCompute(const Op& op)
     m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
-void Executor::ProcessDoubleClass(const Op& op)
+void Executor::ProcessRV32D_Class(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1338,7 +1338,7 @@ void Executor::ProcessDoubleClass(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessDoubleCompare(const Op& op)
+void Executor::ProcessRV32D_Compare(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1367,7 +1367,7 @@ void Executor::ProcessDoubleCompare(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, value);
 }
 
-void Executor::ProcessDoubleConvertToInt(const Op& op)
+void Executor::ProcessRV32D_ConvertToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1398,7 +1398,7 @@ void Executor::ProcessDoubleConvertToInt(const Op& op)
     m_pIntRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessDoubleConvertToFp32(const Op& op)
+void Executor::ProcessRV32D_ConvertToFp32(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
@@ -1420,7 +1420,7 @@ void Executor::ProcessDoubleConvertToFp32(const Op& op)
     m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
-void Executor::ProcessDoubleConvertToFp64(const Op& op)
+void Executor::ProcessRV32D_ConvertToFp64(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 

@@ -66,44 +66,44 @@ private:
     void ProcessRV32C(const Op& op, vaddr_t pc);
 
     // RV32I
-    void ProcessLui(const Op& op);
-    void ProcessAuipc(const Op& op, vaddr_t pc);
-    void ProcessJal(const Op& op, vaddr_t pc);
-    void ProcessJalr(const Op& op, vaddr_t pc);
-    void ProcessBranch(const Op& op, vaddr_t pc);
-    void ProcessLoad(const Op& op);
-    void ProcessStore(const Op& op);
-    void ProcessAlu(const Op& op);
-    void ProcessAluImm(const Op& op);
-    void ProcessShift(const Op& op);
-    void ProcessShiftImm(const Op& op);
-    void ProcessFence(const Op& op);
-    void ProcessPriv(const Op& op);
-    void ProcessCsr(const Op& op);
-    void ProcessCsrImm(const Op& op);
+    void ProcessRV32I_Lui(const Op& op);
+    void ProcessRV32I_Auipc(const Op& op, vaddr_t pc);
+    void ProcessRV32I_Jal(const Op& op, vaddr_t pc);
+    void ProcessRV32I_Jalr(const Op& op, vaddr_t pc);
+    void ProcessRV32I_Branch(const Op& op, vaddr_t pc);
+    void ProcessRV32I_Load(const Op& op);
+    void ProcessRV32I_Store(const Op& op);
+    void ProcessRV32I_Alu(const Op& op);
+    void ProcessRV32I_AluImm(const Op& op);
+    void ProcessRV32I_Shift(const Op& op);
+    void ProcessRV32I_ShiftImm(const Op& op);
+    void ProcessRV32I_Fence(const Op& op);
+    void ProcessRV32I_Priv(const Op& op);
+    void ProcessRV32I_Csr(const Op& op);
+    void ProcessRV32I_CsrImm(const Op& op);
 
     // RV32F
-    void ProcessFloatLoad(const Op& op);
-    void ProcessFloatStore(const Op& op);
-    void ProcessFloatMulAdd(const Op& op);
-    void ProcessFloatCompute(const Op& op);
-    void ProcessFloatCompare(const Op& op);
-    void ProcessFloatClass(const Op& op);
-    void ProcessFloatMoveToInt(const Op& op);
-    void ProcessFloatMoveToFp(const Op& op);
-    void ProcessFloatConvertToInt(const Op& op);
-    void ProcessFloatConvertToFp(const Op& op);
+    void ProcessRV32F_Load(const Op& op);
+    void ProcessRV32F_Store(const Op& op);
+    void ProcessRV32F_MulAdd(const Op& op);
+    void ProcessRV32F_Compute(const Op& op);
+    void ProcessRV32F_Compare(const Op& op);
+    void ProcessRV32F_Class(const Op& op);
+    void ProcessRV32F_MoveToInt(const Op& op);
+    void ProcessRV32F_MoveToFp(const Op& op);
+    void ProcessRV32F_ConvertToInt(const Op& op);
+    void ProcessRV32F_ConvertToFp(const Op& op);
 
     // RV32D
-    void ProcessDoubleLoad(const Op& op);
-    void ProcessDoubleStore(const Op& op);
-    void ProcessDoubleMulAdd(const Op& op);
-    void ProcessDoubleCompute(const Op& op);
-    void ProcessDoubleCompare(const Op& op);
-    void ProcessDoubleClass(const Op& op);
-    void ProcessDoubleConvertToInt(const Op& op);
-    void ProcessDoubleConvertToFp32(const Op& op);
-    void ProcessDoubleConvertToFp64(const Op& op);
+    void ProcessRV32D_Load(const Op& op);
+    void ProcessRV32D_Store(const Op& op);
+    void ProcessRV32D_MulAdd(const Op& op);
+    void ProcessRV32D_Compute(const Op& op);
+    void ProcessRV32D_Compare(const Op& op);
+    void ProcessRV32D_Class(const Op& op);
+    void ProcessRV32D_ConvertToInt(const Op& op);
+    void ProcessRV32D_ConvertToFp32(const Op& op);
+    void ProcessRV32D_ConvertToFp64(const Op& op);
 
     // RV32C
     void ProcessRV32C_Alu(const Op& op);
