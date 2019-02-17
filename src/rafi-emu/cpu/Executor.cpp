@@ -675,7 +675,7 @@ void Executor::ProcessBranch(const Op& op, vaddr_t pc)
     const auto src2 = m_pIntRegFile->ReadInt32(operand.rs2);
 
     const auto src1_u = m_pIntRegFile->ReadUInt32(operand.rs1);
-    const auto src2_u = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto src2_u = m_pIntRegFile->ReadUInt32(operand.rs2);
 
     bool jump;
 
