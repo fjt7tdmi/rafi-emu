@@ -35,7 +35,7 @@ class Processor
 {
 public:
     // Setup
-    Processor(XLEN xlen, bus::Bus* pBus, uint32_t initialPc)
+    Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc)
         : m_Csr(initialPc)
         , m_CsrAccessor(&m_Csr)
         , m_InterruptController(&m_Csr)
@@ -79,10 +79,10 @@ public:
 private:
     void ClearOpEvent();
 
-    void SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel);
-    void SetOpEvent(uint32_t virtualPc, paddr_t physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(vaddr_t virtualPc, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(vaddr_t virtualPc, paddr_t physicalPc, uint32_t insn, PrivilegeLevel privilegeLevel);
 
-    const uint32_t InvalidValue = 0xffffffff;
+    const vaddr_t InvalidValue = 0xffffffffffffffff;
 
     Csr m_Csr;
     CsrAccessor m_CsrAccessor;

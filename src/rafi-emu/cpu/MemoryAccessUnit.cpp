@@ -43,7 +43,7 @@ namespace {
     };
 }
 
-uint8_t MemoryAccessUnit::LoadUInt8(uint32_t virtualAddress)
+uint8_t MemoryAccessUnit::LoadUInt8(vaddr_t virtualAddress)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadUInt8(physicalAddress);
@@ -53,7 +53,7 @@ uint8_t MemoryAccessUnit::LoadUInt8(uint32_t virtualAddress)
     return value;
 }
 
-uint16_t MemoryAccessUnit::LoadUInt16(uint32_t virtualAddress)
+uint16_t MemoryAccessUnit::LoadUInt16(vaddr_t virtualAddress)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadUInt16(physicalAddress);
@@ -63,7 +63,7 @@ uint16_t MemoryAccessUnit::LoadUInt16(uint32_t virtualAddress)
     return value;
 }
 
-uint32_t MemoryAccessUnit::LoadUInt32(uint32_t virtualAddress)
+uint32_t MemoryAccessUnit::LoadUInt32(vaddr_t virtualAddress)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadUInt32(physicalAddress);
@@ -73,7 +73,7 @@ uint32_t MemoryAccessUnit::LoadUInt32(uint32_t virtualAddress)
     return value;
 }
 
-uint64_t MemoryAccessUnit::LoadUInt64(uint32_t virtualAddress)
+uint64_t MemoryAccessUnit::LoadUInt64(vaddr_t virtualAddress)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, false);
     const auto value = m_pBus->ReadUInt64(physicalAddress);
@@ -83,7 +83,7 @@ uint64_t MemoryAccessUnit::LoadUInt64(uint32_t virtualAddress)
     return value;
 }
 
-void MemoryAccessUnit::StoreUInt8(uint32_t virtualAddress, uint8_t value)
+void MemoryAccessUnit::StoreUInt8(vaddr_t virtualAddress, uint8_t value)
 {
     auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteUInt8(physicalAddress, value);
@@ -91,7 +91,7 @@ void MemoryAccessUnit::StoreUInt8(uint32_t virtualAddress, uint8_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt16(uint32_t virtualAddress, uint16_t value)
+void MemoryAccessUnit::StoreUInt16(vaddr_t virtualAddress, uint16_t value)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteUInt16(physicalAddress, value);
@@ -99,7 +99,7 @@ void MemoryAccessUnit::StoreUInt16(uint32_t virtualAddress, uint16_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt32(uint32_t virtualAddress, uint32_t value)
+void MemoryAccessUnit::StoreUInt32(vaddr_t virtualAddress, uint32_t value)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteUInt32(physicalAddress, value);
@@ -107,7 +107,7 @@ void MemoryAccessUnit::StoreUInt32(uint32_t virtualAddress, uint32_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
 }
 
-void MemoryAccessUnit::StoreUInt64(uint32_t virtualAddress, uint64_t value)
+void MemoryAccessUnit::StoreUInt64(vaddr_t virtualAddress, uint64_t value)
 {
     const auto physicalAddress = ProcessTranslation(virtualAddress, true);
     m_pBus->WriteUInt64(physicalAddress, value);
@@ -115,13 +115,13 @@ void MemoryAccessUnit::StoreUInt64(uint32_t virtualAddress, uint64_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
 }
 
-uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, uint32_t virtualAddress)
+uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t virtualAddress)
 {
     *outPhysicalAddress = ProcessTranslation(virtualAddress, false);
     return m_pBus->ReadUInt32(*outPhysicalAddress);
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
 {
     // TODO: Implement Physical Memory Protection (PMP)
 
@@ -178,7 +178,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, uin
     return std::nullopt;
 }
 
-void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int size, uint64_t value, uint64_t vaddr, paddr_t paddr)
+void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int size, uint64_t value, vaddr_t vaddr, paddr_t paddr)
 {
     m_Events.push_back({ accessType, static_cast<uint32_t>(size), value, vaddr, paddr });
 }
@@ -216,7 +216,7 @@ bool MemoryAccessUnit::IsLeafEntry(const PageTableEntry& entry) const
     return entry.GetMember<PageTableEntry::Read>() || entry.GetMember<PageTableEntry::Execute>();
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
 {
     if (!entry.GetMember<PageTableEntry::Valid>() || (!entry.GetMember<PageTableEntry::Read>() && entry.GetMember<PageTableEntry::Write>()))
     {
@@ -226,7 +226,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntry& en
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
 {
     const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
     const auto status = m_pCsr->ReadStatus();
@@ -279,7 +279,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntry
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const
+std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const
 {
     switch (accessType)
     {
@@ -294,7 +294,7 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, uint
     }
 }
 
-paddr_t MemoryAccessUnit::ProcessTranslation(uint32_t virtualAddress, bool isWrite)
+paddr_t MemoryAccessUnit::ProcessTranslation(vaddr_t virtualAddress, bool isWrite)
 {
     if (IsAddresssTranslationEnabled())
     {

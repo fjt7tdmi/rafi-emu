@@ -91,7 +91,7 @@ const std::string& LoadOption::GetPath() const
     return m_Path;
 }
 
-paddr_t LoadOption::GetAddress() const
+uint64_t LoadOption::GetAddress() const
 {
     return m_Address;
 }

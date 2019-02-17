@@ -42,7 +42,7 @@ void TrapProcessor::ProcessException(const Trap& trap)
     ProcessTrapEnter(false, exceptionCode, trap.trapValue, trap.pc, nextPrivilegeLevel);
 }
 
-void TrapProcessor::ProcessInterrupt(InterruptType type, uint32_t pc)
+void TrapProcessor::ProcessInterrupt(InterruptType type, vaddr_t pc)
 {
     PrivilegeLevel nextPrivilegeLevel;
 
@@ -137,7 +137,7 @@ bool TrapProcessor::IsTrapEventExist() const
     return m_TrapEventValid;
 }
 
-void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, uint32_t pc, PrivilegeLevel nextPrivilegeLevel)
+void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel)
 {
     const auto prevPrivilegeLevel = static_cast<uint32_t>(m_pCsr->GetPrivilegeLevel());
 

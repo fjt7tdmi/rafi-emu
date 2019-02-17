@@ -19,7 +19,7 @@
 
 namespace rafi { namespace emu {
 
-System::System(XLEN xlen, uint32_t pc, int ramSize)
+System::System(XLEN xlen, vaddr_t pc, int ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Uart()
@@ -43,7 +43,7 @@ void System::LoadFileToMemory(const char* path, paddr_t address)
     location.pMemory->LoadFile(path, location.offset);
 }
 
-void System::SetHostIoAddress(uint32_t address)
+void System::SetHostIoAddress(vaddr_t address)
 {
     m_HostIoAddress = address;
 }

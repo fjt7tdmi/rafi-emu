@@ -29,16 +29,16 @@ namespace rafi { namespace emu { namespace cpu {
 class Csr
 {
 public:
-    explicit Csr(uint32_t initialPc);
+    explicit Csr(vaddr_t initialPc);
 
-    std::optional<Trap> CheckTrap(int addr, bool write, uint32_t pc, uint32_t insn) const;
+    std::optional<Trap> CheckTrap(int addr, bool write, vaddr_t pc, uint32_t insn) const;
 
     // Update registers for cycle
     void Update();
 
     // Special register access
-    uint32_t GetProgramCounter() const;
-    void SetProgramCounter(uint32_t value);
+    vaddr_t GetProgramCounter() const;
+    void SetProgramCounter(vaddr_t value);
 
     PrivilegeLevel GetPrivilegeLevel() const;
     void SetPrivilegeLevel(PrivilegeLevel level);
@@ -140,7 +140,7 @@ private:
     uint64_t m_InstructionRetiredCounter {0};
 
     // Special registers
-    uint32_t m_ProgramCounter {0};
+    vaddr_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
     bool m_HaltFlag {false};
 };

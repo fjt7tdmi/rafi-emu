@@ -30,11 +30,11 @@ public:
 
     const std::string& GetPath() const;
 
-    paddr_t GetAddress() const;
+    uint64_t GetAddress() const;
 
 private:
     std::string m_Path;
-    paddr_t m_Address;
+    uint64_t m_Address;
 };
 
 class CommandLineOption

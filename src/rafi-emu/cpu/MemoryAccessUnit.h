@@ -64,22 +64,22 @@ public:
         m_pCsr = pCsr;
     }
 
-    uint8_t LoadUInt8(uint32_t virtualAddress);
-    uint16_t LoadUInt16(uint32_t virtualAddress);
-    uint32_t LoadUInt32(uint32_t virtualAddress);
-    uint64_t LoadUInt64(uint32_t virtualAddress);
+    uint8_t LoadUInt8(vaddr_t virtualAddress);
+    uint16_t LoadUInt16(vaddr_t virtualAddress);
+    uint32_t LoadUInt32(vaddr_t virtualAddress);
+    uint64_t LoadUInt64(vaddr_t virtualAddress);
 
-    void StoreUInt8(uint32_t virtualAddress, uint8_t value);
-    void StoreUInt16(uint32_t virtualAddress, uint16_t value);
-    void StoreUInt32(uint32_t virtualAddress, uint32_t value);
-    void StoreUInt64(uint32_t virtualAddress, uint64_t value);
+    void StoreUInt8(vaddr_t virtualAddress, uint8_t value);
+    void StoreUInt16(vaddr_t virtualAddress, uint16_t value);
+    void StoreUInt32(vaddr_t virtualAddress, uint32_t value);
+    void StoreUInt64(vaddr_t virtualAddress, uint64_t value);
 
-    uint32_t FetchUInt32(paddr_t* outPhysicalAddress, uint32_t virtualAddress);
+    uint32_t FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t virtualAddress);
 
-    std::optional<Trap> CheckTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    std::optional<Trap> CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const;
 
     // for Dump
-    void AddEvent(MemoryAccessType accessType, int size,  uint64_t value, uint64_t vaddr, paddr_t paddr);
+    void AddEvent(MemoryAccessType accessType, int size,  vaddr_t value, vaddr_t vaddr, paddr_t paddr);
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;
@@ -91,12 +91,12 @@ private:
     bool IsAddresssTranslationEnabled() const;
     bool IsLeafEntry(const PageTableEntry& entry) const;
 
-    std::optional<Trap> CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
-    std::optional<Trap> CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    std::optional<Trap> CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const;
+    std::optional<Trap> CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const;
 
-    std::optional<Trap> MakeTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t virtualAddress) const;
 
-    paddr_t ProcessTranslation(uint32_t virtualAddress, bool isWrite);
+    paddr_t ProcessTranslation(vaddr_t virtualAddress, bool isWrite);
     void UpdateEntry(paddr_t entryAddress, bool isWrite);
 
     std::vector<MemoryAccessEvent> m_Events;

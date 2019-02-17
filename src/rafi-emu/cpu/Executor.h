@@ -43,36 +43,36 @@ public:
     {
     }
 
-    std::optional<Trap> PreCheckTrap(const Op& op, uint32_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrap(const Op& op, vaddr_t pc, uint32_t insn) const;
 
-    std::optional<Trap> PostCheckTrap(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PostCheckTrap(const Op& op, vaddr_t pc) const;
 
-    void ProcessOp(const Op& op, uint32_t pc);
+    void ProcessOp(const Op& op, vaddr_t pc);
 
 private:
-    std::optional<Trap> PreCheckTrapForLoad(const Op& op, uint32_t pc) const;
-    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, uint32_t pc) const;
-    std::optional<Trap> PreCheckTrapForStore(const Op& op, uint32_t pc) const;
-    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, uint32_t pc) const;
-    std::optional<Trap> PreCheckTrapForCsr(const Op& op, uint32_t pc, uint32_t insn) const;
-    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, uint32_t pc, uint32_t insn) const;
-    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, uint32_t pc) const;
+    std::optional<Trap> PreCheckTrapForLoad(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapForStore(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapForCsr(const Op& op, vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const;
 
-    std::optional<Trap> PostCheckTrapForEcall(uint32_t pc) const;
+    std::optional<Trap> PostCheckTrapForEcall(vaddr_t pc) const;
 
-    void ProcessRV32I(const Op& op, uint32_t pc);
+    void ProcessRV32I(const Op& op, vaddr_t pc);
     void ProcessRV32M(const Op& op);
     void ProcessRV32A(const Op& op);
     void ProcessRV32F(const Op& op);
     void ProcessRV32D(const Op& op);
-    void ProcessRV32C(const Op& op, uint32_t pc);
+    void ProcessRV32C(const Op& op, vaddr_t pc);
 
     // RV32I
     void ProcessLui(const Op& op);
-    void ProcessAuipc(const Op& op, uint32_t pc);
-    void ProcessJal(const Op& op, uint32_t pc);
-    void ProcessJalr(const Op& op, uint32_t pc);
-    void ProcessBranch(const Op& op, uint32_t pc);
+    void ProcessAuipc(const Op& op, vaddr_t pc);
+    void ProcessJal(const Op& op, vaddr_t pc);
+    void ProcessJalr(const Op& op, vaddr_t pc);
+    void ProcessBranch(const Op& op, vaddr_t pc);
     void ProcessLoad(const Op& op);
     void ProcessStore(const Op& op);
     void ProcessAlu(const Op& op);
@@ -110,7 +110,7 @@ private:
     // RV32C
     void ProcessRV32C_Alu(const Op& op);
     void ProcessRV32C_AluImm(const Op& op);
-    void ProcessRV32C_Branch(const Op& op, uint32_t pc);
+    void ProcessRV32C_Branch(const Op& op, vaddr_t pc);
     void ProcessRV32C_ADDI4SPN(const Op& op);
     void ProcessRV32C_ADDI16SP(const Op& op);
     void ProcessRV32C_FLD(const Op& op);
@@ -121,10 +121,10 @@ private:
     void ProcessRV32C_FSDSP(const Op& op);
     void ProcessRV32C_FSW(const Op& op);
     void ProcessRV32C_FSWSP(const Op& op);
-    void ProcessRV32C_J(const Op& op, uint32_t pc);
-    void ProcessRV32C_JAL(const Op& op, uint32_t pc);
+    void ProcessRV32C_J(const Op& op, vaddr_t pc);
+    void ProcessRV32C_JAL(const Op& op, vaddr_t pc);
     void ProcessRV32C_JR(const Op& op);
-    void ProcessRV32C_JALR(const Op& op, uint32_t pc);
+    void ProcessRV32C_JALR(const Op& op, vaddr_t pc);
     void ProcessRV32C_LW(const Op& op);
     void ProcessRV32C_LWSP(const Op& op);
     void ProcessRV32C_SW(const Op& op);
@@ -144,7 +144,7 @@ private:
     FpRegFile* m_pFpRegFile;
     MemoryAccessUnit* m_pMemAccessUnit;
 
-    uint32_t m_ReserveAddress = 0;
+    vaddr_t m_ReserveAddress = 0;
 };
 
 }}}

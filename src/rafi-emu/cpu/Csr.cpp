@@ -116,17 +116,17 @@ const csr_addr_t DumpAddresses[] = {
 
 }
 
-Csr::Csr(uint32_t initialPc)
+Csr::Csr(vaddr_t initialPc)
     : m_ProgramCounter(initialPc)
 {
 }
 
-uint32_t Csr::GetProgramCounter() const
+vaddr_t Csr::GetProgramCounter() const
 {
     return m_ProgramCounter;
 }
 
-void Csr::SetProgramCounter(uint32_t value)
+void Csr::SetProgramCounter(vaddr_t value)
 {
     m_ProgramCounter = value;
 }
@@ -158,7 +158,7 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-std::optional<Trap> Csr::CheckTrap(int regId, bool write, uint32_t pc, uint32_t insn) const
+std::optional<Trap> Csr::CheckTrap(int regId, bool write, vaddr_t pc, uint32_t insn) const
 {
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 

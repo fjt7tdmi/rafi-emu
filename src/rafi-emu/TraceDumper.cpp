@@ -131,7 +131,7 @@ void TraceDumper::DumpCycle32(int cycle)
     // Pc32Node
     Pc32Node pc32Node
     {
-        opEvent.virtualPc,
+        static_cast<uint32_t>(opEvent.virtualPc),
         static_cast<uint32_t>(opEvent.physicalPc),
     };
     builder.SetNode(pc32Node);

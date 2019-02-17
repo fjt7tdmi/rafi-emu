@@ -48,11 +48,10 @@ struct MemoryAccessEvent
 struct OpEvent
 {
     uint32_t opId;
-    uint32_t virtualPc;
-    paddr_t physicalPc;
     uint32_t insn;
-    OpCode opCode;
     PrivilegeLevel privilegeLevel;
+    vaddr_t virtualPc;
+    paddr_t physicalPc;
 };
 
 struct TrapEvent
