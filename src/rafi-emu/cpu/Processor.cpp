@@ -29,7 +29,7 @@ namespace rafi { namespace emu { namespace cpu {
 Processor::Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc)
     : m_Csr(xlen, initialPc)
     , m_InterruptController(&m_Csr)
-    , m_TrapProcessor(&m_Csr)
+    , m_TrapProcessor(xlen, &m_Csr)
     , m_Decoder(xlen)
     , m_MemAccessUnit(xlen)
     , m_Executor(&m_Csr, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)

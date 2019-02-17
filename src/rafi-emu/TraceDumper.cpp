@@ -162,7 +162,7 @@ void TraceDumper::DumpCycle32(int cycle)
             trapEvent.from,
             trapEvent.to,
             trapEvent.trapCause,
-            trapEvent.trapValue,
+            static_cast<uint32_t>(trapEvent.trapValue),
             0,
         };
         builder.SetNode(trap32Node);

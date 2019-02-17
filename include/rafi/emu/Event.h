@@ -60,7 +60,7 @@ struct TrapEvent
     uint32_t trapCause;
     PrivilegeLevel from;
     PrivilegeLevel to;
-    uint32_t trapValue;
+    uint64_t trapValue;
 };
 
 }}

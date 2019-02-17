@@ -28,8 +28,9 @@ namespace rafi { namespace emu { namespace cpu {
 class TrapProcessor
 {
 public:
-    explicit TrapProcessor(Csr* pCsr)
-        : m_pCsr(pCsr)
+    explicit TrapProcessor(XLEN xlen, Csr* pCsr)
+        : m_XLEN(xlen)
+        , m_pCsr(pCsr)
 	{
 	}
 
@@ -45,11 +46,11 @@ public:
 private:
     void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint64_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel);
 
+    XLEN m_XLEN;
     Csr* m_pCsr;
 
-    bool m_TrapEventValid { false };
-
     TrapEvent m_TrapEvent;
+    bool m_TrapEventValid { false };
 };
 
 }}}
