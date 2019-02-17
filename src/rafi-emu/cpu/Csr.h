@@ -31,7 +31,7 @@ class Csr
 public:
     explicit Csr(vaddr_t initialPc);
 
-    std::optional<Trap> CheckTrap(int addr, bool write, vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint32_t insn) const;
 
     // Update registers for cycle
     void Update();
@@ -47,14 +47,8 @@ public:
     void SetHaltFlag(bool flag);
 
     // Register access
-    uint32_t Read(csr_addr_t addr) const;
-    void Write(csr_addr_t addr, uint32_t value);
-
-    template <typename T>
-    T ReadAs(csr_addr_t addr) const
-    {
-        return T(Read(addr));
-    }
+    uint32_t ReadUInt32(csr_addr_t addr) const;
+    void WriteUInt32(csr_addr_t addr, uint32_t value);
 
     // Direct register access
     fcsr_t ReadFpCsr() const;

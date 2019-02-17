@@ -270,8 +270,6 @@ add_executable(rafi-emu
     src/rafi-emu/bus/Bus.h
     src/rafi-emu/cpu/Csr.cpp
     src/rafi-emu/cpu/Csr.h
-    src/rafi-emu/cpu/CsrAccessor.cpp
-    src/rafi-emu/cpu/CsrAccessor.h
     src/rafi-emu/cpu/CsrTypes.h
     src/rafi-emu/cpu/Executor.cpp
     src/rafi-emu/cpu/Executor.h

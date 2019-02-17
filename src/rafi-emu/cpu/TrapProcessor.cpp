@@ -30,10 +30,10 @@ void TrapProcessor::ProcessException(const Trap& trap)
     const auto delegMask = 1 << exceptionCode;
 
     PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
-    if ((m_pCsr->Read(csr_addr_t::medeleg) & delegMask) != 0)
+    if ((m_pCsr->ReadUInt32(csr_addr_t::medeleg) & delegMask) != 0)
     {
         nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        if ((m_pCsr->Read(csr_addr_t::sedeleg) & delegMask) != 0)
+        if ((m_pCsr->ReadUInt32(csr_addr_t::sedeleg) & delegMask) != 0)
         {
             nextPrivilegeLevel = PrivilegeLevel::User;
         }
@@ -81,8 +81,8 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
     switch (level)
     {
     case PrivilegeLevel::Machine:
-        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::mstatus);
-        pc = m_pCsr->Read(csr_addr_t::mepc);
+        status = xstatus_t(m_pCsr->ReadUInt32(csr_addr_t::mstatus));
+        pc = m_pCsr->ReadUInt32(csr_addr_t::mepc);
 
         previousLevel = status.GetMember<xstatus_t::MPP>();
         previousInterruptEnable = status.GetMember<xstatus_t::MPIE>();
@@ -90,12 +90,12 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         status.SetMember<xstatus_t::MPP>(0);
         status.SetMember<xstatus_t::MIE>(previousInterruptEnable);
 
-        m_pCsr->Write(csr_addr_t::mstatus, status);
+        m_pCsr->WriteUInt32(csr_addr_t::mstatus, status);
         m_pCsr->SetProgramCounter(pc);
         break;
     case PrivilegeLevel::Supervisor:
-        status = m_pCsr->ReadAs<xstatus_t>(csr_addr_t::sstatus);
-        pc = m_pCsr->Read(csr_addr_t::sepc);
+        status = xstatus_t(m_pCsr->ReadUInt32(csr_addr_t::sstatus));
+        pc = m_pCsr->ReadUInt32(csr_addr_t::sepc);
 
         previousLevel = status.GetMember<xstatus_t::SPP>();
         previousInterruptEnable = status.GetMember<xstatus_t::SPIE>();
@@ -103,7 +103,7 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         status.SetMember<xstatus_t::SPP>(0);
         status.SetMember<xstatus_t::SIE>(previousInterruptEnable);
 
-        m_pCsr->Write(csr_addr_t::sstatus, status);
+        m_pCsr->WriteUInt32(csr_addr_t::sstatus, status);
         m_pCsr->SetProgramCounter(pc);
         break;
     default:
@@ -137,7 +137,7 @@ bool TrapProcessor::IsTrapEventExist() const
     return m_TrapEventValid;
 }
 
-void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel)
+void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint64_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel)
 {
     const auto prevPrivilegeLevel = static_cast<uint32_t>(m_pCsr->GetPrivilegeLevel());
 
@@ -151,45 +151,45 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
     switch (nextPrivilegeLevel)
     {
     case PrivilegeLevel::Machine:
-        status = m_pCsr->Read(csr_addr_t::mstatus);
+        status = m_pCsr->ReadUInt32(csr_addr_t::mstatus);
 
         status.SetMember<xstatus_t::MPIE>(status.GetMember<xstatus_t::MIE>());
         status.SetMember<xstatus_t::MIE>(0);
         status.SetMember<xstatus_t::MPP>(prevPrivilegeLevel);
 
-        m_pCsr->Write(csr_addr_t::mstatus, status);
-        m_pCsr->Write(csr_addr_t::mcause, cause);
-        m_pCsr->Write(csr_addr_t::mepc, pc);
-        m_pCsr->Write(csr_addr_t::mtval, trapValue);
+        m_pCsr->WriteUInt32(csr_addr_t::mstatus, status);
+        m_pCsr->WriteUInt32(csr_addr_t::mcause, cause);
+        m_pCsr->WriteUInt32(csr_addr_t::mepc, static_cast<uint32_t>(pc));
+        m_pCsr->WriteUInt32(csr_addr_t::mtval, static_cast<uint32_t>(trapValue));
 
-        trapVector = m_pCsr->ReadAs<xtvec_t>(csr_addr_t::mtvec);
+        trapVector = xtvec_t(m_pCsr->ReadUInt32(csr_addr_t::mtvec));
         break;
     case PrivilegeLevel::Supervisor:
-        status = m_pCsr->Read(csr_addr_t::sstatus);
+        status = m_pCsr->ReadUInt32(csr_addr_t::sstatus);
 
         status.SetMember<xstatus_t::SPIE>(status.GetMember<xstatus_t::SIE>());
         status.SetMember<xstatus_t::SIE>(0);
         status.SetMember<xstatus_t::SPP>(prevPrivilegeLevel);
 
-        m_pCsr->Write(csr_addr_t::sstatus, status);
-        m_pCsr->Write(csr_addr_t::scause, cause);
-        m_pCsr->Write(csr_addr_t::sepc, pc);
-        m_pCsr->Write(csr_addr_t::stval, trapValue);
+        m_pCsr->WriteUInt32(csr_addr_t::sstatus, status);
+        m_pCsr->WriteUInt32(csr_addr_t::scause, cause);
+        m_pCsr->WriteUInt32(csr_addr_t::sepc, static_cast<uint32_t>(pc));
+        m_pCsr->WriteUInt32(csr_addr_t::stval, static_cast<uint32_t>(trapValue));
 
-        trapVector = m_pCsr->ReadAs<xtvec_t>(csr_addr_t::stvec);
+        trapVector = xtvec_t(m_pCsr->ReadUInt32(csr_addr_t::stvec));
         break;
     case PrivilegeLevel::User:
-        status = m_pCsr->Read(csr_addr_t::ustatus);
+        status = m_pCsr->ReadUInt32(csr_addr_t::ustatus);
 
         status.SetMember<xstatus_t::UPIE>(status.GetMember<xstatus_t::UIE>());
         status.SetMember<xstatus_t::UIE>(0);
 
-        m_pCsr->Write(csr_addr_t::ustatus, status);
-        m_pCsr->Write(csr_addr_t::ucause, cause);
-        m_pCsr->Write(csr_addr_t::uepc, pc);
-        m_pCsr->Write(csr_addr_t::utval, trapValue);
+        m_pCsr->WriteUInt32(csr_addr_t::ustatus, status);
+        m_pCsr->WriteUInt32(csr_addr_t::ucause, cause);
+        m_pCsr->WriteUInt32(csr_addr_t::uepc, static_cast<uint32_t>(pc));
+        m_pCsr->WriteUInt32(csr_addr_t::utval, static_cast<uint32_t>(trapValue));
 
-        trapVector = m_pCsr->ReadAs<xtvec_t>(csr_addr_t::utvec);
+        trapVector = xtvec_t(m_pCsr->ReadUInt32(csr_addr_t::utvec));
         break;
     default:
         RAFI_EMU_NOT_IMPLEMENTED();

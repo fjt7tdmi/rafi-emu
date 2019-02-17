@@ -161,8 +161,8 @@ void InterruptController::RegisterTimerInterruptSource(IInterruptSource* pInterr
 
 void InterruptController::UpdateCsr()
 {
-    const auto mideleg = m_pCsr->Read(csr_addr_t::mideleg);
-    const auto sideleg = m_pCsr->Read(csr_addr_t::sideleg);
+    const auto mideleg = m_pCsr->ReadUInt32(csr_addr_t::mideleg);
+    const auto sideleg = m_pCsr->ReadUInt32(csr_addr_t::sideleg);
 
     xip_t pending = m_pCsr->ReadInterruptPending();
 

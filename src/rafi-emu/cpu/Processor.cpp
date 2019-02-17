@@ -153,16 +153,6 @@ void Processor::CopyFpReg(void* pOut, size_t size) const
     m_FpRegFile.Copy(pOut, size);
 }
 
-void Processor::CopyCsrReadEvent(CsrReadEvent* pOut) const
-{
-    m_CsrAccessor.CopyReadEvent(pOut);
-}
-
-void Processor::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
-{
-    m_CsrAccessor.CopyWriteEvent(pOut);
-}
-
 void Processor::CopyOpEvent(OpEvent* pOut) const
 {
     std::memcpy(pOut, &m_OpEvent, sizeof(*pOut));
@@ -176,16 +166,6 @@ void Processor::CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const
 void Processor::CopyTrapEvent(TrapEvent* pOut) const
 {
     m_TrapProcessor.CopyTrapEvent(pOut);
-}
-
-bool Processor::IsCsrReadEventExist() const
-{
-    return m_CsrAccessor.IsReadEventExist();
-}
-
-bool Processor::IsCsrWriteEventExist() const
-{
-    return m_CsrAccessor.IsWriteEventExist();
 }
 
 bool Processor::IsOpEventExist() const

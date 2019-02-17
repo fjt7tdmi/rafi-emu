@@ -52,14 +52,10 @@ public:
     void CopyCsr(void* pOut, size_t size) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyRam(void* pOut, size_t size) const;
-    void CopyCsrReadEvent(CsrReadEvent* pOut) const;
-    void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
     void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
 
-    bool IsCsrReadEventExist() const;
-    bool IsCsrWriteEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 

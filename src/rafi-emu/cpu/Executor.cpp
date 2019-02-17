@@ -148,13 +148,13 @@ std::optional<Trap> Executor::PreCheckTrapForStoreConditional(const Op& op, vadd
 std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, vaddr_t pc, uint32_t insn) const
 {
     const auto& operand = std::get<OperandCsr>(op.operand);
-    return m_pCsr->CheckTrap(static_cast<int>(operand.csr), operand.rd != 0, pc, insn);
+    return m_pCsr->CheckTrap(operand.csr, operand.rd != 0, pc, insn);
 }
 
 std::optional<Trap> Executor::PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const
 {
     const auto& operand = std::get<OperandCsrImm>(op.operand);
-    return m_pCsr->CheckTrap(static_cast<int>(operand.csr), operand.rd != 0, pc, insn);
+    return m_pCsr->CheckTrap(operand.csr, operand.rd != 0, pc, insn);
 }
 
 std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const
@@ -927,19 +927,19 @@ void Executor::ProcessCsr(const Op& op)
 {
     const auto& operand = std::get<OperandCsr>(op.operand);
 
-    const auto srcCsr = m_pCsrAccessor->Read(static_cast<int>(operand.csr));
+    const auto srcCsr = m_pCsr->ReadUInt32(operand.csr);
     const auto srcIntReg = m_pIntRegFile->ReadInt32(operand.rs1);
 
     switch (op.opCode)
     {
     case OpCode::csrrw:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcIntReg);
+        m_pCsr->WriteUInt32(operand.csr, srcIntReg);
         break;
     case OpCode::csrrs:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr | srcIntReg);
+        m_pCsr->WriteUInt32(operand.csr, srcCsr | srcIntReg);
         break;
     case OpCode::csrrc:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~srcIntReg);
+        m_pCsr->WriteUInt32(operand.csr, srcCsr & ~srcIntReg);
         break;
     default:
         Error(op);
@@ -951,18 +951,18 @@ void Executor::ProcessCsr(const Op& op)
 void Executor::ProcessCsrImm(const Op& op)
 {
     const auto& operand = std::get<OperandCsrImm>(op.operand);
-    const auto srcCsr = m_pCsrAccessor->Read(static_cast<int>(operand.csr));
+    const auto srcCsr = m_pCsr->ReadUInt32(operand.csr);
 
     switch (op.opCode)
     {
     case OpCode::csrrwi:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), operand.zimm);
+        m_pCsr->WriteUInt32(operand.csr, operand.zimm);
         break;
     case OpCode::csrrsi:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr | operand.zimm);
+        m_pCsr->WriteUInt32(operand.csr, srcCsr | operand.zimm);
         break;
     case OpCode::csrrci:
-        m_pCsrAccessor->Write(static_cast<int>(operand.csr), srcCsr & ~operand.zimm);
+        m_pCsr->WriteUInt32(operand.csr, srcCsr & ~operand.zimm);
         break;
     default:
         Error(op);

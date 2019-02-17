@@ -158,8 +158,9 @@ void Csr::Update()
     m_InstructionRetiredCounter++;
 }
 
-std::optional<Trap> Csr::CheckTrap(int regId, bool write, vaddr_t pc, uint32_t insn) const
+std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint32_t insn) const
 {
+    const int regId = static_cast<int>(addr);
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
     // disable permission check for riscv-tests
@@ -198,7 +199,6 @@ std::optional<Trap> Csr::CheckTrap(int regId, bool write, vaddr_t pc, uint32_t i
 #endif
 
     // Performance Counter
-    const auto addr = static_cast<csr_addr_t>(regId);
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
     {
@@ -231,7 +231,7 @@ std::optional<Trap> Csr::CheckTrap(int regId, bool write, vaddr_t pc, uint32_t i
 }
 
 
-uint32_t Csr::Read(csr_addr_t addr) const
+uint32_t Csr::ReadUInt32(csr_addr_t addr) const
 {
     if (IsMachineModeRegister(addr))
     {
@@ -252,7 +252,7 @@ uint32_t Csr::Read(csr_addr_t addr) const
     }
 }
 
-void Csr::Write(csr_addr_t addr, uint32_t value)
+void Csr::WriteUInt32(csr_addr_t addr, uint32_t value)
 {
     if (IsMachineModeRegister(addr))
     {
@@ -697,7 +697,7 @@ void Csr::Copy(void* pOut, size_t size) const
     for (int i = 0; i < GetRegisterCount(); i++)
     {
         nodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
-        nodes[i].value = Read(DumpAddresses[i]);
+        nodes[i].value = ReadUInt32(DumpAddresses[i]);
     }
 }
 

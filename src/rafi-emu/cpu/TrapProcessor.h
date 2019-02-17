@@ -44,7 +44,7 @@ public:
     bool IsTrapEventExist() const;
 
 private:
-    void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel);
+    void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint64_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel);
 
     Csr* m_pCsr;
 

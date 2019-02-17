@@ -21,7 +21,6 @@
 #include <rafi/common.h>
 
 #include "Csr.h"
-#include "CsrAccessor.h"
 #include "FpRegFile.h"
 #include "IntRegFile.h"
 #include "MemoryAccessUnit.h"
@@ -33,9 +32,8 @@ namespace rafi { namespace emu { namespace cpu {
 class Executor
 {
 public:
-    Executor(Csr* pCsr, CsrAccessor* pCsrAccessor, TrapProcessor* pTrapProcessor, IntRegFile* pIntRegFile, FpRegFile* pFpRegFile, MemoryAccessUnit* pMemAccessUnit)
+    Executor(Csr* pCsr, TrapProcessor* pTrapProcessor, IntRegFile* pIntRegFile, FpRegFile* pFpRegFile, MemoryAccessUnit* pMemAccessUnit)
         : m_pCsr(pCsr)
-        , m_pCsrAccessor(pCsrAccessor)
         , m_pTrapProcessor(pTrapProcessor)
         , m_pIntRegFile(pIntRegFile)
         , m_pFpRegFile(pFpRegFile)
@@ -138,7 +136,6 @@ private:
     [[noreturn]] void Error(const Op& op);
 
     Csr* m_pCsr;
-    CsrAccessor* m_pCsrAccessor;
     TrapProcessor* m_pTrapProcessor;
     IntRegFile* m_pIntRegFile;
     FpRegFile* m_pFpRegFile;

@@ -105,16 +105,6 @@ void System::CopyRam(void* pOut, size_t size) const
     m_Ram.Copy(pOut, size);
 }
 
-void System::CopyCsrReadEvent(CsrReadEvent* pOut) const
-{
-    return m_Processor.CopyCsrReadEvent(pOut);
-}
-
-void System::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
-{
-    return m_Processor.CopyCsrWriteEvent(pOut);
-}
-
 void System::CopyOpEvent(OpEvent* pOut) const
 {
     return m_Processor.CopyOpEvent(pOut);
@@ -128,16 +118,6 @@ void System::CopyTrapEvent(TrapEvent* pOut) const
 void System::CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const
 {
     return m_Processor.CopyMemoryAccessEvent(pOut, index);
-}
-
-bool System::IsCsrReadEventExist() const
-{
-    return m_Processor.IsCsrReadEventExist();
-}
-
-bool System::IsCsrWriteEventExist() const
-{
-    return m_Processor.IsCsrWriteEventExist();
 }
 
 bool System::IsOpEventExist() const
