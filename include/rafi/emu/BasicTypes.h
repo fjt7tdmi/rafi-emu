@@ -18,8 +18,5 @@
 
 #include <cstdint>
 
-namespace rafi { namespace emu {
-
-using PhysicalAddress = uint64_t;
-
-}}
+using vaddr_t = uint64_t;
+using paddr_t = uint64_t;

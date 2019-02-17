@@ -23,9 +23,9 @@
 namespace rafi { namespace emu {
 
 // Memory Map
-const PhysicalAddress RomAddr = 0x00001000;
-const PhysicalAddress RamAddr = 0x80000000;
-const PhysicalAddress UartAddr = 0x40002000;
-const PhysicalAddress TimerAddr = 0x40000000;
+const paddr_t RomAddr = 0x00001000;
+const paddr_t RamAddr = 0x80000000;
+const paddr_t UartAddr = 0x40002000;
+const paddr_t TimerAddr = 0x40000000;
 
 }}

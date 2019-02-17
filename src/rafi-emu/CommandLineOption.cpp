@@ -91,7 +91,7 @@ const std::string& LoadOption::GetPath() const
     return m_Path;
 }
 
-rafi::emu::PhysicalAddress LoadOption::GetAddress() const
+paddr_t LoadOption::GetAddress() const
 {
     return m_Address;
 }

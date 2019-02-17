@@ -33,8 +33,8 @@ class System
 public:
     explicit System(XLEN xlen, uint32_t pc, int ramSize);
 
-    // Setup    
-    void LoadFileToMemory(const char* path, PhysicalAddress address);
+    // Setup
+    void LoadFileToMemory(const char* path, paddr_t address);
     void SetHostIoAddress(uint32_t address);
 
     // Process

@@ -115,7 +115,7 @@ void MemoryAccessUnit::StoreUInt64(uint32_t virtualAddress, uint64_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, virtualAddress, physicalAddress);
 }
 
-uint32_t MemoryAccessUnit::FetchUInt32(PhysicalAddress* outPhysicalAddress, uint32_t virtualAddress)
+uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, uint32_t virtualAddress)
 {
     *outPhysicalAddress = ProcessTranslation(virtualAddress, false);
     return m_pBus->ReadUInt32(*outPhysicalAddress);
@@ -178,7 +178,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, uin
     return std::nullopt;
 }
 
-void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int size, uint64_t value, uint64_t vaddr, PhysicalAddress paddr)
+void MemoryAccessUnit::AddEvent(MemoryAccessType accessType, int size, uint64_t value, uint64_t vaddr, paddr_t paddr)
 {
     m_Events.push_back({ accessType, static_cast<uint32_t>(size), value, vaddr, paddr });
 }
@@ -294,15 +294,15 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, uint
     }
 }
 
-PhysicalAddress MemoryAccessUnit::ProcessTranslation(uint32_t virtualAddress, bool isWrite)
+paddr_t MemoryAccessUnit::ProcessTranslation(uint32_t virtualAddress, bool isWrite)
 {
     if (IsAddresssTranslationEnabled())
     {
         const auto va = VirtualAddress(virtualAddress);
         const auto satp = m_pCsr->ReadSatp();
 
-        const PhysicalAddress firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN>();
-        const PhysicalAddress firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
+        const paddr_t firstTableHead = static_cast<uint64_t>(PageSize) * satp.GetMember<satp_t::PPN>();
+        const paddr_t firstEntryAddress = firstTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber1>();
         const auto firstEntry = PageTableEntry(m_pBus->ReadUInt32(firstEntryAddress));
 
         if (IsLeafEntry(firstEntry))
@@ -313,8 +313,8 @@ PhysicalAddress MemoryAccessUnit::ProcessTranslation(uint32_t virtualAddress, bo
         }
         else
         {
-            const PhysicalAddress secondTableHead = static_cast<uint64_t>(PageSize) * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
-            const PhysicalAddress secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
+            const paddr_t secondTableHead = static_cast<uint64_t>(PageSize) * firstEntry.GetMember<PageTableEntry::PhysicalPageNumber>();
+            const paddr_t secondEntryAddress = secondTableHead + PageTableEntrySize * va.GetMember<VirtualAddress::VirtualPageNumber0>();
             const auto secondEntry = PageTableEntry(m_pBus->ReadUInt32(secondEntryAddress));
 
             UpdateEntry(secondEntryAddress, isWrite);
@@ -328,7 +328,7 @@ PhysicalAddress MemoryAccessUnit::ProcessTranslation(uint32_t virtualAddress, bo
     }
 }
 
-void MemoryAccessUnit::UpdateEntry(PhysicalAddress entryAddress, bool isWrite)
+void MemoryAccessUnit::UpdateEntry(paddr_t entryAddress, bool isWrite)
 {
     auto entry = PageTableEntry(m_pBus->ReadUInt32(entryAddress));
 

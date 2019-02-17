@@ -30,11 +30,11 @@ public:
 
     const std::string& GetPath() const;
 
-    PhysicalAddress GetAddress() const;
+    paddr_t GetAddress() const;
 
 private:
     std::string m_Path;
-    PhysicalAddress m_Address;
+    paddr_t m_Address;
 };
 
 class CommandLineOption
@@ -58,7 +58,7 @@ public:
 
     uint64_t GetHostIoAddress() const;
     uint64_t GetPc() const;
-   
+
 private:
     static const int DefaultRamSize = 64 * 1024 * 1024;
 

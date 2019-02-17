@@ -42,14 +42,14 @@ struct MemoryAccessEvent
     uint32_t size;
     uint64_t value;
     uint64_t virtualAddress;
-    PhysicalAddress physicalAddress;
+    paddr_t physicalAddress;
 };
 
 struct OpEvent
 {
     uint32_t opId;
     uint32_t virtualPc;
-    PhysicalAddress physicalPc;
+    paddr_t physicalPc;
     uint32_t insn;
     OpCode opCode;
     PrivilegeLevel privilegeLevel;

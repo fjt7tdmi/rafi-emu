@@ -80,7 +80,7 @@ private:
     void ClearOpEvent();
 
     void SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel);
-    void SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(uint32_t virtualPc, paddr_t physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
 
     const uint32_t InvalidValue = 0xffffffff;
 

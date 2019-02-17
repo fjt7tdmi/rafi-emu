@@ -74,12 +74,12 @@ public:
     void StoreUInt32(uint32_t virtualAddress, uint32_t value);
     void StoreUInt64(uint32_t virtualAddress, uint64_t value);
 
-    uint32_t FetchUInt32(PhysicalAddress* outPhysicalAddress, uint32_t virtualAddress);
+    uint32_t FetchUInt32(paddr_t* outPhysicalAddress, uint32_t virtualAddress);
 
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
 
     // for Dump
-    void AddEvent(MemoryAccessType accessType, int size,  uint64_t value, uint64_t vaddr, PhysicalAddress paddr);
+    void AddEvent(MemoryAccessType accessType, int size,  uint64_t value, uint64_t vaddr, paddr_t paddr);
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;
@@ -96,8 +96,8 @@ private:
 
     std::optional<Trap> MakeTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
 
-    PhysicalAddress ProcessTranslation(uint32_t virtualAddress, bool isWrite);
-    void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
+    paddr_t ProcessTranslation(uint32_t virtualAddress, bool isWrite);
+    void UpdateEntry(paddr_t entryAddress, bool isWrite);
 
     std::vector<MemoryAccessEvent> m_Events;
 

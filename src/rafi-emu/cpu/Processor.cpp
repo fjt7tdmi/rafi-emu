@@ -71,7 +71,7 @@ void Processor::ProcessOneCycle()
     }
 
     // Fetch
-    PhysicalAddress physicalPc;
+    paddr_t physicalPc;
 
     const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
     if (fetchTrap)
@@ -220,7 +220,7 @@ void Processor::SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel)
     SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown, privilegeLevel);
 }
 
-void Processor::SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
+void Processor::SetOpEvent(uint32_t virtualPc, paddr_t physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
 {
     m_OpEvent.insn = insn;
     m_OpEvent.opCode = opCode;

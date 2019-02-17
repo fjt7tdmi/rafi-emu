@@ -37,7 +37,7 @@ System::System(XLEN xlen, uint32_t pc, int ramSize)
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
 }
 
-void System::LoadFileToMemory(const char* path, PhysicalAddress address)
+void System::LoadFileToMemory(const char* path, paddr_t address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);
     location.pMemory->LoadFile(path, location.offset);
@@ -87,7 +87,7 @@ void System::CopyIntReg(trace::IntReg32Node* pOut) const
 
 void System::CopyIntReg(trace::IntReg64Node* pOut) const
 {
-    m_Processor.CopyIntReg(pOut);    
+    m_Processor.CopyIntReg(pOut);
 }
 
 void System::CopyCsr(void* pOut, size_t size) const
