@@ -65,6 +65,8 @@ private:
     void ProcessRV32D(const Op& op);
     void ProcessRV32C(const Op& op, vaddr_t pc);
 
+    void ProcessRV64I(const Op& op, vaddr_t pc);
+
     // RV32I
     void ProcessRV32I_Lui(const Op& op);
     void ProcessRV32I_Auipc(const Op& op, vaddr_t pc);
@@ -81,6 +83,23 @@ private:
     void ProcessRV32I_Priv(const Op& op);
     void ProcessRV32I_Csr(const Op& op);
     void ProcessRV32I_CsrImm(const Op& op);
+
+    // RV64I
+    void ProcessRV64I_Lui(const Op& op);
+    void ProcessRV64I_Auipc(const Op& op, vaddr_t pc);
+    void ProcessRV64I_Jal(const Op& op, vaddr_t pc);
+    void ProcessRV64I_Jalr(const Op& op, vaddr_t pc);
+    void ProcessRV64I_Branch(const Op& op, vaddr_t pc);
+    void ProcessRV64I_Load(const Op& op);
+    void ProcessRV64I_Store(const Op& op);
+    void ProcessRV64I_Alu(const Op& op);
+    void ProcessRV64I_AluImm(const Op& op);
+    void ProcessRV64I_Shift(const Op& op);
+    void ProcessRV64I_ShiftImm(const Op& op);
+    void ProcessRV64I_Fence(const Op& op);
+    void ProcessRV64I_Priv(const Op& op);
+    void ProcessRV64I_Csr(const Op& op);
+    void ProcessRV64I_CsrImm(const Op& op);
 
     // RV32F
     void ProcessRV32F_Load(const Op& op);

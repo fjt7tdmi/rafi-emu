@@ -50,11 +50,25 @@ int32_t IntRegFile::ReadInt32(int regId) const
     return m_Entries[regId].s32.value;
 }
 
+int64_t IntRegFile::ReadInt64(int regId) const
+{
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
+    
+    return m_Entries[regId].s64.value;
+}
+
 uint32_t IntRegFile::ReadUInt32(int regId) const
 {
     RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
 
     return m_Entries[regId].u32.value;
+}
+
+uint64_t IntRegFile::ReadUInt64(int regId) const
+{
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
+
+    return m_Entries[regId].u64.value;
 }
 
 void IntRegFile::WriteInt32(int regId, int32_t value)
@@ -67,6 +81,16 @@ void IntRegFile::WriteInt32(int regId, int32_t value)
     }
 }
 
+void IntRegFile::WriteInt64(int regId, int64_t value)
+{
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
+
+    if (regId != 0)
+    {
+        m_Entries[regId].s64.value = value;
+    }
+}
+
 void IntRegFile::WriteUInt32(int regId, uint32_t value)
 {
     RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
@@ -74,6 +98,16 @@ void IntRegFile::WriteUInt32(int regId, uint32_t value)
     if (regId != 0)
     {
         m_Entries[regId].u32.value = value;
+    }
+}
+
+void IntRegFile::WriteUInt64(int regId, uint64_t value)
+{
+    RAFI_EMU_CHECK_RANGE(0, regId, IntRegCount);
+    
+    if (regId != 0)
+    {
+        m_Entries[regId].u64.value = value;
     }
 }
 

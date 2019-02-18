@@ -56,6 +56,7 @@ add_library(librafi_common
     include/rafi/common/RvCsr.h
     include/rafi/common/RvPageTable.h
     include/rafi/common/RvTypes.h
+    include/rafi/common/Util.h
     src/librafi_common/Decoder.cpp
     src/librafi_common/DecoderImpl.cpp
     src/librafi_common/DecoderImpl.h
@@ -267,7 +268,6 @@ add_executable(rafi-emu
     include/rafi/emu/IInterruptSource.h
     include/rafi/emu/Macro.h
     include/rafi/emu/MemoryMap.h
-    include/rafi/emu/Util.h
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
     src/rafi-emu/cpu/Csr.cpp

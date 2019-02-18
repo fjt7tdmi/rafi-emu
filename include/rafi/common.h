@@ -29,3 +29,4 @@
 #include "common/RvCsr.h"
 #include "common/RvPageTable.h"
 #include "common/RvTypes.h"
+#include "common/Util.h"
