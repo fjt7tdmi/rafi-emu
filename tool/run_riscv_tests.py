@@ -45,16 +45,17 @@ def MakeCheckIoCommand(trace_paths):
     cmd.extend(trace_paths)
     return cmd
 
-def MakeEmulatorCommand(testname, cycle, host_io_addr):
-    binary_path = f"{BinaryDirPath}/{testname}.bin"
-    trace_path = f"{TraceDirPath}/{testname}.trace.bin"
+def MakeEmulatorCommand(config):
+    binary_path = f"{BinaryDirPath}/{config['name']}.bin"
+    trace_path = f"{TraceDirPath}/{config['name']}.trace.bin"
     return [
         EmulatorPath,
-        "--cycle", str(cycle),
+        "--cycle", str(config['cycle']),
         "--load", f"{binary_path}:0x80000000",
         "--dump-path", trace_path,
         "--pc", "0x80000000",
-        "--host-io-addr", str(host_io_addr)
+        "--host-io-addr", str(config['host-io-addr']),
+        "--xlen", str(config['xlen']),
     ]
 
 def VerifyTraces(paths):
@@ -62,7 +63,7 @@ def VerifyTraces(paths):
     subprocess.run(cmd)
 
 def RunEmulator(config):
-    cmd = MakeEmulatorCommand(config['name'], config['cycle'], config['host-io-addr'])
+    cmd = MakeEmulatorCommand(config)
     print(f"Run {' '.join(cmd)}")
 
     result = subprocess.run(cmd)
