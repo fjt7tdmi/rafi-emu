@@ -40,9 +40,6 @@ public:
 
     using PPN0 = Member<19, 10>;
     using PPN1 = Member<31, 20>;
-
-    static const uint32_t PageSize = 1 << 12;
-    static const uint32_t MegaPageSize = 1 << 22;
 };
 
 class PageTableEntrySv39 : public BitField64
@@ -63,7 +60,6 @@ public:
     using D = Member<7>; // Dirty
     using RSW = Member<9, 8>; // Reserved for SoftWare
 
-    using PPN = Member<53, 10>;
     using PPN0 = Member<18, 10>;
     using PPN1 = Member<27, 19>;
     using PPN2 = Member<53, 28>;
@@ -87,7 +83,6 @@ public:
     using D = Member<7>; // Dirty
     using RSW = Member<9, 8>; // Reserved for SoftWare
 
-    using PPN = Member<53, 10>;
     using PPN0 = Member<18, 10>;
     using PPN1 = Member<27, 19>;
     using PPN2 = Member<36, 28>;

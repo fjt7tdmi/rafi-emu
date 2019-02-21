@@ -178,11 +178,13 @@ AddressTranslationMode MemoryAccessUnit::GetAddresssTranslationMode() const
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
-    const auto va = VirtualAddressSv32(addr);
+    const auto vaddr = VirtualAddressSv32(addr);
     const auto satp = m_pCsr->ReadSatp();
 
-    const auto tableAddr1 = PageTableEntrySv32::PageSize * satp.GetMember<satp_t::PPN_RV32>();
-    const auto entryAddr1 = tableAddr1 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN1>();
+    PhysicalAddressSv32 entryAddr1(0);
+    entryAddr1.SetMember<PhysicalAddressSv32::PPN>(satp.GetMember<satp_t::PPN_RV32>());
+    entryAddr1.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
+
     const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
 
     const auto trap1 = CheckTrapForEntry(entry1, accessType, pc, addr);
@@ -207,8 +209,11 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType,
         return std::nullopt;
     }
 
-    const auto tableAddr2 = PageTableEntrySv32::PageSize * entry1.GetMember<PageTableEntrySv32::PPN>();
-    const auto entryAddr2 = tableAddr2 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN0>();
+    PhysicalAddressSv32 entryAddr2(0);
+    entryAddr2.SetMember<PhysicalAddressSv32::PPN1>(entry1.GetMember<PageTableEntrySv32::PPN1>());
+    entryAddr2.SetMember<PhysicalAddressSv32::PPN0>(entry1.GetMember<PageTableEntrySv32::PPN0>());
+    entryAddr2.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
+
     const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
 
     const auto trap2 = CheckTrapForEntry(entry2, accessType, pc, addr);
@@ -366,31 +371,43 @@ paddr_t MemoryAccessUnit::Translate(vaddr_t addr, bool isWrite)
 
 paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
 {
-    const auto va = VirtualAddressSv32(addr);
+    const auto vaddr = VirtualAddressSv32(addr);
     const auto satp = m_pCsr->ReadSatp();
 
-    const paddr_t tableAddr1 = static_cast<uint64_t>(PageTableEntrySv32::PageSize) * satp.GetMember<satp_t::PPN_RV32>();
-    const paddr_t entryAddr1 = tableAddr1 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN1>();
+    PhysicalAddressSv32 entryAddr1(0);
+    entryAddr1.SetMember<PhysicalAddressSv32::PPN>(satp.GetMember<satp_t::PPN_RV32>());
+    entryAddr1.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
+
     const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
 
     if (IsLeafEntry(entry1))
     {
         UpdateEntry(entryAddr1, isWrite);
 
-        const auto result = PageTableEntrySv32::MegaPageSize * entry1.GetMember<PageTableEntrySv32::PPN1>() + va.GetMember<VirtualAddressSv32::Offset_L1>();
+        PhysicalAddressSv32 paddr(0);
+        paddr.SetMember<PhysicalAddressSv32::PPN1>(entry1.GetMember<PageTableEntrySv32::PPN1>());
+        paddr.SetMember<PhysicalAddressSv32::PPN0>(vaddr.GetMember<VirtualAddressSv32::VPN0>());
+        paddr.SetMember<PhysicalAddressSv32::Offset>(vaddr.GetMember<VirtualAddressSv32::Offset>());
 
-        return result & 0x00000000ffffffff;
+        return paddr.GetValue() & 0x00000000ffffffff;
     }
 
-    const paddr_t tableAddr2 = static_cast<uint64_t>(PageTableEntrySv32::PageSize) * entry1.GetMember<PageTableEntrySv32::PPN>();
-    const paddr_t entryAddr2 = tableAddr2 + sizeof(PageTableEntrySv32) * va.GetMember<VirtualAddressSv32::VPN0>();
+    PhysicalAddressSv32 entryAddr2(0);
+    entryAddr2.SetMember<PhysicalAddressSv32::PPN1>(entry1.GetMember<PageTableEntrySv32::PPN1>());
+    entryAddr2.SetMember<PhysicalAddressSv32::PPN0>(entry1.GetMember<PageTableEntrySv32::PPN0>());
+    entryAddr2.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
+
     const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
 
     UpdateEntry(entryAddr2, isWrite);
 
-    const auto result = PageTableEntrySv32::PageSize * entry2.GetMember<PageTableEntrySv32::PPN>() + va.GetMember<VirtualAddressSv32::Offset>();
+    PhysicalAddressSv32 paddr(0);
+    paddr.SetMember<PhysicalAddressSv32::PPN1>(entry2.GetMember<PageTableEntrySv32::PPN1>());
+    paddr.SetMember<PhysicalAddressSv32::PPN0>(entry2.GetMember<PageTableEntrySv32::PPN0>());
+    paddr.SetMember<PhysicalAddressSv32::Offset>(vaddr.GetMember<VirtualAddressSv32::Offset>());
 
-    return result & 0x00000000ffffffff;
+    return paddr.GetValue() & 0x00000000ffffffff;
+
 }
 
 paddr_t MemoryAccessUnit::TranslateSv39(vaddr_t addr, bool isWrite)
