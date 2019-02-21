@@ -38,12 +38,105 @@ public:
     using D = Member<7>; // Dirty
     using RSW = Member<9, 8>; // Reserved for SoftWare
 
-    using PPN = Member<31, 10>; // Physical Page Number
     using PPN0 = Member<19, 10>;
     using PPN1 = Member<31, 20>;
 
-    static const uint32_t PageSize = 1 << 12;    
+    static const uint32_t PageSize = 1 << 12;
     static const uint32_t MegaPageSize = 1 << 22;
+};
+
+class PageTableEntrySv39 : public BitField64
+{
+public:
+    explicit PageTableEntrySv39(uint64_t value)
+        : BitField64(value)
+    {
+    }
+
+    using V = Member<0>; // Valid
+    using R = Member<1>; // Read
+    using W = Member<2>; // Write
+    using E = Member<3>; // Execute
+    using U = Member<4>; // User
+    using G = Member<5>; // Global
+    using A = Member<6>; // Accessed
+    using D = Member<7>; // Dirty
+    using RSW = Member<9, 8>; // Reserved for SoftWare
+
+    using PPN = Member<53, 10>;
+    using PPN0 = Member<18, 10>;
+    using PPN1 = Member<27, 19>;
+    using PPN2 = Member<53, 28>;
+};
+
+class PageTableEntrySv48 : public BitField64
+{
+public:
+    explicit PageTableEntrySv48(uint64_t value)
+        : BitField64(value)
+    {
+    }
+
+    using V = Member<0>; // Valid
+    using R = Member<1>; // Read
+    using W = Member<2>; // Write
+    using E = Member<3>; // Execute
+    using U = Member<4>; // User
+    using G = Member<5>; // Global
+    using A = Member<6>; // Accessed
+    using D = Member<7>; // Dirty
+    using RSW = Member<9, 8>; // Reserved for SoftWare
+
+    using PPN = Member<53, 10>;
+    using PPN0 = Member<18, 10>;
+    using PPN1 = Member<27, 19>;
+    using PPN2 = Member<36, 28>;
+    using PPN3 = Member<53, 37>;
+};
+
+class PhysicalAddressSv32 : public BitField64
+{
+public:
+    explicit PhysicalAddressSv32(uint64_t value)
+        : BitField64(static_cast<uint64_t>(value))
+    {
+    }
+
+    using Offset = Member<11, 0>;
+    using PPN = Member<33, 12>;
+    using PPN0 = Member<21, 12>;
+    using PPN1 = Member<33, 22>;
+};
+
+class PhysicalAddressSv39 : public BitField64
+{
+public:
+    explicit PhysicalAddressSv39(uint64_t value)
+        : BitField64(static_cast<uint64_t>(value))
+    {
+    }
+
+    using Offset = Member<11, 0>;
+    using PPN = Member<55, 12>;
+    using PPN0 = Member<20, 12>;
+    using PPN1 = Member<29, 21>;
+    using PPN2 = Member<55, 30>;
+};
+
+class PhysicalAddressSv48 : public BitField64
+{
+public:
+    explicit PhysicalAddressSv48(uint64_t value)
+        : BitField64(static_cast<uint64_t>(value))
+    {
+    }
+
+    using Offset = Member<11, 0>;
+    using PPN = Member<55, 12>;
+    using PPN0 = Member<20, 12>;
+    using PPN1 = Member<29, 21>;
+    using PPN2 = Member<38, 30>;
+    using PPN3 = Member<55, 39>;
 };
 
 class VirtualAddressSv32 : public BitField32
@@ -59,6 +152,35 @@ public:
     using VPN1 = Member<31, 22>;
 
     using Offset_L1 = Member<21, 0>;
+};
+
+class VirtualAddressSv39 : public BitField64
+{
+public:
+    explicit VirtualAddressSv39(uint64_t value)
+        : BitField64(static_cast<uint64_t>(value))
+    {
+    }
+
+    using Offset = Member<11, 0>;
+    using VPN0 = Member<20, 12>;
+    using VPN1 = Member<29, 21>;
+    using VPN2 = Member<38, 30>;
+};
+
+class VirtualAddressSv48 : public BitField64
+{
+public:
+    explicit VirtualAddressSv48(uint64_t value)
+        : BitField64(static_cast<uint64_t>(value))
+    {
+    }
+
+    using Offset = Member<11, 0>;
+    using VPN0 = Member<20, 12>;
+    using VPN1 = Member<29, 21>;
+    using VPN2 = Member<38, 30>;
+    using VPN3 = Member<47, 39>;
 };
 
 }
