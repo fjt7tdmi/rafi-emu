@@ -108,6 +108,9 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     case OpClass::RV32C:
         ProcessRV32C(op, pc);
         break;
+    case OpClass::RV64I:
+        ProcessRV64I(op, pc);
+        break;
     default:
         Error(op);
     }

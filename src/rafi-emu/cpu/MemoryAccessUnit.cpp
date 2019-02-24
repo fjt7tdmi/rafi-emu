@@ -348,7 +348,7 @@ paddr_t MemoryAccessUnit::Translate(vaddr_t addr, bool isWrite)
     case AddressTranslationMode::Bare:
         if (m_XLEN == XLEN::XLEN32)
         {
-            return addr & 0x00000000ffffffff;
+            return ZeroExtend(32, addr);
         }
         else
         {
@@ -389,7 +389,7 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
         paddr.SetMember<PhysicalAddressSv32::PPN0>(vaddr.GetMember<VirtualAddressSv32::VPN0>());
         paddr.SetMember<PhysicalAddressSv32::Offset>(vaddr.GetMember<VirtualAddressSv32::Offset>());
 
-        return paddr.GetValue() & 0x00000000ffffffff;
+        return ZeroExtend(32, paddr.GetValue());
     }
 
     PhysicalAddressSv32 entryAddr2(0);
@@ -406,8 +406,7 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
     paddr.SetMember<PhysicalAddressSv32::PPN0>(entry2.GetMember<PageTableEntrySv32::PPN0>());
     paddr.SetMember<PhysicalAddressSv32::Offset>(vaddr.GetMember<VirtualAddressSv32::Offset>());
 
-    return paddr.GetValue() & 0x00000000ffffffff;
-
+    return ZeroExtend(32, paddr.GetValue());
 }
 
 paddr_t MemoryAccessUnit::TranslateSv39(vaddr_t addr, bool isWrite)

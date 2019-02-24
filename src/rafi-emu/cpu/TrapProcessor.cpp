@@ -73,7 +73,7 @@ void TrapProcessor::ProcessInterrupt(InterruptType type, vaddr_t pc)
 void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
 {
     xstatus_t status;
-    int32_t pc;
+    vaddr_t pc;
 
     int32_t previousLevel;
     int32_t previousInterruptEnable;
