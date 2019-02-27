@@ -289,7 +289,7 @@ struct OperandR4
 
 struct OperandI
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
     int funct3;
@@ -297,7 +297,7 @@ struct OperandI
 
 struct OperandS
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
     int funct3;
@@ -305,7 +305,7 @@ struct OperandS
 
 struct OperandB
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
     int funct3;
@@ -313,13 +313,13 @@ struct OperandB
 
 struct OperandU
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
 struct OperandJ
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
@@ -359,46 +359,46 @@ struct OperandCR
 
 struct OperandCI
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
 };
 
 struct OperandCSS
 {
-    int32_t imm;
+    int64_t imm;
     int rs2;
 };
 
 struct OperandCIW
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
 struct OperandCL
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
 };
 
 struct OperandCS
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
 };
 
 struct OperandCB
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
 };
 
 struct OperandCJ
 {
-    int32_t imm;
+    int64_t imm;
 };
 
 struct OperandNone
