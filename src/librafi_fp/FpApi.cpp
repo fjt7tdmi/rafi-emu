@@ -43,17 +43,17 @@ public:
 
     BaseInteger GetSign() const
     {
-        return GetMember<Sign>();
+        return this->template GetMember<Sign>();
     }
 
     BaseInteger GetExponent() const
     {
-        return GetMember<Exponent>();
+        return this->template GetMember<Exponent>();
     }
 
     BaseInteger GetFraction() const
     {
-        return GetMember<Fraction>();
+        return this->template GetMember<Fraction>();
     }
 
     bool IsZero() const
@@ -83,12 +83,12 @@ public:
 
     bool IsQuietNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() != BaseInteger(0);
+        return IsNan() && this->template GetMember<FractionMsb>() != BaseInteger(0);
     }
 
     bool IsSignalingNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() == BaseInteger(0);
+        return IsNan() && this->template GetMember<FractionMsb>() == BaseInteger(0);
     }
 
 private:

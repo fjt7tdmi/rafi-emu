@@ -57,7 +57,72 @@ public:
     int GetEventCount() const;
 
 private:
-    const int PageTableEntrySize = 4;
+    template <typename EntryType>
+    std::optional<Trap> CheckTrapForEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+    {
+        if (!entry.template GetMember<typename EntryType::V>() ||
+            (!entry.template GetMember<typename EntryType::R>() && entry.template GetMember<typename EntryType::W>()))
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    template <typename EntryType>
+    std::optional<Trap> CheckTrapForLeafEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+    {
+        const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
+        const auto status = m_pCsr->ReadStatus();
+
+        const bool sum = status.GetMember<xstatus_t::SUM>();
+        const bool mxr = status.GetMember<xstatus_t::MXR>();
+
+        switch (privilegeLevel)
+        {
+        case PrivilegeLevel::Supervisor:
+            if (!sum && entry.template GetMember<typename EntryType::U>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case PrivilegeLevel::User:
+            if (!entry.template GetMember<typename EntryType::U>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        default:
+            break;
+        }
+
+        switch (accessType)
+        {
+        case MemoryAccessType::Instruction:
+            if (!entry.template GetMember<typename EntryType::E>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case MemoryAccessType::Load:
+            if (!entry.template GetMember<typename EntryType::R>() &&
+                !(mxr && entry.template GetMember<typename EntryType::E>()))
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case MemoryAccessType::Store:
+            if (!entry.template GetMember<typename EntryType::W>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        default:
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
+
+        return std::nullopt;
+    }
 
     AddressTranslationMode GetAddresssTranslationMode() const;
 
@@ -66,9 +131,6 @@ private:
     std::optional<Trap> CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
     std::optional<Trap> CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
     std::optional<Trap> CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-
-    std::optional<Trap> CheckTrapForEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> CheckTrapForLeafEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
     std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
@@ -87,7 +149,7 @@ private:
     Csr* m_pCsr{ nullptr };
 
     XLEN m_XLEN;
-    
+
     std::vector<MemoryAccessEvent> m_Events;
 };
 

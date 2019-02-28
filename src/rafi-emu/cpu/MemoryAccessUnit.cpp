@@ -255,69 +255,6 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv64(MemoryAccessType accessType,
     RAFI_EMU_NOT_IMPLEMENTED();
 }
 
-std::optional<Trap> MemoryAccessUnit::CheckTrapForEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
-{
-    if (!entry.GetMember<PageTableEntrySv32::V>() || (!entry.GetMember<PageTableEntrySv32::R>() && entry.GetMember<PageTableEntrySv32::W>()))
-    {
-        return MakeTrap(accessType, pc, addr);
-    }
-
-    return std::nullopt;
-}
-
-std::optional<Trap> MemoryAccessUnit::CheckTrapForLeafEntry(const PageTableEntrySv32& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
-{
-    const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
-    const auto status = m_pCsr->ReadStatus();
-
-    bool supervisorCanAccessUserMemory = status.GetMember<xstatus_t::SUM>();
-    bool makeExecutableReadable = status.GetMember<xstatus_t::MXR>();
-
-    switch (privilegeLevel)
-    {
-    case PrivilegeLevel::Supervisor:
-        if (!supervisorCanAccessUserMemory && entry.GetMember<PageTableEntrySv32::U>())
-        {
-            return MakeTrap(accessType, pc, addr);
-        }
-        break;
-    case PrivilegeLevel::User:
-        if (!entry.GetMember<PageTableEntrySv32::U>())
-        {
-            return MakeTrap(accessType, pc, addr);
-        }
-        break;
-    default:
-        break;
-    }
-
-    switch (accessType)
-    {
-    case MemoryAccessType::Instruction:
-        if (!entry.GetMember<PageTableEntrySv32::E>())
-        {
-            return MakeTrap(accessType, pc, addr);
-        }
-        break;
-    case MemoryAccessType::Load:
-        if (!entry.GetMember<PageTableEntrySv32::R>() && !(makeExecutableReadable && entry.GetMember<PageTableEntrySv32::E>()))
-        {
-            return MakeTrap(accessType, pc, addr);
-        }
-        break;
-    case MemoryAccessType::Store:
-        if (!entry.GetMember<PageTableEntrySv32::W>())
-        {
-            return MakeTrap(accessType, pc, addr);
-        }
-        break;
-    default:
-        RAFI_EMU_NOT_IMPLEMENTED();
-    }
-
-    return std::nullopt;
-}
-
 std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
     switch (accessType)

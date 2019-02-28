@@ -20,7 +20,7 @@
 
 #include <rafi/trace.h>
 
-#include "../bus/Bus.h"
+#include "bus/Bus.h"
 
 #include "TraceDumper.h"
 
