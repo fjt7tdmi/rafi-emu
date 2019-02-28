@@ -194,7 +194,6 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType,
     PhysicalAddressSv32 entryAddr1(
         satp.GetMember<satp_t::PPN_RV32>(),
         sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
-
     const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
 
     RETURN_TRAP(CheckTrapForEntry(entry1, accessType, pc, addr));
@@ -215,28 +214,145 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType,
         entry1.GetMember<PageTableEntrySv32::PPN1>(),
         entry1.GetMember<PageTableEntrySv32::PPN0>(),
         sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
-
     const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
 
     RETURN_TRAP(CheckTrapForEntry(entry2, accessType, pc, addr));
-
     return CheckTrapForLeafEntry(entry2, accessType, pc, addr);
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
-    (void)accessType;
-    (void)pc;
-    (void)addr;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    const auto vaddr = VirtualAddressSv39(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    PhysicalAddressSv39 entryAddr1(
+        satp.GetMember<satp_t::PPN_RV64>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN2>());
+    const auto entry1 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr1));
+
+    RETURN_TRAP(CheckTrapForEntry(entry1, accessType, pc, addr));
+
+    if (IsLeafEntry(entry1))
+    {
+        RETURN_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
+
+        if (entry1.GetMember<PageTableEntrySv39::PPN1>() != 0 &&
+            entry1.GetMember<PageTableEntrySv39::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    PhysicalAddressSv39 entryAddr2(
+        entry1.GetMember<PageTableEntrySv39::PPN2>(),
+        entry1.GetMember<PageTableEntrySv39::PPN1>(),
+        entry1.GetMember<PageTableEntrySv39::PPN0>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN1>());
+    const auto entry2 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr2));
+
+    if (IsLeafEntry(entry2))
+    {
+        RETURN_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
+
+        if (entry2.GetMember<PageTableEntrySv39::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    PhysicalAddressSv39 entryAddr3(
+        entry2.GetMember<PageTableEntrySv39::PPN2>(),
+        entry2.GetMember<PageTableEntrySv39::PPN1>(),
+        entry2.GetMember<PageTableEntrySv39::PPN0>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN0>());
+    const auto entry3 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr3));
+
+    RETURN_TRAP(CheckTrapForEntry(entry3, accessType, pc, addr));
+    return CheckTrapForLeafEntry(entry3, accessType, pc, addr);
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
 {
-    (void)accessType;
-    (void)pc;
-    (void)addr;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    const auto vaddr = VirtualAddressSv48(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    PhysicalAddressSv48 entryAddr1(
+        satp.GetMember<satp_t::PPN_RV64>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN3>());
+    const auto entry1 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr1));
+
+    RETURN_TRAP(CheckTrapForEntry(entry1, accessType, pc, addr));
+
+    if (IsLeafEntry(entry1))
+    {
+        RETURN_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
+
+        if (entry1.GetMember<PageTableEntrySv48::PPN2>() != 0 &&
+            entry1.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
+            entry1.GetMember<PageTableEntrySv48::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    PhysicalAddressSv48 entryAddr2(
+        entry1.GetMember<PageTableEntrySv48::PPN3>(),
+        entry1.GetMember<PageTableEntrySv48::PPN2>(),
+        entry1.GetMember<PageTableEntrySv48::PPN1>(),
+        entry1.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN2>());
+    const auto entry2 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr2));
+
+    if (IsLeafEntry(entry2))
+    {
+        RETURN_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
+
+        if (entry2.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
+            entry2.GetMember<PageTableEntrySv48::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    PhysicalAddressSv48 entryAddr3(
+        entry2.GetMember<PageTableEntrySv48::PPN3>(),
+        entry2.GetMember<PageTableEntrySv48::PPN2>(),
+        entry2.GetMember<PageTableEntrySv48::PPN1>(),
+        entry2.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN1>());
+    const auto entry3 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr3));
+
+    if (IsLeafEntry(entry3))
+    {
+        RETURN_TRAP(CheckTrapForLeafEntry(entry3, accessType, pc, addr));
+
+        if (entry3.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
+            entry3.GetMember<PageTableEntrySv48::PPN0>() != 0)
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
+
+        return std::nullopt;
+    }
+
+    PhysicalAddressSv48 entryAddr4(
+        entry3.GetMember<PageTableEntrySv48::PPN3>(),
+        entry3.GetMember<PageTableEntrySv48::PPN2>(),
+        entry3.GetMember<PageTableEntrySv48::PPN1>(),
+        entry3.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN1>());
+    const auto entry4 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr4));
+
+    RETURN_TRAP(CheckTrapForEntry(entry4, accessType, pc, addr));
+    return CheckTrapForLeafEntry(entry4, accessType, pc, addr);
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
@@ -306,7 +422,6 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
     PhysicalAddressSv32 entryAddr1(
         satp.GetMember<satp_t::PPN_RV32>(),
         sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
-
     const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
 
     if (IsLeafEntry(entry1))
@@ -317,7 +432,6 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
             entry1.GetMember<PageTableEntrySv32::PPN1>(),
             vaddr.GetMember<VirtualAddressSv32::VPN0>(),
             vaddr.GetMember<VirtualAddressSv32::Offset>());
-
         return ZeroExtend(32, paddr.GetValue());
     }
 
@@ -325,7 +439,6 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
         entry1.GetMember<PageTableEntrySv32::PPN1>(),
         entry1.GetMember<PageTableEntrySv32::PPN0>(),
         sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
-
     const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
 
     UpdateEntry<PageTableEntrySv32>(entryAddr2, isWrite);
@@ -334,22 +447,149 @@ paddr_t MemoryAccessUnit::TranslateSv32(vaddr_t addr, bool isWrite)
         entry2.GetMember<PageTableEntrySv32::PPN1>(),
         entry2.GetMember<PageTableEntrySv32::PPN0>(),
         vaddr.GetMember<VirtualAddressSv32::Offset>());
-
     return ZeroExtend(32, paddr.GetValue());
 }
 
 paddr_t MemoryAccessUnit::TranslateSv39(vaddr_t addr, bool isWrite)
 {
-    (void)addr;
-    (void)isWrite;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    const auto vaddr = VirtualAddressSv39(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    PhysicalAddressSv39 entryAddr1(
+        satp.GetMember<satp_t::PPN_RV64>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN2>());
+    const auto entry1 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr1));
+
+    if (IsLeafEntry(entry1))
+    {
+        UpdateEntry<PageTableEntrySv39>(entryAddr1, isWrite);
+
+        PhysicalAddressSv39 paddr(
+            entry1.GetMember<PageTableEntrySv39::PPN2>(),
+            vaddr.GetMember<VirtualAddressSv39::VPN1>(),
+            vaddr.GetMember<VirtualAddressSv39::VPN0>(),
+            vaddr.GetMember<VirtualAddressSv39::Offset>());
+        return ZeroExtend(39, paddr.GetValue());
+    }
+
+    PhysicalAddressSv39 entryAddr2(
+        entry1.GetMember<PageTableEntrySv39::PPN2>(),
+        entry1.GetMember<PageTableEntrySv39::PPN1>(),
+        entry1.GetMember<PageTableEntrySv39::PPN0>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN1>());
+    const auto entry2 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr2));
+
+    if (IsLeafEntry(entry2))
+    {
+        UpdateEntry<PageTableEntrySv39>(entryAddr2, isWrite);
+
+        PhysicalAddressSv39 paddr(
+            entry2.GetMember<PageTableEntrySv39::PPN2>(),
+            entry2.GetMember<PageTableEntrySv39::PPN1>(),
+            vaddr.GetMember<VirtualAddressSv39::VPN0>(),
+            vaddr.GetMember<VirtualAddressSv39::Offset>());
+        return ZeroExtend(39, paddr.GetValue());
+    }
+
+    PhysicalAddressSv39 entryAddr3(
+        entry2.GetMember<PageTableEntrySv39::PPN2>(),
+        entry2.GetMember<PageTableEntrySv39::PPN1>(),
+        entry2.GetMember<PageTableEntrySv39::PPN0>(),
+        sizeof(PageTableEntrySv39) * vaddr.GetMember<VirtualAddressSv39::VPN0>());
+    const auto entry3 = PageTableEntrySv39(m_pBus->ReadUInt64(entryAddr3));
+
+    UpdateEntry<PageTableEntrySv39>(entryAddr3, isWrite);
+
+    PhysicalAddressSv39 paddr(
+        entry3.GetMember<PageTableEntrySv39::PPN2>(),
+        entry3.GetMember<PageTableEntrySv39::PPN1>(),
+        entry3.GetMember<PageTableEntrySv39::PPN0>(),
+        vaddr.GetMember<VirtualAddressSv39::Offset>());
+    return ZeroExtend(39, paddr.GetValue());
 }
 
 paddr_t MemoryAccessUnit::TranslateSv48(vaddr_t addr, bool isWrite)
 {
-    (void)addr;
-    (void)isWrite;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    const auto vaddr = VirtualAddressSv48(addr);
+    const auto satp = m_pCsr->ReadSatp();
+
+    PhysicalAddressSv48 entryAddr1(
+        satp.GetMember<satp_t::PPN_RV64>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN3>());
+    const auto entry1 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr1));
+
+    if (IsLeafEntry(entry1))
+    {
+        UpdateEntry<PageTableEntrySv48>(entryAddr1, isWrite);
+
+        PhysicalAddressSv48 paddr(
+            entry1.GetMember<PageTableEntrySv48::PPN3>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN2>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN1>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN0>(),
+            vaddr.GetMember<VirtualAddressSv48::Offset>());
+        return ZeroExtend(48, paddr.GetValue());
+    }
+
+    PhysicalAddressSv48 entryAddr2(
+        entry1.GetMember<PageTableEntrySv48::PPN3>(),
+        entry1.GetMember<PageTableEntrySv48::PPN2>(),
+        entry1.GetMember<PageTableEntrySv48::PPN1>(),
+        entry1.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN2>());
+    const auto entry2 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr2));
+
+    if (IsLeafEntry(entry2))
+    {
+        UpdateEntry<PageTableEntrySv48>(entryAddr2, isWrite);
+
+        PhysicalAddressSv48 paddr(
+            entry2.GetMember<PageTableEntrySv48::PPN3>(),
+            entry2.GetMember<PageTableEntrySv48::PPN2>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN1>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN0>(),
+            vaddr.GetMember<VirtualAddressSv48::Offset>());
+        return ZeroExtend(48, paddr.GetValue());
+    }
+
+    PhysicalAddressSv48 entryAddr3(
+        entry2.GetMember<PageTableEntrySv48::PPN3>(),
+        entry2.GetMember<PageTableEntrySv48::PPN2>(),
+        entry2.GetMember<PageTableEntrySv48::PPN1>(),
+        entry2.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN1>());
+    const auto entry3 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr3));
+
+    if (IsLeafEntry(entry2))
+    {
+        UpdateEntry<PageTableEntrySv48>(entryAddr3, isWrite);
+
+        PhysicalAddressSv48 paddr(
+            entry3.GetMember<PageTableEntrySv48::PPN3>(),
+            entry3.GetMember<PageTableEntrySv48::PPN2>(),
+            entry3.GetMember<PageTableEntrySv48::PPN1>(),
+            vaddr.GetMember<VirtualAddressSv48::VPN0>(),
+            vaddr.GetMember<VirtualAddressSv48::Offset>());
+        return ZeroExtend(48, paddr.GetValue());
+    }
+
+    PhysicalAddressSv48 entryAddr4(
+        entry3.GetMember<PageTableEntrySv48::PPN3>(),
+        entry3.GetMember<PageTableEntrySv48::PPN2>(),
+        entry3.GetMember<PageTableEntrySv48::PPN1>(),
+        entry3.GetMember<PageTableEntrySv48::PPN0>(),
+        sizeof(PageTableEntrySv48) * vaddr.GetMember<VirtualAddressSv48::VPN0>());
+    const auto entry4 = PageTableEntrySv48(m_pBus->ReadUInt64(entryAddr4));
+
+    UpdateEntry<PageTableEntrySv48>(entryAddr4, isWrite);
+
+    PhysicalAddressSv48 paddr(
+        entry4.GetMember<PageTableEntrySv48::PPN3>(),
+        entry4.GetMember<PageTableEntrySv48::PPN2>(),
+        entry4.GetMember<PageTableEntrySv48::PPN1>(),
+        entry4.GetMember<PageTableEntrySv48::PPN0>(),
+        vaddr.GetMember<VirtualAddressSv48::Offset>());
+    return ZeroExtend(48, paddr.GetValue());
 }
 
 paddr_t MemoryAccessUnit::TranslateSv57(vaddr_t addr, bool isWrite)
