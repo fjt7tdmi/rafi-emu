@@ -21,6 +21,16 @@
 
 #include "MemoryAccessUnit.h"
 
+#define RETURN_TRAP(_trap) \
+    do \
+    { \
+        const auto _t = _trap; \
+        if (_t) \
+        { \
+            return _t; \
+        } \
+    } while(0)
+
 namespace rafi { namespace emu { namespace cpu {
 
 MemoryAccessUnit::MemoryAccessUnit(XLEN xlen)
@@ -181,25 +191,17 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType,
     const auto vaddr = VirtualAddressSv32(addr);
     const auto satp = m_pCsr->ReadSatp();
 
-    PhysicalAddressSv32 entryAddr1(0);
-    entryAddr1.SetMember<PhysicalAddressSv32::PPN>(satp.GetMember<satp_t::PPN_RV32>());
-    entryAddr1.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
+    PhysicalAddressSv32 entryAddr1(
+        satp.GetMember<satp_t::PPN_RV32>(),
+        sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN1>());
 
     const auto entry1 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr1));
 
-    const auto trap1 = CheckTrapForEntry(entry1, accessType, pc, addr);
-    if (trap1)
-    {
-        return trap1;
-    }
+    RETURN_TRAP(CheckTrapForEntry(entry1, accessType, pc, addr));
 
     if (IsLeafEntry(entry1))
     {
-        const auto trapLeaf = CheckTrapForLeafEntry(entry1, accessType, pc, addr);
-        if (trapLeaf)
-        {
-            return trapLeaf;
-        }
+        RETURN_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
 
         if (entry1.GetMember<PageTableEntrySv32::PPN0>() != 0)
         {
@@ -209,26 +211,16 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv32(MemoryAccessType accessType,
         return std::nullopt;
     }
 
-    PhysicalAddressSv32 entryAddr2(0);
-    entryAddr2.SetMember<PhysicalAddressSv32::PPN1>(entry1.GetMember<PageTableEntrySv32::PPN1>());
-    entryAddr2.SetMember<PhysicalAddressSv32::PPN0>(entry1.GetMember<PageTableEntrySv32::PPN0>());
-    entryAddr2.SetMember<PhysicalAddressSv32::Offset>(sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
+    PhysicalAddressSv32 entryAddr2(
+        entry1.GetMember<PageTableEntrySv32::PPN1>(),
+        entry1.GetMember<PageTableEntrySv32::PPN0>(),
+        sizeof(PageTableEntrySv32) * vaddr.GetMember<VirtualAddressSv32::VPN0>());
 
     const auto entry2 = PageTableEntrySv32(m_pBus->ReadUInt32(entryAddr2));
 
-    const auto trap2 = CheckTrapForEntry(entry2, accessType, pc, addr);
-    if (trap2)
-    {
-        return trap2;
-    }
+    RETURN_TRAP(CheckTrapForEntry(entry2, accessType, pc, addr));
 
-    const auto trapLeaf = CheckTrapForLeafEntry(entry2, accessType, pc, addr);
-    if (trapLeaf)
-    {
-        return trapLeaf;
-    }
-
-    return std::nullopt;
+    return CheckTrapForLeafEntry(entry2, accessType, pc, addr);
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const

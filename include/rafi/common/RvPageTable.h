@@ -92,46 +92,94 @@ public:
 class PhysicalAddressSv32 : public BitField64
 {
 public:
+    using PPN = Member<33, 12>;
+    using PPN1 = Member<33, 22>;
+    using PPN0 = Member<21, 12>;
+    using Offset = Member<11, 0>;
+
     explicit PhysicalAddressSv32(uint64_t value)
-        : BitField64(static_cast<uint64_t>(value))
+        : BitField64(value)
     {
     }
 
-    using Offset = Member<11, 0>;
-    using PPN = Member<33, 12>;
-    using PPN0 = Member<21, 12>;
-    using PPN1 = Member<33, 22>;
+    PhysicalAddressSv32(uint64_t ppn, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN>(ppn);
+        SetMember<Offset>(offset);
+    }
+
+    PhysicalAddressSv32(uint64_t ppn1, uint64_t ppn0, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN1>(ppn1);
+        SetMember<PPN0>(ppn0);
+        SetMember<Offset>(offset);
+    }
 };
 
 class PhysicalAddressSv39 : public BitField64
 {
 public:
+    using PPN = Member<55, 12>;
+    using PPN2 = Member<55, 30>;
+    using PPN1 = Member<29, 21>;
+    using PPN0 = Member<20, 12>;
+    using Offset = Member<11, 0>;
+
     explicit PhysicalAddressSv39(uint64_t value)
-        : BitField64(static_cast<uint64_t>(value))
+        : BitField64(value)
     {
     }
 
-    using Offset = Member<11, 0>;
-    using PPN = Member<55, 12>;
-    using PPN0 = Member<20, 12>;
-    using PPN1 = Member<29, 21>;
-    using PPN2 = Member<55, 30>;
+    PhysicalAddressSv39(uint64_t ppn, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN>(ppn);
+        SetMember<Offset>(offset);
+    }
+
+    PhysicalAddressSv39(uint64_t ppn2, uint64_t ppn1, uint64_t ppn0, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN2>(ppn2);
+        SetMember<PPN1>(ppn1);
+        SetMember<PPN0>(ppn0);
+        SetMember<Offset>(offset);
+    }
 };
 
 class PhysicalAddressSv48 : public BitField64
 {
 public:
+    using PPN = Member<55, 12>;
+    using PPN3 = Member<55, 39>;
+    using PPN2 = Member<38, 30>;
+    using PPN1 = Member<29, 21>;
+    using PPN0 = Member<20, 12>;
+    using Offset = Member<11, 0>;
+
     explicit PhysicalAddressSv48(uint64_t value)
         : BitField64(static_cast<uint64_t>(value))
     {
     }
 
-    using Offset = Member<11, 0>;
-    using PPN = Member<55, 12>;
-    using PPN0 = Member<20, 12>;
-    using PPN1 = Member<29, 21>;
-    using PPN2 = Member<38, 30>;
-    using PPN3 = Member<55, 39>;
+    PhysicalAddressSv48(uint64_t ppn, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN>(ppn);
+        SetMember<Offset>(offset);
+    }
+
+    PhysicalAddressSv48(uint64_t ppn3, uint64_t ppn2, uint64_t ppn1, uint64_t ppn0, uint64_t offset)
+        : BitField64(0)
+    {
+        SetMember<PPN3>(ppn3);
+        SetMember<PPN2>(ppn2);
+        SetMember<PPN1>(ppn1);
+        SetMember<PPN0>(ppn0);
+        SetMember<Offset>(offset);
+    }
 };
 
 class VirtualAddressSv32 : public BitField32
