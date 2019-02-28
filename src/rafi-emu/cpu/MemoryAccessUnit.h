@@ -57,6 +57,23 @@ public:
     int GetEventCount() const;
 
 private:
+    AddressTranslationMode GetAddresssTranslationMode() const;
+
+    std::optional<Trap> CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+
+    std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+
+    paddr_t Translate(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv32(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv39(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv48(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv57(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv64(vaddr_t addr, bool isWrite);
+
     template <typename EntryType>
     std::optional<Trap> CheckTrapForEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
     {
@@ -124,26 +141,42 @@ private:
         return std::nullopt;
     }
 
-    AddressTranslationMode GetAddresssTranslationMode() const;
+    template <typename EntryType>
+    void UpdateEntry(paddr_t entryAddress, bool isWrite)
+    {
+        static_assert(sizeof(EntryType) == 4 || sizeof(EntryType) == 8);
 
-    std::optional<Trap> CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+        EntryType entry(0);
+        if constexpr (sizeof(EntryType) == 4)
+        {
+            entry = EntryType(m_pBus->ReadUInt32(entryAddress));
+        }
+        else
+        {
+            entry = EntryType(m_pBus->ReadUInt64(entryAddress));
+        }
 
-    std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+        entry.template SetMember<typename EntryType::A>(1);
+        if (isWrite)
+        {
+            entry.template SetMember<typename EntryType::D>(1);
+        }
 
-    paddr_t Translate(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv32(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv39(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv48(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv57(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv64(vaddr_t addr, bool isWrite);
+        if constexpr (sizeof(EntryType) == 4)
+        {
+            m_pBus->WriteUInt32(entryAddress, entry.GetValue());
+        }
+        else
+        {
+            m_pBus->WriteUInt64(entryAddress, entry.GetValue());
+        }
+    }
 
-    void UpdateEntry(paddr_t entryAddress, bool isWrite);
-
-    bool IsLeafEntry(const PageTableEntrySv32& entry) const;
+    template <typename EntryType>
+    bool IsLeafEntry(const EntryType& entry) const
+    {
+        return entry.template GetMember<typename EntryType::R>() || entry.template GetMember<typename EntryType::E>();
+    }
 
     bus::Bus* m_pBus{ nullptr };
     Csr* m_pCsr{ nullptr };
