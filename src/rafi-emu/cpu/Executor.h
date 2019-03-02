@@ -60,17 +60,15 @@ private:
 
     void ProcessRV32I(const Op& op, vaddr_t pc);
     void ProcessRV32M(const Op& op);
-    void ProcessRV32F(const Op& op);
-    void ProcessRV32D(const Op& op);
     void ProcessRV32C(const Op& op, vaddr_t pc);
 
     void ProcessRV64I(const Op& op, vaddr_t pc);
     void ProcessRV64M(const Op& op);
-    void ProcessRV64F(const Op& op);
-    void ProcessRV64D(const Op& op);
     void ProcessRV64C(const Op& op, vaddr_t pc);
 
     void ProcessRVA(const Op& op);
+    void ProcessRVF(const Op& op);
+    void ProcessRVD(const Op& op);
 
     // RV32I
     void ProcessRV32I_Lui(const Op& op);
@@ -106,6 +104,51 @@ private:
     void ProcessRV64I_Csr(const Op& op);
     void ProcessRV64I_CsrImm(const Op& op);
 
+    // RV32C
+    void ProcessRV32C_Alu(const Op& op);
+    void ProcessRV32C_AluImm(const Op& op);
+    void ProcessRV32C_Branch(const Op& op, vaddr_t pc);
+    void ProcessRV32C_ADDI4SPN(const Op& op);
+    void ProcessRV32C_ADDI16SP(const Op& op);
+    void ProcessRV32C_FLD(const Op& op);
+    void ProcessRV32C_FLDSP(const Op& op);
+    void ProcessRV32C_FLW(const Op& op);
+    void ProcessRV32C_FLWSP(const Op& op);
+    void ProcessRV32C_FSD(const Op& op);
+    void ProcessRV32C_FSDSP(const Op& op);
+    void ProcessRV32C_FSW(const Op& op);
+    void ProcessRV32C_FSWSP(const Op& op);
+    void ProcessRV32C_J(const Op& op, vaddr_t pc);
+    void ProcessRV32C_JAL(const Op& op, vaddr_t pc);
+    void ProcessRV32C_JR(const Op& op);
+    void ProcessRV32C_JALR(const Op& op, vaddr_t pc);
+    void ProcessRV32C_LW(const Op& op);
+    void ProcessRV32C_LWSP(const Op& op);
+    void ProcessRV32C_SW(const Op& op);
+    void ProcessRV32C_SWSP(const Op& op);
+
+    // RV64C
+    void ProcessRV64C_Alu(const Op& op);
+    void ProcessRV64C_AluImm(const Op& op);
+    void ProcessRV64C_Branch(const Op& op, vaddr_t pc);
+    void ProcessRV64C_ADDI4SPN(const Op& op);
+    void ProcessRV64C_ADDI16SP(const Op& op);
+    void ProcessRV64C_FLD(const Op& op);
+    void ProcessRV64C_FLDSP(const Op& op);
+    void ProcessRV64C_FSD(const Op& op);
+    void ProcessRV64C_FSDSP(const Op& op);
+    void ProcessRV64C_J(const Op& op, vaddr_t pc);
+    void ProcessRV64C_JR(const Op& op);
+    void ProcessRV64C_JALR(const Op& op, vaddr_t pc);
+    void ProcessRV64C_LD(const Op& op);
+    void ProcessRV64C_LDSP(const Op& op);
+    void ProcessRV64C_LW(const Op& op);
+    void ProcessRV64C_LWSP(const Op& op);
+    void ProcessRV64C_SD(const Op& op);
+    void ProcessRV64C_SDSP(const Op& op);
+    void ProcessRV64C_SW(const Op& op);
+    void ProcessRV64C_SWSP(const Op& op);
+
     // RV32A / RV64A
     void ProcessRVA_Atomic32(const Op& op);
     void ProcessRVA_Atomic64(const Op& op);
@@ -124,6 +167,8 @@ private:
     void ProcessRVF_ConvertToInt32(const Op& op);
     void ProcessRVF_ConvertToInt64(const Op& op);
     void ProcessRVF_ConvertSign(const Op& op);
+    void ProcessRVF_Load(const Op& op);
+    void ProcessRVF_Store(const Op& op);
 
     void ProcessRV32F_Load(const Op& op);
     void ProcessRV32F_Store(const Op& op);
@@ -150,32 +195,11 @@ private:
     void ProcessRV64D_Load(const Op& op);
     void ProcessRV64D_Store(const Op& op);
 
-    // RV32C
-    void ProcessRV32C_Alu(const Op& op);
-    void ProcessRV32C_AluImm(const Op& op);
-    void ProcessRV32C_Branch(const Op& op, vaddr_t pc);
-    void ProcessRV32C_ADDI4SPN(const Op& op);
-    void ProcessRV32C_ADDI16SP(const Op& op);
-    void ProcessRV32C_FLD(const Op& op);
-    void ProcessRV32C_FLDSP(const Op& op);
-    void ProcessRV32C_FLW(const Op& op);
-    void ProcessRV32C_FLWSP(const Op& op);
-    void ProcessRV32C_FSD(const Op& op);
-    void ProcessRV32C_FSDSP(const Op& op);
-    void ProcessRV32C_FSW(const Op& op);
-    void ProcessRV32C_FSWSP(const Op& op);
-    void ProcessRV32C_J(const Op& op, vaddr_t pc);
-    void ProcessRV32C_JAL(const Op& op, vaddr_t pc);
-    void ProcessRV32C_JR(const Op& op);
-    void ProcessRV32C_JALR(const Op& op, vaddr_t pc);
-    void ProcessRV32C_LW(const Op& op);
-    void ProcessRV32C_LWSP(const Op& op);
-    void ProcessRV32C_SW(const Op& op);
-    void ProcessRV32C_SWSP(const Op& op);
-
     // Common
-    uint32_t ReadStackPointer();
-    void WriteLinkRegister(uint32_t value);
+    uint32_t ReadStackPointer32();
+    uint64_t ReadStackPointer64();
+    void WriteLinkRegister32(uint32_t value);
+    void WriteLinkRegister64(uint64_t value);
 
     void UpdateFpCsr();
     [[noreturn]] void Error(const Op& op);

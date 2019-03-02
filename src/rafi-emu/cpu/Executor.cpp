@@ -107,12 +107,6 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     case OpClass::RV32M:
         ProcessRV32M(op);
         break;
-    case OpClass::RV32F:
-        ProcessRV32F(op);
-        break;
-    case OpClass::RV32D:
-        ProcessRV32D(op);
-        break;
     case OpClass::RV32C:
         ProcessRV32C(op, pc);
         break;
@@ -122,18 +116,20 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     case OpClass::RV64M:
         ProcessRV64M(op);
         break;
-    case OpClass::RV64F:
-        ProcessRV64F(op);
-        break;
-    case OpClass::RV64D:
-        ProcessRV64D(op);
-        break;
     case OpClass::RV64C:
         ProcessRV64C(op, pc);
         break;
     case OpClass::RV32A:
     case OpClass::RV64A:
         ProcessRVA(op);
+        break;
+    case OpClass::RV32F:
+    case OpClass::RV64F:
+        ProcessRVF(op);
+        break;
+    case OpClass::RV32D:
+    case OpClass::RV64D:
+        ProcessRVD(op);
         break;
     default:
         Error(op);
@@ -432,15 +428,37 @@ void Executor::ProcessRVA(const Op& op)
     }
 }
 
-void Executor::ProcessRV32F(const Op& op)
+void Executor::ProcessRVF(const Op& op)
 {
     switch (op.opCode)
     {
     case OpCode::flw:
-        ProcessRV32F_Load(op);
+        if (op.opClass == OpClass::RV32F)
+        {
+            ProcessRV32F_Load(op);
+        }
+        else if (op.opClass == OpClass::RV64F)
+        {
+            ProcessRV64F_Load(op);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
         return;
     case OpCode::fsw:
-        ProcessRV32F_Store(op);
+        if (op.opClass == OpClass::RV32F)
+        {
+            ProcessRV32F_Store(op);
+        }
+        else if (op.opClass == OpClass::RV64F)
+        {
+            ProcessRV64F_Store(op);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
         return;
     case OpCode::fmadd_s:
     case OpCode::fmsub_s:
@@ -457,6 +475,8 @@ void Executor::ProcessRV32F(const Op& op)
     case OpCode::fmax_s:
     case OpCode::fcvt_s_w:
     case OpCode::fcvt_s_wu:
+    case OpCode::fcvt_s_l:
+    case OpCode::fcvt_s_lu:
         ProcessRVF_Compute(op);
         return;
     case OpCode::feq_s:
@@ -477,6 +497,10 @@ void Executor::ProcessRV32F(const Op& op)
     case OpCode::fcvt_wu_s:
         ProcessRVF_ConvertToInt32(op);
         return;
+    case OpCode::fcvt_l_s:
+    case OpCode::fcvt_lu_s:
+        ProcessRVF_ConvertToInt64(op);
+        return;
     case OpCode::fsgnj_s:
     case OpCode::fsgnjn_s:
     case OpCode::fsgnjx_s:
@@ -487,15 +511,37 @@ void Executor::ProcessRV32F(const Op& op)
     }
 }
 
-void Executor::ProcessRV32D(const Op& op)
+void Executor::ProcessRVD(const Op& op)
 {
     switch (op.opCode)
     {
     case OpCode::fld:
-        ProcessRV32D_Load(op);
+        if (op.opClass == OpClass::RV32D)
+        {
+            ProcessRV32D_Load(op);
+        }
+        else if (op.opClass == OpClass::RV64D)
+        {
+            ProcessRV64D_Load(op);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
         return;
     case OpCode::fsd:
-        ProcessRV32D_Store(op);
+        if (op.opClass == OpClass::RV32F)
+        {
+            ProcessRV32D_Store(op);
+        }
+        else if (op.opClass == OpClass::RV64F)
+        {
+            ProcessRV64D_Store(op);
+        }
+        else
+        {
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
         return;
     case OpCode::fmadd_d:
     case OpCode::fmsub_d:
@@ -512,6 +558,8 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fmax_d:
     case OpCode::fcvt_d_w:
     case OpCode::fcvt_d_wu:
+    case OpCode::fcvt_d_l:
+    case OpCode::fcvt_d_lu:
         ProcessRVD_Compute(op);
         return;
     case OpCode::feq_d:
@@ -522,9 +570,19 @@ void Executor::ProcessRV32D(const Op& op)
     case OpCode::fclass_d:
         ProcessRVD_Class(op);
         return;
+    case OpCode::fmv_x_d:
+        ProcessRVD_MoveToInt(op);
+        return;
+    case OpCode::fmv_d_x:
+        ProcessRVD_MoveToFp(op);
+        return;
     case OpCode::fcvt_w_d:
     case OpCode::fcvt_wu_d:
         ProcessRVD_ConvertToInt32(op);
+        return;
+    case OpCode::fcvt_l_d:
+    case OpCode::fcvt_lu_d:
+        ProcessRVD_ConvertToInt64(op);
         return;
     case OpCode::fcvt_s_d:
         ProcessRVD_ConvertFp64ToFp32(op);
@@ -869,138 +927,90 @@ void Executor::ProcessRV64M(const Op& op)
     m_pIntRegFile->WriteInt64(operand.rd, value);
 }
 
-void Executor::ProcessRV64F(const Op& op)
-{
-    switch (op.opCode)
-    {
-    case OpCode::flw:
-        ProcessRV64F_Load(op);
-        return;
-    case OpCode::fsw:
-        ProcessRV64F_Store(op);
-        return;
-    case OpCode::fmadd_s:
-    case OpCode::fmsub_s:
-    case OpCode::fnmadd_s:
-    case OpCode::fnmsub_s:
-        ProcessRVF_MulAdd(op);
-        return;
-    case OpCode::fadd_s:
-    case OpCode::fsub_s:
-    case OpCode::fmul_s:
-    case OpCode::fdiv_s:
-    case OpCode::fsqrt_s:
-    case OpCode::fmin_s:
-    case OpCode::fmax_s:
-    case OpCode::fcvt_s_w:
-    case OpCode::fcvt_s_wu:
-    case OpCode::fcvt_s_l:
-    case OpCode::fcvt_s_lu:
-        ProcessRVF_Compute(op);
-        return;
-    case OpCode::feq_s:
-    case OpCode::flt_s:
-    case OpCode::fle_s:
-        ProcessRVF_Compare(op);
-        return;
-    case OpCode::fclass_s:
-        ProcessRVF_Class(op);
-        return;
-    case OpCode::fmv_x_w:
-        ProcessRVF_MoveToInt(op);
-        return;
-    case OpCode::fmv_w_x:
-        ProcessRVF_MoveToFp(op);
-        return;
-    case OpCode::fcvt_w_s:
-    case OpCode::fcvt_wu_s:
-        ProcessRVF_ConvertToInt32(op);
-        return;
-    case OpCode::fcvt_l_s:
-    case OpCode::fcvt_lu_s:
-        ProcessRVF_ConvertToInt64(op);
-        return;
-    case OpCode::fsgnj_s:
-    case OpCode::fsgnjn_s:
-    case OpCode::fsgnjx_s:
-        ProcessRVF_ConvertSign(op);
-        return;
-    default:
-        Error(op);
-    }
-}
-
-void Executor::ProcessRV64D(const Op& op)
-{
-    switch (op.opCode)
-    {
-    case OpCode::fld:
-        ProcessRV64D_Load(op);
-        return;
-    case OpCode::fsd:
-        ProcessRV64D_Store(op);
-        return;
-    case OpCode::fmadd_d:
-    case OpCode::fmsub_d:
-    case OpCode::fnmadd_d:
-    case OpCode::fnmsub_d:
-        ProcessRVD_MulAdd(op);
-        return;
-    case OpCode::fadd_d:
-    case OpCode::fsub_d:
-    case OpCode::fmul_d:
-    case OpCode::fdiv_d:
-    case OpCode::fsqrt_d:
-    case OpCode::fmin_d:
-    case OpCode::fmax_d:
-    case OpCode::fcvt_d_w:
-    case OpCode::fcvt_d_wu:
-    case OpCode::fcvt_d_l:
-    case OpCode::fcvt_d_lu:
-        ProcessRVD_Compute(op);
-        return;
-    case OpCode::feq_d:
-    case OpCode::flt_d:
-    case OpCode::fle_d:
-        ProcessRVD_Compare(op);
-        return;
-    case OpCode::fclass_d:
-        ProcessRVD_Class(op);
-        return;
-    case OpCode::fmv_x_d:
-        ProcessRVD_MoveToInt(op);
-        return;
-    case OpCode::fmv_d_x:
-        ProcessRVD_MoveToFp(op);
-        return;
-    case OpCode::fcvt_w_d:
-    case OpCode::fcvt_wu_d:
-        ProcessRVD_ConvertToInt32(op);
-        return;
-    case OpCode::fcvt_l_d:
-    case OpCode::fcvt_lu_d:
-        ProcessRVD_ConvertToInt64(op);
-        return;
-    case OpCode::fcvt_s_d:
-        ProcessRVD_ConvertFp64ToFp32(op);
-        return;
-    case OpCode::fcvt_d_s:
-        ProcessRVD_ConvertFp32ToFp64(op);
-        return;
-    case OpCode::fsgnj_d:
-    case OpCode::fsgnjn_d:
-    case OpCode::fsgnjx_d:
-        ProcessRVD_ConvertSign(op);
-        return;
-    default:
-        Error(op);
-    }
-}
-
 void Executor::ProcessRV64C(const Op& op, vaddr_t pc)
 {
-    (void)pc;
-    Error(op);
+    switch (op.opCode)
+    {
+    case OpCode::c_nop:
+        return;
+    case OpCode::c_mv:
+    case OpCode::c_add:
+    case OpCode::c_addw:
+    case OpCode::c_sub:
+    case OpCode::c_subw:
+    case OpCode::c_and:
+    case OpCode::c_or:
+    case OpCode::c_xor:
+        ProcessRV64C_Alu(op);
+        return;
+    case OpCode::c_li:
+    case OpCode::c_lui:
+    case OpCode::c_addi:
+    case OpCode::c_addiw:
+    case OpCode::c_andi:
+    case OpCode::c_srli:
+    case OpCode::c_srai:
+    case OpCode::c_slli:
+        ProcessRV64C_AluImm(op);
+        return;
+    case OpCode::c_beqz:
+    case OpCode::c_bnez:
+        ProcessRV64C_Branch(op, pc);
+        return;
+    case OpCode::c_addi4spn:
+        ProcessRV64C_ADDI4SPN(op);
+        return;
+    case OpCode::c_addi16sp:
+        ProcessRV64C_ADDI16SP(op);
+        return;
+    case OpCode::c_fld:
+        ProcessRV64C_FLD(op);
+        return;
+    case OpCode::c_fldsp:
+        ProcessRV64C_FLDSP(op);
+        return;
+    case OpCode::c_fsd:
+        ProcessRV64C_FSD(op);
+        return;
+    case OpCode::c_fsdsp:
+        ProcessRV64C_FSDSP(op);
+        return;
+    case OpCode::c_j:
+        ProcessRV64C_J(op, pc);
+        return;
+    case OpCode::c_jr:
+        ProcessRV64C_JR(op);
+        return;
+    case OpCode::c_jalr:
+        ProcessRV64C_JALR(op, pc);
+        return;
+    case OpCode::c_ld:
+        ProcessRV64C_LD(op);
+        return;
+    case OpCode::c_ldsp:
+        ProcessRV64C_LDSP(op);
+        return;
+    case OpCode::c_lw:
+        ProcessRV64C_LW(op);
+        return;
+    case OpCode::c_lwsp:
+        ProcessRV64C_LWSP(op);
+        return;
+    case OpCode::c_sd:
+        ProcessRV64C_SD(op);
+        return;
+    case OpCode::c_sdsp:
+        ProcessRV64C_SDSP(op);
+        return;
+    case OpCode::c_sw:
+        ProcessRV64C_SW(op);
+        return;
+    case OpCode::c_swsp:
+        ProcessRV64C_SWSP(op);
+        return;
+    default:
+        Error(op);
+    }
 }
 
 void Executor::ProcessRV32I_Lui(const Op& op)
@@ -1731,6 +1741,556 @@ void Executor::ProcessRV64I_CsrImm(const Op& op)
     }
 
     m_pIntRegFile->WriteInt64(operand.rd, srcCsr);
+}
+
+
+void Executor::ProcessRV32C_Alu(const Op& op)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src2 = m_pIntRegFile->ReadInt32(operand.rs2);
+
+    int32_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_mv:
+        result = src2;
+        break;
+    case OpCode::c_add:
+        result = src1 + src2;
+        break;
+    case OpCode::c_sub:
+        result = src1 - src2;
+        break;
+    case OpCode::c_and:
+        result = src1 & src2;
+        break;
+    case OpCode::c_or:
+        result = src1 | src2;
+        break;
+    case OpCode::c_xor:
+        result = src1 ^ src2;
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt32(operand.rd, result);
+}
+
+void Executor::ProcessRV32C_AluImm(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src1_u = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    int32_t result;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_li:
+    case OpCode::c_lui:
+        result = operand.imm;
+        break;
+    case OpCode::c_addi:
+        result = src1 + operand.imm;
+        break;
+    case OpCode::c_andi:
+        result = src1 & operand.imm;
+        break;
+    case OpCode::c_srli:
+        result = static_cast<int32_t>(src1_u >> operand.imm);
+        break;
+    case OpCode::c_srai:
+        result = src1 >> operand.imm;
+        break;
+    case OpCode::c_slli:
+        result = src1 << operand.imm;
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt32(operand.rd, result);
+}
+
+void Executor::ProcessRV32C_Branch(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCB>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
+
+    bool cond;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_beqz:
+        cond = (src1 == 0);
+        break;
+    case OpCode::c_bnez:
+        cond = (src1 != 0);
+        break;
+    default:
+        Error(op);
+    }
+
+    if (cond)
+    {
+        m_pCsr->SetProgramCounter(pc + operand.imm);
+    }
+}
+
+void Executor::ProcessRV32C_ADDI4SPN(const Op& op)
+{
+    const auto& operand = std::get<OperandCIW>(op.operand);
+
+    const auto result = ReadStackPointer32() + operand.imm;
+
+    m_pIntRegFile->WriteUInt32(operand.rd, result);
+}
+
+void Executor::ProcessRV32C_ADDI16SP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto result = ReadStackPointer32() + operand.imm;
+
+    m_pIntRegFile->WriteUInt32(operand.rd, result);
+}
+
+void Executor::ProcessRV32C_FLD(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pFpRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_FLDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pFpRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_FLW(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    m_pFpRegFile->WriteUInt32(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_FLWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    m_pFpRegFile->WriteUInt32(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_FSD(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV32C_FSDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV32C_FSW(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
+}
+
+void Executor::ProcessRV32C_FSWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
+}
+
+void Executor::ProcessRV32C_J(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCJ>(op.operand);
+
+    m_pCsr->SetProgramCounter(pc + operand.imm);
+}
+
+void Executor::ProcessRV32C_JAL(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCJ>(op.operand);
+
+    m_pCsr->SetProgramCounter(pc + operand.imm);
+
+    WriteLinkRegister32(pc + 2);
+}
+
+void Executor::ProcessRV32C_JR(const Op& op)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    m_pCsr->SetProgramCounter(target);
+}
+
+void Executor::ProcessRV32C_JALR(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    m_pCsr->SetProgramCounter(target);
+    WriteLinkRegister32(pc + 2);
+}
+
+void Executor::ProcessRV32C_LW(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_LWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    m_pIntRegFile->WriteUInt32(operand.rd, value);
+}
+
+void Executor::ProcessRV32C_SW(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
+}
+
+void Executor::ProcessRV32C_SWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
+}
+
+
+void Executor::ProcessRV64C_Alu(const Op& op)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
+    const auto src2 = m_pIntRegFile->ReadInt64(operand.rs2);
+
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src2_s32 = m_pIntRegFile->ReadInt32(operand.rs2);
+
+    int64_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_mv:
+        value = src2;
+        break;
+    case OpCode::c_add:
+        value = src1 + src2;
+        break;
+    case OpCode::c_addw:
+        value = SignExtend<int64_t>(32, src1_s32 + src2_s32);
+        break;
+    case OpCode::c_sub:
+        value = src1 - src2;
+        break;
+    case OpCode::c_subw:
+        value = SignExtend<int64_t>(32, src1_s32 - src2_s32);
+        break;
+    case OpCode::c_and:
+        value = src1 & src2;
+        break;
+    case OpCode::c_or:
+        value = src1 | src2;
+        break;
+    case OpCode::c_xor:
+        value = src1 ^ src2;
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_AluImm(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
+    const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+
+    int64_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_li:
+    case OpCode::c_lui:
+        value = operand.imm;
+        break;
+    case OpCode::c_addi:
+        value = src1 + operand.imm;
+        break;
+    case OpCode::c_addiw:
+        value = SignExtend(32, src1_s32 + operand.imm);
+        break;
+    case OpCode::c_andi:
+        value = src1 & operand.imm;
+        break;
+    case OpCode::c_srli:
+        value = static_cast<int64_t>(src1_u >> operand.imm);
+        break;
+    case OpCode::c_srai:
+        value = src1 >> operand.imm;
+        break;
+    case OpCode::c_slli:
+        value = src1 << operand.imm;
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_Branch(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCB>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
+
+    bool cond;
+
+    switch (op.opCode)
+    {
+    case OpCode::c_beqz:
+        cond = (src1 == 0);
+        break;
+    case OpCode::c_bnez:
+        cond = (src1 != 0);
+        break;
+    default:
+        Error(op);
+    }
+
+    if (cond)
+    {
+        m_pCsr->SetProgramCounter(pc + operand.imm);
+    }
+}
+
+void Executor::ProcessRV64C_ADDI4SPN(const Op& op)
+{
+    const auto& operand = std::get<OperandCIW>(op.operand);
+
+    const auto result = ReadStackPointer64() + operand.imm;
+
+    m_pIntRegFile->WriteUInt64(operand.rd, result);
+}
+
+void Executor::ProcessRV64C_ADDI16SP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto result = ReadStackPointer64() + operand.imm;
+
+    m_pIntRegFile->WriteUInt64(operand.rd, result);
+}
+
+void Executor::ProcessRV64C_FLD(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pFpRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_FLDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pFpRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_FSD(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV64C_FSDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV64C_J(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCJ>(op.operand);
+
+    m_pCsr->SetProgramCounter(pc + operand.imm);
+}
+
+void Executor::ProcessRV64C_JR(const Op& op)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto target = m_pIntRegFile->ReadUInt64(operand.rs1);
+
+    m_pCsr->SetProgramCounter(target);
+}
+
+void Executor::ProcessRV64C_JALR(const Op& op, vaddr_t pc)
+{
+    const auto& operand = std::get<OperandCR>(op.operand);
+
+    const auto target = m_pIntRegFile->ReadUInt64(operand.rs1);
+
+    m_pCsr->SetProgramCounter(target);
+    WriteLinkRegister64(pc + 2);
+}
+
+void Executor::ProcessRV64C_LD(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pIntRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_LDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
+
+    m_pIntRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_LW(const Op& op)
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = SignExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
+
+    m_pIntRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_LWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+    const auto value = SignExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
+
+    m_pIntRegFile->WriteUInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64C_SD(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV64C_SDSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt64(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt64(address, value);
+}
+
+void Executor::ProcessRV64C_SW(const Op& op)
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
+}
+
+void Executor::ProcessRV64C_SWSP(const Op& op)
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    m_pMemAccessUnit->StoreUInt32(address, value);
 }
 
 void Executor::ProcessRVA_Atomic32(const Op& op)
@@ -2505,286 +3065,24 @@ void Executor::ProcessRV64D_Store(const Op& op)
     m_pMemAccessUnit->StoreUInt64(address, value);
 }
 
-void Executor::ProcessRV32C_Alu(const Op& op)
-{
-    const auto& operand = std::get<OperandCR>(op.operand);
-
-    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadInt32(operand.rs2);
-
-    int32_t result;
-
-    switch (op.opCode)
-    {
-    case OpCode::c_mv:
-        result = src2;
-        break;
-    case OpCode::c_add:
-        result = src1 + src2;
-        break;
-    case OpCode::c_sub:
-        result = src1 - src2;
-        break;
-    case OpCode::c_and:
-        result = src1 & src2;
-        break;
-    case OpCode::c_or:
-        result = src1 | src2;
-        break;
-    case OpCode::c_xor:
-        result = src1 ^ src2;
-        break;
-    default:
-        Error(op);
-    }
-
-    m_pIntRegFile->WriteInt32(operand.rd, result);
-}
-
-void Executor::ProcessRV32C_AluImm(const Op& op)
-{
-    const auto& operand = std::get<OperandCI>(op.operand);
-
-    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
-    const auto src1_u = m_pIntRegFile->ReadUInt32(operand.rs1);
-
-    int32_t result;
-
-    switch (op.opCode)
-    {
-    case OpCode::c_li:
-    case OpCode::c_lui:
-        result = operand.imm;
-        break;
-    case OpCode::c_addi:
-        result = src1 + operand.imm;
-        break;
-    case OpCode::c_andi:
-        result = src1 & operand.imm;
-        break;
-    case OpCode::c_srli:
-        result = static_cast<int32_t>(src1_u >> operand.imm);
-        break;
-    case OpCode::c_srai:
-        result = src1 >> operand.imm;
-        break;
-    case OpCode::c_slli:
-        result = src1 << operand.imm;
-        break;
-    default:
-        Error(op);
-    }
-
-    m_pIntRegFile->WriteInt32(operand.rd, result);
-}
-
-void Executor::ProcessRV32C_Branch(const Op& op, vaddr_t pc)
-{
-    const auto& operand = std::get<OperandCB>(op.operand);
-
-    const auto src1 = m_pIntRegFile->ReadInt32(operand.rs1);
-
-    bool cond;
-
-    switch (op.opCode)
-    {
-    case OpCode::c_beqz:
-        cond = (src1 == 0);
-        break;
-    case OpCode::c_bnez:
-        cond = (src1 != 0);
-        break;
-    default:
-        Error(op);
-    }
-
-    if (cond)
-    {
-        m_pCsr->SetProgramCounter(pc + operand.imm);
-    }
-}
-
-void Executor::ProcessRV32C_ADDI4SPN(const Op& op)
-{
-    const auto& operand = std::get<OperandCIW>(op.operand);
-
-    const auto result = ReadStackPointer() + operand.imm;
-
-    m_pIntRegFile->WriteUInt32(operand.rd, result);
-}
-
-void Executor::ProcessRV32C_ADDI16SP(const Op& op)
-{
-    const auto& operand = std::get<OperandCI>(op.operand);
-
-    const auto result = ReadStackPointer() + operand.imm;
-
-    m_pIntRegFile->WriteUInt32(operand.rd, result);
-}
-
-void Executor::ProcessRV32C_FLD(const Op& op)
-{
-    const auto& operand = std::get<OperandCL>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt64(address);
-
-    m_pFpRegFile->WriteUInt64(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_FLDSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCI>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt64(address);
-
-    m_pFpRegFile->WriteUInt64(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_FLW(const Op& op)
-{
-    const auto& operand = std::get<OperandCL>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt32(address);
-
-    m_pFpRegFile->WriteUInt32(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_FLWSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCI>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt32(address);
-
-    m_pFpRegFile->WriteUInt32(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_FSD(const Op& op)
-{
-    const auto& operand = std::get<OperandCS>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt64(address, value);
-}
-
-void Executor::ProcessRV32C_FSDSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCSS>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt64(address, value);
-}
-
-void Executor::ProcessRV32C_FSW(const Op& op)
-{
-    const auto& operand = std::get<OperandCS>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt32(address, value);
-}
-
-void Executor::ProcessRV32C_FSWSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCSS>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt32(address, value);
-}
-
-void Executor::ProcessRV32C_J(const Op& op, vaddr_t pc)
-{
-    const auto& operand = std::get<OperandCJ>(op.operand);
-
-    m_pCsr->SetProgramCounter(pc + operand.imm);
-}
-
-void Executor::ProcessRV32C_JAL(const Op& op, vaddr_t pc)
-{
-    const auto& operand = std::get<OperandCJ>(op.operand);
-
-    m_pCsr->SetProgramCounter(pc + operand.imm);
-
-    WriteLinkRegister(pc + 2);
-}
-
-void Executor::ProcessRV32C_JR(const Op& op)
-{
-    const auto& operand = std::get<OperandCR>(op.operand);
-
-    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
-
-    m_pCsr->SetProgramCounter(target);
-}
-
-void Executor::ProcessRV32C_JALR(const Op& op, vaddr_t pc)
-{
-    const auto& operand = std::get<OperandCR>(op.operand);
-
-    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
-
-    m_pCsr->SetProgramCounter(target);
-    WriteLinkRegister(pc + 2);
-}
-
-void Executor::ProcessRV32C_LW(const Op& op)
-{
-    const auto& operand = std::get<OperandCL>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt32(address);
-
-    m_pIntRegFile->WriteUInt32(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_LWSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCI>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pMemAccessUnit->LoadUInt32(address);
-
-    m_pIntRegFile->WriteUInt32(operand.rd, value);
-}
-
-void Executor::ProcessRV32C_SW(const Op& op)
-{
-    const auto& operand = std::get<OperandCS>(op.operand);
-
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
-    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt32(address, value);
-}
-
-void Executor::ProcessRV32C_SWSP(const Op& op)
-{
-    const auto& operand = std::get<OperandCSS>(op.operand);
-
-    const auto address = ReadStackPointer() + operand.imm;
-    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
-
-    m_pMemAccessUnit->StoreUInt32(address, value);
-}
-
-uint32_t Executor::ReadStackPointer()
+uint32_t Executor::ReadStackPointer32()
 {
     return m_pIntRegFile->ReadUInt32(2);
 }
 
-void Executor::WriteLinkRegister(uint32_t value)
+uint64_t Executor::ReadStackPointer64()
+{
+    return m_pIntRegFile->ReadUInt64(2);
+}
+
+void Executor::WriteLinkRegister32(uint32_t value)
 {
     return m_pIntRegFile->WriteUInt32(1, value);
+}
+
+void Executor::WriteLinkRegister64(uint64_t value)
+{
+    return m_pIntRegFile->WriteUInt64(1, value);
 }
 
 void Executor::UpdateFpCsr()
