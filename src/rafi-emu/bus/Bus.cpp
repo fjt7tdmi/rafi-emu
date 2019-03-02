@@ -23,7 +23,7 @@
 
 namespace rafi { namespace emu { namespace bus {
 
-void Bus::Read(void* pOutBuffer, size_t size, PhysicalAddress address)
+void Bus::Read(void* pOutBuffer, size_t size, paddr_t address)
 {
     if (IsMemoryAddress(address, size))
     {
@@ -41,7 +41,7 @@ void Bus::Read(void* pOutBuffer, size_t size, PhysicalAddress address)
     }
 }
 
-void Bus::Write(const void* pBuffer, size_t size, PhysicalAddress address)
+void Bus::Write(const void* pBuffer, size_t size, paddr_t address)
 {
     if (IsMemoryAddress(address, sizeof(int8_t)))
     {
@@ -59,7 +59,7 @@ void Bus::Write(const void* pBuffer, size_t size, PhysicalAddress address)
     }
 }
 
-uint8_t Bus::ReadUInt8(PhysicalAddress address)
+uint8_t Bus::ReadUInt8(paddr_t address)
 {
     int8_t value;
     Read(&value, sizeof(value), address);
@@ -67,7 +67,7 @@ uint8_t Bus::ReadUInt8(PhysicalAddress address)
     return value;
 }
 
-uint16_t Bus::ReadUInt16(PhysicalAddress address)
+uint16_t Bus::ReadUInt16(paddr_t address)
 {
     int16_t value;
     Read(&value, sizeof(value), address);
@@ -75,7 +75,7 @@ uint16_t Bus::ReadUInt16(PhysicalAddress address)
     return value;
 }
 
-uint32_t Bus::ReadUInt32(PhysicalAddress address)
+uint32_t Bus::ReadUInt32(paddr_t address)
 {
     uint32_t value;
     Read(&value, sizeof(value), address);
@@ -83,7 +83,7 @@ uint32_t Bus::ReadUInt32(PhysicalAddress address)
     return value;
 }
 
-uint64_t Bus::ReadUInt64(PhysicalAddress address)
+uint64_t Bus::ReadUInt64(paddr_t address)
 {
     int64_t value;
     Read(&value, sizeof(value), address);
@@ -91,39 +91,39 @@ uint64_t Bus::ReadUInt64(PhysicalAddress address)
     return value;
 }
 
-void Bus::WriteUInt8(PhysicalAddress address, uint8_t value)
+void Bus::WriteUInt8(paddr_t address, uint8_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteUInt16(PhysicalAddress address, uint16_t value)
+void Bus::WriteUInt16(paddr_t address, uint16_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteUInt32(PhysicalAddress address, uint32_t value)
+void Bus::WriteUInt32(paddr_t address, uint32_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::WriteUInt64(PhysicalAddress address, uint64_t value)
+void Bus::WriteUInt64(paddr_t address, uint64_t value)
 {
     Write(&value, sizeof(value), address);
 }
 
-void Bus::RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size)
+void Bus::RegisterMemory(mem::IMemory* pMemory, paddr_t address, int size)
 {
     MemoryInfo info { pMemory, address, size };
     m_MemoryList.push_back(info);
 }
 
-void Bus::RegisterIo(io::IIo* pIo, PhysicalAddress address, int size)
+void Bus::RegisterIo(io::IIo* pIo, paddr_t address, int size)
 {
     IoInfo info { pIo, address, size };
     m_IoList.push_back(info);
 }
 
-MemoryLocation Bus::ConvertToMemoryLocation(PhysicalAddress address) const
+MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
 {
     for (const auto& location: m_MemoryList)
     {
@@ -141,7 +141,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(PhysicalAddress address) const
     RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
 }
 
-bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
+bool Bus::IsMemoryAddress(paddr_t address, int accessSize) const
 {
     const auto low = address;
     const auto high = address + accessSize - 1;
@@ -157,7 +157,7 @@ bool Bus::IsMemoryAddress(PhysicalAddress address, int accessSize) const
     return false;
 }
 
-IoLocation Bus::ConvertToIoLocation(PhysicalAddress address) const
+IoLocation Bus::ConvertToIoLocation(paddr_t address) const
 {
     for (const auto& location: m_IoList)
     {
@@ -175,7 +175,7 @@ IoLocation Bus::ConvertToIoLocation(PhysicalAddress address) const
     RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
 }
 
-bool Bus::IsIoAddress(PhysicalAddress address, int accessSize) const
+bool Bus::IsIoAddress(paddr_t address, int accessSize) const
 {
     const auto low = address;
     const auto high = address + accessSize - 1;

@@ -19,14 +19,14 @@
 
 namespace rafi { namespace emu {
 
-System::System(uint32_t pc, int ramSize)
+System::System(XLEN xlen, vaddr_t pc, int ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
     , m_TimerInterruptSource(&m_Timer)
-    , m_Processor(&m_Bus, pc)
+    , m_Processor(xlen, &m_Bus, pc)
 {
     m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.GetCapacity());
     m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.GetCapacity());
@@ -37,13 +37,13 @@ System::System(uint32_t pc, int ramSize)
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
 }
 
-void System::LoadFileToMemory(const char* path, PhysicalAddress address)
+void System::LoadFileToMemory(const char* path, paddr_t address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);
     location.pMemory->LoadFile(path, location.offset);
 }
 
-void System::SetHostIoAddress(uint32_t address)
+void System::SetHostIoAddress(vaddr_t address)
 {
     m_HostIoAddress = address;
 }
@@ -80,14 +80,24 @@ uint32_t System::GetHostIoValue() const
     return value;
 }
 
-void System::CopyCsr(void* pOut, size_t size) const
+void System::CopyIntReg(trace::IntReg32Node* pOut) const
 {
-    m_Processor.CopyCsr(pOut, size);
+    m_Processor.CopyIntReg(pOut);
 }
 
-void System::CopyIntReg(void* pOut, size_t size) const
+void System::CopyIntReg(trace::IntReg64Node* pOut) const
 {
-    m_Processor.CopyIntReg(pOut, size);
+    m_Processor.CopyIntReg(pOut);
+}
+
+void System::CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const
+{
+    m_Processor.CopyCsr(pOutNodes, nodeCount);
+}
+
+void System::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
+{
+    m_Processor.CopyCsr(pOutNodes, nodeCount);
 }
 
 void System::CopyFpReg(void* pOut, size_t size) const
@@ -98,16 +108,6 @@ void System::CopyFpReg(void* pOut, size_t size) const
 void System::CopyRam(void* pOut, size_t size) const
 {
     m_Ram.Copy(pOut, size);
-}
-
-void System::CopyCsrReadEvent(CsrReadEvent* pOut) const
-{
-    return m_Processor.CopyCsrReadEvent(pOut);
-}
-
-void System::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
-{
-    return m_Processor.CopyCsrWriteEvent(pOut);
 }
 
 void System::CopyOpEvent(OpEvent* pOut) const
@@ -123,16 +123,6 @@ void System::CopyTrapEvent(TrapEvent* pOut) const
 void System::CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const
 {
     return m_Processor.CopyMemoryAccessEvent(pOut, index);
-}
-
-bool System::IsCsrReadEventExist() const
-{
-    return m_Processor.IsCsrReadEventExist();
-}
-
-bool System::IsCsrWriteEventExist() const
-{
-    return m_Processor.IsCsrWriteEventExist();
 }
 
 bool System::IsOpEventExist() const

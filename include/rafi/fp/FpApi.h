@@ -63,19 +63,24 @@ uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z);
 uint64_t NegMulSub(uint64_t x, uint64_t y, uint64_t z);
 
 int32_t DoubleToInt32(uint64_t x, int roundMode);
-uint32_t DoubleToUInt32(uint64_t x, int roundMode);
-
 int64_t DoubleToInt64(uint64_t x, int roundMode);
+uint32_t DoubleToUInt32(uint64_t x, int roundMode);
 uint64_t DoubleToUInt64(uint64_t x, int roundMode);
 
 int32_t FloatToInt32(uint32_t x, int roundMode);
+int64_t FloatToInt64(uint32_t x, int roundMode);
 uint32_t FloatToUInt32(uint32_t x, int roundMode);
+uint64_t FloatToUInt64(uint32_t x, int roundMode);
 
 uint64_t Int32ToDouble(int32_t x);
+uint64_t Int64ToDouble(int64_t x);
 uint64_t UInt32ToDouble(uint32_t x);
+uint64_t UInt64ToDouble(uint64_t x);
 
 uint32_t Int32ToFloat(int32_t x);
+uint32_t Int64ToFloat(int64_t x);
 uint32_t UInt32ToFloat(uint32_t x);
+uint32_t UInt64ToFloat(uint64_t x);
 
 uint32_t DoubleToFloat(uint64_t x);
 uint64_t FloatToDouble(uint32_t x);

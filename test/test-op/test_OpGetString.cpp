@@ -26,7 +26,7 @@ using namespace rafi;
 
 TEST(OpTest, GetString)
 {
-    Decoder decoder;
+    Decoder decoder(XLEN::XLEN32);
 
     const Op& auipc = Op{ OpClass::RV32I, OpCode::auipc, OperandI {10, 3} };
     const Op& lui = decoder.Decode(0xfffff8b7);

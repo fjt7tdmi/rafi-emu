@@ -26,32 +26,45 @@ namespace rafi { namespace emu { namespace cpu {
 class IntRegFile
 {
 public:
-    static const int RegCount = 32;
-
     IntRegFile();
 
-    void Copy(void* pOut, size_t size) const;
+    void Copy(trace::IntReg32Node* pOut) const;
+    void Copy(trace::IntReg64Node* pOut) const;
 
 	int32_t ReadInt32(int regId) const;
+	int64_t ReadInt64(int regId) const;
 	uint32_t ReadUInt32(int regId) const;
+	uint64_t ReadUInt64(int regId) const;
 
     void WriteInt32(int regId, int32_t value);
+    void WriteInt64(int regId, int64_t value);
     void WriteUInt32(int regId, uint32_t value);
+    void WriteUInt64(int regId, uint64_t value);
 
 private:
     union Entry
     {
         struct
         {
+            int32_t value;
+            int32_t invalid;
+        } s32;
+        struct
+        {
+            int64_t value;
+        } s64;
+        struct
+        {
             uint32_t value;
+            uint32_t invalid;
         } u32;
         struct
         {
-            int32_t value;
-        } s32;
+            uint64_t value;
+        } u64;
     };
 
-	Entry m_Entries[RegCount];
+	Entry m_Entries[IntRegCount];
 };
 
 }}}

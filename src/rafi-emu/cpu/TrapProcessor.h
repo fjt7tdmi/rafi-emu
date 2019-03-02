@@ -21,7 +21,6 @@
 #include <rafi/emu.h>
 
 #include "Csr.h"
-#include "CsrTypes.h"
 #include "Trap.h"
 
 namespace rafi { namespace emu { namespace cpu {
@@ -29,13 +28,14 @@ namespace rafi { namespace emu { namespace cpu {
 class TrapProcessor
 {
 public:
-    explicit TrapProcessor(Csr* pCsr)
-        : m_pCsr(pCsr)
+    explicit TrapProcessor(XLEN xlen, Csr* pCsr)
+        : m_XLEN(xlen)
+        , m_pCsr(pCsr)
 	{
 	}
 
     void ProcessException(const Trap& trap);
-    void ProcessInterrupt(InterruptType type, uint32_t pc);
+    void ProcessInterrupt(InterruptType type, vaddr_t pc);
     void ProcessTrapReturn(PrivilegeLevel level);
 
     // for Dump
@@ -44,13 +44,13 @@ public:
     bool IsTrapEventExist() const;
 
 private:
-    void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint32_t trapValue, uint32_t pc, PrivilegeLevel nextPrivilegeLevel);
+    void ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, uint64_t trapValue, vaddr_t pc, PrivilegeLevel nextPrivilegeLevel);
 
+    XLEN m_XLEN;
     Csr* m_pCsr;
 
-    bool m_TrapEventValid { false };
-
     TrapEvent m_TrapEvent;
+    bool m_TrapEventValid { false };
 };
 
 }}}

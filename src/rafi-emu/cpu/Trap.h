@@ -22,29 +22,29 @@
 #include <iostream>
 #include <variant>
 
-#include <rafi/common.h>
+#include <rafi/emu.h>
 
 namespace rafi { namespace emu { namespace cpu {
 
 struct Trap
 {
     ExceptionType type;
-    uint32_t pc;
-    uint32_t trapValue;
+    vaddr_t pc;
+    uint64_t trapValue;
 };
 
-Trap MakeInstructionAddressMisalignedException(uint32_t pc);
-Trap MakeInstructionAccessFaultException(uint32_t pc);
-Trap MakeIllegalInstructionException(uint32_t pc, uint32_t insn);
-Trap MakeBreakpointException(uint32_t pc);
-Trap MakeLoadAddressMisalignedException(uint32_t pc, uint32_t address);
-Trap MakeLoadAccessFaultException(uint32_t pc, uint32_t address);
-Trap MakeStoreAccessFaultException(uint32_t pc, uint32_t address);
-Trap MakeEnvironmentCallFromUserException(uint32_t pc);
-Trap MakeEnvironmentCallFromSupervisorException(uint32_t pc);
-Trap MakeEnvironmentCallFromMachineException(uint32_t pc);
-Trap MakeInstructionPageFaultException(uint32_t pc);
-Trap MakeLoadPageFaultException(uint32_t pc, uint32_t address);
-Trap MakeStorePageFaultException(uint32_t pc, uint32_t address);
+Trap MakeInstructionAddressMisalignedException(vaddr_t pc);
+Trap MakeInstructionAccessFaultException(vaddr_t pc);
+Trap MakeIllegalInstructionException(vaddr_t pc, uint32_t insn);
+Trap MakeBreakpointException(vaddr_t pc);
+Trap MakeLoadAddressMisalignedException(vaddr_t pc, vaddr_t address);
+Trap MakeLoadAccessFaultException(vaddr_t pc, vaddr_t address);
+Trap MakeStoreAccessFaultException(vaddr_t pc, vaddr_t address);
+Trap MakeEnvironmentCallFromUserException(vaddr_t pc);
+Trap MakeEnvironmentCallFromSupervisorException(vaddr_t pc);
+Trap MakeEnvironmentCallFromMachineException(vaddr_t pc);
+Trap MakeInstructionPageFaultException(vaddr_t pc);
+Trap MakeLoadPageFaultException(vaddr_t pc, vaddr_t address);
+Trap MakeStorePageFaultException(vaddr_t pc, vaddr_t address);
 
 }}}

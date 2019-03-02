@@ -36,7 +36,7 @@ namespace {
 
 void PrintBasicInfoNode(const BasicInfoNode* node)
 {
-    Decoder decoder;
+    Decoder decoder(XLEN::XLEN32);
     auto op = decoder.Decode(node->insn);
 
     char opStr[64];
@@ -148,12 +148,96 @@ void PrintIntReg32Node(const IntReg32Node* node)
     );
 }
 
+void PrintIntReg64Node(const IntReg64Node* node)
+{
+    printf(
+        "  IntReg64: {\n"
+        "    x0:  0x%016llx // zero\n"
+        "    x1:  0x%016llx // ra\n"
+        "    x2:  0x%016llx // sp\n"
+        "    x3:  0x%016llx // gp\n"
+        "    x4:  0x%016llx // tp\n"
+        "    x5:  0x%016llx // t0\n"
+        "    x6:  0x%016llx // t1\n"
+        "    x7:  0x%016llx // t2\n"
+        "    x8:  0x%016llx // s0 (fp)\n"
+        "    x9:  0x%016llx // s1\n"
+        "    x10: 0x%016llx // a0\n"
+        "    x11: 0x%016llx // a1\n"
+        "    x12: 0x%016llx // a2\n"
+        "    x13: 0x%016llx // a3\n"
+        "    x14: 0x%016llx // a4\n"
+        "    x15: 0x%016llx // a5\n"
+        "    x16: 0x%016llx // a6\n"
+        "    x17: 0x%016llx // a7\n"
+        "    x18: 0x%016llx // s2\n"
+        "    x19: 0x%016llx // s3\n"
+        "    x20: 0x%016llx // s4\n"
+        "    x21: 0x%016llx // s5\n"
+        "    x22: 0x%016llx // s6\n"
+        "    x23: 0x%016llx // s7\n"
+        "    x24: 0x%016llx // s8\n"
+        "    x25: 0x%016llx // s9\n"
+        "    x26: 0x%016llx // s10\n"
+        "    x27: 0x%016llx // s11\n"
+        "    x28: 0x%016llx // t3\n"
+        "    x29: 0x%016llx // t4\n"
+        "    x30: 0x%016llx // t5\n"
+        "    x31: 0x%016llx // t6\n"
+        "  }\n",
+        node->regs[0],
+        node->regs[1],
+        node->regs[2],
+        node->regs[3],
+        node->regs[4],
+        node->regs[5],
+        node->regs[6],
+        node->regs[7],
+        node->regs[8],
+        node->regs[9],
+        node->regs[10],
+        node->regs[11],
+        node->regs[12],
+        node->regs[13],
+        node->regs[14],
+        node->regs[15],
+        node->regs[16],
+        node->regs[17],
+        node->regs[18],
+        node->regs[19],
+        node->regs[20],
+        node->regs[21],
+        node->regs[22],
+        node->regs[23],
+        node->regs[24],
+        node->regs[25],
+        node->regs[26],
+        node->regs[27],
+        node->regs[28],
+        node->regs[29],
+        node->regs[30],
+        node->regs[31]
+    );
+}
+
 void PrintPc32Node(const Pc32Node* node)
 {
     printf(
         "  Pc32 {\n"
-        "    virtualPc:  0x%08x\n"
-        "    physicalPc: 0x%08x\n"
+        "    vaddr: 0x%08x\n"
+        "    paddr: 0x%08x\n"
+        "  }\n",
+        node->virtualPc,
+        node->physicalPc
+    );
+}
+
+void PrintPc64Node(const Pc64Node* node)
+{
+    printf(
+        "  Pc64 {\n"
+        "    vaddr: 0x%016llx\n"
+        "    paddr: 0x%016llx\n"
         "  }\n",
         node->virtualPc,
         node->physicalPc
@@ -169,6 +253,24 @@ void PrintTrap32Node(const Trap32Node* node)
         "    to:   %s\n"
         "    cause:     0x%08x\n"
         "    trapValue: 0x%08x\n"
+        "  }\n",
+        GetString(node->trapType),
+        GetString(node->from),
+        GetString(node->to),
+        node->cause,
+        node->trapValue
+    );
+}
+
+void PrintTrap64Node(const Trap64Node* node)
+{
+    printf(
+        "  Trap64 {\n"
+        "    type: %s\n"
+        "    from: %s\n"
+        "    to:   %s\n"
+        "    cause:     0x%016llx\n"
+        "    trapValue: 0x%016llx\n"
         "  }\n",
         GetString(node->trapType),
         GetString(node->from),
@@ -209,6 +311,19 @@ void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
     printf("  }\n");
 }
 
+void PrintCsr64Node(const Csr64Node* pNodes, int nodeCount)
+{
+    printf("  Cs64 {\n");
+
+    for (int i = 0; i < nodeCount; i++)
+    {
+        const auto address = static_cast<csr_addr_t>(pNodes[i].address);
+        printf("%16s: 0x%016llx\n", GetString(address), pNodes[i].value);
+    }
+
+    printf("  }\n");
+}
+
 void PrintIoNode(const IoNode* node)
 {
     printf(
@@ -235,9 +350,17 @@ void PrintCycle(const CycleReader& cycle, int cycleNum)
     {
         PrintPc32Node(cycle.GetPc32Node());
     }
+    if (cycle.GetNodeCount(NodeType::Pc64) > 0)
+    {
+        PrintPc64Node(cycle.GetPc64Node());
+    }
     if (cycle.GetNodeCount(NodeType::IntReg32) > 0)
     {
         PrintIntReg32Node(cycle.GetIntReg32Node());
+    }
+    if (cycle.GetNodeCount(NodeType::IntReg64) > 0)
+    {
+        PrintIntReg64Node(cycle.GetIntReg64Node());
     }
     if (cycle.GetNodeCount(NodeType::FpReg) > 0)
     {
@@ -247,9 +370,17 @@ void PrintCycle(const CycleReader& cycle, int cycleNum)
     {
         PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
     }
+    if (cycle.GetNodeCount(NodeType::Csr64) > 0)
+    {
+        PrintCsr64Node(cycle.GetCsr64Node(), cycle.GetNodeSize(NodeType::Csr64) / sizeof(Csr64Node));
+    }
     if (cycle.GetNodeCount(NodeType::Trap32) > 0)
     {
         PrintTrap32Node(cycle.GetTrap32Node());
+    }
+    if (cycle.GetNodeCount(NodeType::Trap64) > 0)
+    {
+        PrintTrap64Node(cycle.GetTrap64Node());
     }
 
     for (int index = 0; index < cycle.GetNodeCount(NodeType::MemoryAccess); index++)

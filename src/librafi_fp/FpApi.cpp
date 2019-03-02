@@ -43,17 +43,17 @@ public:
 
     BaseInteger GetSign() const
     {
-        return GetMember<Sign>();
+        return this->template GetMember<Sign>();
     }
 
     BaseInteger GetExponent() const
     {
-        return GetMember<Exponent>();
+        return this->template GetMember<Exponent>();
     }
 
     BaseInteger GetFraction() const
     {
-        return GetMember<Fraction>();
+        return this->template GetMember<Fraction>();
     }
 
     bool IsZero() const
@@ -83,12 +83,12 @@ public:
 
     bool IsQuietNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() != BaseInteger(0);
+        return IsNan() && this->template GetMember<FractionMsb>() != BaseInteger(0);
     }
 
     bool IsSignalingNan() const
     {
-        return IsNan() && GetMember<FractionMsb>() == BaseInteger(0);
+        return IsNan() && this->template GetMember<FractionMsb>() == BaseInteger(0);
     }
 
 private:
@@ -442,16 +442,16 @@ int32_t DoubleToInt32(uint64_t x, int roundMode)
     return f64_to_i32(ToFloat64(x), roundMode, true);
 }
 
-uint32_t DoubleToUInt32(uint64_t x, int roundMode)
-{
-    softfloat_exceptionFlags = 0;
-    return f64_to_ui32(ToFloat64(x), roundMode, true);
-}
-
 int64_t DoubleToInt64(uint64_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
     return f64_to_i64(ToFloat64(x), roundMode, true);
+}
+
+uint32_t DoubleToUInt32(uint64_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f64_to_ui32(ToFloat64(x), roundMode, true);
 }
 
 uint64_t DoubleToUInt64(uint64_t x, int roundMode)
@@ -466,10 +466,22 @@ int32_t FloatToInt32(uint32_t x, int roundMode)
     return f32_to_i32(ToFloat32(x), roundMode, true);
 }
 
+int64_t FloatToInt64(uint32_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f32_to_i64(ToFloat32(x), roundMode, true);
+}
+
 uint32_t FloatToUInt32(uint32_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
     return f32_to_ui32(ToFloat32(x), roundMode, true);
+}
+
+uint64_t FloatToUInt64(uint32_t x, int roundMode)
+{
+    softfloat_exceptionFlags = 0;
+    return f32_to_ui64(ToFloat32(x), roundMode, true);
 }
 
 uint64_t Int32ToDouble(int32_t x)
@@ -478,10 +490,22 @@ uint64_t Int32ToDouble(int32_t x)
     return i32_to_f64(x).v;
 }
 
+uint64_t Int64ToDouble(int64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return i64_to_f64(x).v;
+}
+
 uint64_t UInt32ToDouble(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
     return ui32_to_f64(x).v;
+}
+
+uint64_t UInt64ToDouble(uint64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return ui64_to_f64(x).v;
 }
 
 uint32_t Int32ToFloat(int32_t x)
@@ -490,10 +514,22 @@ uint32_t Int32ToFloat(int32_t x)
     return i32_to_f32(x).v;
 }
 
+uint32_t Int64ToFloat(int64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return i64_to_f32(x).v;
+}
+
 uint32_t UInt32ToFloat(uint32_t x)
 {
     softfloat_exceptionFlags = 0;
     return ui32_to_f32(x).v;
+}
+
+uint32_t UInt64ToFloat(uint64_t x)
+{
+    softfloat_exceptionFlags = 0;
+    return ui64_to_f32(x).v;
 }
 
 uint32_t DoubleToFloat(uint64_t x)

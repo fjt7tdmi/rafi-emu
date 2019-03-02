@@ -28,81 +28,162 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
-class PageTableEntry : public BitField32
-{
-public:
-    explicit PageTableEntry(uint32_t value)
-        : BitField32(value)
-    {
-    }
-
-    using Valid = Member<0>;
-    using Read = Member<1>;
-    using Write = Member<2>;
-    using Execute = Member<3>;
-    using User = Member<4>;
-    using Global = Member<5>;
-    using Accessed = Member<6>;
-    using Dirty = Member<7>;
-
-    using PhysicalPageNumber = Member<31, 10>;
-    using PhysicalPageNumber0 = Member<19, 10>;
-    using PhysicalPageNumber1 = Member<31, 20>;
-};
-
 class MemoryAccessUnit
 {
 public:
-    MemoryAccessUnit()
-    {
-        m_Events.clear();
-    }
+    explicit MemoryAccessUnit(XLEN xlen);
 
-    void Initialize(bus::Bus* pBus, Csr* pCsr)
-    {
-        m_pBus = pBus;
-        m_pCsr = pCsr;
-    }
+    void Initialize(bus::Bus* pBus, Csr* pCsr);
 
-    uint8_t LoadUInt8(uint32_t virtualAddress);
-    uint16_t LoadUInt16(uint32_t virtualAddress);
-    uint32_t LoadUInt32(uint32_t virtualAddress);
-    uint64_t LoadUInt64(uint32_t virtualAddress);
+    uint8_t LoadUInt8(vaddr_t addr);
+    uint16_t LoadUInt16(vaddr_t addr);
+    uint32_t LoadUInt32(vaddr_t addr);
+    uint64_t LoadUInt64(vaddr_t addr);
 
-    void StoreUInt8(uint32_t virtualAddress, uint8_t value);
-    void StoreUInt16(uint32_t virtualAddress, uint16_t value);
-    void StoreUInt32(uint32_t virtualAddress, uint32_t value);
-    void StoreUInt64(uint32_t virtualAddress, uint64_t value);
+    void StoreUInt8(vaddr_t addr, uint8_t value);
+    void StoreUInt16(vaddr_t addr, uint16_t value);
+    void StoreUInt32(vaddr_t addr, uint32_t value);
+    void StoreUInt64(vaddr_t addr, uint64_t value);
 
-    uint32_t FetchUInt32(PhysicalAddress* outPhysicalAddress, uint32_t virtualAddress);
+    uint32_t FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t addr);
 
-    std::optional<Trap> CheckTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    std::optional<Trap> CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
     // for Dump
-    void AddEvent(MemoryAccessType accessType, int size,  uint64_t value, uint64_t vaddr, PhysicalAddress paddr);
+    void AddEvent(MemoryAccessType accessType, int size,  vaddr_t value, vaddr_t vaddr, paddr_t paddr);
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;
     int GetEventCount() const;
 
 private:
-    const int PageTableEntrySize = 4;
+    AddressTranslationMode GetAddresssTranslationMode() const;
 
-    bool IsAddresssTranslationEnabled() const;
-    bool IsLeafEntry(const PageTableEntry& entry) const;
+    std::optional<Trap> CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv48(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv57(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
-    std::optional<Trap> CheckTrapForEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
-    std::optional<Trap> CheckTrapForLeafEntry(const PageTableEntry& entry, MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
-    std::optional<Trap> MakeTrap(MemoryAccessType accessType, uint32_t pc, uint32_t virtualAddress) const;
+    paddr_t Translate(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv32(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv39(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv48(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv57(vaddr_t addr, bool isWrite);
+    paddr_t TranslateSv64(vaddr_t addr, bool isWrite);
 
-    PhysicalAddress ProcessTranslation(uint32_t virtualAddress, bool isWrite);
-    void UpdateEntry(PhysicalAddress entryAddress, bool isWrite);
+    template <typename EntryType>
+    std::optional<Trap> CheckTrapForEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+    {
+        if (!entry.template GetMember<typename EntryType::V>() ||
+            (!entry.template GetMember<typename EntryType::R>() && entry.template GetMember<typename EntryType::W>()))
+        {
+            return MakeTrap(accessType, pc, addr);
+        }
 
-    std::vector<MemoryAccessEvent> m_Events;
+        return std::nullopt;
+    }
+
+    template <typename EntryType>
+    std::optional<Trap> CheckTrapForLeafEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
+    {
+        const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
+        const auto status = m_pCsr->ReadStatus();
+
+        const bool sum = status.GetMember<xstatus_t::SUM>();
+        const bool mxr = status.GetMember<xstatus_t::MXR>();
+
+        switch (privilegeLevel)
+        {
+        case PrivilegeLevel::Supervisor:
+            if (!sum && entry.template GetMember<typename EntryType::U>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case PrivilegeLevel::User:
+            if (!entry.template GetMember<typename EntryType::U>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        default:
+            break;
+        }
+
+        switch (accessType)
+        {
+        case MemoryAccessType::Instruction:
+            if (!entry.template GetMember<typename EntryType::E>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case MemoryAccessType::Load:
+            if (!entry.template GetMember<typename EntryType::R>() &&
+                !(mxr && entry.template GetMember<typename EntryType::E>()))
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        case MemoryAccessType::Store:
+            if (!entry.template GetMember<typename EntryType::W>())
+            {
+                return MakeTrap(accessType, pc, addr);
+            }
+            break;
+        default:
+            RAFI_EMU_NOT_IMPLEMENTED();
+        }
+
+        return std::nullopt;
+    }
+
+    template <typename EntryType>
+    void UpdateEntry(paddr_t entryAddress, bool isWrite)
+    {
+        static_assert(sizeof(EntryType) == 4 || sizeof(EntryType) == 8);
+
+        EntryType entry(0);
+        if constexpr (sizeof(EntryType) == 4)
+        {
+            entry = EntryType(m_pBus->ReadUInt32(entryAddress));
+        }
+        else
+        {
+            entry = EntryType(m_pBus->ReadUInt64(entryAddress));
+        }
+
+        entry.template SetMember<typename EntryType::A>(1);
+        if (isWrite)
+        {
+            entry.template SetMember<typename EntryType::D>(1);
+        }
+
+        if constexpr (sizeof(EntryType) == 4)
+        {
+            m_pBus->WriteUInt32(entryAddress, entry.GetValue());
+        }
+        else
+        {
+            m_pBus->WriteUInt64(entryAddress, entry.GetValue());
+        }
+    }
+
+    template <typename EntryType>
+    bool IsLeafEntry(const EntryType& entry) const
+    {
+        return entry.template GetMember<typename EntryType::R>() || entry.template GetMember<typename EntryType::E>();
+    }
 
     bus::Bus* m_pBus{ nullptr };
     Csr* m_pCsr{ nullptr };
+
+    XLEN m_XLEN;
+
+    std::vector<MemoryAccessEvent> m_Events;
 };
 
 }}}

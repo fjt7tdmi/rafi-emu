@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "RvCsr.h"
 #include "RvTypes.h"
 
 namespace rafi {

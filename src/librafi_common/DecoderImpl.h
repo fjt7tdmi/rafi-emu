@@ -23,6 +23,8 @@ namespace rafi {
 class DecoderImpl
 {
 public:
+    DecoderImpl(XLEN xlen);
+
     Op Decode(uint16_t insn) const;
     Op Decode(uint32_t insn) const;
 
@@ -30,13 +32,15 @@ public:
     bool IsCompressedInstruction(uint32_t insn) const;
 
 private:
-    Op DecodeRV32I(uint32_t insn) const;
-    Op DecodeRV32M(uint32_t insn) const;
-    Op DecodeRV32A(uint32_t insn) const;
-    Op DecodeRV32F(uint32_t insn) const;
-    Op DecodeRV32D(uint32_t insn) const;
+    XLEN m_XLEN;
 
-    Op DecodeRV32C(uint16_t insn) const;
+    Op DecodeI(uint32_t insn) const;
+    Op DecodeM(uint32_t insn) const;
+    Op DecodeA(uint32_t insn) const;
+    Op DecodeF(uint32_t insn) const;
+    Op DecodeD(uint32_t insn) const;
+
+    Op DecodeC(uint16_t insn) const;
 
     Operand DecodeOperandR(uint32_t insn) const;
     Operand DecodeOperandR4(uint32_t insn) const;
@@ -45,7 +49,8 @@ private:
     Operand DecodeOperandB(uint32_t insn) const;
     Operand DecodeOperandU(uint32_t insn) const;
     Operand DecodeOperandJ(uint32_t insn) const;
-    Operand DecodeOperandShiftImm(uint32_t insn) const;
+    Operand DecodeOperandShiftImm_32(uint32_t insn) const;
+    Operand DecodeOperandShiftImm_64(uint32_t insn) const;
     Operand DecodeOperandCsr(uint32_t insn) const;
     Operand DecodeOperandCsrImm(uint32_t insn) const;
     Operand DecodeOperandFence(uint32_t insn) const;

@@ -100,17 +100,17 @@ union FpRegNodeUnion
 
 struct FpRegNode
 {
-    FpRegNodeUnion regs[32];
+    FpRegNodeUnion regs[FpRegCount];
 };
 
 struct IntReg32Node
 {
-    uint32_t regs[32];
+    uint32_t regs[IntRegCount];
 };
 
 struct IntReg64Node
 {
-    int64_t regs[32];
+    uint64_t regs[IntRegCount];
 };
 
 struct Pc32Node
@@ -121,8 +121,8 @@ struct Pc32Node
 
 struct Pc64Node
 {
-    int64_t virtualPc;
-    int64_t physicalPc;
+    uint64_t virtualPc;
+    uint64_t physicalPc;
 };
 
 struct Csr32Node
@@ -135,7 +135,7 @@ struct Csr64Node
 {
     uint32_t address;
     uint32_t reserved;
-    int64_t value;
+    uint64_t value;
 };
 
 struct Trap32Node
@@ -153,9 +153,8 @@ struct Trap64Node
     TrapType trapType;
     PrivilegeLevel from;
     PrivilegeLevel to;
-    int8_t cause;
-    int8_t reserved[3];
-    int64_t trapValue;
+    uint32_t cause;
+    uint64_t trapValue;
 };
 
 struct MemoryAccessNode

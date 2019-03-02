@@ -29,14 +29,14 @@ namespace rafi { namespace emu { namespace bus {
 struct MemoryInfo
 {
     mem::IMemory* pMemory;
-    PhysicalAddress address;
+    paddr_t address;
     int size;
 };
 
 struct IoInfo
 {
     io::IIo* pIo;
-    PhysicalAddress address;
+    paddr_t address;
     int size;
 };
 
@@ -55,27 +55,27 @@ struct IoLocation
 class Bus
 {
 public:
-    void Read(void* pOutBuffer, size_t size, PhysicalAddress address);
-    void Write(const void* pBuffer, size_t size, PhysicalAddress address);
+    void Read(void* pOutBuffer, size_t size, paddr_t address);
+    void Write(const void* pBuffer, size_t size, paddr_t address);
 
-    uint8_t ReadUInt8(PhysicalAddress address);
-    uint16_t ReadUInt16(PhysicalAddress address);
-    uint32_t ReadUInt32(PhysicalAddress address);
-    uint64_t ReadUInt64(PhysicalAddress address);
+    uint8_t ReadUInt8(paddr_t address);
+    uint16_t ReadUInt16(paddr_t address);
+    uint32_t ReadUInt32(paddr_t address);
+    uint64_t ReadUInt64(paddr_t address);
 
-    void WriteUInt8(PhysicalAddress address, uint8_t value);
-    void WriteUInt16(PhysicalAddress address, uint16_t value);
-    void WriteUInt32(PhysicalAddress address, uint32_t value);
-    void WriteUInt64(PhysicalAddress address, uint64_t value);
+    void WriteUInt8(paddr_t address, uint8_t value);
+    void WriteUInt16(paddr_t address, uint16_t value);
+    void WriteUInt32(paddr_t address, uint32_t value);
+    void WriteUInt64(paddr_t address, uint64_t value);
 
-    void RegisterMemory(mem::IMemory* pMemory, PhysicalAddress address, int size);
-    void RegisterIo(io::IIo* pIo, PhysicalAddress address, int size);
+    void RegisterMemory(mem::IMemory* pMemory, paddr_t address, int size);
+    void RegisterIo(io::IIo* pIo, paddr_t address, int size);
 
-    MemoryLocation ConvertToMemoryLocation(PhysicalAddress address) const;
-    bool IsMemoryAddress(PhysicalAddress address, int accessSize) const;
+    MemoryLocation ConvertToMemoryLocation(paddr_t address) const;
+    bool IsMemoryAddress(paddr_t address, int accessSize) const;
 
-    IoLocation ConvertToIoLocation(PhysicalAddress address) const;
-    bool IsIoAddress(PhysicalAddress address, int accessSize) const;
+    IoLocation ConvertToIoLocation(paddr_t address) const;
+    bool IsIoAddress(paddr_t address, int accessSize) const;
 
 private:
     std::vector<MemoryInfo> m_MemoryList;

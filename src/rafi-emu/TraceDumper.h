@@ -16,52 +16,47 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdio>
 
 #include <rafi/trace.h>
 
-#include "BasicTypes.h"
+#include "System.h"
 
 namespace rafi { namespace emu {
 
-struct CsrReadEvent
+class TraceDumper final
 {
-    csr_addr_t address;
-    uint32_t value;
-};
+public:
+    TraceDumper(XLEN xlen, const char* path, const System* pSystem);
+    ~TraceDumper();
 
-struct CsrWriteEvent
-{
-    csr_addr_t address;
-    uint32_t value;
-};
+    void EnableDump();
+    void EnableDumpCsr();
+    void EnableDumpMemory();
 
-struct MemoryAccessEvent
-{
-    MemoryAccessType accessType;
-    uint32_t size;
-    uint64_t value;
-    uint64_t virtualAddress;
-    PhysicalAddress physicalAddress;
-};
+    void DumpCycle(int cycle);
 
-struct OpEvent
-{
-    uint32_t opId;
-    uint32_t virtualPc;
-    PhysicalAddress physicalPc;
-    uint32_t insn;
-    OpCode opCode;
-    PrivilegeLevel privilegeLevel;
-};
+    void DumpHeader()
+    {
+        // stub
+    }
+    void DumpFooter()
+    {
+        // stub
+    }
 
-struct TrapEvent
-{
-    TrapType trapType;
-    uint32_t trapCause;
-    PrivilegeLevel from;
-    PrivilegeLevel to;
-    uint32_t trapValue;
+private:
+    void DumpCycle32(int cycle);
+    void DumpCycle64(int cycle);
+
+    rafi::trace::FileTraceWriter m_FileTraceWriter;
+
+    const System* m_pSystem;
+
+    XLEN m_XLEN;
+    bool m_Enabled {false};
+    bool m_EnableDumpCsr {false};
+    bool m_EnableDumpMemory {false};
 };
 
 }}

@@ -26,6 +26,17 @@
 
 namespace rafi { namespace emu { namespace cpu {
 
+Processor::Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc)
+    : m_Csr(xlen, initialPc)
+    , m_InterruptController(&m_Csr)
+    , m_TrapProcessor(xlen, &m_Csr)
+    , m_Decoder(xlen)
+    , m_MemAccessUnit(xlen)
+    , m_Executor(&m_Csr, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
+{
+    m_MemAccessUnit.Initialize(pBus, &m_Csr);
+}
+
 void Processor::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)
 {
     m_InterruptController.RegisterExternalInterruptSource(pInterruptSource);
@@ -50,7 +61,7 @@ void Processor::ProcessOneCycle()
     const auto privilegeLevel = m_Csr.GetPrivilegeLevel();
     const auto pc = m_Csr.GetProgramCounter();
 
-    // Check interrupt
+    // Check interruptv
     m_InterruptController.Update();
 
     if (m_InterruptController.IsRequested())
@@ -71,7 +82,7 @@ void Processor::ProcessOneCycle()
     }
 
     // Fetch
-    PhysicalAddress physicalPc;
+    paddr_t physicalPc;
 
     const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
     if (fetchTrap)
@@ -84,6 +95,8 @@ void Processor::ProcessOneCycle()
 
     const auto insn = m_MemAccessUnit.FetchUInt32(&physicalPc, pc);
 
+    SetOpEvent(pc, physicalPc, insn, privilegeLevel);
+
     // Decode
     const auto op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
@@ -91,8 +104,6 @@ void Processor::ProcessOneCycle()
         const auto decodeTrap = MakeIllegalInstructionException(pc, insn);
 
         m_TrapProcessor.ProcessException(decodeTrap);
-
-        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
 
@@ -101,8 +112,6 @@ void Processor::ProcessOneCycle()
     if (preExecuteTrap)
     {
         m_TrapProcessor.ProcessException(preExecuteTrap.value());
-
-        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
 
@@ -121,17 +130,13 @@ void Processor::ProcessOneCycle()
     if (postExecuteTrap)
     {
         m_TrapProcessor.ProcessException(postExecuteTrap.value());
-
-        SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
         return;
     }
-
-    SetOpEvent(pc, physicalPc, insn, op.opCode, privilegeLevel);
 }
 
 int Processor::GetCsrCount() const
 {
-    return m_Csr.GetRegisterCount();
+    return m_Csr.GetRegCount();
 }
 
 int Processor::GetMemoryAccessEventCount() const
@@ -139,29 +144,29 @@ int Processor::GetMemoryAccessEventCount() const
     return m_MemAccessUnit.GetEventCount();
 }
 
-void Processor::CopyCsr(void* pOut, size_t size) const
+void Processor::CopyIntReg(trace::IntReg32Node* pOut) const
 {
-    m_Csr.Copy(pOut, size);
+    m_IntRegFile.Copy(pOut);
 }
 
-void Processor::CopyIntReg(void* pOut, size_t size) const
+void Processor::CopyIntReg(trace::IntReg64Node* pOut) const
 {
-    m_IntRegFile.Copy(pOut, size);
+    m_IntRegFile.Copy(pOut);
+}
+
+void Processor::CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const
+{
+    m_Csr.Copy(pOutNodes, nodeCount);
+}
+
+void Processor::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
+{
+    m_Csr.Copy(pOutNodes, nodeCount);
 }
 
 void Processor::CopyFpReg(void* pOut, size_t size) const
 {
     m_FpRegFile.Copy(pOut, size);
-}
-
-void Processor::CopyCsrReadEvent(CsrReadEvent* pOut) const
-{
-    m_CsrAccessor.CopyReadEvent(pOut);
-}
-
-void Processor::CopyCsrWriteEvent(CsrWriteEvent* pOut) const
-{
-    m_CsrAccessor.CopyWriteEvent(pOut);
 }
 
 void Processor::CopyOpEvent(OpEvent* pOut) const
@@ -179,16 +184,6 @@ void Processor::CopyTrapEvent(TrapEvent* pOut) const
     m_TrapProcessor.CopyTrapEvent(pOut);
 }
 
-bool Processor::IsCsrReadEventExist() const
-{
-    return m_CsrAccessor.IsReadEventExist();
-}
-
-bool Processor::IsCsrWriteEventExist() const
-{
-    return m_CsrAccessor.IsWriteEventExist();
-}
-
 bool Processor::IsOpEventExist() const
 {
     return m_OpEventValid;
@@ -202,7 +197,7 @@ bool Processor::IsTrapEventExist() const
 void Processor::PrintStatus() const
 {
     printf("    OpCount: %d (0x%x)\n", m_OpCount, m_OpCount);
-    printf("    PC:      0x%x\n", m_Csr.GetProgramCounter());
+    printf("    PC:      0x%016llx\n", static_cast<uint64_t>(m_Csr.GetProgramCounter()));
 }
 
 void Processor::ClearOpEvent()
@@ -210,19 +205,18 @@ void Processor::ClearOpEvent()
     m_OpEventValid = false;
 }
 
-void Processor::SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel)
+void Processor::SetOpEvent(vaddr_t virtualPc, PrivilegeLevel privilegeLevel)
 {
-    SetOpEvent(virtualPc, InvalidValue, InvalidValue, OpCode::unknown, privilegeLevel);
+    SetOpEvent(virtualPc, InvalidValue, InvalidValue, privilegeLevel);
 }
 
-void Processor::SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel)
+void Processor::SetOpEvent(vaddr_t virtualPc, paddr_t physicalPc, uint32_t insn, PrivilegeLevel privilegeLevel)
 {
-    m_OpEvent.insn = insn;
-    m_OpEvent.opCode = opCode;
     m_OpEvent.opId = m_OpCount;
+    m_OpEvent.insn = insn;
+    m_OpEvent.privilegeLevel = privilegeLevel;
     m_OpEvent.virtualPc = virtualPc;
     m_OpEvent.physicalPc = physicalPc;
-    m_OpEvent.privilegeLevel = privilegeLevel;
 
     m_OpEventValid = true;
 

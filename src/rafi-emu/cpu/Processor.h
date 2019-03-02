@@ -17,7 +17,6 @@
 #pragma once
 
 #include "Csr.h"
-#include "CsrAccessor.h"
 #include "Executor.h"
 #include "FpRegFile.h"
 #include "InterruptController.h"
@@ -35,15 +34,7 @@ class Processor
 {
 public:
     // Setup
-    Processor(bus::Bus* pBus, uint32_t initialPc)
-        : m_Csr(initialPc)
-        , m_CsrAccessor(&m_Csr)
-        , m_InterruptController(&m_Csr)
-        , m_TrapProcessor(&m_Csr)
-        , m_Executor(&m_Csr, &m_CsrAccessor, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
-    {
-        m_MemAccessUnit.Initialize(pBus, &m_Csr);
-    }
+    Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc);
 
     void SetIntReg(int regId, uint32_t regValue);
 
@@ -58,17 +49,15 @@ public:
     int GetCsrCount() const;
     int GetMemoryAccessEventCount() const;
 
-    void CopyCsr(void* pOut, size_t size) const;
-    void CopyIntReg(void* pOut, size_t size) const;
+    void CopyIntReg(trace::IntReg32Node* pOut) const;
+    void CopyIntReg(trace::IntReg64Node* pOut) const;
+    void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
+    void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;
-    void CopyCsrReadEvent(CsrReadEvent* pOut) const;
-    void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
     void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
 
-    bool IsCsrReadEventExist() const;
-    bool IsCsrWriteEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 
@@ -77,13 +66,12 @@ public:
 private:
     void ClearOpEvent();
 
-    void SetOpEvent(uint32_t virtualPc, PrivilegeLevel privilegeLevel);
-    void SetOpEvent(uint32_t virtualPc, PhysicalAddress physicalPc, uint32_t insn, OpCode opCode, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(vaddr_t virtualPc, PrivilegeLevel privilegeLevel);
+    void SetOpEvent(vaddr_t virtualPc, paddr_t physicalPc, uint32_t insn, PrivilegeLevel privilegeLevel);
 
-    const uint32_t InvalidValue = 0xffffffff;
+    const vaddr_t InvalidValue = 0xffffffffffffffff;
 
     Csr m_Csr;
-    CsrAccessor m_CsrAccessor;
     InterruptController m_InterruptController;
     TrapProcessor m_TrapProcessor;
 

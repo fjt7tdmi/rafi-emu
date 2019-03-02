@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
+#include <type_traits>
 
-namespace rafi { namespace emu {
+namespace rafi {
 
 inline int32_t GetHigh32(uint64_t value)
 {
@@ -64,4 +66,33 @@ inline void SetLow32(int64_t* pOut, int32_t value)
     SetLow32(reinterpret_cast<uint64_t*>(pOut), value);
 }
 
-}}
+template<typename T>
+inline T SignExtend(int srcWidth, T srcValue)
+{
+    static_assert(std::is_integral_v<T>);
+    assert(srcWidth >= 1);
+
+    if (srcValue & (static_cast<T>(1) << (srcWidth - 1)))
+    {
+        // minus
+        const auto mask = static_cast<T>(-1ll) << (srcWidth - 1);
+        return srcValue | mask;
+    }
+    else
+    {
+        // plus
+        return srcValue;
+    }
+}
+
+template<typename T>
+inline T ZeroExtend(int srcWidth, T srcValue)
+{
+    static_assert(std::is_integral_v<T>);
+    assert(srcWidth >= 1);
+
+    const auto mask = (static_cast<T>(1) << srcWidth) - 1;
+    return srcValue & mask;
+}
+
+}

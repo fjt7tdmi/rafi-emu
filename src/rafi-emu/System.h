@@ -31,11 +31,11 @@ namespace rafi { namespace emu {
 class System
 {
 public:
-    explicit System(uint32_t pc, int ramSize);
+    explicit System(XLEN xlen, vaddr_t pc, int ramSize);
 
-    // Setup    
-    void LoadFileToMemory(const char* path, PhysicalAddress address);
-    void SetHostIoAddress(uint32_t address);
+    // Setup
+    void LoadFileToMemory(const char* path, paddr_t address);
+    void SetHostIoAddress(vaddr_t address);
 
     // Process
     void ProcessOneCycle();
@@ -47,18 +47,16 @@ public:
 
     uint32_t GetHostIoValue() const;
 
-    void CopyCsr(void* pOut, size_t size) const;
-    void CopyIntReg(void* pOut, size_t size) const;
+    void CopyIntReg(trace::IntReg32Node* pOut) const;
+    void CopyIntReg(trace::IntReg64Node* pOut) const;
+    void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
+    void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyRam(void* pOut, size_t size) const;
-    void CopyCsrReadEvent(CsrReadEvent* pOut) const;
-    void CopyCsrWriteEvent(CsrWriteEvent* pOut) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
     void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
 
-    bool IsCsrReadEventExist() const;
-    bool IsCsrWriteEventExist() const;
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 

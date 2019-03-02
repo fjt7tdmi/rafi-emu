@@ -17,28 +17,6 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 
-#include "OpTypes.h"
-
-namespace rafi {
-
-class DecoderImpl;
-
-class Decoder final
-{
-public:
-    explicit Decoder(XLEN xlen);
-    ~Decoder();
-
-    Op Decode(uint16_t insn) const;
-    Op Decode(uint32_t insn) const;
-
-    bool IsCompressedInstruction(uint16_t insn) const;
-    bool IsCompressedInstruction(uint32_t insn) const;
-
-private:
-    DecoderImpl* m_pImpl;
-};
-
-}
+using vaddr_t = uint64_t;
+using paddr_t = uint64_t;

@@ -21,7 +21,6 @@
 
 #include <rafi/emu.h>
 
-#include "CsrTypes.h"
 #include "Trap.h"
 
 namespace rafi { namespace emu { namespace cpu {
@@ -29,16 +28,16 @@ namespace rafi { namespace emu { namespace cpu {
 class Csr
 {
 public:
-    explicit Csr(uint32_t initialPc);
+    explicit Csr(XLEN xlen, vaddr_t initialPc);
 
-    std::optional<Trap> CheckTrap(int addr, bool write, uint32_t pc, uint32_t insn) const;
+    std::optional<Trap> CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint32_t insn) const;
 
     // Update registers for cycle
     void Update();
 
     // Special register access
-    uint32_t GetProgramCounter() const;
-    void SetProgramCounter(uint32_t value);
+    vaddr_t GetProgramCounter() const;
+    void SetProgramCounter(vaddr_t value);
 
     PrivilegeLevel GetPrivilegeLevel() const;
     void SetPrivilegeLevel(PrivilegeLevel level);
@@ -47,14 +46,10 @@ public:
     void SetHaltFlag(bool flag);
 
     // Register access
-    uint32_t Read(csr_addr_t addr) const;
-    void Write(csr_addr_t addr, uint32_t value);
-
-    template <typename T>
-    T ReadAs(csr_addr_t addr) const
-    {
-        return T(Read(addr));
-    }
+    uint32_t ReadUInt32(csr_addr_t addr) const;
+    uint64_t ReadUInt64(csr_addr_t addr) const;
+    void WriteUInt32(csr_addr_t addr, uint32_t value);
+    void WriteUInt64(csr_addr_t addr, uint64_t value);
 
     // Direct register access
     fcsr_t ReadFpCsr() const;
@@ -67,8 +62,9 @@ public:
     void WriteInterruptPending(const xip_t& value);
 
     // for Dump
-    int GetRegisterCount() const;
-    void Copy(void* pOut, size_t size) const;
+    int GetRegCount() const;
+    void Copy(trace::Csr32Node* pOutNodes, int nodeCount) const;
+    void Copy(trace::Csr64Node* pOutNodes, int nodeCount) const;
 
 private:
     static const int RegisterAddrWidth = 12;
@@ -80,16 +76,20 @@ private:
     bool IsReservedModeRegister(csr_addr_t addr) const;
     bool IsMachineModeRegister(csr_addr_t addr) const;
 
-    uint32_t ReadMachineModeRegister(csr_addr_t addr) const;
-	uint32_t ReadSupervisorModeRegister(csr_addr_t addr) const;
-	uint32_t ReadUserModeRegister(csr_addr_t addr) const;
+    uint64_t ReadMachineModeRegister(csr_addr_t addr) const;
+	uint64_t ReadSupervisorModeRegister(csr_addr_t addr) const;
+	uint64_t ReadUserModeRegister(csr_addr_t addr) const;
 
-	void WriteMachineModeRegister(csr_addr_t addr, uint32_t value);
-    void WriteSupervisorModeRegister(csr_addr_t addr, uint32_t value);
-    void WriteUserModeRegister(csr_addr_t addr, uint32_t value);
+	void WriteMachineModeRegister(csr_addr_t addr, uint64_t value);
+    void WriteSupervisorModeRegister(csr_addr_t addr, uint64_t value);
+    void WriteUserModeRegister(csr_addr_t addr, uint64_t value);
 
     int GetPerformanceCounterIndex(csr_addr_t addr) const;
     void PrintRegisterUnimplementedMessage(csr_addr_t addr) const;
+
+    // Configuration
+    XLEN m_XLEN;
+    misa_t m_ISA;
 
     // Floating point
     fcsr_t m_FpCsr {0};
@@ -101,31 +101,31 @@ private:
     xtvec_t m_SupervisorTrapVector {0};
     xtvec_t m_UserTrapVector {0};
 
-    uint32_t m_MachineExceptionDelegation {0};
-    uint32_t m_SupervisorExceptionDelegation {0};
+    uint64_t m_MachineExceptionDelegation {0};
+    uint64_t m_SupervisorExceptionDelegation {0};
 
-    uint32_t m_MachineInterruptDelegation {0};
-    uint32_t m_SupervisorInterruptDelegation {0};
+    uint64_t m_MachineInterruptDelegation {0};
+    uint64_t m_SupervisorInterruptDelegation {0};
 
-    uint32_t m_MachineCounterEnable {0};
-    uint32_t m_SupervisorCounterEnable {0};
+    uint64_t m_MachineCounterEnable {0};
+    uint64_t m_SupervisorCounterEnable {0};
 
     // Trap Handling (0x040-0x07f, 0x140-0x17f and 0x340-0x37f)
-    uint32_t m_MachineScratch {0};
-    uint32_t m_SupervisorScratch {0};
-    uint32_t m_UserScratch {0};
+    uint64_t m_MachineScratch {0};
+    uint64_t m_SupervisorScratch {0};
+    uint64_t m_UserScratch {0};
 
-    uint32_t m_MachineExceptionProgramCounter {0};
-    uint32_t m_SupervisorExceptionProgramCounter {0};
-    uint32_t m_UserExceptionProgramCounter {0};
+    vaddr_t m_MachineExceptionProgramCounter {0};
+    vaddr_t m_SupervisorExceptionProgramCounter {0};
+    vaddr_t m_UserExceptionProgramCounter {0};
 
-    uint32_t m_MachineCause {0};
-    uint32_t m_SupervisorCause {0};
-    uint32_t m_UserCause {0};
+    uint64_t m_MachineCause {0};
+    uint64_t m_SupervisorCause {0};
+    uint64_t m_UserCause {0};
 
-    uint32_t m_MachineTrapValue {0};
-    uint32_t m_SupervisorTrapValue {0};
-    uint32_t m_UserTrapValue {0};
+    uint64_t m_MachineTrapValue {0};
+    uint64_t m_SupervisorTrapValue {0};
+    uint64_t m_UserTrapValue {0};
 
     // Interrupt
     xie_t m_InterruptEnable {0};
@@ -140,7 +140,7 @@ private:
     uint64_t m_InstructionRetiredCounter {0};
 
     // Special registers
-    uint32_t m_ProgramCounter {0};
+    vaddr_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
     bool m_HaltFlag {false};
 };

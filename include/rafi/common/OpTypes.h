@@ -19,6 +19,7 @@
 #include <iostream>
 #include <variant>
 
+#include "RvCsr.h"
 #include "RvTypes.h"
 
 namespace rafi {
@@ -31,6 +32,12 @@ enum class OpClass
     RV32F,
     RV32D,
     RV32C,
+    RV64I,
+    RV64M,
+    RV64A,
+    RV64F,
+    RV64D,
+    RV64C,
 };
 
 enum class OpCode
@@ -38,7 +45,7 @@ enum class OpCode
     // Default
     unknown,
 
-    // RV32I
+    // RV32I / RV64I
     lui,
     auipc,
     jal,
@@ -52,28 +59,40 @@ enum class OpCode
     lb,
     lh,
     lw,
+    ld,
     lbu,
     lhu,
+    lwu,
     sb,
     sh,
     sw,
+    sd,
     addi,
+    addiw,
     slti,
     sltiu,
     xori,
     ori,
     andi,
     slli,
+    slliw,
     srli,
+    srliw,
     srai,
+    sraiw,
     add,
+    addw,
     sub,
+    subw,
     sll,
+    sllw,
     slt,
     sltu,
     xor_,
     srl,
+    srlw,
     sra,
+    sraw,
     or_,
     and_,
     fence,
@@ -94,26 +113,42 @@ enum class OpCode
 
     // RV32M
     mul,
+    mulw,
     mulh,
     mulhsu,
     mulhu,
     div,
+    divw,
     divu,
+    divuw,
     rem,
+    remw,
     remu,
+    remuw,
 
     // RV32A
     lr_w,
+    lr_d,
     sc_w,
+    sc_d,
     amoswap_w,
+    amoswap_d,
     amoadd_w,
+    amoadd_d,
     amoxor_w,
+    amoxor_d,
     amoand_w,
+    amoand_d,
     amoor_w,
+    amoor_d,
     amomin_w,
+    amomin_d,
     amomax_w,
+    amomax_d,
     amominu_w,
+    amominu_d,
     amomaxu_w,
+    amomaxu_d,
 
     // RV32F
     flw,
@@ -139,8 +174,12 @@ enum class OpCode
     flt_s,
     fle_s,
     fclass_s,
+    fcvt_l_s,
+    fcvt_lu_s,
     fcvt_s_w,
+    fcvt_s_l,
     fcvt_s_wu,
+    fcvt_s_lu,
     fmv_w_x,
 
     // RV32D
@@ -160,16 +199,22 @@ enum class OpCode
     fsgnjx_d,
     fmin_d,
     fmax_d,
-    fcvt_s_d,
-    fcvt_d_s,
+    fmv_d_x,
+    fmv_x_d,
     feq_d,
     flt_d,
     fle_d,
     fclass_d,
+    fcvt_s_d,
     fcvt_w_d,
     fcvt_wu_d,
+    fcvt_l_d,
+    fcvt_lu_d,
+    fcvt_d_s,
     fcvt_d_w,
     fcvt_d_wu,
+    fcvt_d_l,
+    fcvt_d_lu,
 
     // RVC
     c_addi4spn,
@@ -244,7 +289,7 @@ struct OperandR4
 
 struct OperandI
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
     int funct3;
@@ -252,7 +297,7 @@ struct OperandI
 
 struct OperandS
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
     int funct3;
@@ -260,7 +305,7 @@ struct OperandS
 
 struct OperandB
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
     int funct3;
@@ -268,13 +313,13 @@ struct OperandB
 
 struct OperandU
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
 struct OperandJ
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
@@ -314,46 +359,46 @@ struct OperandCR
 
 struct OperandCI
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
 };
 
 struct OperandCSS
 {
-    int32_t imm;
+    int64_t imm;
     int rs2;
 };
 
 struct OperandCIW
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
 };
 
 struct OperandCL
 {
-    int32_t imm;
+    int64_t imm;
     int rd;
     int rs1;
 };
 
 struct OperandCS
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
     int rs2;
 };
 
 struct OperandCB
 {
-    int32_t imm;
+    int64_t imm;
     int rs1;
 };
 
 struct OperandCJ
 {
-    int32_t imm;
+    int64_t imm;
 };
 
 struct OperandNone

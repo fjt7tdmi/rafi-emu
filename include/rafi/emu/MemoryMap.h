@@ -16,12 +16,16 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <utility>
 
-#include "emu/BasicTypes.h"
-#include "emu/Event.h"
-#include "emu/Exception.h"
-#include "emu/IInterruptSource.h"
-#include "emu/Macro.h"
-#include "emu/MemoryMap.h"
-#include "emu/Util.h"
+#include <rafi/emu/BasicTypes.h>
+
+namespace rafi { namespace emu {
+
+// Memory Map
+const paddr_t RomAddr = 0x00001000;
+const paddr_t RamAddr = 0x80000000;
+const paddr_t UartAddr = 0x40002000;
+const paddr_t TimerAddr = 0x40000000;
+
+}}

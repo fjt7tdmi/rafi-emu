@@ -36,35 +36,35 @@ void FpRegFile::Copy(void* pOut, size_t size) const
 
 uint32_t FpRegFile::ReadUInt32(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     return m_Entries[regId].u32.value;
 }
 
 uint64_t FpRegFile::ReadUInt64(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     return m_Entries[regId].u64.value;
 }
 
 float FpRegFile::ReadFloat(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     return m_Entries[regId].f.value;
 }
 
 double FpRegFile::ReadDouble(int regId) const
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     return m_Entries[regId].d.value;
 }
 
 void FpRegFile::WriteUInt32(int regId, uint32_t value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     m_Entries[regId].u32.value = value;
     m_Entries[regId].u32.invalid = 0xffffffff;
@@ -72,14 +72,14 @@ void FpRegFile::WriteUInt32(int regId, uint32_t value)
 
 void FpRegFile::WriteUInt64(int regId, uint64_t value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     m_Entries[regId].u64.value = value;
 }
 
 void FpRegFile::WriteFloat(int regId, float value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     m_Entries[regId].f.value = value;
     m_Entries[regId].f.invalid = 0xffffffff;
@@ -87,7 +87,7 @@ void FpRegFile::WriteFloat(int regId, float value)
 
 void FpRegFile::WriteDouble(int regId, double value)
 {
-    RAFI_EMU_CHECK_RANGE(0, regId, RegCount);
+    RAFI_EMU_CHECK_RANGE(0, regId, FpRegCount);
 
     m_Entries[regId].d.value = value;
 }
