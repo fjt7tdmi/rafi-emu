@@ -61,7 +61,7 @@ void Processor::ProcessOneCycle()
     const auto privilegeLevel = m_Csr.GetPrivilegeLevel();
     const auto pc = m_Csr.GetProgramCounter();
 
-    // Check interrupt
+    // Check interruptv
     m_InterruptController.Update();
 
     if (m_InterruptController.IsRequested())

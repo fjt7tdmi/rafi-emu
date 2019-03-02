@@ -996,13 +996,24 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1101001:
-            switch (rs2)
+            if (rs2 == 0b00000)
             {
-            case 0b00000:
                 return Op{ opClass, OpCode::fcvt_d_w, DecodeOperandR(insn) };
-            case 0b00001:
+            }
+            else if (rs2 == 0b00001)
+            {
                 return Op{ opClass, OpCode::fcvt_d_wu, DecodeOperandR(insn) };
-            default:
+            }
+            else if (rs2 == 0b00010)
+            {
+                return Op{ opClass, OpCode::fcvt_d_l, DecodeOperandR(insn) };
+            }
+            else if (rs2 == 0b00011)
+            {
+                return Op{ opClass, OpCode::fcvt_d_lu, DecodeOperandR(insn) };
+            }
+            else
+            {
                 RAFI_RETURN_UNKNOWN_OP(opClass);
             }
         case 0b1111001:

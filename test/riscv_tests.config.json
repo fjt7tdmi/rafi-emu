@@ -236,7 +236,7 @@
     { "name": "rv64ud-p-fmadd",         "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64ud-p-fmin",          "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64ud-p-ldst",          "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
-    { "name": "rv64ud-p-move",          "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
+    { "name": "rv64ud-p-move",          "host-io-addr": "0x80002000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64ud-p-recoding",      "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64ud-p-structural",    "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64ud-v-fadd",          "host-io-addr": "0x80001000", "xlen": 64, "cycle": 256000 },
