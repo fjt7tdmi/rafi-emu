@@ -66,6 +66,11 @@ private:
     void ProcessRV32C(const Op& op, vaddr_t pc);
 
     void ProcessRV64I(const Op& op, vaddr_t pc);
+    void ProcessRV64M(const Op& op);
+    void ProcessRV64A(const Op& op);
+    void ProcessRV64F(const Op& op);
+    void ProcessRV64D(const Op& op);
+    void ProcessRV64C(const Op& op, vaddr_t pc);
 
     // RV32I
     void ProcessRV32I_Lui(const Op& op);

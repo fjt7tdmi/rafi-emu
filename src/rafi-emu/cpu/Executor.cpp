@@ -111,6 +111,21 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     case OpClass::RV64I:
         ProcessRV64I(op, pc);
         break;
+    case OpClass::RV64M:
+        ProcessRV64M(op);
+        break;
+    case OpClass::RV64A:
+        ProcessRV64A(op);
+        break;
+    case OpClass::RV64F:
+        ProcessRV64F(op);
+        break;
+    case OpClass::RV64D:
+        ProcessRV64D(op);
+        break;
+    case OpClass::RV64C:
+        ProcessRV64C(op, pc);
+        break;
     default:
         Error(op);
     }
@@ -739,6 +754,165 @@ void Executor::ProcessRV64I(const Op& op, vaddr_t pc)
     default:
         Error(op);
     }
+}
+
+void Executor::ProcessRV64M(const Op& op)
+{
+    const auto operand = std::get<OperandR>(op.operand);
+
+    const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
+    const auto src2 = m_pIntRegFile->ReadInt64(operand.rs2);
+
+    const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src2_u = m_pIntRegFile->ReadUInt64(operand.rs2);
+
+    const auto src1_u32 = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto src2_u32 = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src2_s32 = m_pIntRegFile->ReadInt32(operand.rs2);
+
+    int64_t value;
+
+    switch (op.opCode)
+    {
+    case OpCode::mul:
+        value = src1 * src2;
+        break;
+    case OpCode::mulh:
+        Error(op); // needs 128bit integer library
+        break;
+    case OpCode::mulhsu:
+        Error(op); // needs 128bit integer library
+        break;
+    case OpCode::mulhu:
+        Error(op); // needs 128bit integer library
+        break;
+    case OpCode::mulw:
+        value = SignExtend<int64_t>(32, src1_s32 * src2_s32);
+        break;
+    case OpCode::div:
+        if (src1_u == (1ull << 63) && src2 == -1ll)
+        {
+            value = static_cast<int64_t>(1ull << 63);
+        }
+        else if (src2 == 0)
+        {
+            value = -1ll;
+        }
+        else
+        {
+            value = src1 / src2;
+        }
+        break;
+    case OpCode::divu:
+        if (src2 == 0)
+        {
+            value = -1ll;
+        }
+        else
+        {
+            value = static_cast<int64_t>(src1_u / src2_u);
+        }
+        break;
+    case OpCode::divuw:
+        if (src2_u32 == 0)
+        {
+            value = -1ll;
+        }
+        else
+        {
+            value = SignExtend<int64_t>(32, src1_u32 / src2_u32);
+        }
+        break;
+    case OpCode::divw:
+        if (src1_u32 == (1ull << 31) && src2_s32 == -1)
+        {
+            value = static_cast<int64_t>(1ull << 63);
+        }
+        else if (src2 == 0)
+        {
+            value = -1ll;
+        }
+        else
+        {
+            value = src1 / src2;
+        }
+        break;
+    case OpCode::rem:
+        if (src1_u == 0x80000000 && src2 == -1)
+        {
+            value = 0;
+        }
+        else if (src2 == 0)
+        {
+            value = src1;
+        }
+        else
+        {
+            value = src1 % src2;
+        }
+        break;
+    case OpCode::remu:
+        if (src2 == 0)
+        {
+            value = src1;
+        }
+        else
+        {
+            value = static_cast<int64_t>(src1_u % src2_u);
+        }
+        break;
+    case OpCode::remuw:
+        if (src2_u32 == 0)
+        {
+            value = src1;
+        }
+        else
+        {
+            value = static_cast<int64_t>(src1_u32 % src2_u32);
+        }
+        break;
+    case OpCode::remw:
+        if (src1_u32 == (1ull << 31) && src2_s32 == -1)
+        {
+            value = 0;
+        }
+        else if (src2_s32 == 0)
+        {
+            value = src1;
+        }
+        else
+        {
+            value = SignExtend<int64_t>(32, src1_u32 % src2_u32);
+        }
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64A(const Op& op)
+{
+    Error(op);
+}
+
+void Executor::ProcessRV64F(const Op& op)
+{
+    Error(op);
+}
+
+void Executor::ProcessRV64D(const Op& op)
+{
+    Error(op);
+}
+
+void Executor::ProcessRV64C(const Op& op, vaddr_t pc)
+{
+    (void)pc;
+    Error(op);
 }
 
 void Executor::ProcessRV32I_Lui(const Op& op)
