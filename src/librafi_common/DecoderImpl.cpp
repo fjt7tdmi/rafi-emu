@@ -622,47 +622,47 @@ Op DecoderImpl::DecodeA(uint32_t insn) const
     case 0b011:
         if (opClass == OpClass::RV64A && funct5 == 0b00010 && rs2 == 0b00000)
         {
-            return Op{ opClass, OpCode::lr_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::lr_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b00011)
         {
-            return Op{ opClass, OpCode::sc_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::sc_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b00001)
         {
-            return Op{ opClass, OpCode::amoswap_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amoswap_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b00000)
         {
-            return Op{ opClass, OpCode::amoadd_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amoadd_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b00100)
         {
-            return Op{ opClass, OpCode::amoxor_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amoxor_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b01100)
         {
-            return Op{ opClass, OpCode::amoand_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amoand_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b01000)
         {
-            return Op{ opClass, OpCode::amoor_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amoor_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b10000)
         {
-            return Op{ opClass, OpCode::amomin_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amomin_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b10100)
         {
-            return Op{ opClass, OpCode::amomax_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amomax_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b11000)
         {
-            return Op{ opClass, OpCode::amominu_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amominu_d, DecodeOperandR(insn) };
         }
         else if (opClass == OpClass::RV64A && funct5 == 0b11100)
         {
-            return Op{ opClass, OpCode::amomaxu_w, DecodeOperandR(insn) };
+            return Op{ opClass, OpCode::amomaxu_d, DecodeOperandR(insn) };
         }
         else
         {
