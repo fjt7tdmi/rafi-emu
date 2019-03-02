@@ -1160,30 +1160,30 @@ void Executor::ProcessRV64I_Load(const Op& op)
 
     const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
 
-    uint32_t value;
+    uint64_t value;
 
     switch (op.opCode)
     {
     case OpCode::lb:
-        value = static_cast<int8_t>(m_pMemAccessUnit->LoadUInt8(address));
+        value = SignExtend<uint64_t>(8, m_pMemAccessUnit->LoadUInt8(address));
         break;
     case OpCode::lh:
-        value = static_cast<int16_t>(m_pMemAccessUnit->LoadUInt16(address));
+        value = SignExtend<uint64_t>(16, m_pMemAccessUnit->LoadUInt16(address));
         break;
     case OpCode::lw:
-        value = static_cast<int32_t>(m_pMemAccessUnit->LoadUInt32(address));
+        value = SignExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
         break;
     case OpCode::ld:
-        value = static_cast<int64_t>(m_pMemAccessUnit->LoadUInt64(address));
+        value = SignExtend<uint64_t>(64, m_pMemAccessUnit->LoadUInt64(address));
         break;
     case OpCode::lbu:
-        value = m_pMemAccessUnit->LoadUInt8(address);
+        value = ZeroExtend<uint64_t>(8, m_pMemAccessUnit->LoadUInt8(address));
         break;
     case OpCode::lhu:
-        value = m_pMemAccessUnit->LoadUInt16(address);
+        value = ZeroExtend<uint64_t>(16, m_pMemAccessUnit->LoadUInt16(address));
         break;
     case OpCode::lwu:
-        value = m_pMemAccessUnit->LoadUInt32(address);
+        value = ZeroExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
         break;
     default:
         Error(op);
@@ -1228,6 +1228,9 @@ void Executor::ProcessRV64I_Alu(const Op& op)
     const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
     const auto src2_u = m_pIntRegFile->ReadUInt64(operand.rs2);
 
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src2_s32 = m_pIntRegFile->ReadInt32(operand.rs2);
+
     int64_t value;
 
     switch (op.opCode)
@@ -1236,13 +1239,13 @@ void Executor::ProcessRV64I_Alu(const Op& op)
         value = src1 + src2;
         break;
     case OpCode::addw:
-        value = SignExtend<int64_t>(32, src1 + src2);
+        value = SignExtend<int64_t>(32, src1_s32 + src2_s32);
         break;
     case OpCode::sub:
         value = src1 - src2;
         break;
     case OpCode::subw:
-        value = SignExtend<int64_t>(32, src1 - src2);
+        value = SignExtend<int64_t>(32, src1_s32 - src2_s32);
         break;
     case OpCode::slt:
         value = (src1 < src2) ? 1 : 0;
@@ -1270,8 +1273,8 @@ void Executor::ProcessRV64I_AluImm(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
-    const auto imm = static_cast<int32_t>(operand.imm);
-    const auto imm_u = static_cast<uint32_t>(operand.imm);
+    const auto imm = static_cast<int64_t>(operand.imm);
+    const auto imm_u = static_cast<uint64_t>(operand.imm);
     const auto imm_s32 = static_cast<int32_t>(operand.imm);
 
     const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
@@ -1315,31 +1318,34 @@ void Executor::ProcessRV64I_Shift(const Op& op)
     const auto& operand = std::get<OperandR>(op.operand);
 
     const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadInt64(operand.rs2);
+    const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
 
-    const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);;
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src1_u32 = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    const int shamt = m_pIntRegFile->ReadInt64(operand.rs2) & 0x3f;
 
     int64_t value;
 
     switch (op.opCode)
     {
     case OpCode::sll:
-        value = src1 << src2;
+        value = src1 << shamt;
         break;
     case OpCode::sllw:
-        value = SignExtend(32, src1 << src2);
+        value = SignExtend<int64_t>(32, src1_s32 << shamt);
         break;
     case OpCode::srl:
-        value = src1_u >> src2;
+        value = src1_u >> shamt;
         break;
     case OpCode::srlw:
-        value = SignExtend(32, src1_u >> src2);
+        value = SignExtend<int64_t>(32, src1_u32 >> shamt);
         break;
     case OpCode::sra:
-        value = src1 >> src2;
+        value = src1 >> shamt;
         break;
     case OpCode::sraw:
-        value = SignExtend(32, src1 >> src2);
+        value = SignExtend<int64_t>(32, src1_s32 >> shamt);
         break;
     default:
         Error(op);
@@ -1352,30 +1358,38 @@ void Executor::ProcessRV64I_ShiftImm(const Op& op)
 {
     const auto& operand = std::get<OperandShiftImm>(op.operand);
 
+    const auto shamt_s32 = static_cast<int32_t>(operand.shamt);
+    const auto shamt_u32 = static_cast<uint32_t>(operand.shamt);
+    const auto shamt_s64 = static_cast<int64_t>(operand.shamt);
+    const auto shamt_u64 = static_cast<uint64_t>(operand.shamt);
+
     const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
     const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
+
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto src1_u32 = m_pIntRegFile->ReadUInt32(operand.rs1);
 
     int64_t value;
 
     switch (op.opCode)
     {
     case OpCode::slli:
-        value = src1 << operand.shamt;
+        value = src1 << shamt_s64;
         break;
     case OpCode::slliw:
-        value = SignExtend(32, src1 << operand.shamt);
+        value = SignExtend<int64_t>(32, src1_s32 << shamt_s32);
         break;
     case OpCode::srli:
-        value = src1_u >> operand.shamt;
+        value = src1_u >> shamt_u64;
         break;
     case OpCode::srliw:
-        value = SignExtend(32, src1_u >> operand.shamt);
+        value = SignExtend<int64_t>(32, src1_u32 >> shamt_u32);
         break;
     case OpCode::srai:
-        value = src1 >> operand.shamt;
+        value = src1 >> shamt_s64;
         break;
     case OpCode::sraiw:
-        value = SignExtend(32, src1 >> operand.shamt);
+        value = SignExtend<int64_t>(32, src1_s32 >> shamt_s32);
         break;
     default:
         Error(op);

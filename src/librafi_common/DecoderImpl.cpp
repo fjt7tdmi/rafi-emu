@@ -224,7 +224,7 @@ Op DecoderImpl::DecodeI(uint32_t insn) const
         }
         else if (funct3 == 3 && opClass == OpClass::RV64I)
         {
-            return Op{ opClass, OpCode::sd, DecodeOperandI(insn) };
+            return Op{ opClass, OpCode::sd, DecodeOperandS(insn) };
         }
         else
         {
@@ -355,7 +355,7 @@ Op DecoderImpl::DecodeI(uint32_t insn) const
         {
             return Op{ opClass, OpCode::srliw, DecodeOperandShiftImm_32(insn) };
         }
-        else if (opClass == OpClass::RV64I && funct3 == 0b101 && funct7 == 0b0000000)
+        else if (opClass == OpClass::RV64I && funct3 == 0b101 && funct7 == 0b0100000)
         {
             return Op{ opClass, OpCode::sraiw, DecodeOperandShiftImm_32(insn) };
         }
