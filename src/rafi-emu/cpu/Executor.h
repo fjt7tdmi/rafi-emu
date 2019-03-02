@@ -106,17 +106,22 @@ private:
     void ProcessRV64I_Csr(const Op& op);
     void ProcessRV64I_CsrImm(const Op& op);
 
-    // RV32F
+    // RV32F / RV64F
+    void ProcessRVF_MulAdd(const Op& op);
+    void ProcessRVF_Compute(const Op& op);
+    void ProcessRVF_Compare(const Op& op);
+    void ProcessRVF_Class(const Op& op);
+    void ProcessRVF_MoveToInt(const Op& op);
+    void ProcessRVF_MoveToFp(const Op& op);
+    void ProcessRVF_ConvertToInt32(const Op& op);
+    void ProcessRVF_ConvertToInt64(const Op& op);
+    void ProcessRVF_ConvertSign(const Op& op);
+
     void ProcessRV32F_Load(const Op& op);
     void ProcessRV32F_Store(const Op& op);
-    void ProcessRV32F_MulAdd(const Op& op);
-    void ProcessRV32F_Compute(const Op& op);
-    void ProcessRV32F_Compare(const Op& op);
-    void ProcessRV32F_Class(const Op& op);
-    void ProcessRV32F_MoveToInt(const Op& op);
-    void ProcessRV32F_MoveToFp(const Op& op);
-    void ProcessRV32F_ConvertToInt(const Op& op);
-    void ProcessRV32F_ConvertToFp(const Op& op);
+
+    void ProcessRV64F_Load(const Op& op);
+    void ProcessRV64F_Store(const Op& op);
 
     // RV32D
     void ProcessRV32D_Load(const Op& op);
