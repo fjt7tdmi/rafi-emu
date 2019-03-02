@@ -1270,33 +1270,38 @@ void Executor::ProcessRV64I_AluImm(const Op& op)
 {
     const auto& operand = std::get<OperandI>(op.operand);
 
+    const auto imm = static_cast<int32_t>(operand.imm);
+    const auto imm_u = static_cast<uint32_t>(operand.imm);
+    const auto imm_s32 = static_cast<int32_t>(operand.imm);
+
     const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
     const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
 
     int64_t value;
 
     switch (op.opCode)
     {
     case OpCode::addi:
-        value = src1 + operand.imm;
+        value = src1 + imm;
         break;
     case OpCode::addiw:
-        value = SignExtend(32, src1 + operand.imm);
+        value = SignExtend<int64_t>(32, src1_s32 + imm_s32);
         break;
     case OpCode::slti:
-        value = (src1 < operand.imm) ? 1 : 0;
+        value = (src1 < imm) ? 1 : 0;
         break;
     case OpCode::sltiu:
-        value = (src1_u < static_cast<uint64_t>(operand.imm)) ? 1 : 0;
+        value = (src1_u < imm_u) ? 1 : 0;
         break;
     case OpCode::xori:
-        value = src1 ^ operand.imm;
+        value = src1 ^ imm;
         break;
     case OpCode::ori:
-        value = src1 | operand.imm;
+        value = src1 | imm;
         break;
     case OpCode::andi:
-        value = src1 & operand.imm;
+        value = src1 & imm;
         break;
     default:
         Error(op);

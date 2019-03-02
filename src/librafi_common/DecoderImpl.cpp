@@ -1310,7 +1310,9 @@ Operand DecoderImpl::DecodeOperandU(uint32_t insn) const
 {
     return Operand(OperandU
     {
-        Pick(insn, 12, 20) << 12, // imm
+        SignExtend<int64_t>(32,
+            Pick(insn, 12, 20) << 12
+        ), // imm
         Pick(insn, 7, 5), // rd
     });
 }
@@ -1319,7 +1321,7 @@ Operand DecoderImpl::DecodeOperandJ(uint32_t insn) const
 {
     return Operand(OperandJ
     {
-        SignExtend(21,
+        SignExtend<int64_t>(21,
             Pick(insn, 31, 1) << 20 |
             Pick(insn, 21, 10) << 1 |
             Pick(insn, 20, 1) << 11 |
