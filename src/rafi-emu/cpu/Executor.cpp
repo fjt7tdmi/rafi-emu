@@ -530,11 +530,11 @@ void Executor::ProcessRVD(const Op& op)
         }
         return;
     case OpCode::fsd:
-        if (op.opClass == OpClass::RV32F)
+        if (op.opClass == OpClass::RV32D)
         {
             ProcessRV32D_Store(op);
         }
-        else if (op.opClass == OpClass::RV64F)
+        else if (op.opClass == OpClass::RV64D)
         {
             ProcessRV64D_Store(op);
         }
