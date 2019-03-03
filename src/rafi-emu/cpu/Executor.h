@@ -48,7 +48,7 @@ public:
     void ProcessOp(const Op& op, vaddr_t pc);
 
 private:
-    std::optional<Trap> PreCheckTrapForFp(vaddr_t pc, uint32_t insn) const;
+    // PreCheckTrap
     std::optional<Trap> PreCheckTrapForLoad(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapForStore(const Op& op, vaddr_t pc) const;
@@ -57,8 +57,41 @@ private:
     std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const;
     std::optional<Trap> PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const;
 
+    std::optional<Trap> PreCheckTrapRV32C(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C(const Op& op, vaddr_t pc) const;
+
+    // RV32C
+    std::optional<Trap> PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FLDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FLW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FLWSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FSD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FSDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FSW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_FSWSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_LW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_LWSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_SW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32C_SWSP(const Op& op, vaddr_t pc) const;
+
+    // RV64C
+    std::optional<Trap> PreCheckTrapRV64C_FLD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_FLDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_FSD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_FSDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_LD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_LDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_LW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_LWSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_SD(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_SDSP(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_SW(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64C_SWSP(const Op& op, vaddr_t pc) const;
+
+    // PostCheckTrap
     std::optional<Trap> PostCheckTrapForEcall(vaddr_t pc) const;
 
+    // Process
     void ProcessRV32I(const Op& op, vaddr_t pc);
     void ProcessRV32M(const Op& op);
     void ProcessRV32C(const Op& op, vaddr_t pc);
@@ -197,8 +230,8 @@ private:
     void ProcessRV64D_Store(const Op& op);
 
     // Common
-    uint32_t ReadStackPointer32();
-    uint64_t ReadStackPointer64();
+    uint32_t ReadStackPointer32() const;
+    uint64_t ReadStackPointer64() const;
     void WriteLinkRegister32(uint32_t value);
     void WriteLinkRegister64(uint64_t value);
 

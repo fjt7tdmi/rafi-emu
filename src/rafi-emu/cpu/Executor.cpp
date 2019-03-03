@@ -33,12 +33,21 @@ namespace rafi { namespace emu { namespace cpu {
 
 std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t insn) const
 {
-    if (op.opClass == OpClass::RV32F ||
-        op.opClass == OpClass::RV32D ||
-        op.opClass == OpClass::RV64F ||
-        op.opClass == OpClass::RV64D)
+    switch (op.opClass)
     {
-        return PreCheckTrapForFp(pc, insn);
+    case OpClass::RV32C:
+        return PreCheckTrapRV32C(op, pc);
+    case OpClass::RV64C:
+        return PreCheckTrapRV64C(op, pc);
+    case OpClass::RV32F:
+    case OpClass::RV32D:
+    case OpClass::RV64F:
+    case OpClass::RV64D:
+        if (!IsFpEnabled())
+        {
+            return MakeIllegalInstructionException(pc, insn);
+        }
+        break;
     }
 
     switch (op.opCode)
@@ -48,10 +57,17 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
     case OpCode::lw:
     case OpCode::lbu:
     case OpCode::lhu:
+    case OpCode::lwu:
+    case OpCode::ld:
+    case OpCode::flw:
+    case OpCode::fld:
         return PreCheckTrapForLoad(op, pc);
     case OpCode::sb:
     case OpCode::sh:
     case OpCode::sw:
+    case OpCode::sd:
+    case OpCode::fsw:
+    case OpCode::fsd:
         return PreCheckTrapForStore(op, pc);
     case OpCode::csrrw:
     case OpCode::csrrs:
@@ -144,14 +160,70 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     }
 }
 
-std::optional<Trap> Executor::PreCheckTrapForFp(vaddr_t pc, uint32_t insn) const
+std::optional<Trap> Executor::PreCheckTrapRV32C(const Op& op, vaddr_t pc) const
 {
-    if (!IsFpEnabled())
+    switch (op.opCode)
     {
-        return MakeIllegalInstructionException(pc, insn);
-    }
+    case OpCode::c_fld:
+        return PreCheckTrapRV32C_FLD(op, pc);
+    case OpCode::c_fldsp:
+        return PreCheckTrapRV32C_FLDSP(op, pc);
+    case OpCode::c_flw:
+        return PreCheckTrapRV32C_FLW(op, pc);
+    case OpCode::c_flwsp:
+        return PreCheckTrapRV32C_FLWSP(op, pc);
+    case OpCode::c_fsd:
+        return PreCheckTrapRV32C_FSD(op, pc);
+    case OpCode::c_fsdsp:
+        return PreCheckTrapRV32C_FSDSP(op, pc);
+    case OpCode::c_fsw:
+        return PreCheckTrapRV32C_FSW(op, pc);
+    case OpCode::c_fswsp:
+        return PreCheckTrapRV32C_FSWSP(op, pc);
+    case OpCode::c_lw:
+        return PreCheckTrapRV32C_LW(op, pc);
+    case OpCode::c_lwsp:
+        return PreCheckTrapRV32C_LWSP(op, pc);
+    case OpCode::c_sw:
+        return PreCheckTrapRV32C_SW(op, pc);
+    case OpCode::c_swsp:
+        return PreCheckTrapRV32C_SWSP(op, pc);
+    default:
+        return std::nullopt;
+    }    
+}
 
-    return std::nullopt;
+std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
+{
+    switch (op.opCode)
+    {
+    case OpCode::c_fld:
+        return PreCheckTrapRV64C_FLD(op, pc);
+    case OpCode::c_fldsp:
+        return PreCheckTrapRV64C_FLDSP(op, pc);
+    case OpCode::c_fsd:
+        return PreCheckTrapRV64C_FSD(op, pc);
+    case OpCode::c_fsdsp:
+        return PreCheckTrapRV64C_FSDSP(op, pc);
+    case OpCode::c_ld:
+        return PreCheckTrapRV64C_LD(op, pc);
+    case OpCode::c_ldsp:
+        return PreCheckTrapRV64C_LDSP(op, pc);
+    case OpCode::c_lw:
+        return PreCheckTrapRV64C_LW(op, pc);
+    case OpCode::c_lwsp:
+        return PreCheckTrapRV64C_LWSP(op, pc);
+    case OpCode::c_sd:
+        return PreCheckTrapRV64C_SD(op, pc);
+    case OpCode::c_sdsp:
+        return PreCheckTrapRV64C_SDSP(op, pc);
+    case OpCode::c_sw:
+        return PreCheckTrapRV64C_SW(op, pc);
+    case OpCode::c_swsp:
+        return PreCheckTrapRV64C_SWSP(op, pc);
+    default:
+        return std::nullopt;
+    }    
 }
 
 std::optional<Trap> Executor::PreCheckTrapForLoad(const Op& op, vaddr_t pc) const
@@ -224,6 +296,228 @@ std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, vaddr_t pc) co
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
+std::optional<Trap> Executor::PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FLDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FLW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FLWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FSD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FSDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt64(operand.rs2);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FSW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_FSWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+    const auto value = m_pFpRegFile->ReadUInt32(operand.rs2);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_LW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_LWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_SW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV32C_SWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_FLD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_FLDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_FSD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_FSDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_LD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_LDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_LW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCL>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_LWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCI>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_SD(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_SDSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer64() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_SW(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCS>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64C_SWSP(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandCSS>(op.operand);
+
+    const auto address = ReadStackPointer32() + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+// PostCheckTrap
 std::optional<Trap> Executor::PostCheckTrapForEcall(vaddr_t pc) const
 {
     const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
@@ -2050,7 +2344,6 @@ void Executor::ProcessRV32C_SWSP(const Op& op)
     m_pMemAccessUnit->StoreUInt32(address, value);
 }
 
-
 void Executor::ProcessRV64C_Alu(const Op& op)
 {
     const auto& operand = std::get<OperandCR>(op.operand);
@@ -3107,12 +3400,12 @@ void Executor::ProcessRV64D_Store(const Op& op)
     m_pMemAccessUnit->StoreUInt64(address, value);
 }
 
-uint32_t Executor::ReadStackPointer32()
+uint32_t Executor::ReadStackPointer32() const
 {
     return m_pIntRegFile->ReadUInt32(2);
 }
 
-uint64_t Executor::ReadStackPointer64()
+uint64_t Executor::ReadStackPointer64() const
 {
     return m_pIntRegFile->ReadUInt64(2);
 }
