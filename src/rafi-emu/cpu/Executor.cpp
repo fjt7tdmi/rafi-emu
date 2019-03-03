@@ -33,6 +33,14 @@ namespace rafi { namespace emu { namespace cpu {
 
 std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t insn) const
 {
+    if (op.opClass == OpClass::RV32F ||
+        op.opClass == OpClass::RV32D ||
+        op.opClass == OpClass::RV64F ||
+        op.opClass == OpClass::RV64D)
+    {
+        return PreCheckTrapForFp(pc, insn);
+    }
+
     switch (op.opCode)
     {
     case OpCode::lb:
@@ -134,6 +142,16 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
     default:
         Error(op);
     }
+}
+
+std::optional<Trap> Executor::PreCheckTrapForFp(vaddr_t pc, uint32_t insn) const
+{
+    if (!IsFpEnabled())
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+
+    return std::nullopt;
 }
 
 std::optional<Trap> Executor::PreCheckTrapForLoad(const Op& op, vaddr_t pc) const
@@ -2490,7 +2508,7 @@ void Executor::ProcessRVF_MulAdd(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, result);
 }
 
@@ -2556,7 +2574,7 @@ void Executor::ProcessRVF_Compute(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -2615,6 +2633,7 @@ void Executor::ProcessRVF_MoveToFp(const Op& op)
 
     const auto value = m_pIntRegFile->ReadUInt32(operand.rs1);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -2705,7 +2724,7 @@ void Executor::ProcessRVF_ConvertSign(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -2716,6 +2735,7 @@ void Executor::ProcessRV32F_Load(const Op& op)
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
     const auto value = m_pMemAccessUnit->LoadUInt32(address);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -2736,6 +2756,7 @@ void Executor::ProcessRV64F_Load(const Op& op)
     const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
     const auto value = m_pMemAccessUnit->LoadUInt32(address);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -2786,7 +2807,7 @@ void Executor::ProcessRVD_MulAdd(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -2852,7 +2873,7 @@ void Executor::ProcessRVD_Compute(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, result);
 }
 
@@ -2911,6 +2932,7 @@ void Executor::ProcessRVD_MoveToFp(const Op& op)
 
     const auto value = m_pIntRegFile->ReadUInt64(operand.rs1);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -2985,7 +3007,7 @@ void Executor::ProcessRVD_ConvertFp32ToFp64(const Op& op)
     const uint64_t value = fp::FloatToDouble(src);
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -2998,7 +3020,7 @@ void Executor::ProcessRVD_ConvertFp64ToFp32(const Op& op)
     const uint32_t value = fp::DoubleToFloat(src);
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt32(operand.rd, value);
 }
 
@@ -3027,7 +3049,7 @@ void Executor::ProcessRVD_ConvertSign(const Op& op)
     }
 
     UpdateFpCsr();
-
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -3038,6 +3060,7 @@ void Executor::ProcessRV32D_Load(const Op& op)
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
     const auto value = m_pMemAccessUnit->LoadUInt64(address);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -3058,6 +3081,7 @@ void Executor::ProcessRV64D_Load(const Op& op)
     const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
     const auto value = m_pMemAccessUnit->LoadUInt64(address);
 
+    NotifyFpDirty();
     m_pFpRegFile->WriteUInt64(operand.rd, value);
 }
 
@@ -3089,6 +3113,20 @@ void Executor::WriteLinkRegister32(uint32_t value)
 void Executor::WriteLinkRegister64(uint64_t value)
 {
     return m_pIntRegFile->WriteUInt64(1, value);
+}
+
+bool Executor::IsFpEnabled() const
+{
+    return m_pCsr->ReadStatus().GetMember<xstatus_t::FS>() != 0;
+}
+
+void Executor::NotifyFpDirty()
+{
+    auto status = m_pCsr->ReadStatus();
+
+    status.SetMember<xstatus_t::FS>(3);
+
+    m_pCsr->WriteStatus(status);
 }
 
 void Executor::UpdateFpCsr()

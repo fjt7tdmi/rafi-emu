@@ -48,6 +48,7 @@ public:
     void ProcessOp(const Op& op, vaddr_t pc);
 
 private:
+    std::optional<Trap> PreCheckTrapForFp(vaddr_t pc, uint32_t insn) const;
     std::optional<Trap> PreCheckTrapForLoad(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapForStore(const Op& op, vaddr_t pc) const;
@@ -201,7 +202,10 @@ private:
     void WriteLinkRegister32(uint32_t value);
     void WriteLinkRegister64(uint64_t value);
 
+    bool IsFpEnabled() const;
+    void NotifyFpDirty();
     void UpdateFpCsr();
+
     [[noreturn]] void Error(const Op& op);
 
     Csr* m_pCsr;

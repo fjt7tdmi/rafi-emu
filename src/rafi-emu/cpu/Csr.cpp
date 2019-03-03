@@ -125,7 +125,9 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
          .SetMember<misa_t::A>(1)
          .SetMember<misa_t::F>(1)
          .SetMember<misa_t::D>(1)
-         .SetMember<misa_t::C>(1);
+         .SetMember<misa_t::C>(1)
+         .SetMember<misa_t::U>(1)   // Present User-mode
+         .SetMember<misa_t::S>(1);  // Present Supervisor-mode
 
     switch (m_XLEN)
     {
@@ -334,6 +336,11 @@ void Csr::WriteFpCsr(const fcsr_t& value)
 void Csr::WriteInterruptPending(const xip_t& value)
 {
     m_InterruptPending = value;
+}
+
+void Csr::WriteStatus(const xstatus_t& value)
+{
+    m_Status = value;
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -563,6 +570,10 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
 
     switch(addr)
     {
+    case csr_addr_t::mhartid:
+    case csr_addr_t::misa:
+        // Ignore writes to these registers
+        return;
     case csr_addr_t::mstatus:
         m_Status.SetValue(value);
         return;
@@ -601,9 +612,6 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
     case csr_addr_t::pmpcfg2:
     case csr_addr_t::pmpcfg3:
         // TODO: Implement PMP
-        return;
-    case csr_addr_t::mhartid:
-        // Suppress warning by writing to mhartid
         return;
     default:
         if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN32)

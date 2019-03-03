@@ -60,7 +60,8 @@ public:
 
     void WriteFpCsr(const fcsr_t& value);
     void WriteInterruptPending(const xip_t& value);
-
+    void WriteStatus(const xstatus_t& value);
+    
     // for Dump
     int GetRegCount() const;
     void Copy(trace::Csr32Node* pOutNodes, int nodeCount) const;
