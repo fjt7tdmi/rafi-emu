@@ -1040,9 +1040,10 @@ void Executor::ProcessRV32I_Jalr(const Op& op, vaddr_t pc)
     const auto& operand = std::get<OperandI>(op.operand);
 
     const auto src = m_pIntRegFile->ReadInt32(operand.rs1);
+    const auto address = (~0x1) & (src + operand.imm);
 
     m_pIntRegFile->WriteInt32(operand.rd, pc + 4);
-    m_pCsr->SetProgramCounter(src + operand.imm);
+    m_pCsr->SetProgramCounter(address);
 }
 
 void Executor::ProcessRV32I_Branch(const Op& op, vaddr_t pc)
@@ -1379,9 +1380,10 @@ void Executor::ProcessRV64I_Jalr(const Op& op, vaddr_t pc)
     const auto& operand = std::get<OperandI>(op.operand);
 
     const auto src = m_pIntRegFile->ReadInt64(operand.rs1);
+    const auto address = (~0x1) & (src + operand.imm);
 
     m_pIntRegFile->WriteInt64(operand.rd, pc + 4);
-    m_pCsr->SetProgramCounter(src + operand.imm);
+    m_pCsr->SetProgramCounter(address);
 }
 
 void Executor::ProcessRV64I_Branch(const Op& op, vaddr_t pc)
@@ -1961,18 +1963,20 @@ void Executor::ProcessRV32C_JR(const Op& op)
 {
     const auto& operand = std::get<OperandCR>(op.operand);
 
-    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto src = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto address = (~0x1) & src;
 
-    m_pCsr->SetProgramCounter(target);
+    m_pCsr->SetProgramCounter(address);
 }
 
 void Executor::ProcessRV32C_JALR(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandCR>(op.operand);
 
-    const auto target = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto src = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto address = (~0x1) & src;
 
-    m_pCsr->SetProgramCounter(target);
+    m_pCsr->SetProgramCounter(address);
     WriteLinkRegister32(pc + 2);
 }
 
@@ -2198,18 +2202,20 @@ void Executor::ProcessRV64C_JR(const Op& op)
 {
     const auto& operand = std::get<OperandCR>(op.operand);
 
-    const auto target = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto address = (~0x1) & src;
 
-    m_pCsr->SetProgramCounter(target);
+    m_pCsr->SetProgramCounter(address);
 }
 
 void Executor::ProcessRV64C_JALR(const Op& op, vaddr_t pc)
 {
     const auto& operand = std::get<OperandCR>(op.operand);
 
-    const auto target = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto address = (~0x1) & src;
 
-    m_pCsr->SetProgramCounter(target);
+    m_pCsr->SetProgramCounter(address);
     WriteLinkRegister64(pc + 2);
 }
 
