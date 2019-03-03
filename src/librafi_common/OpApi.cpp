@@ -298,7 +298,7 @@ public:
     int operator()(const OperandI& operand)
     {
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", GetString(m_OpCode), operand.rd, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", GetString(m_OpCode), operand.rd, static_cast<uint32_t>(operand.imm));
     }
 
     int operator()(const OperandS& operand)
@@ -306,7 +306,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, operand.imm, operand.rs2);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, static_cast<uint32_t>(operand.imm), operand.rs2);
     }
 
     int operator()(const OperandB& operand)
@@ -315,7 +315,7 @@ public:
         const char* rs1 = IntRegNames[operand.rs1];
         const char* rs2 = IntRegNames[operand.rs2];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d(%s)", opCode, rs1, operand.imm, rs2);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d(%s)", opCode, rs1, static_cast<int32_t>(operand.imm), rs2);
     }
 
     int operator()(const OperandU& operand)
@@ -323,7 +323,7 @@ public:
         const char* opCode = GetString(m_OpCode);
         const char* rd = IntRegNames[operand.rd];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,0x%x", opCode, rd, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,0x%x", opCode, rd, static_cast<uint32_t>(operand.imm));
     }
 
     int operator()(const OperandJ& operand)
@@ -331,7 +331,7 @@ public:
         const char* opCode = GetString(m_OpCode);
         const char* rd = IntRegNames[operand.rd];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,0x%x", opCode, rd, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,0x%x", opCode, rd, static_cast<uint32_t>(operand.imm));
     }
 
     int operator()(const OperandShiftImm& operand)
@@ -388,7 +388,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (imm:0x%x, rs2:%d)", opCode, operand.imm, operand.rs2);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (imm:0x%x, rs2:%d)", opCode, static_cast<uint32_t>(operand.imm), operand.rs2);
     }
 
     int operator()(const OperandCIW& operand)
@@ -396,7 +396,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", opCode, operand.rd, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, imm:0x%x)", opCode, operand.rd, static_cast<uint32_t>(operand.imm));
     }
 
     int operator()(const OperandCL& operand)
@@ -404,7 +404,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, static_cast<uint32_t>(operand.imm));
     }
 
     int operator()(const OperandCS& operand)
@@ -412,7 +412,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, operand.imm, operand.rs2);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rs1:%d, imm:0x%x, rs2:%d)", opCode, operand.rs1, static_cast<uint32_t>(operand.imm), operand.rs2);
     }
 
     int operator()(const OperandCB& operand)
@@ -420,14 +420,14 @@ public:
         const char* opCode = GetString(m_OpCode);
         const char* rs1 = IntRegNames[operand.rs1];
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d", opCode, rs1, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %s,%d", opCode, rs1, static_cast<int32_t>(operand.imm));
     }
 
     int operator()(const OperandCJ& operand)
     {
         const char* opCode = GetString(m_OpCode);
 
-        return std::snprintf(m_Buffer, m_BufferSize, "%s %d", opCode, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s %d", opCode, static_cast<int32_t>(operand.imm));
     }
 
     int operator()(const OperandNone&)
