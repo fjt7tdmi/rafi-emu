@@ -185,38 +185,35 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
     // disable permission check for riscv-tests
-    (void)write;
-#if 0
     bool debugModeOnly = (regId >> 6 == 0b011110);
     bool readOnly = (regId >> 10 == 0b11);
 
-    if (IsSupervisorModeRegister(regId) && m_PrivilegeLevel == PrivilegeLevel::User)
+    if (IsSupervisorModeRegister(addr) && m_PrivilegeLevel == PrivilegeLevel::User)
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (IsReservedModeRegister(regId))
+    if (IsReservedModeRegister(addr))
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (IsMachineModeRegister(regId) && (m_PrivilegeLevel == PrivilegeLevel::User || m_PrivilegeLevel == PrivilegeLevel::Supervisor))
+    if (IsMachineModeRegister(addr) && (m_PrivilegeLevel == PrivilegeLevel::User || m_PrivilegeLevel == PrivilegeLevel::Supervisor))
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (debugModeOnly)
+    if (debugModeOnly)
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (readOnly && write)
+    if (readOnly && write)
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
 
-    /*
+#if 0
     if (!IsExist(regId))
     {
         throw IllegalInstructionException(pc, insn);
     }
-    */
 #endif
 
     // Performance Counter

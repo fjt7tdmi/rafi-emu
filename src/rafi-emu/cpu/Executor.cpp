@@ -189,13 +189,25 @@ std::optional<Trap> Executor::PreCheckTrapForStoreConditional(const Op& op, vadd
 std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, vaddr_t pc, uint32_t insn) const
 {
     const auto& operand = std::get<OperandCsr>(op.operand);
-    return m_pCsr->CheckTrap(operand.csr, operand.rd != 0, pc, insn);
+
+    const bool write =
+        (op.opCode == OpCode::csrrs && operand.rs1 != 0) ||
+        (op.opCode == OpCode::csrrc && operand.rs1 != 0) ||
+        (op.opCode == OpCode::csrrw);
+
+    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
 }
 
 std::optional<Trap> Executor::PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const
 {
     const auto& operand = std::get<OperandCsrImm>(op.operand);
-    return m_pCsr->CheckTrap(operand.csr, operand.rd != 0, pc, insn);
+
+    const bool write =
+        (op.opCode == OpCode::csrrs && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrc && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrw);
+
+    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
 }
 
 std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const
