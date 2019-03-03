@@ -187,8 +187,6 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     const int regId = static_cast<int>(addr);
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
-    // disable permission check for riscv-tests
-    bool debugModeOnly = (regId >> 6 == 0b011110);
     bool readOnly = (regId >> 10 == 0b11);
 
     if (IsSupervisorModeRegister(addr) && m_PrivilegeLevel == PrivilegeLevel::User)
@@ -203,16 +201,18 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     {
         return MakeIllegalInstructionException(pc, insn);
     }
-    if (debugModeOnly)
-    {
-        return MakeIllegalInstructionException(pc, insn);
-    }
     if (readOnly && write)
     {
         return MakeIllegalInstructionException(pc, insn);
     }
 
+    // disable checks for riscv-tests
 #if 0
+    const bool debugModeOnly = (regId >> 6 == 0b011110);
+    if (debugModeOnly)
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
     if (!IsExist(regId))
     {
         throw IllegalInstructionException(pc, insn);
