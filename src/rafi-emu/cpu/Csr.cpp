@@ -140,6 +140,9 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
     }
+
+    m_Status.SetMember<xstatus_t::SXL>(static_cast<uint32_t>(m_XLEN));
+    m_Status.SetMember<xstatus_t::UXL>(static_cast<uint32_t>(m_XLEN));
 }
 
 vaddr_t Csr::GetProgramCounter() const
@@ -317,7 +320,24 @@ xie_t Csr::ReadInterruptEnable() const
 
 xstatus_t Csr::ReadStatus() const
 {
-    return m_Status;
+    auto status = m_Status;
+    
+    if (status.GetMember<xstatus_t::XS>() == 0b11 || status.GetMember<xstatus_t::FS>() == 0b11)
+    {
+        switch (m_XLEN)
+        {
+            case XLEN::XLEN32:
+                status.SetMember<xstatus_t::SD_RV32>(1ull);
+                break;
+            case XLEN::XLEN64:
+                status.SetMember<xstatus_t::SD_RV64>(1ull);
+                break;
+            default:
+                RAFI_EMU_NOT_IMPLEMENTED();
+        }
+    }
+
+    return status;
 }
 
 satp_t Csr::ReadSatp() const
@@ -337,7 +357,7 @@ void Csr::WriteInterruptPending(const xip_t& value)
 
 void Csr::WriteStatus(const xstatus_t& value)
 {
-    m_Status = value;
+    m_Status.SetWithMask(value, xstatus_t::WriteMask);
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -371,7 +391,7 @@ uint64_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     switch (addr)
     {
     case csr_addr_t::mstatus:
-        return m_Status;
+        return ReadStatus();
     case csr_addr_t::misa:
         return m_ISA;
     case csr_addr_t::medeleg:
@@ -448,11 +468,11 @@ uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     case csr_addr_t::sstatus:
         if (m_XLEN == XLEN::XLEN32)
         {
-            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV32);
+            return ReadStatus().GetWithMask(xstatus_t::SupervisorMask_RV32);
         }
         else if (m_XLEN == XLEN::XLEN64)
         {
-            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV64);
+            return ReadStatus().GetWithMask(xstatus_t::SupervisorMask_RV64);
         }
         else
         {
@@ -491,7 +511,7 @@ uint64_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     switch (addr)
     {
     case csr_addr_t::ustatus:
-        return m_Status.GetWithMask(xstatus_t::UserMask);
+        return ReadStatus().GetWithMask(xstatus_t::UserMask);
     case csr_addr_t::fflags:
         return m_FpCsr.GetMember<fcsr_t::AE>();
     case csr_addr_t::frm:
@@ -572,7 +592,7 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
         // Ignore writes to these registers
         return;
     case csr_addr_t::mstatus:
-        m_Status.SetValue(value);
+        WriteStatus(value);
         return;
     case csr_addr_t::medeleg:
         m_MachineExceptionDelegation = value;
@@ -648,19 +668,17 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint64_t value)
     switch(addr)
     {
     case csr_addr_t::sstatus:
-        if (m_XLEN == XLEN::XLEN32)
+        switch (m_XLEN)
         {
-            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV32);
+            case XLEN::XLEN32:
+                WriteStatus(value & xstatus_t::SupervisorMask_RV32);
+                return;
+            case XLEN::XLEN64:
+                WriteStatus(value & xstatus_t::SupervisorMask_RV64);
+                return;
+            default:
+                RAFI_EMU_NOT_IMPLEMENTED();
         }
-        else if (m_XLEN == XLEN::XLEN64)
-        {
-            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV64);
-        }
-        else
-        {
-            RAFI_EMU_NOT_IMPLEMENTED();
-        }        
-        return;
     case csr_addr_t::sedeleg:
         m_SupervisorExceptionDelegation = value;
         return;
@@ -705,7 +723,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, uint64_t value)
     switch (addr)
     {
     case csr_addr_t::ustatus:
-        m_Status.SetWithMask(value, xstatus_t::UserMask);
+        WriteStatus(value & xstatus_t::UserMask);
         return;
     case csr_addr_t::fflags:
         m_FpCsr.SetMember<fcsr_t::AE>(static_cast<uint32_t>(value));
