@@ -172,7 +172,6 @@
     { "name": "rv32um-v-mulhu",         "host-io-addr": "0x80001000", "xlen": 32, "cycle": 256000 },
     { "name": "rv32um-v-rem",           "host-io-addr": "0x80001000", "xlen": 32, "cycle": 384000 },
     { "name": "rv32um-v-remu",          "host-io-addr": "0x80001000", "xlen": 32, "cycle": 128000 },
-    { "name": "rv64mi-p-access",        "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64mi-p-breakpoint",    "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64mi-p-csr",           "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
     { "name": "rv64mi-p-illegal",       "host-io-addr": "0x80001000", "xlen": 64, "cycle": 32000 },
