@@ -251,7 +251,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv39(MemoryAccessType accessType,
     {
         RETURN_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
 
-        if (entry1.GetMember<PageTableEntrySv39::PPN1>() != 0 &&
+        if (entry1.GetMember<PageTableEntrySv39::PPN1>() != 0 ||
             entry1.GetMember<PageTableEntrySv39::PPN0>() != 0)
         {
             return MakeTrap(accessType, pc, addr);
@@ -306,8 +306,8 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv48(MemoryAccessType accessType,
     {
         RETURN_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
 
-        if (entry1.GetMember<PageTableEntrySv48::PPN2>() != 0 &&
-            entry1.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
+        if (entry1.GetMember<PageTableEntrySv48::PPN2>() != 0 ||
+            entry1.GetMember<PageTableEntrySv48::PPN1>() != 0 ||
             entry1.GetMember<PageTableEntrySv48::PPN0>() != 0)
         {
             return MakeTrap(accessType, pc, addr);
@@ -328,7 +328,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv48(MemoryAccessType accessType,
     {
         RETURN_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
 
-        if (entry2.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
+        if (entry2.GetMember<PageTableEntrySv48::PPN1>() != 0 ||
             entry2.GetMember<PageTableEntrySv48::PPN0>() != 0)
         {
             return MakeTrap(accessType, pc, addr);
@@ -349,8 +349,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv48(MemoryAccessType accessType,
     {
         RETURN_TRAP(CheckTrapForLeafEntry(entry3, accessType, pc, addr));
 
-        if (entry3.GetMember<PageTableEntrySv48::PPN1>() != 0 &&
-            entry3.GetMember<PageTableEntrySv48::PPN0>() != 0)
+        if (entry3.GetMember<PageTableEntrySv48::PPN0>() != 0)
         {
             return MakeTrap(accessType, pc, addr);
         }
