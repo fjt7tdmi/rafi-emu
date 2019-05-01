@@ -23,6 +23,9 @@ namespace rafi {
 const char* GetString(const OpClass& op);
 const char* GetString(const OpCode& op);
 
+bool IsRV32(OpClass opClass);
+bool IsRV64(OpClass opClass);
+
 int SNPrintOp(char* buffer, int bufferSize, const Op& op);
 
 }

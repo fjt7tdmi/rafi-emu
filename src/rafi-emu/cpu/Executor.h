@@ -49,13 +49,20 @@ public:
 
 private:
     // PreCheckTrap
-    std::optional<Trap> PreCheckTrapForLoad(const Op& op, vaddr_t pc) const;
-    std::optional<Trap> PreCheckTrapForLoadReserved(const Op& op, vaddr_t pc) const;
-    std::optional<Trap> PreCheckTrapForStore(const Op& op, vaddr_t pc) const;
-    std::optional<Trap> PreCheckTrapForStoreConditional(const Op& op, vaddr_t pc) const;
-    std::optional<Trap> PreCheckTrapForCsr(const Op& op, vaddr_t pc, uint32_t insn) const;
-    std::optional<Trap> PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const;
-    std::optional<Trap> PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32_Load(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32_LoadReserved(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32_Store(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32_StoreConditional(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV32_Atomic(const Op& op, vaddr_t pc) const;
+
+    std::optional<Trap> PreCheckTrapRV64_Load(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64_LoadReserved(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64_Store(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64_StoreConditional(const Op& op, vaddr_t pc) const;
+    std::optional<Trap> PreCheckTrapRV64_Atomic(const Op& op, vaddr_t pc) const;
+
+    std::optional<Trap> PreCheckTrap_Csr(const Op& op, vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint32_t insn) const;
 
     std::optional<Trap> PreCheckTrapRV32C(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapRV64C(const Op& op, vaddr_t pc) const;

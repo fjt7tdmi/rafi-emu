@@ -269,6 +269,28 @@ const char* GetString(const OpCode& opCode)
 #undef GET_OP_NAME_CASE
 }
 
+bool IsRV32(OpClass opClass)
+{
+    return
+        opClass == OpClass::RV32I ||
+        opClass == OpClass::RV32M ||
+        opClass == OpClass::RV32A ||
+        opClass == OpClass::RV32F ||
+        opClass == OpClass::RV32D ||
+        opClass == OpClass::RV32C;
+}
+
+bool IsRV64(OpClass opClass)
+{
+    return
+        opClass == OpClass::RV64I ||
+        opClass == OpClass::RV64M ||
+        opClass == OpClass::RV64A ||
+        opClass == OpClass::RV64F ||
+        opClass == OpClass::RV64D ||
+        opClass == OpClass::RV64C;
+}
+
 class SNPrintOpVisitor
 {
 public:

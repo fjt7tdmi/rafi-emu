@@ -61,29 +61,72 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
     case OpCode::ld:
     case OpCode::flw:
     case OpCode::fld:
-        return PreCheckTrapForLoad(op, pc);
+        if (IsRV32(op.opClass))
+        {
+            return PreCheckTrapRV32_Load(op, pc);
+        }
+        else if (IsRV64(op.opClass))
+        {
+            return PreCheckTrapRV64_Load(op, pc);
+        }
+        else
+        {
+            RAFI_NOT_IMPLEMENTED();
+        }
     case OpCode::sb:
     case OpCode::sh:
     case OpCode::sw:
     case OpCode::sd:
     case OpCode::fsw:
     case OpCode::fsd:
-        return PreCheckTrapForStore(op, pc);
+        if (IsRV32(op.opClass))
+        {
+            return PreCheckTrapRV32_Store(op, pc);
+        }
+        else if (IsRV64(op.opClass))
+        {
+            return PreCheckTrapRV64_Store(op, pc);
+        }
+        else
+        {
+            RAFI_NOT_IMPLEMENTED();
+        }
     case OpCode::csrrw:
     case OpCode::csrrs:
     case OpCode::csrrc:
-        return PreCheckTrapForCsr(op, pc, insn);
+        return PreCheckTrap_Csr(op, pc, insn);
     case OpCode::csrrwi:
     case OpCode::csrrsi:
     case OpCode::csrrci:
-        return PreCheckTrapForCsrImm(op, pc, insn);
+        return PreCheckTrap_CsrImm(op, pc, insn);
     case OpCode::lr_d:
     case OpCode::lr_w:
-        return PreCheckTrapForLoadReserved(op, pc);
-        break;
+        if (IsRV32(op.opClass))
+        {
+            return PreCheckTrapRV32_LoadReserved(op, pc);
+        }
+        else if (IsRV64(op.opClass))
+        {
+            return PreCheckTrapRV64_LoadReserved(op, pc);
+        }
+        else
+        {
+            RAFI_NOT_IMPLEMENTED();
+        }
     case OpCode::sc_d:
     case OpCode::sc_w:
-        return PreCheckTrapForStoreConditional(op, pc);
+        if (IsRV32(op.opClass))
+        {
+            return PreCheckTrapRV32_StoreConditional(op, pc);
+        }
+        else if (IsRV64(op.opClass))
+        {
+            return PreCheckTrapRV64_StoreConditional(op, pc);
+        }
+        else
+        {
+            RAFI_NOT_IMPLEMENTED();
+        }
     case OpCode::amoswap_d:
     case OpCode::amoswap_w:
     case OpCode::amoadd_d:
@@ -102,7 +145,18 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
     case OpCode::amominu_w:
     case OpCode::amomaxu_d:
     case OpCode::amomaxu_w:
-        return PreCheckTrapForAtomic(op, pc);
+        if (IsRV32(op.opClass))
+        {
+            return PreCheckTrapRV32_Atomic(op, pc);
+        }
+        else if (IsRV64(op.opClass))
+        {
+            return PreCheckTrapRV64_Atomic(op, pc);
+        }
+        else
+        {
+            RAFI_NOT_IMPLEMENTED();
+        }
     default:
         return std::nullopt;
     }
@@ -226,7 +280,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
     }    
 }
 
-std::optional<Trap> Executor::PreCheckTrapForLoad(const Op& op, vaddr_t pc) const
+std::optional<Trap> Executor::PreCheckTrapRV32_Load(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandI>(op.operand);
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
@@ -234,7 +288,7 @@ std::optional<Trap> Executor::PreCheckTrapForLoad(const Op& op, vaddr_t pc) cons
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForLoadReserved(const Op& op, vaddr_t pc) const
+std::optional<Trap> Executor::PreCheckTrapRV32_LoadReserved(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandR>(op.operand);
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
@@ -242,7 +296,7 @@ std::optional<Trap> Executor::PreCheckTrapForLoadReserved(const Op& op, vaddr_t 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForStore(const Op& op, vaddr_t pc) const
+std::optional<Trap> Executor::PreCheckTrapRV32_Store(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandS>(op.operand);
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
@@ -250,7 +304,7 @@ std::optional<Trap> Executor::PreCheckTrapForStore(const Op& op, vaddr_t pc) con
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForStoreConditional(const Op& op, vaddr_t pc) const
+std::optional<Trap> Executor::PreCheckTrapRV32_StoreConditional(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandR>(op.operand);
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
@@ -258,31 +312,7 @@ std::optional<Trap> Executor::PreCheckTrapForStoreConditional(const Op& op, vadd
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
 
-std::optional<Trap> Executor::PreCheckTrapForCsr(const Op& op, vaddr_t pc, uint32_t insn) const
-{
-    const auto& operand = std::get<OperandCsr>(op.operand);
-
-    const bool write =
-        (op.opCode == OpCode::csrrs && operand.rs1 != 0) ||
-        (op.opCode == OpCode::csrrc && operand.rs1 != 0) ||
-        (op.opCode == OpCode::csrrw);
-
-    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
-}
-
-std::optional<Trap> Executor::PreCheckTrapForCsrImm(const Op& op, vaddr_t pc, uint32_t insn) const
-{
-    const auto& operand = std::get<OperandCsrImm>(op.operand);
-
-    const bool write =
-        (op.opCode == OpCode::csrrs && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrc && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrw);
-
-    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
-}
-
-std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, vaddr_t pc) const
+std::optional<Trap> Executor::PreCheckTrapRV32_Atomic(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandR>(op.operand);
     const vaddr_t address = m_pIntRegFile->ReadUInt32(operand.rs1);
@@ -294,6 +324,76 @@ std::optional<Trap> Executor::PreCheckTrapForAtomic(const Op& op, vaddr_t pc) co
     }
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64_Load(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandI>(op.operand);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64_LoadReserved(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64_Store(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandS>(op.operand);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64_StoreConditional(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrapRV64_Atomic(const Op& op, vaddr_t pc) const
+{
+    const auto& operand = std::get<OperandR>(op.operand);
+    const vaddr_t address = m_pIntRegFile->ReadUInt64(operand.rs1);
+
+    const auto trap = m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
+    if (trap)
+    {
+        return trap;
+    }
+
+    return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Csr(const Op& op, vaddr_t pc, uint32_t insn) const
+{
+    const auto& operand = std::get<OperandCsr>(op.operand);
+
+    const bool write =
+        (op.opCode == OpCode::csrrs && operand.rs1 != 0) ||
+        (op.opCode == OpCode::csrrc && operand.rs1 != 0) ||
+        (op.opCode == OpCode::csrrw);
+
+    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
+}
+
+std::optional<Trap> Executor::PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint32_t insn) const
+{
+    const auto& operand = std::get<OperandCsrImm>(op.operand);
+
+    const bool write =
+        (op.opCode == OpCode::csrrs && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrc && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrw);
+
+    return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const
