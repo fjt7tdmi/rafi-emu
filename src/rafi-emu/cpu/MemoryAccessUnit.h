@@ -57,7 +57,9 @@ public:
     int GetEventCount() const;
 
 private:
-    AddressTranslationMode GetAddresssTranslationMode() const;
+    PrivilegeLevel GetEffectivePrivilegeLevel(MemoryAccessType accessType) const;
+
+    AddressTranslationMode GetAddresssTranslationMode(MemoryAccessType accessType) const;
 
     std::optional<Trap> CheckTrapSv32(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
     std::optional<Trap> CheckTrapSv39(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
@@ -67,7 +69,7 @@ private:
 
     std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
-    paddr_t Translate(vaddr_t addr, bool isWrite);
+    paddr_t Translate(MemoryAccessType accessType, vaddr_t addr);
     paddr_t TranslateSv32(vaddr_t addr, bool isWrite);
     paddr_t TranslateSv39(vaddr_t addr, bool isWrite);
     paddr_t TranslateSv48(vaddr_t addr, bool isWrite);
@@ -89,9 +91,9 @@ private:
     template <typename EntryType>
     std::optional<Trap> CheckTrapForLeafEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
     {
-        const auto privilegeLevel = m_pCsr->GetPrivilegeLevel();
-        const auto status = m_pCsr->ReadStatus();
+        const auto privilegeLevel = GetEffectivePrivilegeLevel(accessType);
 
+        const auto status = m_pCsr->ReadStatus();
         const bool sum = status.GetMember<xstatus_t::SUM>();
         const bool mxr = status.GetMember<xstatus_t::MXR>();
 
