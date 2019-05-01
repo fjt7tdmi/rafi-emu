@@ -1295,7 +1295,7 @@ void Executor::ProcessRV64M(const Op& op)
     case OpCode::divw:
         if (src1_u32 == (1ull << 31) && src2_s32 == -1)
         {
-            value = static_cast<int64_t>(1ull << 63);
+            value = SignExtend<int64_t>(32, 1ull << 31);
         }
         else if (src2_s64 == 0)
         {
@@ -1303,7 +1303,7 @@ void Executor::ProcessRV64M(const Op& op)
         }
         else
         {
-            value = src1_s64 / src2_s64;
+            value = SignExtend<int64_t>(32, src1_s32 / src2_s32);
         }
         break;
     case OpCode::rem:
@@ -1333,11 +1333,11 @@ void Executor::ProcessRV64M(const Op& op)
     case OpCode::remuw:
         if (src2_u32 == 0)
         {
-            value = src1_s64;
+            value = SignExtend<int64_t>(32, src1_s32);
         }
         else
         {
-            value = static_cast<int64_t>(src1_u32 % src2_u32);
+            value = SignExtend<int64_t>(32, src1_u32 % src2_u32);
         }
         break;
     case OpCode::remw:
@@ -1347,11 +1347,11 @@ void Executor::ProcessRV64M(const Op& op)
         }
         else if (src2_s32 == 0)
         {
-            value = src1_s64;
+            value = SignExtend<int64_t>(32, src1_s32);
         }
         else
         {
-            value = SignExtend<int64_t>(32, src1_u32 % src2_u32);
+            value = SignExtend<int64_t>(32, src1_s32 % src2_s32);
         }
         break;
     default:
