@@ -368,7 +368,7 @@ struct xtvec_t : BitField64
     {
     }
 
-    xtvec_t(uint32_t value) : BitField64(value)
+    xtvec_t(uint64_t value) : BitField64(value)
     {
     }
 
