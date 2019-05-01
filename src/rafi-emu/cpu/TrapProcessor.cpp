@@ -213,7 +213,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
         base = trapVector.GetWithMask(xtvec_t::BASE_RV32::Mask);
         break;
     case XLEN::XLEN64:
-        base = trapVector.GetWithMask(xtvec_t::BASE_RV32::Mask);
+        base = trapVector.GetWithMask(xtvec_t::BASE_RV64::Mask);
         break;
     default:
         RAFI_EMU_NOT_IMPLEMENTED();

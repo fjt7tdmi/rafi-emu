@@ -329,8 +329,10 @@ struct xstatus_t : BitField64
     {
     }
 
-    using SD_RV64    = Member<63>;   // Status Dirty
-    using SD_RV32    = Member<31>;   // Status Dirty
+    using SD_RV64   = Member<63>;       // Status Dirty
+    using SXL       = Member<35, 34>;   // Supervisor XLEN
+    using UXL       = Member<33, 32>;   // User XLEN
+    using SD_RV32   = Member<31>;       // Status Dirty
 
     using TSR   = Member<22>;   // Trap SRET
     using TW    = Member<21>;   // Timeout Wait
@@ -353,7 +355,8 @@ struct xstatus_t : BitField64
     using SIE   = Member<1>;    // Machine Interrupt Enable
     using UIE   = Member<0>;    // User Interrupt Enable
 
-    static const uint64_t SupervisorMask_RV64 = SD_RV64::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
+    static const uint64_t WriteMask = TSR::Mask | TW::Mask | TVM::Mask | MXR::Mask | SUM::Mask | MPRV::Mask | XS::Mask | FS::Mask | MPP::Mask | SPP::Mask | MPIE::Mask | SPIE::Mask | UPIE::Mask | MIE::Mask | SIE::Mask | UIE::Mask;
+    static const uint64_t SupervisorMask_RV64 = SD_RV64::Mask | SXL::Mask | UXL::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
     static const uint64_t SupervisorMask_RV32 = SD_RV32::Mask | MXR::Mask | SUM::Mask | XS::Mask | FS::Mask | SPP::Mask | SPIE::Mask | UPIE::Mask | SIE::Mask | UIE::Mask;
     static const uint64_t UserMask = UPIE::Mask | UIE::Mask;
 };
@@ -365,7 +368,7 @@ struct xtvec_t : BitField64
     {
     }
 
-    xtvec_t(uint32_t value) : BitField64(value)
+    xtvec_t(uint64_t value) : BitField64(value)
     {
     }
 

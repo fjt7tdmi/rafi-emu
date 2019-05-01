@@ -125,7 +125,9 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
          .SetMember<misa_t::A>(1)
          .SetMember<misa_t::F>(1)
          .SetMember<misa_t::D>(1)
-         .SetMember<misa_t::C>(1);
+         .SetMember<misa_t::C>(1)
+         .SetMember<misa_t::U>(1)   // Present User-mode
+         .SetMember<misa_t::S>(1);  // Present Supervisor-mode
 
     switch (m_XLEN)
     {
@@ -138,6 +140,9 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
     }
+
+    m_Status.SetMember<xstatus_t::SXL>(static_cast<uint32_t>(m_XLEN));
+    m_Status.SetMember<xstatus_t::UXL>(static_cast<uint32_t>(m_XLEN));
 }
 
 vaddr_t Csr::GetProgramCounter() const
@@ -182,39 +187,36 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     const int regId = static_cast<int>(addr);
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
-    // disable permission check for riscv-tests
-    (void)write;
-#if 0
-    bool debugModeOnly = (regId >> 6 == 0b011110);
     bool readOnly = (regId >> 10 == 0b11);
 
-    if (IsSupervisorModeRegister(regId) && m_PrivilegeLevel == PrivilegeLevel::User)
+    if (IsSupervisorModeRegister(addr) && m_PrivilegeLevel == PrivilegeLevel::User)
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (IsReservedModeRegister(regId))
+    if (IsReservedModeRegister(addr))
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (IsMachineModeRegister(regId) && (m_PrivilegeLevel == PrivilegeLevel::User || m_PrivilegeLevel == PrivilegeLevel::Supervisor))
+    if (IsMachineModeRegister(addr) && (m_PrivilegeLevel == PrivilegeLevel::User || m_PrivilegeLevel == PrivilegeLevel::Supervisor))
     {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
-    else if (debugModeOnly)
+    if (readOnly && write)
     {
-        throw IllegalInstructionException(pc, insn);
-    }
-    else if (readOnly && write)
-    {
-        throw IllegalInstructionException(pc, insn);
+        return MakeIllegalInstructionException(pc, insn);
     }
 
-    /*
+    // disable checks for riscv-tests
+#if 0
+    const bool debugModeOnly = (regId >> 6 == 0b011110);
+    if (debugModeOnly)
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
     if (!IsExist(regId))
     {
         throw IllegalInstructionException(pc, insn);
     }
-    */
 #endif
 
     // Performance Counter
@@ -318,7 +320,24 @@ xie_t Csr::ReadInterruptEnable() const
 
 xstatus_t Csr::ReadStatus() const
 {
-    return m_Status;
+    auto status = m_Status;
+    
+    if (status.GetMember<xstatus_t::XS>() == 0b11 || status.GetMember<xstatus_t::FS>() == 0b11)
+    {
+        switch (m_XLEN)
+        {
+            case XLEN::XLEN32:
+                status.SetMember<xstatus_t::SD_RV32>(1ull);
+                break;
+            case XLEN::XLEN64:
+                status.SetMember<xstatus_t::SD_RV64>(1ull);
+                break;
+            default:
+                RAFI_EMU_NOT_IMPLEMENTED();
+        }
+    }
+
+    return status;
 }
 
 satp_t Csr::ReadSatp() const
@@ -334,6 +353,11 @@ void Csr::WriteFpCsr(const fcsr_t& value)
 void Csr::WriteInterruptPending(const xip_t& value)
 {
     m_InterruptPending = value;
+}
+
+void Csr::WriteStatus(const xstatus_t& value)
+{
+    m_Status.SetWithMask(value, xstatus_t::WriteMask);
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const
@@ -367,7 +391,7 @@ uint64_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
     switch (addr)
     {
     case csr_addr_t::mstatus:
-        return m_Status;
+        return ReadStatus();
     case csr_addr_t::misa:
         return m_ISA;
     case csr_addr_t::medeleg:
@@ -444,11 +468,11 @@ uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
     case csr_addr_t::sstatus:
         if (m_XLEN == XLEN::XLEN32)
         {
-            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV32);
+            return ReadStatus().GetWithMask(xstatus_t::SupervisorMask_RV32);
         }
         else if (m_XLEN == XLEN::XLEN64)
         {
-            return m_Status.GetWithMask(xstatus_t::SupervisorMask_RV64);
+            return ReadStatus().GetWithMask(xstatus_t::SupervisorMask_RV64);
         }
         else
         {
@@ -487,7 +511,7 @@ uint64_t Csr::ReadUserModeRegister(csr_addr_t addr) const
     switch (addr)
     {
     case csr_addr_t::ustatus:
-        return m_Status.GetWithMask(xstatus_t::UserMask);
+        return ReadStatus().GetWithMask(xstatus_t::UserMask);
     case csr_addr_t::fflags:
         return m_FpCsr.GetMember<fcsr_t::AE>();
     case csr_addr_t::frm:
@@ -563,8 +587,12 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
 
     switch(addr)
     {
+    case csr_addr_t::mhartid:
+    case csr_addr_t::misa:
+        // Ignore writes to these registers
+        return;
     case csr_addr_t::mstatus:
-        m_Status.SetValue(value);
+        WriteStatus(value);
         return;
     case csr_addr_t::medeleg:
         m_MachineExceptionDelegation = value;
@@ -601,9 +629,6 @@ void Csr::WriteMachineModeRegister(csr_addr_t addr, uint64_t value)
     case csr_addr_t::pmpcfg2:
     case csr_addr_t::pmpcfg3:
         // TODO: Implement PMP
-        return;
-    case csr_addr_t::mhartid:
-        // Suppress warning by writing to mhartid
         return;
     default:
         if (addr == csr_addr_t::mcycle && m_XLEN == XLEN::XLEN32)
@@ -643,19 +668,17 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint64_t value)
     switch(addr)
     {
     case csr_addr_t::sstatus:
-        if (m_XLEN == XLEN::XLEN32)
+        switch (m_XLEN)
         {
-            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV32);
+            case XLEN::XLEN32:
+                WriteStatus(value & xstatus_t::SupervisorMask_RV32);
+                return;
+            case XLEN::XLEN64:
+                WriteStatus(value & xstatus_t::SupervisorMask_RV64);
+                return;
+            default:
+                RAFI_EMU_NOT_IMPLEMENTED();
         }
-        else if (m_XLEN == XLEN::XLEN64)
-        {
-            m_Status.SetWithMask(value, xstatus_t::SupervisorMask_RV64);
-        }
-        else
-        {
-            RAFI_EMU_NOT_IMPLEMENTED();
-        }        
-        return;
     case csr_addr_t::sedeleg:
         m_SupervisorExceptionDelegation = value;
         return;
@@ -700,7 +723,7 @@ void Csr::WriteUserModeRegister(csr_addr_t addr, uint64_t value)
     switch (addr)
     {
     case csr_addr_t::ustatus:
-        m_Status.SetWithMask(value, xstatus_t::UserMask);
+        WriteStatus(value & xstatus_t::UserMask);
         return;
     case csr_addr_t::fflags:
         m_FpCsr.SetMember<fcsr_t::AE>(static_cast<uint32_t>(value));

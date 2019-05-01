@@ -34,6 +34,18 @@ namespace po = boost::program_options;
 
 namespace {
 
+const char* GetCauseString(uint32_t cause)
+{
+    if (((cause >> 31) & 0x1) != 0)
+    {
+        return GetString(static_cast<InterruptType>(cause));
+    }
+    else
+    {
+        return GetString(static_cast<ExceptionType>(cause));
+    }
+}
+
 void PrintBasicInfoNode(const BasicInfoNode* node)
 {
     Decoder decoder(XLEN::XLEN32);
@@ -248,16 +260,16 @@ void PrintTrap32Node(const Trap32Node* node)
 {
     printf(
         "  Trap32 {\n"
-        "    type: %s\n"
-        "    from: %s\n"
-        "    to:   %s\n"
-        "    cause:     0x%08x\n"
+        "    type:  %s\n"
+        "    from:  %s\n"
+        "    to:    %s\n"
+        "    cause: %s\n"
         "    trapValue: 0x%08x\n"
         "  }\n",
         GetString(node->trapType),
         GetString(node->from),
         GetString(node->to),
-        node->cause,
+        GetCauseString(node->cause),
         node->trapValue
     );
 }
@@ -266,16 +278,16 @@ void PrintTrap64Node(const Trap64Node* node)
 {
     printf(
         "  Trap64 {\n"
-        "    type: %s\n"
-        "    from: %s\n"
-        "    to:   %s\n"
-        "    cause:     0x%016llx\n"
+        "    type:  %s\n"
+        "    from:  %s\n"
+        "    to:    %s\n"
+        "    cause: %s\n"
         "    trapValue: 0x%016llx\n"
         "  }\n",
         GetString(node->trapType),
         GetString(node->from),
         GetString(node->to),
-        node->cause,
+        GetCauseString(node->cause),
         node->trapValue
     );
 }
