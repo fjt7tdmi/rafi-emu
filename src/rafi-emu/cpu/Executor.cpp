@@ -22,12 +22,16 @@
 #include <iostream>
 #include <limits>
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 #include <rafi/emu.h>
 #include <rafi/fp.h>
 
 #include "Executor.h"
 
 #pragma fenv_access (on)
+
+namespace mp = boost::multiprecision;
 
 namespace rafi { namespace emu { namespace cpu {
 
@@ -1217,59 +1221,65 @@ void Executor::ProcessRV64M(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadInt64(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadInt64(operand.rs2);
-
-    const auto src1_u = m_pIntRegFile->ReadUInt64(operand.rs1);
-    const auto src2_u = m_pIntRegFile->ReadUInt64(operand.rs2);
-
     const auto src1_u32 = m_pIntRegFile->ReadUInt32(operand.rs1);
     const auto src2_u32 = m_pIntRegFile->ReadUInt32(operand.rs2);
 
     const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
     const auto src2_s32 = m_pIntRegFile->ReadInt32(operand.rs2);
 
+    const auto src1_s64 = m_pIntRegFile->ReadInt64(operand.rs1);
+    const auto src2_s64 = m_pIntRegFile->ReadInt64(operand.rs2);
+
+    const auto src1_u64 = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src2_u64 = m_pIntRegFile->ReadUInt64(operand.rs2);
+
+    const auto src1_s128 = mp::int128_t(src1_s64);
+    const auto src2_s128 = mp::int128_t(src2_s64);
+
+    const auto src1_u128 = mp::uint128_t(src1_u64);
+    const auto src2_u128 = mp::uint128_t(src2_u64);
+
     int64_t value;
 
     switch (op.opCode)
     {
     case OpCode::mul:
-        value = src1 * src2;
+        value = src1_s64 * src2_s64;
         break;
     case OpCode::mulh:
-        Error(op); // needs 128bit integer library
+        value = static_cast<int64_t>((src1_s128 * src2_s128) >> 64);
         break;
     case OpCode::mulhsu:
-        Error(op); // needs 128bit integer library
+        value = static_cast<int64_t>((src1_s128 * src2_u128) >> 64);
         break;
     case OpCode::mulhu:
-        Error(op); // needs 128bit integer library
+        value = static_cast<int64_t>(static_cast<uint64_t>((src1_u128 * src2_u128) >> 64));
         break;
     case OpCode::mulw:
         value = SignExtend<int64_t>(32, src1_s32 * src2_s32);
         break;
     case OpCode::div:
-        if (src1_u == (1ull << 63) && src2 == -1ll)
+        if (src1_u64 == (1ull << 63) && src2_s64 == -1ll)
         {
             value = static_cast<int64_t>(1ull << 63);
         }
-        else if (src2 == 0)
+        else if (src2_s64 == 0)
         {
             value = -1ll;
         }
         else
         {
-            value = src1 / src2;
+            value = src1_s64 / src2_s64;
         }
         break;
     case OpCode::divu:
-        if (src2 == 0)
+        if (src2_s64 == 0)
         {
             value = -1ll;
         }
         else
         {
-            value = static_cast<int64_t>(src1_u / src2_u);
+            value = static_cast<int64_t>(src1_u64 / src2_u64);
         }
         break;
     case OpCode::divuw:
@@ -1287,43 +1297,43 @@ void Executor::ProcessRV64M(const Op& op)
         {
             value = static_cast<int64_t>(1ull << 63);
         }
-        else if (src2 == 0)
+        else if (src2_s64 == 0)
         {
             value = -1ll;
         }
         else
         {
-            value = src1 / src2;
+            value = src1_s64 / src2_s64;
         }
         break;
     case OpCode::rem:
-        if (src1_u == 0x80000000 && src2 == -1)
+        if (src1_u64 == 0x80000000 && src2_s64 == -1)
         {
             value = 0;
         }
-        else if (src2 == 0)
+        else if (src2_s64 == 0)
         {
-            value = src1;
+            value = src1_s64;
         }
         else
         {
-            value = src1 % src2;
+            value = src1_s64 % src2_s64;
         }
         break;
     case OpCode::remu:
-        if (src2 == 0)
+        if (src2_s64 == 0)
         {
-            value = src1;
+            value = src1_s64;
         }
         else
         {
-            value = static_cast<int64_t>(src1_u % src2_u);
+            value = static_cast<int64_t>(src1_u64 % src2_u64);
         }
         break;
     case OpCode::remuw:
         if (src2_u32 == 0)
         {
-            value = src1;
+            value = src1_s64;
         }
         else
         {
@@ -1337,7 +1347,7 @@ void Executor::ProcessRV64M(const Op& op)
         }
         else if (src2_s32 == 0)
         {
-            value = src1;
+            value = src1_s64;
         }
         else
         {
