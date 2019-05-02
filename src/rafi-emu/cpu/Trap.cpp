@@ -70,9 +70,9 @@ Trap MakeEnvironmentCallFromMachineException(vaddr_t pc)
     return Trap { ExceptionType::EnvironmentCallFromMachine, pc, pc };
 }
 
-Trap MakeInstructionPageFaultException(vaddr_t pc)
+Trap MakeInstructionPageFaultException(vaddr_t pc, vaddr_t address)
 {
-    return Trap { ExceptionType::InstructionPageFault, pc, pc };
+    return Trap { ExceptionType::InstructionPageFault, pc, address };
 }
 
 Trap MakeLoadPageFaultException(vaddr_t pc, vaddr_t address)

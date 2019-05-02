@@ -45,7 +45,8 @@ public:
     void StoreUInt32(vaddr_t addr, uint32_t value);
     void StoreUInt64(vaddr_t addr, uint64_t value);
 
-    uint32_t FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t addr);
+    uint16_t FetchUInt16(paddr_t* pOutPhysicalAddress, vaddr_t addr);
+    uint32_t FetchUInt32(paddr_t* pOutPhysicalAddress, vaddr_t addr);
 
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 

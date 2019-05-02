@@ -43,7 +43,7 @@ Trap MakeStoreAccessFaultException(vaddr_t pc, vaddr_t address);
 Trap MakeEnvironmentCallFromUserException(vaddr_t pc);
 Trap MakeEnvironmentCallFromSupervisorException(vaddr_t pc);
 Trap MakeEnvironmentCallFromMachineException(vaddr_t pc);
-Trap MakeInstructionPageFaultException(vaddr_t pc);
+Trap MakeInstructionPageFaultException(vaddr_t pc, vaddr_t address);
 Trap MakeLoadPageFaultException(vaddr_t pc, vaddr_t address);
 Trap MakeStorePageFaultException(vaddr_t pc, vaddr_t address);
 

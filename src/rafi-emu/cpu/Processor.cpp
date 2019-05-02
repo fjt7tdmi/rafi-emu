@@ -77,7 +77,7 @@ void Processor::ProcessOneCycle()
     // Fetch
     paddr_t physicalPc;
 
-    const auto fetchTrap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
+    const auto fetchTrap = CheckFetchTrap(pc);
     if (fetchTrap)
     {
         m_TrapProcessor.ProcessException(fetchTrap.value());
@@ -86,7 +86,7 @@ void Processor::ProcessOneCycle()
         return;
     }
 
-    const auto insn = m_MemAccessUnit.FetchUInt32(&physicalPc, pc);
+    const auto insn = Fetch(&physicalPc, pc);
 
     SetOpEvent(pc, physicalPc, insn, privilegeLevel);
 
@@ -185,6 +185,43 @@ bool Processor::IsOpEventExist() const
 bool Processor::IsTrapEventExist() const
 {
     return m_TrapProcessor.IsTrapEventExist();
+}
+
+std::optional<Trap> Processor::CheckFetchTrap(vaddr_t pc)
+{
+    const auto trap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
+    if (trap)
+    {
+        return trap;
+    }
+
+    if (pc % 4 == 2)
+    {
+        // To support 4-byte instruction across a page boundary, check pc + 2 is accsessible.
+        return m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc + 2);
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+uint32_t Processor::Fetch(paddr_t* pOutPhysicalPc, vaddr_t pc)
+{
+    if (pc % 4 == 0)
+    {
+        return m_MemAccessUnit.FetchUInt32(pOutPhysicalPc, pc);
+    }
+    else
+    {
+        assert(pc % 4 == 2);
+
+        // To support 4-byte instruction across a page boundary, split memory access.
+        const auto low = m_MemAccessUnit.FetchUInt16(pOutPhysicalPc, pc);
+        const auto high = m_MemAccessUnit.FetchUInt16(nullptr, pc + 2);
+
+        return static_cast<uint32_t>(high) << 16 | static_cast<uint32_t>(low);
+    }
 }
 
 void Processor::PrintStatus() const
