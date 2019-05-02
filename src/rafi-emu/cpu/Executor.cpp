@@ -397,9 +397,9 @@ std::optional<Trap> Executor::PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint
     const auto& operand = std::get<OperandCsrImm>(op.operand);
 
     const bool write =
-        (op.opCode == OpCode::csrrs && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrc && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrw);
+        (op.opCode == OpCode::csrrsi && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrci && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrwi);
 
     return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
 }

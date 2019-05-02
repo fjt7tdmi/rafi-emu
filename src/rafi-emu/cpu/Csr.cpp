@@ -177,8 +177,6 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     const int regId = static_cast<int>(addr);
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
 
-    bool readOnly = (regId >> 10 == 0b11);
-
     if (IsSupervisorModeRegister(addr) && m_PrivilegeLevel == PrivilegeLevel::User)
     {
         return MakeIllegalInstructionException(pc, insn);
@@ -191,24 +189,18 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     {
         return MakeIllegalInstructionException(pc, insn);
     }
+
+    const bool readOnly = (regId >> 10 == 0b11);
     if (readOnly && write)
     {
         return MakeIllegalInstructionException(pc, insn);
     }
 
-    // disable checks for riscv-tests
-#if 0
-    const bool debugModeOnly = (regId >> 6 == 0b011110);
-    if (debugModeOnly)
+    if (addr == csr_addr_t::satp && m_PrivilegeLevel == PrivilegeLevel::Supervisor && m_Status.GetMember<xstatus_t::TVM>())
     {
         return MakeIllegalInstructionException(pc, insn);
     }
-    if (!IsExist(regId))
-    {
-        throw IllegalInstructionException(pc, insn);
-    }
-#endif
-
+    
     // Performance Counter
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
