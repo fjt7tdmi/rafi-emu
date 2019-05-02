@@ -107,6 +107,10 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         return PreCheckTrap_Wfi(pc, insn);
     case OpCode::sfence_vma:
         return PreCheckTrap_Fence(pc, insn);
+    case OpCode::mret:
+    case OpCode::sret:
+    case OpCode::uret:
+        return PreCheckTrap_Priv(op, pc, insn);
     case OpCode::lr_d:
     case OpCode::lr_w:
         if (IsRV32(op.opClass))
@@ -432,6 +436,26 @@ std::optional<Trap> Executor::PreCheckTrap_Fence(vaddr_t pc, uint32_t insn) cons
     {
         return std::nullopt;
     }
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Priv(const Op& op, vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (op.opCode == OpCode::mret &&
+        (priv == PrivilegeLevel::User || priv == PrivilegeLevel::Supervisor))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+
+    if (op.opCode == OpCode::sret &&
+        (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TSR>())))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+
+    return std::nullopt;
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const
