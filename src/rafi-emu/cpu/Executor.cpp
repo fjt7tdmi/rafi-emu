@@ -248,7 +248,7 @@ std::optional<Trap> Executor::PreCheckTrapRV32C(const Op& op, vaddr_t pc) const
         return PreCheckTrapRV32C_SWSP(op, pc);
     default:
         return std::nullopt;
-    }    
+    }
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
@@ -281,7 +281,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
         return PreCheckTrapRV64C_SWSP(op, pc);
     default:
         return std::nullopt;
-    }    
+    }
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32_Load(const Op& op, vaddr_t pc) const
@@ -1732,7 +1732,6 @@ void Executor::ProcessRV32I_Priv(const Op& op)
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
-        m_pCsr->SetHaltFlag(true);
         break;
     default:
         Error(op);
@@ -2124,7 +2123,6 @@ void Executor::ProcessRV64I_Priv(const Op& op)
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
-        m_pCsr->SetHaltFlag(true);
         break;
     default:
         Error(op);

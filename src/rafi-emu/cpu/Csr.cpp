@@ -165,16 +165,6 @@ void Csr::SetPrivilegeLevel(PrivilegeLevel level)
     m_PrivilegeLevel = level;
 }
 
-bool Csr::GetHaltFlag() const
-{
-    return m_HaltFlag;
-}
-
-void Csr::SetHaltFlag(bool flag)
-{
-    m_HaltFlag = flag;
-}
-
 void Csr::Update()
 {
     m_CycleCounter++;
@@ -321,7 +311,7 @@ xie_t Csr::ReadInterruptEnable() const
 xstatus_t Csr::ReadStatus() const
 {
     auto status = m_Status;
-    
+
     if (status.GetMember<xstatus_t::XS>() == 0b11 || status.GetMember<xstatus_t::FS>() == 0b11)
     {
         switch (m_XLEN)
@@ -451,7 +441,7 @@ uint64_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
         }
         else if (addr == csr_addr_t::minstreth && m_XLEN == XLEN::XLEN32)
         {
-            return GetHigh32(m_InstructionRetiredCounter);            
+            return GetHigh32(m_InstructionRetiredCounter);
         }
         else
         {
@@ -477,7 +467,7 @@ uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
         else
         {
             RAFI_EMU_NOT_IMPLEMENTED();
-        }        
+        }
     case csr_addr_t::sedeleg:
         return m_SupervisorExceptionDelegation;
     case csr_addr_t::sideleg:
@@ -567,7 +557,7 @@ uint64_t Csr::ReadUserModeRegister(csr_addr_t addr) const
         }
         else if (addr == csr_addr_t::instreth && m_XLEN == XLEN::XLEN32)
         {
-            return GetHigh32(m_InstructionRetiredCounter);            
+            return GetHigh32(m_InstructionRetiredCounter);
         }
         else
         {

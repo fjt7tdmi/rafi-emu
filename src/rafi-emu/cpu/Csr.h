@@ -42,9 +42,6 @@ public:
     PrivilegeLevel GetPrivilegeLevel() const;
     void SetPrivilegeLevel(PrivilegeLevel level);
 
-    bool GetHaltFlag() const;
-    void SetHaltFlag(bool flag);
-
     // Register access
     uint32_t ReadUInt32(csr_addr_t addr) const;
     uint64_t ReadUInt64(csr_addr_t addr) const;
@@ -61,7 +58,7 @@ public:
     void WriteFpCsr(const fcsr_t& value);
     void WriteInterruptPending(const xip_t& value);
     void WriteStatus(const xstatus_t& value);
-    
+
     // for Dump
     int GetRegCount() const;
     void Copy(trace::Csr32Node* pOutNodes, int nodeCount) const;
@@ -143,7 +140,6 @@ private:
     // Special registers
     vaddr_t m_ProgramCounter {0};
     PrivilegeLevel m_PrivilegeLevel {PrivilegeLevel::Machine};
-    bool m_HaltFlag {false};
 };
 
 }}}
