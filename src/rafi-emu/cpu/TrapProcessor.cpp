@@ -26,8 +26,8 @@ namespace rafi { namespace emu { namespace cpu {
 
 void TrapProcessor::ProcessException(const Trap& trap)
 {
-    const auto exceptionCode = static_cast<int32_t>(trap.type);
-    const auto delegMask = 1 << exceptionCode;
+    const auto cause = static_cast<int32_t>(trap.type);
+    const auto delegMask = 1 << cause;
 
     PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
     if ((m_pCsr->ReadUInt64(csr_addr_t::medeleg) & delegMask) != 0)
@@ -39,35 +39,25 @@ void TrapProcessor::ProcessException(const Trap& trap)
         }
     }
 
-    ProcessTrapEnter(false, exceptionCode, trap.trapValue, trap.pc, nextPrivilegeLevel);
+    ProcessTrapEnter(false, cause, trap.trapValue, trap.pc, nextPrivilegeLevel);
 }
 
 void TrapProcessor::ProcessInterrupt(InterruptType type, vaddr_t pc)
 {
-    PrivilegeLevel nextPrivilegeLevel;
+    const auto cause = static_cast<int32_t>(type);
+    const auto delegMask = 1 << cause;
 
-    switch (type)
+    PrivilegeLevel nextPrivilegeLevel = PrivilegeLevel::Machine;
+    if ((m_pCsr->ReadUInt64(csr_addr_t::mideleg) & delegMask) != 0)
     {
-    case InterruptType::MachineExternal:
-    case InterruptType::MachineTimer:
-    case InterruptType::MachineSoftware:
-        nextPrivilegeLevel = PrivilegeLevel::Machine;
-        break;
-    case InterruptType::SupervisorExternal:
-    case InterruptType::SupervisorTimer:
-    case InterruptType::SupervisorSoftware:
         nextPrivilegeLevel = PrivilegeLevel::Supervisor;
-        break;
-    case InterruptType::UserExternal:
-    case InterruptType::UserTimer:
-    case InterruptType::UserSoftware:
-        nextPrivilegeLevel = PrivilegeLevel::User;
-        break;
-    default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        if ((m_pCsr->ReadUInt64(csr_addr_t::sideleg) & delegMask) != 0)
+        {
+            nextPrivilegeLevel = PrivilegeLevel::User;
+        }
     }
 
-    ProcessTrapEnter(true, static_cast<uint32_t>(type), 0, pc, nextPrivilegeLevel);
+    ProcessTrapEnter(true, cause, 0, pc, nextPrivilegeLevel);
 }
 
 void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)

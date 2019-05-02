@@ -64,6 +64,9 @@ public:
     void PrintStatus() const;
 
 private:
+    std::optional<Trap> CheckFetchTrap(vaddr_t pc);
+    uint32_t Fetch(paddr_t* pOutPhysicalPc, vaddr_t pc);
+
     void ClearOpEvent();
 
     void SetOpEvent(vaddr_t virtualPc, PrivilegeLevel privilegeLevel);

@@ -63,6 +63,9 @@ private:
 
     std::optional<Trap> PreCheckTrap_Csr(const Op& op, vaddr_t pc, uint32_t insn) const;
     std::optional<Trap> PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrap_Wfi(vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrap_Fence(vaddr_t pc, uint32_t insn) const;
+    std::optional<Trap> PreCheckTrap_Priv(const Op& op, vaddr_t pc, uint32_t insn) const;
 
     std::optional<Trap> PreCheckTrapRV32C(const Op& op, vaddr_t pc) const;
     std::optional<Trap> PreCheckTrapRV64C(const Op& op, vaddr_t pc) const;

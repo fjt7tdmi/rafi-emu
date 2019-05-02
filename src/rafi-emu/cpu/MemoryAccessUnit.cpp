@@ -117,10 +117,32 @@ void MemoryAccessUnit::StoreUInt64(vaddr_t addr, uint64_t value)
     AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, physicalAddress);
 }
 
-uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* outPhysicalAddress, vaddr_t addr)
+uint16_t MemoryAccessUnit::FetchUInt16(paddr_t* pOutPhysicalAddress, vaddr_t addr)
 {
-    *outPhysicalAddress = Translate(MemoryAccessType::Instruction, addr);
-    return m_pBus->ReadUInt32(*outPhysicalAddress);
+    const paddr_t paddr = Translate(MemoryAccessType::Instruction, addr);
+    
+    const auto insn = m_pBus->ReadUInt16(paddr);
+
+    if (pOutPhysicalAddress != nullptr)
+    {
+        *pOutPhysicalAddress = paddr;
+    }
+
+    return insn;
+}
+
+uint32_t MemoryAccessUnit::FetchUInt32(paddr_t* pOutPhysicalAddress, vaddr_t addr)
+{
+    const paddr_t paddr = Translate(MemoryAccessType::Instruction, addr);
+    
+    const auto insn = m_pBus->ReadUInt32(paddr);
+
+    if (pOutPhysicalAddress != nullptr)
+    {
+        *pOutPhysicalAddress = paddr;
+    }
+
+    return insn;
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
@@ -390,7 +412,7 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vadd
     switch (accessType)
     {
     case MemoryAccessType::Instruction:
-        return MakeInstructionPageFaultException(pc);
+        return MakeInstructionPageFaultException(pc, addr);
     case MemoryAccessType::Load:
         return MakeLoadPageFaultException(pc, addr);
     case MemoryAccessType::Store:

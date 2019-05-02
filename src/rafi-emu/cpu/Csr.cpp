@@ -165,16 +165,6 @@ void Csr::SetPrivilegeLevel(PrivilegeLevel level)
     m_PrivilegeLevel = level;
 }
 
-bool Csr::GetHaltFlag() const
-{
-    return m_HaltFlag;
-}
-
-void Csr::SetHaltFlag(bool flag)
-{
-    m_HaltFlag = flag;
-}
-
 void Csr::Update()
 {
     m_CycleCounter++;
@@ -186,8 +176,6 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
 {
     const int regId = static_cast<int>(addr);
     RAFI_EMU_CHECK_RANGE(0, regId, NumberOfRegister);
-
-    bool readOnly = (regId >> 10 == 0b11);
 
     if (IsSupervisorModeRegister(addr) && m_PrivilegeLevel == PrivilegeLevel::User)
     {
@@ -201,24 +189,18 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     {
         return MakeIllegalInstructionException(pc, insn);
     }
+
+    const bool readOnly = (regId >> 10 == 0b11);
     if (readOnly && write)
     {
         return MakeIllegalInstructionException(pc, insn);
     }
 
-    // disable checks for riscv-tests
-#if 0
-    const bool debugModeOnly = (regId >> 6 == 0b011110);
-    if (debugModeOnly)
+    if (addr == csr_addr_t::satp && m_PrivilegeLevel == PrivilegeLevel::Supervisor && m_Status.GetMember<xstatus_t::TVM>())
     {
         return MakeIllegalInstructionException(pc, insn);
     }
-    if (!IsExist(regId))
-    {
-        throw IllegalInstructionException(pc, insn);
-    }
-#endif
-
+    
     // Performance Counter
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
@@ -321,7 +303,7 @@ xie_t Csr::ReadInterruptEnable() const
 xstatus_t Csr::ReadStatus() const
 {
     auto status = m_Status;
-    
+
     if (status.GetMember<xstatus_t::XS>() == 0b11 || status.GetMember<xstatus_t::FS>() == 0b11)
     {
         switch (m_XLEN)
@@ -451,7 +433,7 @@ uint64_t Csr::ReadMachineModeRegister(csr_addr_t addr) const
         }
         else if (addr == csr_addr_t::minstreth && m_XLEN == XLEN::XLEN32)
         {
-            return GetHigh32(m_InstructionRetiredCounter);            
+            return GetHigh32(m_InstructionRetiredCounter);
         }
         else
         {
@@ -477,7 +459,7 @@ uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
         else
         {
             RAFI_EMU_NOT_IMPLEMENTED();
-        }        
+        }
     case csr_addr_t::sedeleg:
         return m_SupervisorExceptionDelegation;
     case csr_addr_t::sideleg:
@@ -567,7 +549,7 @@ uint64_t Csr::ReadUserModeRegister(csr_addr_t addr) const
         }
         else if (addr == csr_addr_t::instreth && m_XLEN == XLEN::XLEN32)
         {
-            return GetHigh32(m_InstructionRetiredCounter);            
+            return GetHigh32(m_InstructionRetiredCounter);
         }
         else
         {

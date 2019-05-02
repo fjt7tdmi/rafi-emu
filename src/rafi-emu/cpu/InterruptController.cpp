@@ -63,86 +63,96 @@ void InterruptController::Update()
 {
     UpdateCsr();
 
-    const PrivilegeLevel privilegeLevel = m_pCsr->GetPrivilegeLevel();
     const xstatus_t status = m_pCsr->ReadStatus();
     const xie_t ie = m_pCsr->ReadInterruptEnable();
     const xip_t ip = m_pCsr->ReadInterruptPending();
 
-    m_IsRequested = true;
+    m_IsRequested = false;
 
-    // Check interrupt to M-mode
-    if (status.GetMember<xstatus_t::MIE>())
+    // Check xIE
+    switch (m_pCsr->GetPrivilegeLevel())
     {
-        if (ie.GetMember<xie_t::MEIE>() && ip.GetMember<xip_t::MEIP>())
+    case PrivilegeLevel::Machine:
+        if (!status.GetMember<xstatus_t::MIE>())
         {
-            m_InterruptType = InterruptType::MachineExternal;
             return;
         }
-        if (ie.GetMember<xie_t::MTIE>() && ip.GetMember<xip_t::MTIP>())
+        break;
+    case PrivilegeLevel::Supervisor:
+        if (!status.GetMember<xstatus_t::SIE>())
         {
-            m_InterruptType = InterruptType::MachineTimer;
             return;
         }
-        if (ie.GetMember<xie_t::MSIE>() && ip.GetMember<xip_t::MSIP>())
+        break;
+    case PrivilegeLevel::User:
+        if (!status.GetMember<xstatus_t::UIE>())
         {
-            m_InterruptType = InterruptType::MachineSoftware;
             return;
         }
+        break;
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
     }
 
-    if (privilegeLevel == PrivilegeLevel::Machine)
+    // Check interrupt to M-mode
+    if (ie.GetMember<xie_t::MEIE>() && ip.GetMember<xip_t::MEIP>())
     {
-        m_IsRequested = false;
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::MachineExternal;
+        return;
+    }
+    if (ie.GetMember<xie_t::MTIE>() && ip.GetMember<xip_t::MTIP>())
+    {
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::MachineTimer;
+        return;
+    }
+    if (ie.GetMember<xie_t::MSIE>() && ip.GetMember<xip_t::MSIP>())
+    {
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::MachineSoftware;
         return;
     }
 
     // Check interrupt to S-mode
-    if (status.GetMember<xstatus_t::SIE>())
+    if (ie.GetMember<xie_t::SEIE>() && ip.GetMember<xip_t::SEIP>())
     {
-        if (ie.GetMember<xie_t::SEIE>() && ip.GetMember<xip_t::SEIP>())
-        {
-            m_InterruptType = InterruptType::SupervisorExternal;
-            return;
-        }
-        if (ie.GetMember<xie_t::STIE>() && ip.GetMember<xip_t::STIP>())
-        {
-            m_InterruptType = InterruptType::SupervisorTimer;
-            return;
-        }
-        if (ie.GetMember<xie_t::SSIE>() && ip.GetMember<xip_t::SSIP>())
-        {
-            m_InterruptType = InterruptType::SupervisorSoftware;
-            return;
-        }
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::SupervisorExternal;
+        return;
     }
-
-    if (privilegeLevel == PrivilegeLevel::Supervisor)
+    if (ie.GetMember<xie_t::STIE>() && ip.GetMember<xip_t::STIP>())
     {
-        m_IsRequested = false;
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::SupervisorTimer;
+        return;
+    }
+    if (ie.GetMember<xie_t::SSIE>() && ip.GetMember<xip_t::SSIP>())
+    {
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::SupervisorSoftware;
         return;
     }
 
     // Check interrupt to U-mode
-    if (status.GetMember<xstatus_t::UIE>())
+    if (ie.GetMember<xie_t::UEIE>() && ip.GetMember<xip_t::UEIP>())
     {
-        if (ie.GetMember<xie_t::UEIE>() && ip.GetMember<xip_t::UEIP>())
-        {
-            m_InterruptType = InterruptType::UserExternal;
-            return;
-        }
-        if (ie.GetMember<xie_t::UTIE>() && ip.GetMember<xip_t::UTIP>())
-        {
-            m_InterruptType = InterruptType::UserTimer;
-            return;
-        }
-        if (ie.GetMember<xie_t::USIE>() && ip.GetMember<xip_t::USIP>())
-        {
-            m_InterruptType = InterruptType::UserSoftware;
-            return;
-        }
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::UserExternal;
+        return;
     }
-
-    m_IsRequested = false;
+    if (ie.GetMember<xie_t::UTIE>() && ip.GetMember<xip_t::UTIP>())
+    {
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::UserTimer;
+        return;
+    }
+    if (ie.GetMember<xie_t::USIE>() && ip.GetMember<xip_t::USIP>())
+    {
+        m_IsRequested = true;
+        m_InterruptType = InterruptType::UserSoftware;
+        return;
+    }
 }
 
 void InterruptController::RegisterExternalInterruptSource(IInterruptSource* pInterruptSource)

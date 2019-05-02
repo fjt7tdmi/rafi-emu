@@ -103,6 +103,14 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
     case OpCode::csrrsi:
     case OpCode::csrrci:
         return PreCheckTrap_CsrImm(op, pc, insn);
+    case OpCode::wfi:
+        return PreCheckTrap_Wfi(pc, insn);
+    case OpCode::sfence_vma:
+        return PreCheckTrap_Fence(pc, insn);
+    case OpCode::mret:
+    case OpCode::sret:
+    case OpCode::uret:
+        return PreCheckTrap_Priv(op, pc, insn);
     case OpCode::lr_d:
     case OpCode::lr_w:
         if (IsRV32(op.opClass))
@@ -248,7 +256,7 @@ std::optional<Trap> Executor::PreCheckTrapRV32C(const Op& op, vaddr_t pc) const
         return PreCheckTrapRV32C_SWSP(op, pc);
     default:
         return std::nullopt;
-    }    
+    }
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
@@ -281,7 +289,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C(const Op& op, vaddr_t pc) const
         return PreCheckTrapRV64C_SWSP(op, pc);
     default:
         return std::nullopt;
-    }    
+    }
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32_Load(const Op& op, vaddr_t pc) const
@@ -393,11 +401,61 @@ std::optional<Trap> Executor::PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint
     const auto& operand = std::get<OperandCsrImm>(op.operand);
 
     const bool write =
-        (op.opCode == OpCode::csrrs && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrc && operand.zimm != 0) ||
-        (op.opCode == OpCode::csrrw);
+        (op.opCode == OpCode::csrrsi && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrci && operand.zimm != 0) ||
+        (op.opCode == OpCode::csrrwi);
 
     return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Wfi(vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TW>()))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Fence(vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TVM>()))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Priv(const Op& op, vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (op.opCode == OpCode::mret &&
+        (priv == PrivilegeLevel::User || priv == PrivilegeLevel::Supervisor))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+
+    if (op.opCode == OpCode::sret &&
+        (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TSR>())))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+
+    return std::nullopt;
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const
@@ -1732,7 +1790,6 @@ void Executor::ProcessRV32I_Priv(const Op& op)
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
-        m_pCsr->SetHaltFlag(true);
         break;
     default:
         Error(op);
@@ -2124,7 +2181,6 @@ void Executor::ProcessRV64I_Priv(const Op& op)
         m_pTrapProcessor->ProcessTrapReturn(PrivilegeLevel::User);
         break;
     case OpCode::wfi:
-        m_pCsr->SetHaltFlag(true);
         break;
     default:
         Error(op);
@@ -2890,9 +2946,9 @@ void Executor::ProcessRVF_MulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
-    const auto src3 = m_pFpRegFile->ReadUInt32(operand.rs3);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
+    const auto src3 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs3));
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -2931,8 +2987,8 @@ void Executor::ProcessRVF_Compute(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
     const auto src1_s64 = m_pIntRegFile->ReadInt64(operand.rs1);
@@ -2997,8 +3053,8 @@ void Executor::ProcessRVF_Compare(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     int64_t value;
 
@@ -3037,7 +3093,9 @@ void Executor::ProcessRVF_MoveToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto value = SignExtend<int64_t>(32, m_pFpRegFile->ReadUInt32(operand.rs1));
+    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    const auto value = SignExtend<int64_t>(32, src);
 
     m_pIntRegFile->WriteInt64(operand.rd, value);
 }
@@ -3087,7 +3145,7 @@ void Executor::ProcessRVF_ConvertToInt64(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -3118,8 +3176,8 @@ void Executor::ProcessRVF_ConvertSign(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     uint32_t value;
 
