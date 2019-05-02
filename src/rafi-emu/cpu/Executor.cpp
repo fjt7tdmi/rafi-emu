@@ -2888,9 +2888,9 @@ void Executor::ProcessRVF_MulAdd(const Op& op)
 {
     const auto& operand = std::get<OperandR4>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
-    const auto src3 = m_pFpRegFile->ReadUInt32(operand.rs3);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
+    const auto src3 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs3));
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -2929,8 +2929,8 @@ void Executor::ProcessRVF_Compute(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     const auto src1_s32 = m_pIntRegFile->ReadInt32(operand.rs1);
     const auto src1_s64 = m_pIntRegFile->ReadInt64(operand.rs1);
@@ -2995,8 +2995,8 @@ void Executor::ProcessRVF_Compare(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     int64_t value;
 
@@ -3035,7 +3035,9 @@ void Executor::ProcessRVF_MoveToInt(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto value = SignExtend<int64_t>(32, m_pFpRegFile->ReadUInt32(operand.rs1));
+    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
+
+    const auto value = SignExtend<int64_t>(32, src);
 
     m_pIntRegFile->WriteInt64(operand.rd, value);
 }
@@ -3085,7 +3087,7 @@ void Executor::ProcessRVF_ConvertToInt64(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src = m_pFpRegFile->ReadUInt32(operand.rs1);
+    const auto src = m_pFpRegFile->ReadUInt64(operand.rs1);
 
     int roundMode = operand.funct3;
     if (roundMode == 7)
@@ -3116,8 +3118,8 @@ void Executor::ProcessRVF_ConvertSign(const Op& op)
 {
     const auto& operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pFpRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pFpRegFile->ReadUInt32(operand.rs2);
+    const auto src1 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs1));
+    const auto src2 = fp::UnboxFloat(m_pFpRegFile->ReadUInt64(operand.rs2));
 
     uint32_t value;
 

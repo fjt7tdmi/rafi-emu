@@ -62,6 +62,8 @@ uint64_t NegMulAdd(uint64_t x, uint64_t y, uint64_t z);
 uint32_t NegMulSub(uint32_t x, uint32_t y, uint32_t z);
 uint64_t NegMulSub(uint64_t x, uint64_t y, uint64_t z);
 
+uint32_t UnboxFloat(uint64_t x);
+
 int32_t DoubleToInt32(uint64_t x, int roundMode);
 int64_t DoubleToInt64(uint64_t x, int roundMode);
 uint32_t DoubleToUInt32(uint64_t x, int roundMode);

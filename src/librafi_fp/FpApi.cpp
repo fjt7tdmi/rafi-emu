@@ -436,6 +436,19 @@ uint64_t NegMulSub(uint64_t x, uint64_t y, uint64_t z)
     return f64_add(Negate(f64_mul(ToFloat64(x), ToFloat64(y))), ToFloat64(z)).v;
 }
 
+uint32_t UnboxFloat(uint64_t x)
+{
+    const bool isUnboxed = (static_cast<uint32_t>(x >> 32) == 0xffffffff);
+    if (isUnboxed)
+    {
+        return static_cast<uint32_t>(x);
+    }
+    else
+    {
+        return Fp32::GetCanonicalQuietNan().GetValue();
+    }
+}
+
 int32_t DoubleToInt32(uint64_t x, int roundMode)
 {
     softfloat_exceptionFlags = 0;
