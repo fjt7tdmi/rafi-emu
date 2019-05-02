@@ -103,6 +103,10 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
     case OpCode::csrrsi:
     case OpCode::csrrci:
         return PreCheckTrap_CsrImm(op, pc, insn);
+    case OpCode::wfi:
+        return PreCheckTrap_Wfi(pc, insn);
+    case OpCode::sfence_vma:
+        return PreCheckTrap_Fence(pc, insn);
     case OpCode::lr_d:
     case OpCode::lr_w:
         if (IsRV32(op.opClass))
@@ -398,6 +402,36 @@ std::optional<Trap> Executor::PreCheckTrap_CsrImm(const Op& op, vaddr_t pc, uint
         (op.opCode == OpCode::csrrw);
 
     return m_pCsr->CheckTrap(operand.csr, write, pc, insn);
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Wfi(vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TW>()))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+    else
+    {
+        return std::nullopt;
+    }
+}
+
+std::optional<Trap> Executor::PreCheckTrap_Fence(vaddr_t pc, uint32_t insn) const
+{
+    const auto priv = m_pCsr->GetPrivilegeLevel();
+    const auto status = m_pCsr->ReadStatus();
+
+    if (priv == PrivilegeLevel::User || (priv == PrivilegeLevel::Supervisor && status.GetMember<xstatus_t::TVM>()))
+    {
+        return MakeIllegalInstructionException(pc, insn);
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 std::optional<Trap> Executor::PreCheckTrapRV32C_FLD(const Op& op, vaddr_t pc) const
