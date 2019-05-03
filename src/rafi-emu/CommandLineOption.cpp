@@ -108,6 +108,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("help", "show help")
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
+        ("dtb-addr", po::value<std::string>(), "dtb address (hex)")
         ("pc", po::value<std::string>(), "initial program counter value (hex)")
         ("ram-size", po::value<size_t>(&m_RamSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("xlen", po::value<int>(), "XLEN");
@@ -135,6 +136,10 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     m_DumpMemoryEnabled = variables.count("enable-memory-csr") > 0;
     m_HostIoEnabled = variables.count("host-io-addr") > 0;
 
+    if (variables.count("dtb-addr"))
+    {
+        m_DtbAddress = strtoull(variables["dtb-addr"].as<std::string>().c_str(), 0, 16);
+    }
     if (variables.count("host-io-addr"))
     {
         m_HostIoAddress = strtoull(variables["host-io-addr"].as<std::string>().c_str(), 0, 16);
@@ -227,6 +232,11 @@ int CommandLineOption::GetDumpSkipCycle() const
 size_t CommandLineOption::GetRamSize() const
 {
     return m_RamSize;
+}
+
+uint64_t CommandLineOption::GetDtbAddress() const
+{
+    return m_DtbAddress;
 }
 
 uint64_t CommandLineOption::GetHostIoAddress() const

@@ -64,8 +64,11 @@ int main(int argc, char** argv)
     }
     if (option.IsHostIoEnabled())
     {
+        dumper.EnableDumpHostIo();
         system.SetHostIoAddress(option.GetHostIoAddress());
     }
+
+    system.SetDtbAddress(option.GetDtbAddress());
 
     dumper.DumpHeader();
 

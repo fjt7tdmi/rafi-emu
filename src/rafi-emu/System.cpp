@@ -43,6 +43,12 @@ void System::LoadFileToMemory(const char* path, paddr_t address)
     location.pMemory->LoadFile(path, location.offset);
 }
 
+void System::SetDtbAddress(vaddr_t address)
+{
+    //  x10 (a0) holds dtb address
+    m_Processor.SetIntReg(10, address);
+}
+
 void System::SetHostIoAddress(vaddr_t address)
 {
     m_HostIoAddress = address;
