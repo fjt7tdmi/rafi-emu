@@ -39,8 +39,14 @@ def InitializeDirectory(path):
     for filename in os.listdir(f"{TraceDirPath}"):
         os.remove(f"{TraceDirPath}/{filename}")
 
-def PrintCommand(cmd):
-    print(f"[cmd] {' '.join(cmd)}")
+def PrintCommand(msg, cmd):
+    print(f"{msg} {cmd[0]}")
+    if len(cmd) > 1:
+        if os.name == "nt":
+            print(' '.join(cmd[1:]))
+        else:
+            args = map(lambda x: f'"{x}"', cmd[1:])
+            print(', '.join(args))
 
 def MakeEmulatorCommand(config):
     bbl_path = f"{BinaryDirPath}/bbl.bin"
@@ -77,7 +83,7 @@ def MakeAddrToLineCommand():
 
 def RunEmulator(config):
     cmd = MakeEmulatorCommand(config)
-    PrintCommand(cmd)
+    PrintCommand("[cmd]", cmd)
 
     return subprocess.run(cmd).returncode
 
@@ -85,7 +91,7 @@ def RunDump(config):
     trace_txt_path = f"{TraceDirPath}/linux.trace.txt"
 
     cmd = [ DumpPath, f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand(cmd)
+    PrintCommand("[cmd]", cmd)
 
     with open(trace_txt_path, 'w') as f:
         return subprocess.run(cmd, stdout=f).returncode
@@ -97,13 +103,13 @@ def RunDumpPc(config):
     line_txt_path = f"{TraceDirPath}/linux.line.txt"
 
     cmd_dump_pc = [ DumpPcPath, f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand(cmd_dump_pc)
+    PrintCommand("[cmd]", cmd_dump_pc)
 
     with open(pc_txt_path, 'w') as f:
         subprocess.run(cmd_dump_pc, stdout=f).returncode
 
     cmd_addr2line = MakeAddrToLineCommand()
-    PrintCommand(cmd_addr2line)
+    PrintCommand("[cmd]", cmd_addr2line)
 
     with open(pc_txt_path, 'r') as in_file:
         with open(line_txt_path, 'w') as out_file:
