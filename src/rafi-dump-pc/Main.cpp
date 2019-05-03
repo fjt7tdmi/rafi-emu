@@ -54,7 +54,7 @@ void PrintTrace(const std::string& path, int startCycle, int count, bool showVir
             else if (cycle.GetNodeCount(NodeType::Pc64) > 0)
             {
                 const auto node = cycle.GetPc64Node();
-                printf("0x%016llx\n", showVirtual ? node->virtualPc : node->physicalPc);
+                printf("0x%016llx\n", showVirtual ? static_cast<unsigned long long>(node->virtualPc) : static_cast<unsigned long long>(node->physicalPc));
             }
             else
             {

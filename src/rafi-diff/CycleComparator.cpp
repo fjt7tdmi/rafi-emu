@@ -258,7 +258,7 @@ void CycleComparator::PrintMemoryDiff(const void* pExpect, size_t expectSize, co
 
     if (expectSize != actualSize)
     {
-        printf("    - MemoryNode body size is not matched (expect:0x%016llx, actual:0x%016llx).\n", expectSize, actualSize);
+        printf("    - MemoryNode body size is not matched (expect:0x%016zx, actual:0x%016zx).\n", expectSize, actualSize);
         return;
     }
 

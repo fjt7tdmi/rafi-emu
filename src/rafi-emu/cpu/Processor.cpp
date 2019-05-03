@@ -227,7 +227,7 @@ uint32_t Processor::Fetch(paddr_t* pOutPhysicalPc, vaddr_t pc)
 void Processor::PrintStatus() const
 {
     printf("    OpCount: %d (0x%x)\n", m_OpCount, m_OpCount);
-    printf("    PC:      0x%016llx\n", static_cast<uint64_t>(m_Csr.GetProgramCounter()));
+    printf("    PC:      0x%016llx\n", static_cast<unsigned long long>(m_Csr.GetProgramCounter()));
 }
 
 void Processor::ClearOpEvent()
