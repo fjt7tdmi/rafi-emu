@@ -56,6 +56,7 @@ public:
 
     size_t GetRamSize() const;
 
+    uint64_t GetDtbAddress() const;
     uint64_t GetHostIoAddress() const;
     uint64_t GetPc() const;
 
@@ -74,6 +75,7 @@ private:
 
     size_t m_RamSize {0};
 
+    uint64_t m_DtbAddress {0};
     uint64_t m_HostIoAddress {0};
     uint64_t m_Pc {0};
 

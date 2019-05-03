@@ -35,6 +35,7 @@ public:
 
     // Setup
     void LoadFileToMemory(const char* path, paddr_t address);
+    void SetDtbAddress(vaddr_t address);
     void SetHostIoAddress(vaddr_t address);
 
     // Process

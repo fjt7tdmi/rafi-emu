@@ -67,6 +67,8 @@ int main(int argc, char** argv)
         system.SetHostIoAddress(option.GetHostIoAddress());
     }
 
+    system.SetDtbAddress(option.GetDtbAddress());
+
     dumper.DumpHeader();
 
     int cycle;
