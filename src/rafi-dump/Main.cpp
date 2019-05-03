@@ -310,11 +310,11 @@ void PrintMemoryAccessNode(const MemoryAccessNode* node)
     );
 }
 
-void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
+void PrintCsr32Node(const Csr32Node* pNodes, int64_t nodeCount)
 {
     printf("  Csr32 {\n");
 
-    for (int i = 0; i < nodeCount; i++)
+    for (int64_t i = 0; i < nodeCount; i++)
     {
         const auto address = static_cast<csr_addr_t>(pNodes[i].address);
         printf("%16s: 0x%08x\n", GetString(address), pNodes[i].value);
@@ -323,11 +323,11 @@ void PrintCsr32Node(const Csr32Node* pNodes, int nodeCount)
     printf("  }\n");
 }
 
-void PrintCsr64Node(const Csr64Node* pNodes, int nodeCount)
+void PrintCsr64Node(const Csr64Node* pNodes, int64_t nodeCount)
 {
     printf("  Cs64 {\n");
 
-    for (int i = 0; i < nodeCount; i++)
+    for (int64_t i = 0; i < nodeCount; i++)
     {
         const auto address = static_cast<csr_addr_t>(pNodes[i].address);
         printf("%16s: 0x%016llx\n", GetString(address), pNodes[i].value);

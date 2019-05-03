@@ -25,7 +25,7 @@
 
 namespace rafi { namespace emu { namespace mem {
 
-Ram::Ram(int capacity)
+Ram::Ram(size_t capacity)
     : m_Capacity(capacity)
 {
     m_pBody = new char[capacity];
@@ -37,7 +37,7 @@ Ram::~Ram()
     delete[] m_pBody;
 }
 
-int Ram::GetCapacity() const
+size_t Ram::GetCapacity() const
 {
     return m_Capacity;
 }
@@ -58,7 +58,7 @@ void Ram::LoadFile(const char* path, int offset)
 
 void Ram::Copy(void* pOut, size_t size) const
 {
-    assert(size == static_cast<size_t>(m_Capacity));
+    assert(size == m_Capacity);
 
     std::memcpy(pOut, m_pBody, size);
 }

@@ -97,7 +97,7 @@ void TraceDumper::DumpCycle32(int cycle)
         config.SetNodeCount(NodeType::Trap32, 1);
     }
 
-    config.SetNodeCount(NodeType::MemoryAccess, m_pSystem->GetMemoryAccessEventCount());
+    config.SetNodeCount(NodeType::MemoryAccess, static_cast<int>(m_pSystem->GetMemoryAccessEventCount()));
 
     if (m_EnableDumpCsr)
     {
@@ -110,7 +110,7 @@ void TraceDumper::DumpCycle32(int cycle)
     }
 
     config.SetCsrCount(m_pSystem->GetCsrCount());
-    config.SetRamSize(m_pSystem->GetRamSize());
+    config.SetRamSize(static_cast<int>(m_pSystem->GetRamSize()));
 
     CycleBuilder builder(config);
 
@@ -229,7 +229,7 @@ void TraceDumper::DumpCycle64(int cycle)
         config.SetNodeCount(NodeType::Trap64, 1);
     }
 
-    config.SetNodeCount(NodeType::MemoryAccess, m_pSystem->GetMemoryAccessEventCount());
+    config.SetNodeCount(NodeType::MemoryAccess, static_cast<int>(m_pSystem->GetMemoryAccessEventCount()));
 
     if (m_EnableDumpCsr)
     {
@@ -242,7 +242,7 @@ void TraceDumper::DumpCycle64(int cycle)
     }
 
     config.SetCsrCount(m_pSystem->GetCsrCount());
-    config.SetRamSize(m_pSystem->GetRamSize());
+    config.SetRamSize(static_cast<int>(m_pSystem->GetRamSize()));
 
     CycleBuilder builder(config);
 

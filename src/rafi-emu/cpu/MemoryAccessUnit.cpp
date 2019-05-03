@@ -183,7 +183,7 @@ void MemoryAccessUnit::CopyEvent(MemoryAccessEvent* pOut, int index) const
     *pOut = m_Events[index];
 }
 
-int MemoryAccessUnit::GetEventCount() const
+size_t MemoryAccessUnit::GetEventCount() const
 {
     return m_Events.size();
 }

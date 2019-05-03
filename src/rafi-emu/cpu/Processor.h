@@ -47,7 +47,7 @@ public:
 
     // for Dump
     int GetCsrCount() const;
-    int GetMemoryAccessEventCount() const;
+    size_t GetMemoryAccessEventCount() const;
 
     void CopyIntReg(trace::IntReg32Node* pOut) const;
     void CopyIntReg(trace::IntReg64Node* pOut) const;

@@ -402,7 +402,7 @@ public:
         const char* opCode = GetString(m_OpCode);
 
         // TODO: Print int/fp reg names
-        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, operand.imm);
+        return std::snprintf(m_Buffer, m_BufferSize, "%s (rd:%d, rs1:%d, imm:0x%x)", opCode, operand.rd, operand.rs1, static_cast<int32_t>(operand.imm));
     }
 
     int operator()(const OperandCSS& operand)

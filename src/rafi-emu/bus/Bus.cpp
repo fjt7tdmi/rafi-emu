@@ -111,13 +111,13 @@ void Bus::WriteUInt64(paddr_t address, uint64_t value)
     Write(&value, sizeof(value), address);
 }
 
-void Bus::RegisterMemory(mem::IMemory* pMemory, paddr_t address, int size)
+void Bus::RegisterMemory(mem::IMemory* pMemory, paddr_t address, size_t size)
 {
     MemoryInfo info { pMemory, address, size };
     m_MemoryList.push_back(info);
 }
 
-void Bus::RegisterIo(io::IIo* pIo, paddr_t address, int size)
+void Bus::RegisterIo(io::IIo* pIo, paddr_t address, size_t size)
 {
     IoInfo info { pIo, address, size };
     m_IoList.push_back(info);
@@ -141,7 +141,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
     RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
 }
 
-bool Bus::IsMemoryAddress(paddr_t address, int accessSize) const
+bool Bus::IsMemoryAddress(paddr_t address, size_t accessSize) const
 {
     const auto low = address;
     const auto high = address + accessSize - 1;
@@ -175,7 +175,7 @@ IoLocation Bus::ConvertToIoLocation(paddr_t address) const
     RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
 }
 
-bool Bus::IsIoAddress(paddr_t address, int accessSize) const
+bool Bus::IsIoAddress(paddr_t address, size_t accessSize) const
 {
     const auto low = address;
     const auto high = address + accessSize - 1;
