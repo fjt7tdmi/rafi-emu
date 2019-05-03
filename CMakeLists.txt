@@ -268,6 +268,8 @@ add_executable(rafi-emu
     include/rafi/emu/IInterruptSource.h
     include/rafi/emu/Macro.h
     include/rafi/emu/MemoryMap.h
+    src/rafi-emu/cpu/AtomicManager.cpp
+    src/rafi-emu/cpu/AtomicManager.h
     src/rafi-emu/bus/Bus.cpp
     src/rafi-emu/bus/Bus.h
     src/rafi-emu/cpu/Csr.cpp

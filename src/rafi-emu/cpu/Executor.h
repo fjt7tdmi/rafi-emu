@@ -20,6 +20,7 @@
 
 #include <rafi/common.h>
 
+#include "AtomicManager.h"
 #include "Csr.h"
 #include "FpRegFile.h"
 #include "IntRegFile.h"
@@ -32,8 +33,9 @@ namespace rafi { namespace emu { namespace cpu {
 class Executor
 {
 public:
-    Executor(Csr* pCsr, TrapProcessor* pTrapProcessor, IntRegFile* pIntRegFile, FpRegFile* pFpRegFile, MemoryAccessUnit* pMemAccessUnit)
-        : m_pCsr(pCsr)
+    Executor(AtomicManager* pAtomicManager, Csr* pCsr, TrapProcessor* pTrapProcessor, IntRegFile* pIntRegFile, FpRegFile* pFpRegFile, MemoryAccessUnit* pMemAccessUnit)
+        : m_pAtomicManager(pAtomicManager)
+        , m_pCsr(pCsr)
         , m_pTrapProcessor(pTrapProcessor)
         , m_pIntRegFile(pIntRegFile)
         , m_pFpRegFile(pFpRegFile)
@@ -126,7 +128,7 @@ private:
     void ProcessRV32I_AluImm(const Op& op);
     void ProcessRV32I_Shift(const Op& op);
     void ProcessRV32I_ShiftImm(const Op& op);
-    void ProcessRV32I_Fence(const Op& op);
+    void ProcessRV32I_Fence();
     void ProcessRV32I_Priv(const Op& op);
     void ProcessRV32I_Csr(const Op& op);
     void ProcessRV32I_CsrImm(const Op& op);
@@ -143,7 +145,7 @@ private:
     void ProcessRV64I_AluImm(const Op& op);
     void ProcessRV64I_Shift(const Op& op);
     void ProcessRV64I_ShiftImm(const Op& op);
-    void ProcessRV64I_Fence(const Op& op);
+    void ProcessRV64I_Fence();
     void ProcessRV64I_Priv(const Op& op);
     void ProcessRV64I_Csr(const Op& op);
     void ProcessRV64I_CsrImm(const Op& op);
@@ -251,13 +253,12 @@ private:
 
     [[noreturn]] void Error(const Op& op);
 
+    AtomicManager* m_pAtomicManager;
     Csr* m_pCsr;
     TrapProcessor* m_pTrapProcessor;
     IntRegFile* m_pIntRegFile;
     FpRegFile* m_pFpRegFile;
     MemoryAccessUnit* m_pMemAccessUnit;
-
-    vaddr_t m_ReserveAddress = 0;
 };
 
 }}}
