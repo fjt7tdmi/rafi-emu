@@ -32,7 +32,7 @@ Processor::Processor(XLEN xlen, bus::Bus* pBus, vaddr_t initialPc)
     , m_TrapProcessor(xlen, &m_Csr)
     , m_Decoder(xlen)
     , m_MemAccessUnit(xlen)
-    , m_Executor(&m_Csr, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
+    , m_Executor(&m_AtomicManager, &m_Csr, &m_TrapProcessor, &m_IntRegFile, &m_FpRegFile, &m_MemAccessUnit)
 {
     m_MemAccessUnit.Initialize(pBus, &m_Csr);
 }
@@ -227,7 +227,7 @@ uint32_t Processor::Fetch(paddr_t* pOutPhysicalPc, vaddr_t pc)
 void Processor::PrintStatus() const
 {
     printf("    OpCount: %d (0x%x)\n", m_OpCount, m_OpCount);
-    printf("    PC:      0x%016llx\n", static_cast<uint64_t>(m_Csr.GetProgramCounter()));
+    printf("    PC:      0x%016llx\n", static_cast<unsigned long long>(m_Csr.GetProgramCounter()));
 }
 
 void Processor::ClearOpEvent()

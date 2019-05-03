@@ -74,6 +74,7 @@ private:
 
     const vaddr_t InvalidValue = 0xffffffffffffffff;
 
+    AtomicManager m_AtomicManager;
     Csr m_Csr;
     InterruptController m_InterruptController;
     TrapProcessor m_TrapProcessor;

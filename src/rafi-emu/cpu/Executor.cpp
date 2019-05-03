@@ -771,7 +771,7 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
     case OpCode::fence:
     case OpCode::fence_i:
     case OpCode::sfence_vma:
-        // Do nothing for memory fence instructions.
+        ProcessRV32I_Fence();
         return;
     case OpCode::csrrw:
     case OpCode::csrrs:
@@ -790,6 +790,8 @@ void Executor::ProcessRV32I(const Op& op, vaddr_t pc)
 
 void Executor::ProcessRV32M(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const int rs1 = std::get<OperandR>(op.operand).rs1;
     const int rs2 = std::get<OperandR>(op.operand).rs2;
     const int rd = std::get<OperandR>(op.operand).rd;
@@ -916,6 +918,8 @@ void Executor::ProcessRVA(const Op& op)
 
 void Executor::ProcessRVF(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::flw:
@@ -999,6 +1003,8 @@ void Executor::ProcessRVF(const Op& op)
 
 void Executor::ProcessRVD(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::fld:
@@ -1088,6 +1094,8 @@ void Executor::ProcessRVD(const Op& op)
 
 void Executor::ProcessRV32C(const Op& op, vaddr_t pc)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::c_nop:
@@ -1258,7 +1266,7 @@ void Executor::ProcessRV64I(const Op& op, vaddr_t pc)
     case OpCode::fence:
     case OpCode::fence_i:
     case OpCode::sfence_vma:
-        // Do nothing for memory fence instructions.
+        ProcessRV64I_Fence();
         return;
     case OpCode::csrrw:
     case OpCode::csrrs:
@@ -1277,6 +1285,8 @@ void Executor::ProcessRV64I(const Op& op, vaddr_t pc)
 
 void Executor::ProcessRV64M(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto operand = std::get<OperandR>(op.operand);
 
     const auto src1_u32 = m_pIntRegFile->ReadUInt32(operand.rs1);
@@ -1421,6 +1431,8 @@ void Executor::ProcessRV64M(const Op& op)
 
 void Executor::ProcessRV64C(const Op& op, vaddr_t pc)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::c_nop:
@@ -1577,11 +1589,18 @@ void Executor::ProcessRV32I_Branch(const Op& op, vaddr_t pc)
     if (jump)
     {
         m_pCsr->SetProgramCounter(pc + operand.imm);
+
+        if (operand.imm < 0)
+        {
+            m_pAtomicManager->Cancel();
+        }
     }
 }
 
 void Executor::ProcessRV32I_Load(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto& operand = std::get<OperandI>(op.operand);
 
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
@@ -1614,6 +1633,8 @@ void Executor::ProcessRV32I_Load(const Op& op)
 
 void Executor::ProcessRV32I_Store(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto& operand = std::get<OperandS>(op.operand);
 
     const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
@@ -1774,6 +1795,8 @@ void Executor::ProcessRV32I_ShiftImm(const Op& op)
 
 void Executor::ProcessRV32I_Priv(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::ecall:
@@ -1794,6 +1817,11 @@ void Executor::ProcessRV32I_Priv(const Op& op)
     default:
         Error(op);
     }
+}
+
+void Executor::ProcessRV32I_Fence()
+{
+    m_pAtomicManager->Cancel();
 }
 
 void Executor::ProcessRV32I_Csr(const Op& op)
@@ -2165,6 +2193,8 @@ void Executor::ProcessRV64I_ShiftImm(const Op& op)
 
 void Executor::ProcessRV64I_Priv(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     switch (op.opCode)
     {
     case OpCode::ecall:
@@ -2187,8 +2217,15 @@ void Executor::ProcessRV64I_Priv(const Op& op)
     }
 }
 
+void Executor::ProcessRV64I_Fence()
+{
+    m_pAtomicManager->Cancel();
+}
+
 void Executor::ProcessRV64I_Csr(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto& operand = std::get<OperandCsr>(op.operand);
 
     const auto srcCsr = m_pCsr->ReadUInt64(operand.csr);
@@ -2214,6 +2251,8 @@ void Executor::ProcessRV64I_Csr(const Op& op)
 
 void Executor::ProcessRV64I_CsrImm(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto& operand = std::get<OperandCsrImm>(op.operand);
     const auto srcCsr = m_pCsr->ReadUInt64(operand.csr);
 
@@ -2790,6 +2829,8 @@ void Executor::ProcessRV64C_SWSP(const Op& op)
 
 void Executor::ProcessRVA_Atomic32(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto operand = std::get<OperandR>(op.operand);
 
     const auto src1 = m_pIntRegFile->ReadUInt32(operand.rs1);
@@ -2835,6 +2876,8 @@ void Executor::ProcessRVA_Atomic32(const Op& op)
 
 void Executor::ProcessRVA_Atomic64(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto operand = std::get<OperandR>(op.operand);
 
     const auto src1 = m_pIntRegFile->ReadUInt64(operand.rs1);
@@ -2882,26 +2925,26 @@ void Executor::ProcessRVA_Load32(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadUInt32(operand.rs2);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
 
-    m_ReserveAddress = src1;
+    m_pAtomicManager->Reserve(address);
 
-    const auto value = m_pMemAccessUnit->LoadUInt32(src1);
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
 
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
 void Executor::ProcessRVA_Load64(const Op& op)
 {
+    m_pAtomicManager->Cancel();
+
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadUInt64(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadUInt64(operand.rs2);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
 
-    m_ReserveAddress = src1;
+    m_pAtomicManager->Reserve(address);
 
-    const auto value = m_pMemAccessUnit->LoadUInt64(src1);
+    const auto value = m_pMemAccessUnit->LoadUInt64(address);
 
     m_pIntRegFile->WriteInt64(operand.rd, value);
 }
@@ -2910,36 +2953,40 @@ void Executor::ProcessRVA_Store32(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadUInt32(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadUInt32(operand.rs2);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
 
-    if (m_ReserveAddress == src1)
+    if (m_pAtomicManager->IsReserved() && m_pAtomicManager->GetReservedAddress() == address)
     {
-        m_pMemAccessUnit->StoreUInt32(src1, src2);
+        m_pMemAccessUnit->StoreUInt32(address, value);
         m_pIntRegFile->WriteUInt64(operand.rd, 0);
     }
     else
     {
         m_pIntRegFile->WriteUInt64(operand.rd, 1);
     }
+
+    m_pAtomicManager->Cancel();
 }
 
 void Executor::ProcessRVA_Store64(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadUInt64(operand.rs1);
-    const auto src2 = m_pIntRegFile->ReadUInt64(operand.rs2);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto value = m_pIntRegFile->ReadUInt64(operand.rs2);
 
-    if (m_ReserveAddress == src1)
+    if (m_pAtomicManager->IsReserved() && m_pAtomicManager->GetReservedAddress() == address)
     {
-        m_pMemAccessUnit->StoreUInt64(src1, src2);
+        m_pMemAccessUnit->StoreUInt64(address, value);
         m_pIntRegFile->WriteUInt64(operand.rd, 0);
     }
     else
     {
         m_pIntRegFile->WriteUInt64(operand.rd, 1);
     }
+
+    m_pAtomicManager->Cancel();
 }
 
 void Executor::ProcessRVF_MulAdd(const Op& op)

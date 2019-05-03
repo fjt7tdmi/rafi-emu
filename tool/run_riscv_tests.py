@@ -58,13 +58,23 @@ def MakeEmulatorCommand(config):
         "--xlen", str(config['xlen']),
     ]
 
+def PrintCommand(msg, cmd):
+    print(f"{msg} {cmd[0]}")
+    if len(cmd) > 1:
+        if os.name == "nt":
+            print(' '.join(cmd[1:]))
+        else:
+            args = map(lambda x: f'"{x}"', cmd[1:])
+            print(', '.join(args))
+
+
 def VerifyTraces(paths):
     cmd = MakeCheckIoCommand(paths)
     subprocess.run(cmd)
 
 def RunEmulator(config):
     cmd = MakeEmulatorCommand(config)
-    print(f"Run {' '.join(cmd)}")
+    PrintCommand("Run", cmd)
 
     result = subprocess.run(cmd)
     if result.returncode != 0:

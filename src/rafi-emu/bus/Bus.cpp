@@ -37,7 +37,7 @@ void Bus::Read(void* pOutBuffer, size_t size, paddr_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
     }
 }
 
@@ -55,7 +55,7 @@ void Bus::Write(const void* pBuffer, size_t size, paddr_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
     }
 }
 
@@ -138,7 +138,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
         }
     }
 
-    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
 }
 
 bool Bus::IsMemoryAddress(paddr_t address, size_t accessSize) const
@@ -172,7 +172,7 @@ IoLocation Bus::ConvertToIoLocation(paddr_t address) const
         }
     }
 
-    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<uint64_t>(address));
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
 }
 
 bool Bus::IsIoAddress(paddr_t address, size_t accessSize) const
