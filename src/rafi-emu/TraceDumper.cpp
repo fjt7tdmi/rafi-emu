@@ -56,6 +56,11 @@ void TraceDumper::EnableDumpMemory()
     m_EnableDumpMemory = true;
 }
 
+void TraceDumper::EnableDumpHostIo()
+{
+    m_EnableDumpHostIo = true;
+}
+
 void TraceDumper::DumpCycle(int cycle)
 {
     if (!m_Enabled)
@@ -90,7 +95,6 @@ void TraceDumper::DumpCycle32(int cycle)
     config.SetNodeCount(NodeType::Pc32, 1);
     config.SetNodeCount(NodeType::IntReg32, 1);
     config.SetNodeCount(NodeType::FpReg, 1);
-    config.SetNodeCount(NodeType::Io, 1);
 
     if (m_pSystem->IsTrapEventExist())
     {
@@ -107,6 +111,11 @@ void TraceDumper::DumpCycle32(int cycle)
     if (m_EnableDumpMemory)
     {
         config.SetNodeCount(NodeType::Memory, 1);
+    }
+
+    if (m_EnableDumpHostIo)
+    {
+        config.SetNodeCount(NodeType::Io, 1);
     }
 
     config.SetCsrCount(m_pSystem->GetCsrCount());
@@ -204,12 +213,15 @@ void TraceDumper::DumpCycle32(int cycle)
     }
 
     // IoNode
-    IoNode ioNode
+    if (m_EnableDumpHostIo)
     {
-        m_pSystem->GetHostIoValue(),
-        0,
-    };
-    builder.SetNode(ioNode);
+        IoNode ioNode
+        {
+            m_pSystem->GetHostIoValue(),
+            0,
+        };
+        builder.SetNode(ioNode);
+    }
 
     m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
 }
@@ -222,7 +234,6 @@ void TraceDumper::DumpCycle64(int cycle)
     config.SetNodeCount(NodeType::Pc64, 1);
     config.SetNodeCount(NodeType::IntReg64, 1);
     config.SetNodeCount(NodeType::FpReg, 1);
-    config.SetNodeCount(NodeType::Io, 1);
 
     if (m_pSystem->IsTrapEventExist())
     {
@@ -239,6 +250,11 @@ void TraceDumper::DumpCycle64(int cycle)
     if (m_EnableDumpMemory)
     {
         config.SetNodeCount(NodeType::Memory, 1);
+    }
+
+    if (m_EnableDumpHostIo)
+    {
+        config.SetNodeCount(NodeType::Io, 1);
     }
 
     config.SetCsrCount(m_pSystem->GetCsrCount());
@@ -335,12 +351,15 @@ void TraceDumper::DumpCycle64(int cycle)
     }
 
     // IoNode
-    IoNode ioNode
+    if (m_EnableDumpHostIo)
     {
-        m_pSystem->GetHostIoValue(),
-        0,
-    };
-    builder.SetNode(ioNode);
+        IoNode ioNode
+        {
+            m_pSystem->GetHostIoValue(),
+            0,
+        };
+        builder.SetNode(ioNode);
+    }
 
     m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
 }

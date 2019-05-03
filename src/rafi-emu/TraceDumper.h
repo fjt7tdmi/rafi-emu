@@ -33,6 +33,7 @@ public:
     void EnableDump();
     void EnableDumpCsr();
     void EnableDumpMemory();
+    void EnableDumpHostIo();
 
     void DumpCycle(int cycle);
 
@@ -57,6 +58,7 @@ private:
     bool m_Enabled {false};
     bool m_EnableDumpCsr {false};
     bool m_EnableDumpMemory {false};
+    bool m_EnableDumpHostIo {false};
 };
 
 }}
