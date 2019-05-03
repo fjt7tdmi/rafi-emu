@@ -23,7 +23,7 @@ namespace rafi { namespace emu { namespace mem {
 class IMemory
 {
 public:
-    virtual int GetCapacity() const = 0;
+    virtual size_t GetCapacity() const = 0;
 
     virtual void LoadFile(const char* path, int offset) = 0;
 

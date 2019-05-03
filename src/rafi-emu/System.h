@@ -31,7 +31,7 @@ namespace rafi { namespace emu {
 class System
 {
 public:
-    explicit System(XLEN xlen, vaddr_t pc, int ramSize);
+    System(XLEN xlen, vaddr_t pc, size_t ramSize);
 
     // Setup
     void LoadFileToMemory(const char* path, paddr_t address);
@@ -42,8 +42,8 @@ public:
 
     // for Dump
     int GetCsrCount() const;
-    int GetRamSize() const;
-    int GetMemoryAccessEventCount() const;
+    size_t GetRamSize() const;
+    size_t GetMemoryAccessEventCount() const;
 
     uint32_t GetHostIoValue() const;
 

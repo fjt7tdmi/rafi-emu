@@ -151,7 +151,9 @@ const void* CycleReaderImpl::GetMemoryNode() const
 
 void CycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const
 {
-    if (!(GetNodeSize(nodeType, index) == size))
+    const auto nodeSize = GetNodeSize(nodeType, index);
+
+    if (nodeSize < 0 || static_cast<size_t>(nodeSize) != size)
     {
         throw TraceException("node size is incorrect.");
     }
@@ -159,7 +161,9 @@ void CycleReaderImpl::CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t 
 
 void CycleReaderImpl::CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const
 {
-    if (!(GetNodeSize(nodeType, index) > size))
+    const auto nodeSize = GetNodeSize(nodeType, index);
+
+    if (nodeSize < 0 || static_cast<size_t>(nodeSize) <= size)
     {
         throw TraceException("node size is incorrect.");
     }

@@ -30,14 +30,14 @@ struct MemoryInfo
 {
     mem::IMemory* pMemory;
     paddr_t address;
-    int size;
+    size_t size;
 };
 
 struct IoInfo
 {
     io::IIo* pIo;
     paddr_t address;
-    int size;
+    size_t size;
 };
 
 struct MemoryLocation
@@ -68,14 +68,14 @@ public:
     void WriteUInt32(paddr_t address, uint32_t value);
     void WriteUInt64(paddr_t address, uint64_t value);
 
-    void RegisterMemory(mem::IMemory* pMemory, paddr_t address, int size);
-    void RegisterIo(io::IIo* pIo, paddr_t address, int size);
+    void RegisterMemory(mem::IMemory* pMemory, paddr_t address, size_t size);
+    void RegisterIo(io::IIo* pIo, paddr_t address, size_t size);
 
     MemoryLocation ConvertToMemoryLocation(paddr_t address) const;
-    bool IsMemoryAddress(paddr_t address, int accessSize) const;
+    bool IsMemoryAddress(paddr_t address, size_t accessSize) const;
 
     IoLocation ConvertToIoLocation(paddr_t address) const;
-    bool IsIoAddress(paddr_t address, int accessSize) const;
+    bool IsIoAddress(paddr_t address, size_t accessSize) const;
 
 private:
     std::vector<MemoryInfo> m_MemoryList;

@@ -36,7 +36,7 @@ Rom::~Rom()
     delete[] m_pBody;
 }
 
-int Rom::GetCapacity() const
+size_t Rom::GetCapacity() const
 {
     return Capacity;
 }

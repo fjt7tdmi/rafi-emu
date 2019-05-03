@@ -262,7 +262,7 @@ void CycleComparator::PrintMemoryDiff(const void* pExpect, size_t expectSize, co
         return;
     }
 
-    const int64_t unitSize = 16;
+    const auto unitSize = 16;
     if (expectSize % unitSize != 0)
     {
         throw TraceException("MemoryNode body size must be multiple of 16.");
@@ -273,7 +273,7 @@ void CycleComparator::PrintMemoryDiff(const void* pExpect, size_t expectSize, co
     const auto expectBody = reinterpret_cast<const uint8_t*>(pExpect);
     const auto actualBody = reinterpret_cast<const uint8_t*>(pActual);
 
-    for (int64_t i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++)
     {
         const auto offset = i * unitSize;
         if (std::memcmp(&expectBody[offset], &actualBody[offset], unitSize) != 0)

@@ -132,7 +132,7 @@ int Processor::GetCsrCount() const
     return m_Csr.GetRegCount();
 }
 
-int Processor::GetMemoryAccessEventCount() const
+size_t Processor::GetMemoryAccessEventCount() const
 {
     return m_MemAccessUnit.GetEventCount();
 }

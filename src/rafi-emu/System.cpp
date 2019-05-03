@@ -19,7 +19,7 @@
 
 namespace rafi { namespace emu {
 
-System::System(XLEN xlen, vaddr_t pc, int ramSize)
+System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Uart()
@@ -60,12 +60,12 @@ int System::GetCsrCount() const
     return m_Processor.GetCsrCount();
 }
 
-int System::GetRamSize() const
+size_t System::GetRamSize() const
 {
     return m_Ram.GetCapacity();
 }
 
-int System::GetMemoryAccessEventCount() const
+size_t System::GetMemoryAccessEventCount() const
 {
     return m_Processor.GetMemoryAccessEventCount();
 }

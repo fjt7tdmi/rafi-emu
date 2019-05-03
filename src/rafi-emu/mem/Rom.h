@@ -34,7 +34,7 @@ public:
     Rom();
     ~Rom();
 
-    virtual int GetCapacity() const;
+    virtual size_t GetCapacity() const;
 
     virtual void LoadFile(const char* path, int offset) override;
 

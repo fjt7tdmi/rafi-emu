@@ -55,7 +55,7 @@ public:
     void ClearEvent();
 
     void CopyEvent(MemoryAccessEvent* pOut, int index) const;
-    int GetEventCount() const;
+    size_t GetEventCount() const;
 
 private:
     PrivilegeLevel GetEffectivePrivilegeLevel(MemoryAccessType accessType) const;

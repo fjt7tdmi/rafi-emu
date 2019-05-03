@@ -18,7 +18,10 @@
 #include <cstring>
 #include <memory>
 
+#pragma warning(push)
+#pragma warning(disable : 4389)
 #include <gtest/gtest.h>
+#pragma warning(pop)
 
 #include <rafi/common.h>
 #include <rafi/trace.h>
