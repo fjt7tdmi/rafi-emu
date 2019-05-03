@@ -1365,7 +1365,7 @@ void Executor::ProcessRV64M(const Op& op)
         }
         break;
     case OpCode::rem:
-        if (src1_u64 == 0x80000000 && src2_s64 == -1)
+        if (src1_u64 == (1ull << 63) && src2_s64 == -1)
         {
             value = 0;
         }
