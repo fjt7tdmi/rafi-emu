@@ -17,10 +17,12 @@ import shutil
 import subprocess
 import sys
 
-CopyCmd = "cp"
-ObjcopyCmd = "riscv64-unknown-elf-objcopy"
 InDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 OutDirPath = "./work/linux"
+
+CopyCmd = "cp"
+ObjdumpCmd = "riscv64-unknown-elf-objdump"
+ObjcopyCmd = "riscv64-unknown-elf-objcopy"
 QemuCmd = os.path.join(InDirPath, "work/riscv-qemu/prefix/bin/qemu-system-riscv64")
 
 #
@@ -30,23 +32,40 @@ def init_dir(path):
     shutil.rmtree(path, ignore_errors=True)
     os.makedirs(path)
 
-def copy_bbl():
+def prepare_bbl():
     in_path = os.path.join(InDirPath, f"work/riscv-pk/bbl")
-    out_path = os.path.join(OutDirPath, f"bbl.bin")
+    out_elf_path = os.path.join(OutDirPath, f"bbl")
+    out_bin_path = os.path.join(OutDirPath, f"bbl.bin")
+    out_dasm_path = os.path.join(OutDirPath, f"bbl.dasm")
 
-    cmd = [
-        ObjcopyCmd,
-        "-O", "binary",
-        f"--set-start=0x80000000",
-        f"--pad-to=0x80200000",
-        in_path,
-        out_path,
+    cmds = [
+        [
+            CopyCmd,
+            in_path,
+            out_elf_path,
+        ],
+        [
+            ObjcopyCmd,
+            "-O", "binary",
+            f"--set-start=0x80000000",
+            f"--pad-to=0x80200000",
+            out_elf_path,
+            out_bin_path,
+        ],
     ]
+    for cmd in cmds:
+        print(' '.join(cmd))
+        subprocess.run(cmd)
 
-    print(' '.join(cmd))
-    subprocess.run(cmd)
+    cmd_dasm = [
+        ObjdumpCmd,
+        "-d",
+        out_elf_path
+    ]
+    with open(out_dasm_path, 'w') as f:
+        return subprocess.run(cmd, stdout=f).returncode
 
-def generate_dtb():
+def prepare_dtb():
     bbl_path = os.path.join(InDirPath, f"work/riscv-pk/bbl")
     vmlinux_path = os.path.join(InDirPath, f"work/linux/vmlinux")
     initrd_path = os.path.join(InDirPath, f"work/initramfs.cpio.gz")
@@ -64,24 +83,41 @@ def generate_dtb():
     print(' '.join(cmd))
     subprocess.run(cmd)
 
-def copy_vmlinux():
+def prepare_vmlinux():
     in_path = os.path.join(InDirPath, f"work/linux/vmlinux")
-    out_path = os.path.join(OutDirPath, f"vmlinux.bin")
+    out_elf_path = os.path.join(OutDirPath, f"vmlinux")
+    out_bin_path = os.path.join(OutDirPath, f"vmlinux.bin")
+    out_dasm_path = os.path.join(OutDirPath, f"vmlinux.dasm")
 
-    cmd = [
-        ObjcopyCmd,
-        "-O", "binary",
-        "--adjust-vma=0x2080200000",
-        "--set-start=0x80200000",
-        "--pad-to=0x81f00000",
-        in_path,
-        out_path,
+    cmds = [
+        [
+            ObjcopyCmd,
+            "--adjust-vma=0x2080200000",
+            in_path,
+            out_elf_path,
+        ],
+        [
+            ObjcopyCmd,
+            "-O", "binary",
+            "--set-start=0x80200000",
+            "--pad-to=0x81f00000",
+            out_elf_path,
+            out_bin_path,
+        ],
     ]
+    for cmd in cmds:
+        print(' '.join(cmd))
+        subprocess.run(cmd)
 
-    print(' '.join(cmd))
-    subprocess.run(cmd)
+    cmd_dasm = [
+        ObjdumpCmd,
+        "-d",
+        out_elf_path
+    ]
+    with open(out_dasm_path, 'w') as f:
+        return subprocess.run(cmd, stdout=f).returncode
 
-def copy_initramfs():
+def prepare_initramfs():
     in_path = os.path.join(InDirPath, f"work/initramfs.cpio.gz")
     out_path = os.path.join(OutDirPath, f"initramfs.cpio.gz")
 
@@ -102,7 +138,7 @@ if __name__ == '__main__':
         print("Envvar 'RAFI_FREEDOM_U_SDK' is not set.")
         sys.exit(1)
     init_dir(OutDirPath)
-    copy_bbl()
-    generate_dtb()
-    copy_vmlinux()
-    copy_initramfs()
+    prepare_bbl()
+    prepare_dtb()
+    prepare_vmlinux()
+    prepare_initramfs()
