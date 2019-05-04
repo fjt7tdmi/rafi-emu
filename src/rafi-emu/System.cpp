@@ -45,8 +45,8 @@ void System::LoadFileToMemory(const char* path, paddr_t address)
 
 void System::SetDtbAddress(vaddr_t address)
 {
-    //  x10 (a0) holds dtb address
-    m_Processor.SetIntReg(10, address);
+    //  11 (a1) holds dtb address
+    m_Processor.SetIntReg(11, address);
 }
 
 void System::SetHostIoAddress(vaddr_t address)
