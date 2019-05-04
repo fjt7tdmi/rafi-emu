@@ -67,6 +67,7 @@ def MakeEmulatorCommand(config):
         "--ram-size", str(128 * 1024 * 1024),
         "--pc", "0x80000000",
         "--dtb-addr", "0x81f00000",
+        "--xlen", "64",
     ]
     if config['enable_dump_csr']:
         cmd.append("--enable-dump-csr")
