@@ -1184,7 +1184,7 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
             RAFI_RETURN_UNKNOWN_OP(opClass);
         }
     case 0b10:
-        if (funct4 == 0b000)
+        if (funct3 == 0b000)
         {
             return Op{ opClass, OpCode::c_slli, DecodeOperandCI(insn, true) };
         }
