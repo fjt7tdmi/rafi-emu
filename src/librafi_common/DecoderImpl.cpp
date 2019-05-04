@@ -1062,7 +1062,7 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
     switch (opcode)
     {
     case 0b00:
-        if (funct3 == 0b000 && rs1 != 0)
+        if (funct3 == 0b000 && Pick(insn, 5, 8) != 0)
         {
             return Op{ opClass, OpCode::c_addi4spn, DecodeOperandCIW(insn) };
         }
