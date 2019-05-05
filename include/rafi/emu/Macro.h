@@ -40,7 +40,7 @@
         auto _address0 = (_address); \
         auto _size0 = (_size); \
         auto _capacity0 = (_capacity); \
-        if (0 <= _address0 && _address0 + _size0 - 1 < _capacity0)  \
+        if (!(0 <= _address0 && _address0 + _size0 - 1 < _capacity0)) \
         { \
             fprintf(stderr, "[ERROR] Access check failure @ %s:%d\n", __FILE__, __LINE__); \
             std::cerr << std::hex << "address: 0x" << _address0 << ", size:0x" << _size0 << ", capacity:0x" << _capacity0 << std::endl; \
