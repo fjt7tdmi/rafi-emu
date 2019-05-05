@@ -5,6 +5,6 @@ pushd `dirname $0`
 cd ..
 
 source script/common.sh.inc
-${RAFI_PYTHON} ./tool/run_linux.py --dump-pc $@
+${RAFI_PYTHON} ./tool/run_linux.py --dump $@
 
 popd

@@ -25,6 +25,8 @@
 
 #include <rafi/trace.h>
 
+#include "DumpConfig.h"
+
 #pragma warning(disable:4477)
 
 using namespace rafi;
@@ -405,22 +407,105 @@ void PrintCycle(const CycleReader& cycle, int cycleNum)
     printf("}\n");
 }
 
-void PrintTrace(const std::string& path, int startCycle, int count)
+void PrintCycleGdb(const CycleReader& cycle)
+{
+    const auto nodePc64 = cycle.GetPc64Node();
+    const auto nodeIntReg64 = cycle.GetIntReg64Node();
+
+    printf(
+        "GDB [\n"
+        "ra             %016llx\t%lld\n"
+        "sp             %016llx\t%lld\n"
+        "gp             %016llx\t%lld\n"
+        "tp             %016llx\t%lld\n"
+        "t0             %016llx\t%lld\n"
+        "t1             %016llx\t%lld\n"
+        "t2             %016llx\t%lld\n"
+        "s0             %016llx\t%lld\n"
+        "s1             %016llx\t%lld\n"
+        "a0             %016llx\t%lld\n"
+        "a1             %016llx\t%lld\n"
+        "a2             %016llx\t%lld\n"
+        "a3             %016llx\t%lld\n"
+        "a4             %016llx\t%lld\n"
+        "a5             %016llx\t%lld\n"
+        "a6             %016llx\t%lld\n"
+        "a7             %016llx\t%lld\n"
+        "s2             %016llx\t%lld\n"
+        "s3             %016llx\t%lld\n"
+        "s4             %016llx\t%lld\n"
+        "s5             %016llx\t%lld\n"
+        "s6             %016llx\t%lld\n"
+        "s7             %016llx\t%lld\n"
+        "s8             %016llx\t%lld\n"
+        "s9             %016llx\t%lld\n"
+        "s10            %016llx\t%lld\n"
+        "s11            %016llx\t%lld\n"
+        "t3             %016llx\t%lld\n"
+        "t4             %016llx\t%lld\n"
+        "t5             %016llx\t%lld\n"
+        "t6             %016llx\t%lld\n"
+        "pc             %016llx\t%lld\n"
+        "priv           [Invalid]\n"
+        "]\n",
+        static_cast<unsigned long long>(nodeIntReg64->regs[1]), static_cast<unsigned long long>(nodeIntReg64->regs[1]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[2]), static_cast<unsigned long long>(nodeIntReg64->regs[2]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[3]), static_cast<unsigned long long>(nodeIntReg64->regs[3]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[4]), static_cast<unsigned long long>(nodeIntReg64->regs[4]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[5]), static_cast<unsigned long long>(nodeIntReg64->regs[5]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[6]), static_cast<unsigned long long>(nodeIntReg64->regs[6]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[7]), static_cast<unsigned long long>(nodeIntReg64->regs[7]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[8]), static_cast<unsigned long long>(nodeIntReg64->regs[8]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[9]), static_cast<unsigned long long>(nodeIntReg64->regs[9]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[10]), static_cast<unsigned long long>(nodeIntReg64->regs[10]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[11]), static_cast<unsigned long long>(nodeIntReg64->regs[11]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[12]), static_cast<unsigned long long>(nodeIntReg64->regs[12]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[13]), static_cast<unsigned long long>(nodeIntReg64->regs[13]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[14]), static_cast<unsigned long long>(nodeIntReg64->regs[14]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[15]), static_cast<unsigned long long>(nodeIntReg64->regs[15]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[16]), static_cast<unsigned long long>(nodeIntReg64->regs[16]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[17]), static_cast<unsigned long long>(nodeIntReg64->regs[17]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[18]), static_cast<unsigned long long>(nodeIntReg64->regs[18]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[19]), static_cast<unsigned long long>(nodeIntReg64->regs[19]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[20]), static_cast<unsigned long long>(nodeIntReg64->regs[20]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[21]), static_cast<unsigned long long>(nodeIntReg64->regs[21]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[22]), static_cast<unsigned long long>(nodeIntReg64->regs[22]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[23]), static_cast<unsigned long long>(nodeIntReg64->regs[23]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[24]), static_cast<unsigned long long>(nodeIntReg64->regs[24]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[25]), static_cast<unsigned long long>(nodeIntReg64->regs[25]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[26]), static_cast<unsigned long long>(nodeIntReg64->regs[26]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[27]), static_cast<unsigned long long>(nodeIntReg64->regs[27]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[28]), static_cast<unsigned long long>(nodeIntReg64->regs[28]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[29]), static_cast<unsigned long long>(nodeIntReg64->regs[29]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[30]), static_cast<unsigned long long>(nodeIntReg64->regs[30]),
+        static_cast<unsigned long long>(nodeIntReg64->regs[31]), static_cast<unsigned long long>(nodeIntReg64->regs[31]),
+        static_cast<unsigned long long>(nodePc64->virtualPc), static_cast<unsigned long long>(nodePc64->virtualPc)
+    );
+}
+
+void PrintTrace(const std::string& path, const DumpConfig& config)
 {
     FileTraceReader reader(path.c_str());
 
-    for (int i = 0; i < startCycle + count; i++)
+    for (int i = 0; i < config.cycleStart + config.cycleCount; i++)
     {
         if (reader.IsEnd())
         {
             return;
         }
 
-        if (i >= startCycle)
+        if (i >= config.cycleStart)
         {
             CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
-            PrintCycle(cycle, i);
+            if (config.mode == DumpMode::Gdb)
+            {
+                PrintCycleGdb(cycle);
+            }
+            else
+            {
+                PrintCycle(cycle, i);
+            }
         }
 
         reader.MoveToNextCycle();
@@ -433,14 +518,14 @@ int main(int argc, char** argv)
 {
     const int DefaultCount = 1000 * 1000 * 1000;
 
-    int startCycle;
-    int count;
+    DumpConfig config;
 
     po::options_description optDesc("options");
     optDesc.add_options()
-        ("count,c", po::value<int>(&count)->default_value(DefaultCount), "number of cycles to print")
-        ("start-cycle,s", po::value<int>(&startCycle)->default_value(0), "cycle to start print")
+        ("count,c", po::value<int>(&config.cycleCount)->default_value(DefaultCount), "number of cycles to print")
+        ("start-cycle,s", po::value<int>(&config.cycleStart)->default_value(0), "cycle to start print")
         ("input-file", po::value<std::string>(), "input trace binary path")
+        ("gdb", "set output format to compare with gdb log")
         ("help", "show help");
 
     po::positional_options_description posOptDesc;
@@ -464,6 +549,15 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    PrintTrace(optMap["input-file"].as<std::string>(), startCycle, count);
+    if (optMap.count("gdb") > 0)
+    {
+        config.mode = DumpMode::Gdb;
+    }
+    else
+    {
+        config.mode = DumpMode::Normal;
+    }
+
+    PrintTrace(optMap["input-file"].as<std::string>(), config);
     return 0;
 }
