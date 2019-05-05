@@ -49,8 +49,8 @@ def PrintCommand(msg, cmd):
             print(', '.join(args))
 
 def MakeEmulatorCommand(config):
+    rom_path = f"{BinaryDirPath}/rom.bin"
     bbl_path = f"{BinaryDirPath}/bbl.bin"
-    dtb_path = f"{BinaryDirPath}/rafi-emu.dtb"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
@@ -60,13 +60,12 @@ def MakeEmulatorCommand(config):
         "--cycle", str(config['cycle']),
         "--dump-skip-cycle", str(config['dump_skip_cycle']),
         "--dump-path", trace_path,
+        "--load", f"{rom_path}:0x1000",
         "--load", f"{bbl_path}:0x80000000",
-        "--load", f"{dtb_path}:0x81f00000",
         "--load", f"{vmlinux_path}:0x80200000",
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
-        "--pc", "0x80000000",
-        "--dtb-addr", "0x81f00000",
+        "--pc", "0x1000",
         "--xlen", "64",
     ]
     if config['enable_dump_csr']:
