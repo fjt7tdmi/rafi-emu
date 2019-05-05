@@ -18,6 +18,7 @@
 
 #include "io/IoInterruptSource.h"
 #include "io/Uart.h"
+#include "io/Uart16550.h"
 #include "io/Timer.h"
 #include "mem/Ram.h"
 #include "mem/Rom.h"
@@ -64,10 +65,18 @@ public:
     void PrintStatus() const;
 
 private:
+    static const paddr_t AddrRom = 0x00001000;
+    static const paddr_t AddrRam = 0x80000000;
+
+    static const paddr_t AddrUart16550 = 0x10000000;
+    static const paddr_t AddrUart = 0x40002000;
+    static const paddr_t AddrTimer = 0x40000000;
+
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;
     io::Uart m_Uart;
+    io::Uart16550 m_Uart16550;
     io::Timer m_Timer;
 
     io::IoInterruptSource m_ExternalInterruptSource;

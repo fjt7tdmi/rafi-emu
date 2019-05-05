@@ -24,7 +24,7 @@
 
 namespace rafi { namespace emu { namespace io {
 
-class Uart : public IIo
+class Uart16550 : public IIo
 {
 public:
     virtual void Read(void* pOutBuffer, size_t size, uint64_t address) override;
@@ -35,56 +35,23 @@ public:
     void ProcessCycle();
 
 private:
-    struct InterruptEnable : BitField32
-    {
-        InterruptEnable()
-        {
-        }
-
-        InterruptEnable(uint32_t value) : BitField32(value)
-        {
-        }
-
-        using TXIE = Member<1>;
-        using RXIE = Member<2>;
-    };
-
-    struct InterruptPending : BitField32
-    {
-        InterruptPending()
-        {
-        }
-
-        InterruptPending(uint32_t value) : BitField32(value)
-        {
-        }
-
-        using TXIP = Member<1>;
-        using RXIP = Member<2>;
-    };
-
-
-    static const int RegisterSpaceSize = 32;
-    static const int InitialRxCycle = 100;
-    static const int RxCycle = 50;
-
     // Register address
-    static const int Address_TxData = 0;
-    static const int Address_RxData = 4;
-    static const int Address_InterruptEnable = 16;
-    static const int Address_InterruptPending = 24;
+    static const int AddrData = 0;
+    static const int AddrInterruptEnable = 1;
+    static const int AddrInterruptIentification = 2;
+    static const int AddrFifoControl = 2;
+    static const int AddrLineControl = 3;
+    static const int AddrModemControl = 4;
+    static const int AddrLineStatus = 5;
+    static const int AddrModemStatus = 6;
+    static const int AddrScratch = 7;
 
-    void UpdateRx();
+    // Register space size
+    static const int RegisterSpaceSize = 8;
+
     void PrintTx();
 
-    InterruptEnable m_InterruptEnable;
-    InterruptPending m_InterruptPending;
-
-    std::vector<char> m_TxChars;
-    char m_RxChar {'\0'};
-
-    int m_Cycle {0};
-    size_t m_PrintCount {0};
+    char m_TxChar {'\0'};
 };
 
 }}}

@@ -28,10 +28,11 @@ System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     , m_TimerInterruptSource(&m_Timer)
     , m_Processor(xlen, &m_Bus, pc)
 {
-    m_Bus.RegisterMemory(&m_Ram, RamAddr, m_Ram.GetCapacity());
-    m_Bus.RegisterMemory(&m_Rom, RomAddr, m_Rom.GetCapacity());
-    m_Bus.RegisterIo(&m_Uart, UartAddr, m_Uart.GetSize());
-    m_Bus.RegisterIo(&m_Timer, TimerAddr, m_Timer.GetSize());
+    m_Bus.RegisterMemory(&m_Ram, AddrRam, m_Ram.GetCapacity());
+    m_Bus.RegisterMemory(&m_Rom, AddrRom, m_Rom.GetCapacity());
+    m_Bus.RegisterIo(&m_Uart, AddrUart, m_Uart.GetSize());
+    m_Bus.RegisterIo(&m_Uart16550, AddrUart16550, m_Uart16550.GetSize());
+    m_Bus.RegisterIo(&m_Timer, AddrTimer, m_Timer.GetSize());
 
     m_Processor.RegisterExternalInterruptSource(&m_ExternalInterruptSource);
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
@@ -57,7 +58,9 @@ void System::SetHostIoAddress(vaddr_t address)
 void System::ProcessOneCycle()
 {
     m_Uart.ProcessCycle();
+    m_Uart16550.ProcessCycle();
     m_Timer.ProcessCycle();
+
     m_Processor.ProcessOneCycle();
 }
 

@@ -89,6 +89,11 @@ void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
     }
 }
 
+int Uart::GetSize() const
+{
+    return RegisterSpaceSize;
+}
+
 bool Uart::IsInterruptRequested() const
 {
     return false;
