@@ -1062,7 +1062,7 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
     switch (opcode)
     {
     case 0b00:
-        if (funct3 == 0b000 && rs1 != 0)
+        if (funct3 == 0b000 && Pick(insn, 5, 8) != 0)
         {
             return Op{ opClass, OpCode::c_addi4spn, DecodeOperandCIW(insn) };
         }
@@ -1184,7 +1184,7 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
             RAFI_RETURN_UNKNOWN_OP(opClass);
         }
     case 0b10:
-        if (funct4 == 0b000)
+        if (funct3 == 0b000)
         {
             return Op{ opClass, OpCode::c_slli, DecodeOperandCI(insn, true) };
         }
@@ -1525,7 +1525,7 @@ Operand DecoderImpl::DecodeOperandCSS(uint16_t insn, int accessSize) const
     case 4:
         return Operand(OperandCSS
         {
-            ZeroExtend<int64_t>(6,
+            ZeroExtend<int64_t>(8,
                 Pick(insn, 9, 4) << 2 |
                 Pick(insn, 7, 2) << 6
             ), // imm
@@ -1534,7 +1534,7 @@ Operand DecoderImpl::DecodeOperandCSS(uint16_t insn, int accessSize) const
     case 8:
         return Operand(OperandCSS
         {
-            ZeroExtend<int64_t>(6,
+            ZeroExtend<int64_t>(9,
                 Pick(insn, 10, 3) << 3 |
                 Pick(insn, 7, 3) << 6
             ), // imm
@@ -1543,7 +1543,7 @@ Operand DecoderImpl::DecodeOperandCSS(uint16_t insn, int accessSize) const
     case 16:
         return Operand(OperandCSS
         {
-            ZeroExtend<int64_t>(6,
+            ZeroExtend<int64_t>(10,
                 Pick(insn, 11, 2) << 4 |
                 Pick(insn, 7, 4) << 6
             ), // imm
@@ -1586,7 +1586,7 @@ Operand DecoderImpl::DecodeOperandCL(uint16_t insn, int accessSize) const
     case 8:
         return Operand(OperandCL
         {
-            ZeroExtend<int64_t>(7,
+            ZeroExtend<int64_t>(8,
                 Pick(insn, 10, 3) << 3 |
                 Pick(insn, 5, 2) << 6
             ), // imm
@@ -1596,7 +1596,7 @@ Operand DecoderImpl::DecodeOperandCL(uint16_t insn, int accessSize) const
     case 16:
         return Operand(OperandCL
         {
-            ZeroExtend<int64_t>(7,
+            ZeroExtend<int64_t>(9,
                 Pick(insn, 11, 2) << 4 |
                 Pick(insn, 10) << 8 |
                 Pick(insn, 5, 2) << 6
@@ -1627,7 +1627,7 @@ Operand DecoderImpl::DecodeOperandCS(uint16_t insn, int accessSize) const
     case 8:
         return Operand(OperandCS
         {
-            ZeroExtend<int64_t>(7,
+            ZeroExtend<int64_t>(8,
                 Pick(insn, 10, 3) << 3 |
                 Pick(insn, 5, 2) << 6
             ), // imm
@@ -1637,7 +1637,7 @@ Operand DecoderImpl::DecodeOperandCS(uint16_t insn, int accessSize) const
     case 16:
         return Operand(OperandCS
         {
-            ZeroExtend<int64_t>(7,
+            ZeroExtend<int64_t>(9,
                 Pick(insn, 11, 2) << 4 |
                 Pick(insn, 10) << 8 |
                 Pick(insn, 5, 2) << 6

@@ -49,8 +49,8 @@ def PrintCommand(msg, cmd):
             print(', '.join(args))
 
 def MakeEmulatorCommand(config):
+    rom_path = f"{BinaryDirPath}/rom.bin"
     bbl_path = f"{BinaryDirPath}/bbl.bin"
-    dtb_path = f"{BinaryDirPath}/rafi-emu.dtb"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
@@ -60,13 +60,13 @@ def MakeEmulatorCommand(config):
         "--cycle", str(config['cycle']),
         "--dump-skip-cycle", str(config['dump_skip_cycle']),
         "--dump-path", trace_path,
+        "--load", f"{rom_path}:0x1000",
         "--load", f"{bbl_path}:0x80000000",
-        "--load", f"{dtb_path}:0x81f00000",
         "--load", f"{vmlinux_path}:0x80200000",
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
-        "--pc", "0x80000000",
-        "--dtb-addr", "0x81f00000",
+        "--pc", "0x1000",
+        "--xlen", "64",
     ]
     if config['enable_dump_csr']:
         cmd.append("--enable-dump-csr")
@@ -88,32 +88,18 @@ def RunEmulator(config):
     return subprocess.run(cmd).returncode
 
 def RunDump(config):
-    trace_txt_path = f"{TraceDirPath}/linux.trace.txt"
-
-    cmd = [ DumpPath, f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand("[cmd]", cmd)
-
-    with open(trace_txt_path, 'w') as f:
-        return subprocess.run(cmd, stdout=f).returncode
-
-    return subprocess.run(cmd).returncode
-
-def RunDumpPc(config):
-    pc_txt_path = f"{TraceDirPath}/linux.pc.txt"
-    line_txt_path = f"{TraceDirPath}/linux.line.txt"
+    pc_log_path = f"{TraceDirPath}/linux.pc.log"
+    gdb_log_path = f"{TraceDirPath}/linux.gdb.log"
 
     cmd_dump_pc = [ DumpPcPath, f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd_dump_pc)
-
-    with open(pc_txt_path, 'w') as f:
+    with open(pc_log_path, 'w') as f:
         subprocess.run(cmd_dump_pc, stdout=f).returncode
 
-    cmd_addr2line = MakeAddrToLineCommand()
-    PrintCommand("[cmd]", cmd_addr2line)
-
-    with open(pc_txt_path, 'r') as in_file:
-        with open(line_txt_path, 'w') as out_file:
-            subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
+    cmd_dump_gdb = [ DumpPath, "--gdb", f"{TraceDirPath}/linux.trace.bin" ]
+    PrintCommand("[cmd]", cmd_dump_gdb)
+    with open(gdb_log_path, 'w') as f:
+        subprocess.run(cmd_dump_gdb, stdout=f).returncode
 
 #
 # Entry point
@@ -122,7 +108,6 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
-    parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
@@ -144,6 +129,3 @@ if __name__ == '__main__':
 
     if options.dump:
         RunDump(config)
-
-    if options.dump_pc:
-        RunDumpPc(config)
