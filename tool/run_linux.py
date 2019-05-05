@@ -89,7 +89,7 @@ def RunEmulator(config):
     return subprocess.run(cmd).returncode
 
 def RunDump(config):
-    trace_txt_path = f"{TraceDirPath}/linux.trace.txt"
+    trace_txt_path = f"{TraceDirPath}/linux.trace.log"
 
     cmd = [ DumpPath, f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd)
@@ -100,8 +100,8 @@ def RunDump(config):
     return subprocess.run(cmd).returncode
 
 def RunDumpPc(config):
-    pc_txt_path = f"{TraceDirPath}/linux.pc.txt"
-    line_txt_path = f"{TraceDirPath}/linux.line.txt"
+    pc_txt_path = f"{TraceDirPath}/linux.pc.log"
+    line_txt_path = f"{TraceDirPath}/linux.line.log"
 
     cmd_dump_pc = [ DumpPcPath, f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd_dump_pc)
