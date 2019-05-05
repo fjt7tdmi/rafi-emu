@@ -1654,7 +1654,7 @@ Operand DecoderImpl::DecodeOperandCB(uint16_t insn) const
 {
     return Operand(OperandCB
     {
-        SignExtend<int64_t>(12,
+        SignExtend<int64_t>(9,
             Pick(insn, 12, 1) << 8 |
             Pick(insn, 10, 2) << 3 |
             Pick(insn, 5, 2) << 6 |
