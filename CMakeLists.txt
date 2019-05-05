@@ -257,7 +257,10 @@ add_executable(rafi-dump-pc
 )
 
 add_executable(rafi-dump
+    src/rafi-dump/DumpConfig.h
     src/rafi-dump/Main.cpp
+    src/rafi-dump/PrinterGdb.cpp
+    src/rafi-dump/PrinterGdb.h
 )
 
 add_executable(rafi-emu
