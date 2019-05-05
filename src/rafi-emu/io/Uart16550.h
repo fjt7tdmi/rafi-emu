@@ -24,6 +24,13 @@
 
 namespace rafi { namespace emu { namespace io {
 
+/*
+ * ns16550 emulation module.
+ *
+ * Restriction:
+ *   - RX is not implemented.
+ *   - TX/RX FIFO is not implemented. Characters written to data register will output to console immediately.
+ */
 class Uart16550 : public IIo
 {
 public:
@@ -38,8 +45,8 @@ private:
     // Register address
     static const int AddrData = 0;
     static const int AddrInterruptEnable = 1;
-    static const int AddrInterruptIentification = 2;
-    static const int AddrFifoControl = 2;
+    static const int AddrInterruptIdent = 2; // Read
+    static const int AddrFifoControl = 2; // Write
     static const int AddrLineControl = 3;
     static const int AddrModemControl = 4;
     static const int AddrLineStatus = 5;
@@ -51,7 +58,12 @@ private:
 
     void PrintTx();
 
-    char m_TxChar {'\0'};
+    uint8_t m_TxChar{ 0x0 };
+    uint8_t m_InterruptEnable{ 0x0 };
+    uint8_t m_InterruptIdent{ 0x1 };
+    uint8_t m_FifoControl{ 0x0 };
+    uint8_t m_LineControl{ 0x0 };
+    uint8_t m_LineStatus{ 0x60 };
 };
 
 }}}

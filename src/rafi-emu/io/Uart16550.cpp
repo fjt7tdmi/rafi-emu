@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <cinttypes>
 #include <cstdio>
 #include <cstring>
 
@@ -30,23 +31,34 @@ void Uart16550::Read(void* pOutBuffer, size_t size, uint64_t address)
 {
     RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
-    if (size != 1)
+    uint8_t value = 0;
+
+    if (size != sizeof(value))
     {
-        RAFI_EMU_ERROR("[Uart16550] Invalid read size (%zd byte).\n", size);
+        RAFI_EMU_ERROR("[Uart16550] Invalid read size. (address: %llu, size: %zd byte).\n", static_cast<unsigned long long>(address), size);
     }
 
-    RAFI_EMU_ERROR("[Uart16550] Read to register %llu is invalid or unimplmented.\n", static_cast<unsigned long long>(address));
+    switch (address)
+    {
+    case AddrLineStatus:
+        value = m_LineStatus;
+        break;
+    default:
+        RAFI_EMU_ERROR("[Uart16550] Read to register %llu is invalid or unimplmented.\n", static_cast<unsigned long long>(address));
+    }
+
+    std::memcpy(pOutBuffer, &value, sizeof(value));
 }
 
 void Uart16550::Write(const void* pBuffer, size_t size, uint64_t address)
 {
     RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 
-    char value;
+    uint8_t value;
 
     if (size != sizeof(value))
     {
-        RAFI_EMU_ERROR("[Uart16550] Invalid write size (%zd byte).\n", size);
+        RAFI_EMU_ERROR("[Uart16550] Invalid write size. (address: %llu, size: %zd byte).\n", static_cast<unsigned long long>(address), size);
     }
 
     std::memcpy(&value, pBuffer, sizeof(value));
@@ -54,10 +66,33 @@ void Uart16550::Write(const void* pBuffer, size_t size, uint64_t address)
     switch (address)
     {
     case AddrData:
-        m_TxChar = value;
+        if ((m_LineControl & 0x80) == 0)
+        {
+            m_TxChar = value;
+        }
+        else
+        {
+            // Ignore writing to Divisor Latch
+        }
+        break;
+    case AddrInterruptEnable:
+        if ((m_LineControl & 0x80) == 0)
+        {
+            m_InterruptEnable = value;
+        }
+        else
+        {
+            // Ignore writing to Divisor Latch
+        }
+        break;
+    case AddrFifoControl:
+        m_FifoControl = value;
+        break;
+    case AddrLineControl:
+        m_LineControl = value;
         break;
     default:
-        RAFI_EMU_ERROR("[Uart16550] Write to register %llu is invalid or unimplmented.\n", static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("[Uart16550] Write to register %llu is invalid or unimplmented. (value: 0x%02x)\n", static_cast<unsigned long long>(address), value);
     }
 }
 
@@ -74,16 +109,21 @@ bool Uart16550::IsInterruptRequested() const
 void Uart16550::ProcessCycle()
 {
     PrintTx();
+
+    if (m_InterruptEnable != 0)
+    {
+        RAFI_EMU_ERROR("[Uart16550] Interrupt is not implemented. (but, the value of IE is 0x%02x)\n", m_InterruptEnable);
+    }
 }
 
 void Uart16550::PrintTx()
 {
-    if (m_TxChar != '\0')
+    if (m_TxChar != 0)
     {
-        putchar(m_TxChar);
+        putchar(static_cast<char>(m_TxChar));
     }
 
-    m_TxChar = '\0';
+    m_TxChar = 0;
 }
 
 }}}
