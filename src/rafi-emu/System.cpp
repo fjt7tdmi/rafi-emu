@@ -22,20 +22,25 @@ namespace rafi { namespace emu {
 System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     : m_Bus()
     , m_Ram(ramSize)
+    , m_Clint()
     , m_Uart()
     , m_Timer()
     , m_ExternalInterruptSource(&m_Uart)
-    , m_TimerInterruptSource(&m_Timer)
+    , m_TimerInterruptSource(&m_Clint)
     , m_Processor(xlen, &m_Bus, pc)
 {
     m_Bus.RegisterMemory(&m_Ram, AddrRam, m_Ram.GetCapacity());
     m_Bus.RegisterMemory(&m_Rom, AddrRom, m_Rom.GetCapacity());
-    m_Bus.RegisterIo(&m_Uart, AddrUart, m_Uart.GetSize());
+
+    m_Bus.RegisterIo(&m_Clint, AddrClint, m_Clint.GetSize());
     m_Bus.RegisterIo(&m_Uart16550, AddrUart16550, m_Uart16550.GetSize());
+    m_Bus.RegisterIo(&m_Uart, AddrUart, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, AddrTimer, m_Timer.GetSize());
 
     m_Processor.RegisterExternalInterruptSource(&m_ExternalInterruptSource);
     m_Processor.RegisterTimerInterruptSource(&m_TimerInterruptSource);
+
+    m_Clint.RegisterProcessor(&m_Processor);
 }
 
 void System::LoadFileToMemory(const char* path, paddr_t address)
@@ -57,8 +62,9 @@ void System::SetHostIoAddress(vaddr_t address)
 
 void System::ProcessOneCycle()
 {
-    m_Uart.ProcessCycle();
+    m_Clint.ProcessCycle();
     m_Uart16550.ProcessCycle();
+    m_Uart.ProcessCycle();
     m_Timer.ProcessCycle();
 
     m_Processor.ProcessOneCycle();

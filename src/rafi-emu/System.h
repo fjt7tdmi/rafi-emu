@@ -69,7 +69,11 @@ private:
     static const paddr_t AddrRom = 0x00001000;
     static const paddr_t AddrRam = 0x80000000;
 
+    // E31 compatible IOs
+    static const paddr_t AddrClint = 0x02000000;
     static const paddr_t AddrUart16550 = 0x10000000;
+
+    // IOs for zephyr
     static const paddr_t AddrUart = 0x40002000;
     static const paddr_t AddrTimer = 0x40000000;
 

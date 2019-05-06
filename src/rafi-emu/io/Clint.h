@@ -20,6 +20,7 @@
 
 #include <rafi/emu.h>
 
+#include "../cpu/Processor.h"
 #include "../io/IIo.h"
 
 namespace rafi { namespace emu { namespace io {
@@ -34,27 +35,9 @@ public:
 
     void ProcessCycle();
 
-    IInterruptSource* GetSoftwareInterruptSource();
-    IInterruptSource* GetTimerInterruptSource();
+    void RegisterProcessor(cpu::Processor* pProcessor);
 
 private:
-    class InterruptHolder : public IInterruptSource
-    {
-    public:
-        virtual bool IsRequested() const
-        {
-            return m_Requested;
-        }
-
-        void SetRequested(bool requested)
-        {
-            m_Requested = requested;
-        }
-
-    private:
-        bool m_Requested{ false };
-    };
-
     void ReadMsip(void* pOutBuffer, size_t size);
     void WriteMsip(const void* pBuffer, size_t size);
 
@@ -65,10 +48,10 @@ private:
     static const int ADDR_MTIME = 0x4000;
     static const int ADDR_MTIMECMP = 0xbff8;
 
+    cpu::Processor* m_pProcessor;
+
     uint64_t m_Time{ 0 };
     uint64_t m_TimeCmp{ 0 };
-    InterruptHolder m_SoftwareInterrupt;
-    InterruptHolder m_TimerInterrupt;
 };
 
 }}}

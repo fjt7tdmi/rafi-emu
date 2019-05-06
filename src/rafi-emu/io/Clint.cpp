@@ -85,33 +85,27 @@ int Clint::GetSize() const
     return RegisterSpaceSize;
 }
 
+// This method is for timer interrupt.
+// For software interrupt, clint modifies csr directly.
 bool Clint::IsInterruptRequested() const
 {
-    return m_SoftwareInterrupt.IsRequested() || m_TimerInterrupt.IsRequested();
+    return m_Time >= m_TimeCmp;
 }
 
 void Clint::ProcessCycle()
 {
-    // Update timer
     m_Time++;
-
-    // Update timer interrupt
-    m_TimerInterrupt.SetRequested(m_Time >= m_TimeCmp);
 }
 
-IInterruptSource* Clint::GetSoftwareInterruptSource()
+void Clint::RegisterProcessor(cpu::Processor* pProcessor)
 {
-    return &m_SoftwareInterrupt;
-}
-
-IInterruptSource* Clint::GetTimerInterruptSource()
-{
-    return &m_TimerInterrupt;
+    m_pProcessor = pProcessor;
 }
 
 void Clint::ReadMsip(void* pOutBuffer, size_t size)
 {
-    const uint32_t value = m_SoftwareInterrupt.IsRequested() ? 1 : 0;
+    const auto mip = m_pProcessor->ReadInterruptPending();
+    const uint32_t value = mip.GetMember<xip_t::MSIP>();
 
     if (size != sizeof(value))
     {
@@ -132,7 +126,9 @@ void Clint::WriteMsip(const void* pBuffer, size_t size)
 
     std::memcpy(&value, pBuffer, size);
 
-    m_SoftwareInterrupt.SetRequested(value & 0x1);
+    auto mip = m_pProcessor->ReadInterruptPending();
+    mip.SetMember<xip_t::MSIP>(value & 0x1);
+    m_pProcessor->WriteInterruptPending(mip);
 }
 
 }}}
