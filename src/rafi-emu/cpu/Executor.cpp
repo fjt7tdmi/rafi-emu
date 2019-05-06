@@ -210,8 +210,10 @@ void Executor::ProcessOp(const Op& op, vaddr_t pc)
         ProcessRV64C(op, pc);
         break;
     case OpClass::RV32A:
+        ProcessRV32A(op);
+        break;
     case OpClass::RV64A:
-        ProcessRVA(op);
+        ProcessRV64A(op);
         break;
     case OpClass::RV32F:
     case OpClass::RV64F:
@@ -873,21 +875,15 @@ void Executor::ProcessRV32M(const Op& op)
     m_pIntRegFile->WriteInt32(std::get<OperandR>(op.operand).rd, dst);
 }
 
-void Executor::ProcessRVA(const Op& op)
+void Executor::ProcessRV32A(const Op& op)
 {
     switch (op.opCode)
     {
     case OpCode::lr_w:
-        ProcessRVA_Load32(op);
-        break;
-    case OpCode::lr_d:
-        ProcessRVA_Load64(op);
+        ProcessRV32A_Load(op);
         break;
     case OpCode::sc_w:
-        ProcessRVA_Store32(op);
-        break;
-    case OpCode::sc_d:
-        ProcessRVA_Store64(op);
+        ProcessRV32A_Store(op);
         break;
     case OpCode::amoswap_w:
     case OpCode::amoadd_w:
@@ -898,18 +894,7 @@ void Executor::ProcessRVA(const Op& op)
     case OpCode::amomin_w:
     case OpCode::amomaxu_w:
     case OpCode::amominu_w:
-        ProcessRVA_Atomic32(op);
-        break;
-    case OpCode::amoswap_d:
-    case OpCode::amoadd_d:
-    case OpCode::amoxor_d:
-    case OpCode::amoand_d:
-    case OpCode::amoor_d:
-    case OpCode::amomax_d:
-    case OpCode::amomin_d:
-    case OpCode::amomaxu_d:
-    case OpCode::amominu_d:
-        ProcessRVA_Atomic64(op);
+        ProcessRV32A_Atomic(op);
         break;
     default:
         Error(op);
@@ -1427,6 +1412,49 @@ void Executor::ProcessRV64M(const Op& op)
     }
 
     m_pIntRegFile->WriteInt64(operand.rd, value);
+}
+
+void Executor::ProcessRV64A(const Op& op)
+{
+    switch (op.opCode)
+    {
+    case OpCode::lr_w:
+        ProcessRV64A_Load32(op);
+        break;
+    case OpCode::lr_d:
+        ProcessRV64A_Load64(op);
+        break;
+    case OpCode::sc_w:
+        ProcessRV64A_Store32(op);
+        break;
+    case OpCode::sc_d:
+        ProcessRV64A_Store64(op);
+        break;
+    case OpCode::amoswap_w:
+    case OpCode::amoadd_w:
+    case OpCode::amoxor_w:
+    case OpCode::amoand_w:
+    case OpCode::amoor_w:
+    case OpCode::amomax_w:
+    case OpCode::amomin_w:
+    case OpCode::amomaxu_w:
+    case OpCode::amominu_w:
+        ProcessRV64A_Atomic32(op);
+        break;
+    case OpCode::amoswap_d:
+    case OpCode::amoadd_d:
+    case OpCode::amoxor_d:
+    case OpCode::amoand_d:
+    case OpCode::amoor_d:
+    case OpCode::amomax_d:
+    case OpCode::amomin_d:
+    case OpCode::amomaxu_d:
+    case OpCode::amominu_d:
+        ProcessRV64A_Atomic64(op);
+        break;
+    default:
+        Error(op);
+    }
 }
 
 void Executor::ProcessRV64C(const Op& op, vaddr_t pc)
@@ -2827,7 +2855,7 @@ void Executor::ProcessRV64C_SWSP(const Op& op)
     m_pMemAccessUnit->StoreUInt32(address, value);
 }
 
-void Executor::ProcessRVA_Atomic32(const Op& op)
+void Executor::ProcessRV32A_Atomic(const Op& op)
 {
     m_pAtomicManager->Cancel();
 
@@ -2871,48 +2899,128 @@ void Executor::ProcessRVA_Atomic32(const Op& op)
         Error(op);
     }
 
-    m_pIntRegFile->WriteInt64(operand.rd, SignExtend<int64_t>(32, value));
+    m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessRVA_Atomic64(const Op& op)
+void Executor::ProcessRV32A_Load(const Op& op)
+{
+    const auto operand = std::get<OperandR>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
+
+    m_pAtomicManager->Reserve(address);
+
+    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    m_pIntRegFile->WriteInt32(operand.rd, value);
+}
+
+void Executor::ProcessRV32A_Store(const Op& op)
+{
+    const auto operand = std::get<OperandR>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    if (m_pAtomicManager->IsReserved() && m_pAtomicManager->GetReservedAddress() == address)
+    {
+        m_pMemAccessUnit->StoreUInt32(address, value);
+        m_pIntRegFile->WriteUInt32(operand.rd, 0);
+    }
+    else
+    {
+        m_pIntRegFile->WriteUInt32(operand.rd, 1);
+    }
+
+    m_pAtomicManager->Cancel();
+}
+
+void Executor::ProcessRV64A_Atomic32(const Op& op)
 {
     m_pAtomicManager->Cancel();
 
     const auto operand = std::get<OperandR>(op.operand);
 
-    const auto src1 = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
+    const auto src2 = m_pIntRegFile->ReadUInt32(operand.rs2);
+
+    auto value = m_pMemAccessUnit->LoadUInt32(address);
+
+    switch (op.opCode)
+    {
+    case OpCode::amoswap_w:
+        m_pMemAccessUnit->StoreUInt32(address, src2);
+        break;
+    case OpCode::amoadd_w:
+        m_pMemAccessUnit->StoreUInt32(address, value + src2);
+        break;
+    case OpCode::amoxor_w:
+        m_pMemAccessUnit->StoreUInt32(address, value ^ src2);
+        break;
+    case OpCode::amoand_w:
+        m_pMemAccessUnit->StoreUInt32(address, value & src2);
+        break;
+    case OpCode::amoor_w:
+        m_pMemAccessUnit->StoreUInt32(address, value | src2);
+        break;
+    case OpCode::amomax_w:
+        m_pMemAccessUnit->StoreUInt32(address, std::max(static_cast<int32_t>(value), static_cast<int32_t>(src2)));
+        break;
+    case OpCode::amomin_w:
+        m_pMemAccessUnit->StoreUInt32(address, std::min(static_cast<int32_t>(value), static_cast<int32_t>(src2)));
+        break;
+    case OpCode::amomaxu_w:
+        m_pMemAccessUnit->StoreUInt32(address, std::max(value, src2));
+        break;
+    case OpCode::amominu_w:
+        m_pMemAccessUnit->StoreUInt32(address, std::min(value, src2));
+        break;
+    default:
+        Error(op);
+    }
+
+    m_pIntRegFile->WriteInt64(operand.rd, SignExtend<int64_t>(32, value));
+}
+
+void Executor::ProcessRV64A_Atomic64(const Op& op)
+{
+    m_pAtomicManager->Cancel();
+
+    const auto operand = std::get<OperandR>(op.operand);
+
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
     const auto src2 = m_pIntRegFile->ReadUInt64(operand.rs2);
 
-    auto value = m_pMemAccessUnit->LoadUInt64(src1);
+    auto value = m_pMemAccessUnit->LoadUInt64(address);
 
     switch (op.opCode)
     {
     case OpCode::amoswap_d:
-        m_pMemAccessUnit->StoreUInt64(src1, src2);
+        m_pMemAccessUnit->StoreUInt64(address, src2);
         break;
     case OpCode::amoadd_d:
-        m_pMemAccessUnit->StoreUInt64(src1, value + src2);
+        m_pMemAccessUnit->StoreUInt64(address, value + src2);
         break;
     case OpCode::amoxor_d:
-        m_pMemAccessUnit->StoreUInt64(src1, value ^ src2);
+        m_pMemAccessUnit->StoreUInt64(address, value ^ src2);
         break;
     case OpCode::amoand_d:
-        m_pMemAccessUnit->StoreUInt64(src1, value & src2);
+        m_pMemAccessUnit->StoreUInt64(address, value & src2);
         break;
     case OpCode::amoor_d:
-        m_pMemAccessUnit->StoreUInt64(src1, value | src2);
+        m_pMemAccessUnit->StoreUInt64(address, value | src2);
         break;
     case OpCode::amomax_d:
-        m_pMemAccessUnit->StoreUInt64(src1, std::max(static_cast<int64_t>(value), static_cast<int64_t>(src2)));
+        m_pMemAccessUnit->StoreUInt64(address, std::max(static_cast<int64_t>(value), static_cast<int64_t>(src2)));
         break;
     case OpCode::amomin_d:
-        m_pMemAccessUnit->StoreUInt64(src1, std::min(static_cast<int64_t>(value), static_cast<int64_t>(src2)));
+        m_pMemAccessUnit->StoreUInt64(address, std::min(static_cast<int64_t>(value), static_cast<int64_t>(src2)));
         break;
     case OpCode::amomaxu_d:
-        m_pMemAccessUnit->StoreUInt64(src1, std::max(value, src2));
+        m_pMemAccessUnit->StoreUInt64(address, std::max(value, src2));
         break;
     case OpCode::amominu_d:
-        m_pMemAccessUnit->StoreUInt64(src1, std::min(value, src2));
+        m_pMemAccessUnit->StoreUInt64(address, std::min(value, src2));
         break;
     default:
         Error(op);
@@ -2921,7 +3029,7 @@ void Executor::ProcessRVA_Atomic64(const Op& op)
     m_pIntRegFile->WriteUInt64(operand.rd, value);
 }
 
-void Executor::ProcessRVA_Load32(const Op& op)
+void Executor::ProcessRV64A_Load32(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
@@ -2934,7 +3042,7 @@ void Executor::ProcessRVA_Load32(const Op& op)
     m_pIntRegFile->WriteInt32(operand.rd, value);
 }
 
-void Executor::ProcessRVA_Load64(const Op& op)
+void Executor::ProcessRV64A_Load64(const Op& op)
 {
     m_pAtomicManager->Cancel();
 
@@ -2949,7 +3057,7 @@ void Executor::ProcessRVA_Load64(const Op& op)
     m_pIntRegFile->WriteInt64(operand.rd, value);
 }
 
-void Executor::ProcessRVA_Store32(const Op& op)
+void Executor::ProcessRV64A_Store32(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
@@ -2969,7 +3077,7 @@ void Executor::ProcessRVA_Store32(const Op& op)
     m_pAtomicManager->Cancel();
 }
 
-void Executor::ProcessRVA_Store64(const Op& op)
+void Executor::ProcessRV64A_Store64(const Op& op)
 {
     const auto operand = std::get<OperandR>(op.operand);
 
