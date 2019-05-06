@@ -297,6 +297,8 @@ add_executable(rafi-emu
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
     src/rafi-emu/io/IoInterruptSource.h
+    src/rafi-emu/io/Plic.cpp
+    src/rafi-emu/io/Plic.h
     src/rafi-emu/io/Uart.cpp
     src/rafi-emu/io/Uart.h
     src/rafi-emu/io/Uart16550.cpp

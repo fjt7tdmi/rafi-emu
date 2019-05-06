@@ -23,9 +23,10 @@ System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     : m_Bus()
     , m_Ram(ramSize)
     , m_Clint()
+    , m_Plic()
     , m_Uart()
     , m_Timer()
-    , m_ExternalInterruptSource(&m_Uart)
+    , m_ExternalInterruptSource(&m_Plic)
     , m_TimerInterruptSource(&m_Clint)
     , m_Processor(xlen, &m_Bus, pc)
 {
@@ -33,6 +34,7 @@ System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     m_Bus.RegisterMemory(&m_Rom, AddrRom, m_Rom.GetCapacity());
 
     m_Bus.RegisterIo(&m_Clint, AddrClint, m_Clint.GetSize());
+    m_Bus.RegisterIo(&m_Plic, AddrPlic, m_Plic.GetSize());
     m_Bus.RegisterIo(&m_Uart16550, AddrUart16550, m_Uart16550.GetSize());
     m_Bus.RegisterIo(&m_Uart, AddrUart, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, AddrTimer, m_Timer.GetSize());
