@@ -351,7 +351,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64_Load(const Op& op, vaddr_t pc) co
 std::optional<Trap> Executor::PreCheckTrapRV64_LoadReserved(const Op& op, vaddr_t pc) const
 {
     const auto& operand = std::get<OperandR>(op.operand);
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1);
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1);
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
