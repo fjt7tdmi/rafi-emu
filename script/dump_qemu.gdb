@@ -2,7 +2,7 @@
 target remote :8080
 
 # number of instructions to execute
-set $count = 1000
+set $count = 175000
 
 set logging file work/gdb/qemu.log
 set $i = 0
