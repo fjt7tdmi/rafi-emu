@@ -629,7 +629,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C_LW(const Op& op, vaddr_t pc) con
 {
     const auto& operand = std::get<OperandCL>(op.operand);
 
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Load, pc, address);
 }
@@ -665,7 +665,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C_SW(const Op& op, vaddr_t pc) con
 {
     const auto& operand = std::get<OperandCS>(op.operand);
 
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
@@ -674,7 +674,7 @@ std::optional<Trap> Executor::PreCheckTrapRV64C_SWSP(const Op& op, vaddr_t pc) c
 {
     const auto& operand = std::get<OperandCSS>(op.operand);
 
-    const auto address = ReadStackPointer32() + operand.imm;
+    const auto address = ReadStackPointer64() + operand.imm;
 
     return m_pMemAccessUnit->CheckTrap(MemoryAccessType::Store, pc, address);
 }
@@ -2771,7 +2771,7 @@ void Executor::ProcessRV64C_LW(const Op& op)
 {
     const auto& operand = std::get<OperandCL>(op.operand);
 
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
     const auto value = SignExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
 
     m_pIntRegFile->WriteUInt64(operand.rd, value);
@@ -2811,7 +2811,7 @@ void Executor::ProcessRV64C_SW(const Op& op)
 {
     const auto& operand = std::get<OperandCS>(op.operand);
 
-    const auto address = m_pIntRegFile->ReadUInt32(operand.rs1) + operand.imm;
+    const auto address = m_pIntRegFile->ReadUInt64(operand.rs1) + operand.imm;
     const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
 
     m_pMemAccessUnit->StoreUInt32(address, value);
@@ -2821,7 +2821,7 @@ void Executor::ProcessRV64C_SWSP(const Op& op)
 {
     const auto& operand = std::get<OperandCSS>(op.operand);
 
-    const auto address = ReadStackPointer32() + operand.imm;
+    const auto address = ReadStackPointer64() + operand.imm;
     const auto value = m_pIntRegFile->ReadUInt32(operand.rs2);
 
     m_pMemAccessUnit->StoreUInt32(address, value);
