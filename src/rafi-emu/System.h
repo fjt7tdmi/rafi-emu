@@ -17,6 +17,7 @@
 #pragma once
 
 #include "io/IoInterruptSource.h"
+#include "io/Clint.h"
 #include "io/Uart.h"
 #include "io/Uart16550.h"
 #include "io/Timer.h"
@@ -75,6 +76,7 @@ private:
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;
+    io::Clint m_Clint;
     io::Uart m_Uart;
     io::Uart16550 m_Uart16550;
     io::Timer m_Timer;

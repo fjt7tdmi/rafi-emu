@@ -292,6 +292,8 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/io/Clint.cpp
+    src/rafi-emu/io/Clint.h
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
     src/rafi-emu/io/IoInterruptSource.h
