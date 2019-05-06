@@ -17,7 +17,10 @@
 #pragma once
 
 #include "io/IoInterruptSource.h"
+#include "io/Clint.h"
+#include "io/Plic.h"
 #include "io/Uart.h"
+#include "io/Uart16550.h"
 #include "io/Timer.h"
 #include "mem/Ram.h"
 #include "mem/Rom.h"
@@ -64,10 +67,25 @@ public:
     void PrintStatus() const;
 
 private:
+    static const paddr_t AddrRom = 0x00001000;
+    static const paddr_t AddrRam = 0x80000000;
+
+    // E31 compatible IOs
+    static const paddr_t AddrClint      = 0x02000000;
+    static const paddr_t AddrPlic       = 0x0c000000;
+    static const paddr_t AddrUart16550  = 0x10000000;
+
+    // IOs for zephyr
+    static const paddr_t AddrUart   = 0x40002000;
+    static const paddr_t AddrTimer  = 0x40000000;
+
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;
+    io::Clint m_Clint;
+    io::Plic m_Plic;
     io::Uart m_Uart;
+    io::Uart16550 m_Uart16550;
     io::Timer m_Timer;
 
     io::IoInterruptSource m_ExternalInterruptSource;

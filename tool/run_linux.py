@@ -29,7 +29,7 @@ FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
 
-DefaultCycle = 50000
+DefaultCycle = 10000000
 
 #
 # Functions
@@ -91,7 +91,7 @@ def RunDump(config):
     pc_log_path = f"{TraceDirPath}/linux.pc.log"
     gdb_log_path = f"{TraceDirPath}/linux.gdb.log"
 
-    cmd_dump_pc = [ DumpPcPath, f"{TraceDirPath}/linux.trace.bin" ]
+    cmd_dump_pc = [ DumpPcPath, "--virtual", f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd_dump_pc)
     with open(pc_log_path, 'w') as f:
         subprocess.run(cmd_dump_pc, stdout=f).returncode

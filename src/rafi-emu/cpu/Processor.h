@@ -42,6 +42,10 @@ public:
     void RegisterExternalInterruptSource(IInterruptSource* pInterruptSource);
     void RegisterTimerInterruptSource(IInterruptSource* pInterruptSource);
 
+    // for clint and plic
+    xip_t ReadInterruptPending() const;
+    void WriteInterruptPending(const xip_t& value);
+
     // Process
     void ProcessOneCycle();
 

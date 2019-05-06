@@ -106,13 +106,14 @@ private:
     // Process
     void ProcessRV32I(const Op& op, vaddr_t pc);
     void ProcessRV32M(const Op& op);
+    void ProcessRV32A(const Op& op);
     void ProcessRV32C(const Op& op, vaddr_t pc);
 
     void ProcessRV64I(const Op& op, vaddr_t pc);
     void ProcessRV64M(const Op& op);
+    void ProcessRV64A(const Op& op);
     void ProcessRV64C(const Op& op, vaddr_t pc);
 
-    void ProcessRVA(const Op& op);
     void ProcessRVF(const Op& op);
     void ProcessRVD(const Op& op);
 
@@ -196,12 +197,16 @@ private:
     void ProcessRV64C_SWSP(const Op& op);
 
     // RV32A / RV64A
-    void ProcessRVA_Atomic32(const Op& op);
-    void ProcessRVA_Atomic64(const Op& op);
-    void ProcessRVA_Load32(const Op& op);
-    void ProcessRVA_Load64(const Op& op);
-    void ProcessRVA_Store32(const Op& op);
-    void ProcessRVA_Store64(const Op& op);
+    void ProcessRV32A_Atomic(const Op& op);
+    void ProcessRV32A_Load(const Op& op);
+    void ProcessRV32A_Store(const Op& op);
+
+    void ProcessRV64A_Atomic32(const Op& op);
+    void ProcessRV64A_Atomic64(const Op& op);
+    void ProcessRV64A_Load32(const Op& op);
+    void ProcessRV64A_Load64(const Op& op);
+    void ProcessRV64A_Store32(const Op& op);
+    void ProcessRV64A_Store64(const Op& op);
 
     // RV32F / RV64F
     void ProcessRVF_MulAdd(const Op& op);

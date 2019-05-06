@@ -52,6 +52,16 @@ void Processor::SetIntReg(int regId, uint32_t regValue)
     m_IntRegFile.WriteUInt32(regId, regValue);
 }
 
+xip_t Processor::ReadInterruptPending() const
+{
+    return m_Csr.ReadInterruptPending();
+}
+
+void Processor::WriteInterruptPending(const xip_t& value)
+{
+    m_Csr.WriteInterruptPending(value);
+}
+
 void Processor::ProcessOneCycle()
 {
     ClearOpEvent();

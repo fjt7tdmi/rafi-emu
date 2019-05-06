@@ -270,7 +270,6 @@ add_executable(rafi-emu
     include/rafi/emu/Exception.h
     include/rafi/emu/IInterruptSource.h
     include/rafi/emu/Macro.h
-    include/rafi/emu/MemoryMap.h
     src/rafi-emu/cpu/AtomicManager.cpp
     src/rafi-emu/cpu/AtomicManager.h
     src/rafi-emu/bus/Bus.cpp
@@ -293,12 +292,17 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/io/Clint.cpp
+    src/rafi-emu/io/Clint.h
     src/rafi-emu/io/IIo.h
     src/rafi-emu/io/IoInterruptSource.cpp
     src/rafi-emu/io/IoInterruptSource.h
+    src/rafi-emu/io/Plic.cpp
+    src/rafi-emu/io/Plic.h
     src/rafi-emu/io/Uart.cpp
     src/rafi-emu/io/Uart.h
-    src/rafi-emu/io/UartTypes.h
+    src/rafi-emu/io/Uart16550.cpp
+    src/rafi-emu/io/Uart16550.h
     src/rafi-emu/io/Timer.cpp
     src/rafi-emu/io/Timer.h
     src/rafi-emu/mem/IMemory.h
