@@ -2,14 +2,16 @@
 target remote :8080
 
 # number of instructions to execute
-set $count = 1000000
+set $count = 5000
 
-set logging file work/gdb/qemu.log
-set logging on
-
+set logging file work/gdb/qemu_full.log
 set $i = 0
 while $i < $count
-    info reg pc
+    set logging on
+    echo GDB [\n
+    info reg
+    echo ]\n
+    set logging off
     stepi
     set $i = $i + 1
 end
