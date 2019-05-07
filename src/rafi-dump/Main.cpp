@@ -79,7 +79,7 @@ void PrintFpRegNode(const FpRegNode* node)
     for (int i = 0; i < 32; i++)
     {
         printf(
-            "    f%-2d: { u64: 0x0x%016llx, f32: %e, f64: %e } // %s\n",
+            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
             i,
             static_cast<unsigned long long>(node->regs[i].u64.value),
             node->regs[i].f32.value,
@@ -167,38 +167,38 @@ void PrintIntReg64Node(const IntReg64Node* node)
 {
     printf(
         "  IntReg64: {\n"
-        "    x0:  0x0x%016llx // zero\n"
-        "    x1:  0x0x%016llx // ra\n"
-        "    x2:  0x0x%016llx // sp\n"
-        "    x3:  0x0x%016llx // gp\n"
-        "    x4:  0x0x%016llx // tp\n"
-        "    x5:  0x0x%016llx // t0\n"
-        "    x6:  0x0x%016llx // t1\n"
-        "    x7:  0x0x%016llx // t2\n"
-        "    x8:  0x0x%016llx // s0 (fp)\n"
-        "    x9:  0x0x%016llx // s1\n"
-        "    x10: 0x0x%016llx // a0\n"
-        "    x11: 0x0x%016llx // a1\n"
-        "    x12: 0x0x%016llx // a2\n"
-        "    x13: 0x0x%016llx // a3\n"
-        "    x14: 0x0x%016llx // a4\n"
-        "    x15: 0x0x%016llx // a5\n"
-        "    x16: 0x0x%016llx // a6\n"
-        "    x17: 0x0x%016llx // a7\n"
-        "    x18: 0x0x%016llx // s2\n"
-        "    x19: 0x0x%016llx // s3\n"
-        "    x20: 0x0x%016llx // s4\n"
-        "    x21: 0x0x%016llx // s5\n"
-        "    x22: 0x0x%016llx // s6\n"
-        "    x23: 0x0x%016llx // s7\n"
-        "    x24: 0x0x%016llx // s8\n"
-        "    x25: 0x0x%016llx // s9\n"
-        "    x26: 0x0x%016llx // s10\n"
-        "    x27: 0x0x%016llx // s11\n"
-        "    x28: 0x0x%016llx // t3\n"
-        "    x29: 0x0x%016llx // t4\n"
-        "    x30: 0x0x%016llx // t5\n"
-        "    x31: 0x0x%016llx // t6\n"
+        "    x0:  0x%016llx // zero\n"
+        "    x1:  0x%016llx // ra\n"
+        "    x2:  0x%016llx // sp\n"
+        "    x3:  0x%016llx // gp\n"
+        "    x4:  0x%016llx // tp\n"
+        "    x5:  0x%016llx // t0\n"
+        "    x6:  0x%016llx // t1\n"
+        "    x7:  0x%016llx // t2\n"
+        "    x8:  0x%016llx // s0 (fp)\n"
+        "    x9:  0x%016llx // s1\n"
+        "    x10: 0x%016llx // a0\n"
+        "    x11: 0x%016llx // a1\n"
+        "    x12: 0x%016llx // a2\n"
+        "    x13: 0x%016llx // a3\n"
+        "    x14: 0x%016llx // a4\n"
+        "    x15: 0x%016llx // a5\n"
+        "    x16: 0x%016llx // a6\n"
+        "    x17: 0x%016llx // a7\n"
+        "    x18: 0x%016llx // s2\n"
+        "    x19: 0x%016llx // s3\n"
+        "    x20: 0x%016llx // s4\n"
+        "    x21: 0x%016llx // s5\n"
+        "    x22: 0x%016llx // s6\n"
+        "    x23: 0x%016llx // s7\n"
+        "    x24: 0x%016llx // s8\n"
+        "    x25: 0x%016llx // s9\n"
+        "    x26: 0x%016llx // s10\n"
+        "    x27: 0x%016llx // s11\n"
+        "    x28: 0x%016llx // t3\n"
+        "    x29: 0x%016llx // t4\n"
+        "    x30: 0x%016llx // t5\n"
+        "    x31: 0x%016llx // t6\n"
         "  }\n",
         static_cast<unsigned long long>(node->regs[0]),
         static_cast<unsigned long long>(node->regs[1]),
@@ -251,8 +251,8 @@ void PrintPc64Node(const Pc64Node* node)
 {
     printf(
         "  Pc64 {\n"
-        "    vaddr: 0x0x%016llx\n"
-        "    paddr: 0x0x%016llx\n"
+        "    vaddr: 0x%016llx\n"
+        "    paddr: 0x%016llx\n"
         "  }\n",
         static_cast<unsigned long long>(node->virtualPc),
         static_cast<unsigned long long>(node->physicalPc)
@@ -285,7 +285,7 @@ void PrintTrap64Node(const Trap64Node* node)
         "    from:  %s\n"
         "    to:    %s\n"
         "    cause: %s\n"
-        "    trapValue: 0x0x%016llx\n"
+        "    trapValue: 0x%016llx\n"
         "  }\n",
         GetString(node->trapType),
         GetString(node->from),
@@ -301,9 +301,9 @@ void PrintMemoryAccessNode(const MemoryAccessNode* node)
         "  MemoryAccess {\n"
         "    accessType: %s\n"
         "    size: %d // byte\n"
-        "    value: 0x0x%016llx\n"
-        "    vaddr: 0x0x%016llx\n"
-        "    paddr: 0x0x%016llx\n"
+        "    value: 0x%016llx\n"
+        "    vaddr: 0x%016llx\n"
+        "    paddr: 0x%016llx\n"
         "  }\n",
         GetString(node->accessType),
         node->size,
@@ -333,7 +333,7 @@ void PrintCsr64Node(const Csr64Node* pNodes, int64_t nodeCount)
     for (int64_t i = 0; i < nodeCount; i++)
     {
         const auto address = static_cast<csr_addr_t>(pNodes[i].address);
-        printf("%16s: 0x0x%016llx\n", GetString(address), static_cast<unsigned long long>(pNodes[i].value));
+        printf("%16s: 0x%016llx\n", GetString(address), static_cast<unsigned long long>(pNodes[i].value));
     }
 
     printf("  }\n");
