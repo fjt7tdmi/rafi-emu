@@ -45,8 +45,8 @@ private:
 
     // Register address
     static const int ADDR_MSIP = 0x0;
-    static const int ADDR_MTIME = 0x4000;
-    static const int ADDR_MTIMECMP = 0xbff8;
+    static const int ADDR_MTIMECMP = 0x4000;
+    static const int ADDR_MTIME = 0xbff8;
 
     cpu::Processor* m_pProcessor;
 
