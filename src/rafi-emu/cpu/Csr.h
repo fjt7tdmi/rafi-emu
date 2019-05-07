@@ -54,10 +54,12 @@ public:
     xie_t ReadInterruptEnable() const;
     xstatus_t ReadStatus() const;
     satp_t ReadSatp() const;
+    uint64_t ReadTime() const;
 
     void WriteFpCsr(const fcsr_t& value);
     void WriteInterruptPending(const xip_t& value);
     void WriteStatus(const xstatus_t& value);
+    void WriteTime(uint64_t value);
 
     // for Dump
     int GetRegCount() const;

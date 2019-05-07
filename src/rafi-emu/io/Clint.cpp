@@ -34,11 +34,7 @@ void Clint::Read(void* pOutBuffer, size_t size, uint64_t address)
         ReadMsip(pOutBuffer, size);
         break;
     case ADDR_MTIME:
-        if (size > sizeof(m_Time))
-        {
-            RAFI_EMU_ERROR("[Clint] Read size (%zd byte) for mtime is invalid.\n", size);
-        }
-        std::memcpy(pOutBuffer, &m_Time, size);
+        ReadTime(pOutBuffer, size);
         break;
     case ADDR_MTIMECMP:
         if (size > sizeof(m_TimeCmp))
@@ -62,11 +58,7 @@ void Clint::Write(const void* pBuffer, size_t size, uint64_t address)
         WriteMsip(pBuffer, size);
         break;
     case ADDR_MTIME:
-        if (size > sizeof(m_Time))
-        {
-            RAFI_EMU_ERROR("[Clint] Write size (%zd byte) for mtime is invalid.\n", size);
-        }
-        std::memcpy(&m_Time, pBuffer, size);
+        WriteTime(pBuffer, size);
         break;
     case ADDR_MTIMECMP:
         if (size > sizeof(m_TimeCmp))
@@ -89,12 +81,11 @@ int Clint::GetSize() const
 // For software interrupt, clint modifies csr directly.
 bool Clint::IsInterruptRequested() const
 {
-    return m_Time >= m_TimeCmp;
+    return m_pProcessor->ReadTime() >= m_TimeCmp;
 }
 
 void Clint::ProcessCycle()
 {
-    m_Time++;
 }
 
 void Clint::RegisterProcessor(cpu::Processor* pProcessor)
@@ -115,6 +106,18 @@ void Clint::ReadMsip(void* pOutBuffer, size_t size)
     std::memcpy(pOutBuffer, &value, size);
 }
 
+void Clint::ReadTime(void* pOutBuffer, size_t size)
+{
+    const auto value = m_pProcessor->ReadTime();
+
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("[Clint] Read size (%zd byte) for mtime is invalid .\n", size);
+    }
+
+    std::memcpy(pOutBuffer, &value, size);
+}
+
 void Clint::WriteMsip(const void* pBuffer, size_t size)
 {
     uint32_t value;
@@ -129,6 +132,20 @@ void Clint::WriteMsip(const void* pBuffer, size_t size)
     auto mip = m_pProcessor->ReadInterruptPending();
     mip.SetMember<xip_t::MSIP>(value & 0x1);
     m_pProcessor->WriteInterruptPending(mip);
+}
+
+void Clint::WriteTime(const void* pBuffer, size_t size)
+{
+    uint64_t value;
+
+    if (size != sizeof(value))
+    {
+        RAFI_EMU_ERROR("[Clint] Write size (%zd byte) for mtime is invalid .\n", size);
+    }
+
+    std::memcpy(&value, pBuffer, size);
+
+    m_pProcessor->WriteTime(value);
 }
 
 }}}

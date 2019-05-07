@@ -39,7 +39,9 @@ public:
 
 private:
     void ReadMsip(void* pOutBuffer, size_t size);
+    void ReadTime(void* pOutBuffer, size_t size);
     void WriteMsip(const void* pBuffer, size_t size);
+    void WriteTime(const void* pBuffer, size_t size);
 
     static const int RegisterSpaceSize = 0x10000;
 
@@ -50,7 +52,6 @@ private:
 
     cpu::Processor* m_pProcessor;
 
-    uint64_t m_Time{ 0 };
     uint64_t m_TimeCmp{ 0 };
 };
 
