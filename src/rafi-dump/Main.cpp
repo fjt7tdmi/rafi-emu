@@ -37,15 +37,16 @@ namespace po = boost::program_options;
 
 namespace {
 
-const char* GetCauseString(uint32_t cause)
+const char* GetCauseString(TrapType trapType, uint32_t cause)
 {
-    if (((cause >> 31) & 0x1) != 0)
+    switch (trapType)
     {
-        return GetString(static_cast<InterruptType>(cause));
-    }
-    else
-    {
+    case TrapType::Exception:
         return GetString(static_cast<ExceptionType>(cause));
+    case TrapType::Interrupt:
+        return GetString(static_cast<InterruptType>(cause));
+    default:
+        return "";
     }
 }
 
@@ -272,7 +273,7 @@ void PrintTrap32Node(const Trap32Node* node)
         GetString(node->trapType),
         GetString(node->from),
         GetString(node->to),
-        GetCauseString(node->cause),
+        GetCauseString(node->trapType, node->cause),
         node->trapValue
     );
 }
@@ -290,7 +291,7 @@ void PrintTrap64Node(const Trap64Node* node)
         GetString(node->trapType),
         GetString(node->from),
         GetString(node->to),
-        GetCauseString(node->cause),
+        GetCauseString(node->trapType, node->cause),
         static_cast<unsigned long long>(node->trapValue)
     );
 }
