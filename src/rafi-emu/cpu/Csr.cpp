@@ -200,7 +200,7 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
     {
         return MakeIllegalInstructionException(pc, insn);
     }
-    
+
     // Performance Counter
     if ((csr_addr_t::hpmcounter_begin <= addr && addr < csr_addr_t::hpmcounter_end) ||
         (csr_addr_t::hpmcounterh_begin <= addr && addr < csr_addr_t::hpmcounterh_end))
@@ -822,9 +822,9 @@ int Csr::GetRegCount() const
 
 void Csr::Copy(trace::Csr32Node* pOutNodes, int nodeCount) const
 {
-    assert(nodeCount != GetRegCount());
+    assert(nodeCount == GetRegCount());
 
-    for (int i = 0; i < GetRegCount(); i++)
+    for (int i = 0; i < nodeCount; i++)
     {
         pOutNodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
         pOutNodes[i].value = ReadUInt32(DumpAddresses[i]);
@@ -833,9 +833,9 @@ void Csr::Copy(trace::Csr32Node* pOutNodes, int nodeCount) const
 
 void Csr::Copy(trace::Csr64Node* pOutNodes, int nodeCount) const
 {
-    assert(nodeCount != GetRegCount());
+    assert(nodeCount == GetRegCount());
 
-    for (int i = 0; i < GetRegCount(); i++)
+    for (int i = 0; i < nodeCount; i++)
     {
         pOutNodes[i].address = static_cast<uint32_t>(DumpAddresses[i]);
         pOutNodes[i].value = ReadUInt64(DumpAddresses[i]);

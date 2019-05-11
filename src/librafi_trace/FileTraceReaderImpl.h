@@ -24,7 +24,7 @@
 
 namespace rafi { namespace trace {
 
-class FileTraceReaderImpl
+class FileTraceReaderImpl final
 {
 public:
     FileTraceReaderImpl(const char* path);
@@ -40,10 +40,21 @@ public:
     void MoveToPreviousCycle();
 
 private:
-    MemoryTraceReaderImpl* m_pMemoryTraceReader;
+    void UpdateCycleData();
 
-    char* m_pBuffer;
-    int64_t m_BufferSize;
+    CycleHeader GetCurrentCycleHeader();
+    CycleFooter GetPreviousCycleFooter();
+
+    void CheckBufferSize();
+    void CheckOffset(int64_t offset);
+
+    std::ifstream* m_pStream;
+
+    int64_t m_FileSize{ 0 };
+    int64_t m_Offset{ 0 };
+
+    char* m_pCycleData{ nullptr };
+    int64_t m_CycleDataSize{ 0 };
 };
 
 }}

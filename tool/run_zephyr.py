@@ -17,13 +17,13 @@ import os
 import subprocess
 
 if os.name == "nt":
-    DumpPath = "./build/Debug/rafi-dump.exe"
-    DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
-    EmulatorPath = "./build/Debug/rafi-emu.exe"
+    DumpPath = "./build_Debug/Debug/rafi-dump.exe"
+    DumpPcPath = "./build_Debug/Debug/rafi-dump-pc.exe"
+    EmulatorPath = "./build_Debug/Debug/rafi-emu.exe"
 else:
-    DumpPath = "./build/rafi-dump"
-    DumpPcPath = "./build/rafi-dump-pc"
-    EmulatorPath = "./build/rafi-emu"
+    DumpPath = "./build_Debug/rafi-dump"
+    DumpPcPath = "./build_Debug/rafi-dump-pc"
+    EmulatorPath = "./build_Debug/rafi-emu"
 
 BinaryDirPath = "./work/zephyr"
 TraceDirPath = "./work/zephyr/trace"
