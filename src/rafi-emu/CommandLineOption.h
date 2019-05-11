@@ -44,6 +44,8 @@ public:
 
     bool IsDumpEnabled() const;
     bool IsDumpCsrEnabled() const;
+    bool IsDumpFpRegEnabled() const;
+    bool IsDumpIntRegEnabled() const;
     bool IsDumpMemoryEnabled() const;
     bool IsHostIoEnabled() const;
 
@@ -81,6 +83,8 @@ private:
 
     bool m_DumpEnabled {false};
     bool m_DumpCsrEnabled {false};
+    bool m_DumpFpRegEnabled {false};
+    bool m_DumpIntRegEnabled {false};
     bool m_DumpMemoryEnabled {false};
     bool m_HostIoEnabled {false};
 };

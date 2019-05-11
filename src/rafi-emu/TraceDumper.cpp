@@ -51,6 +51,16 @@ void TraceDumper::EnableDumpCsr()
     m_EnableDumpCsr = true;
 }
 
+void TraceDumper::EnableDumpFpReg()
+{
+    m_EnableDumpFpReg = true;
+}
+
+void TraceDumper::EnableDumpIntReg()
+{
+    m_EnableDumpIntReg = true;
+}
+
 void TraceDumper::EnableDumpMemory()
 {
     m_EnableDumpMemory = true;
@@ -93,8 +103,6 @@ void TraceDumper::DumpCycle32(int cycle)
     CycleConfig config;
     config.SetNodeCount(NodeType::BasicInfo, 1);
     config.SetNodeCount(NodeType::Pc32, 1);
-    config.SetNodeCount(NodeType::IntReg32, 1);
-    config.SetNodeCount(NodeType::FpReg, 1);
 
     if (m_pSystem->IsTrapEventExist())
     {
@@ -107,12 +115,18 @@ void TraceDumper::DumpCycle32(int cycle)
     {
         config.SetNodeCount(NodeType::Csr32, 1);
     }
-
+    if (m_EnableDumpFpReg)
+    {
+        config.SetNodeCount(NodeType::FpReg, 1);
+    }
+    if (m_EnableDumpIntReg)
+    {
+        config.SetNodeCount(NodeType::IntReg32, 1);
+    }
     if (m_EnableDumpMemory)
     {
         config.SetNodeCount(NodeType::Memory, 1);
     }
-
     if (m_EnableDumpHostIo)
     {
         config.SetNodeCount(NodeType::Io, 1);
@@ -146,18 +160,22 @@ void TraceDumper::DumpCycle32(int cycle)
     builder.SetNode(pc32Node);
 
     // IntReg32Node
-    IntReg32Node intRegNode;
+    if (m_EnableDumpIntReg)
+    {
+        IntReg32Node intRegNode;
+        m_pSystem->CopyIntReg(&intRegNode);
 
-    m_pSystem->CopyIntReg(&intRegNode);
-
-    builder.SetNode(intRegNode);
+        builder.SetNode(intRegNode);
+    }
 
     // FpRegNode
-    FpRegNode fpRegNode;
+    if (m_EnableDumpFpReg)
+    {
+        FpRegNode fpRegNode;
+        m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
 
-    m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
-
-    builder.SetNode(fpRegNode);
+        builder.SetNode(fpRegNode);
+    }
 
     // Trap32Node
     if (m_pSystem->IsTrapEventExist())
@@ -232,8 +250,6 @@ void TraceDumper::DumpCycle64(int cycle)
     CycleConfig config;
     config.SetNodeCount(NodeType::BasicInfo, 1);
     config.SetNodeCount(NodeType::Pc64, 1);
-    config.SetNodeCount(NodeType::IntReg64, 1);
-    config.SetNodeCount(NodeType::FpReg, 1);
 
     if (m_pSystem->IsTrapEventExist())
     {
@@ -242,16 +258,22 @@ void TraceDumper::DumpCycle64(int cycle)
 
     config.SetNodeCount(NodeType::MemoryAccess, static_cast<int>(m_pSystem->GetMemoryAccessEventCount()));
 
+    if (m_EnableDumpFpReg)
+    {
+        config.SetNodeCount(NodeType::FpReg, 1);
+    }
+    if (m_EnableDumpIntReg)
+    {
+        config.SetNodeCount(NodeType::IntReg64, 1);
+    }
     if (m_EnableDumpCsr)
     {
         config.SetNodeCount(NodeType::Csr64, 1);
     }
-
     if (m_EnableDumpMemory)
     {
         config.SetNodeCount(NodeType::Memory, 1);
     }
-
     if (m_EnableDumpHostIo)
     {
         config.SetNodeCount(NodeType::Io, 1);
@@ -285,18 +307,22 @@ void TraceDumper::DumpCycle64(int cycle)
     builder.SetNode(pc64Node);
 
     // IntReg64Node
-    IntReg64Node intRegNode;
+    if (m_EnableDumpIntReg)
+    {
+        IntReg64Node intRegNode;
+        m_pSystem->CopyIntReg(&intRegNode);
 
-    m_pSystem->CopyIntReg(&intRegNode);
-
-    builder.SetNode(intRegNode);
+        builder.SetNode(intRegNode);
+    }
 
     // FpRegNode
-    FpRegNode fpRegNode;
+    if (m_EnableDumpFpReg)
+    {
+        FpRegNode fpRegNode;
+        m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
 
-    m_pSystem->CopyFpReg(&fpRegNode, sizeof(fpRegNode));
-
-    builder.SetNode(fpRegNode);
+        builder.SetNode(fpRegNode);
+    }
 
     // Trap64Node
     if (m_pSystem->IsTrapEventExist())

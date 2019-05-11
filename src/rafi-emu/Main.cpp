@@ -58,6 +58,14 @@ int main(int argc, char** argv)
     {
         dumper.EnableDumpCsr();
     }
+    if (option.IsDumpFpRegEnabled())
+    {
+        dumper.EnableDumpFpReg();
+    }
+    if (option.IsDumpIntRegEnabled())
+    {
+        dumper.EnableDumpIntReg();
+    }
     if (option.IsDumpMemoryEnabled())
     {
         dumper.EnableDumpMemory();

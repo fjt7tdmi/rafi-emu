@@ -32,6 +32,8 @@ public:
 
     void EnableDump();
     void EnableDumpCsr();
+    void EnableDumpFpReg();
+    void EnableDumpIntReg();
     void EnableDumpMemory();
     void EnableDumpHostIo();
 
@@ -57,6 +59,8 @@ private:
     XLEN m_XLEN;
     bool m_Enabled {false};
     bool m_EnableDumpCsr {false};
+    bool m_EnableDumpFpReg {false};
+    bool m_EnableDumpIntReg {false};
     bool m_EnableDumpMemory {false};
     bool m_EnableDumpHostIo {false};
 };
