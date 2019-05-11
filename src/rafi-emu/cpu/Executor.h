@@ -167,7 +167,7 @@ private:
     void ProcessRV32C_FSWSP(const Op& op);
     void ProcessRV32C_J(const Op& op, vaddr_t pc);
     void ProcessRV32C_JAL(const Op& op, vaddr_t pc);
-    void ProcessRV32C_JR(const Op& op);
+    void ProcessRV32C_JR(const Op& op, vaddr_t pc);
     void ProcessRV32C_JALR(const Op& op, vaddr_t pc);
     void ProcessRV32C_LW(const Op& op);
     void ProcessRV32C_LWSP(const Op& op);
@@ -185,7 +185,7 @@ private:
     void ProcessRV64C_FSD(const Op& op);
     void ProcessRV64C_FSDSP(const Op& op);
     void ProcessRV64C_J(const Op& op, vaddr_t pc);
-    void ProcessRV64C_JR(const Op& op);
+    void ProcessRV64C_JR(const Op& op, vaddr_t pc);
     void ProcessRV64C_JALR(const Op& op, vaddr_t pc);
     void ProcessRV64C_LD(const Op& op);
     void ProcessRV64C_LDSP(const Op& op);
