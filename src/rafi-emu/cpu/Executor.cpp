@@ -3133,9 +3133,9 @@ void Executor::ProcessRV64A_Load32(const Op& op)
 
     m_pAtomicManager->Reserve(address);
 
-    const auto value = m_pMemAccessUnit->LoadUInt32(address);
+    const auto value = SignExtend<uint64_t>(32, m_pMemAccessUnit->LoadUInt32(address));
 
-    m_pIntRegFile->WriteInt32(operand.rd, value);
+    m_pIntRegFile->WriteInt64(operand.rd, value);
 }
 
 void Executor::ProcessRV64A_Load64(const Op& op)
