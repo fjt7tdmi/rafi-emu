@@ -35,6 +35,7 @@ PcLogger::~PcLogger()
 {
     if (m_pFile != nullptr)
     {
+        std::fflush(m_pFile);
         std::fclose(m_pFile);
         m_pFile = nullptr;
     }
