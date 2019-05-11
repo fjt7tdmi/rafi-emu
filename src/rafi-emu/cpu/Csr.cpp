@@ -327,6 +327,11 @@ satp_t Csr::ReadSatp() const
     return m_SupervisorAddressTranslationProtection;
 }
 
+uint64_t Csr::ReadTime() const
+{
+    return m_TimeCounter;
+}
+
 void Csr::WriteFpCsr(const fcsr_t& value)
 {
     m_FpCsr = value;
@@ -340,6 +345,11 @@ void Csr::WriteInterruptPending(const xip_t& value)
 void Csr::WriteStatus(const xstatus_t& value)
 {
     m_Status.SetWithMask(value, xstatus_t::WriteMask);
+}
+
+void Csr::WriteTime(uint64_t value)
+{
+    m_TimeCounter = value;
 }
 
 bool Csr::IsUserModeRegister(csr_addr_t addr) const

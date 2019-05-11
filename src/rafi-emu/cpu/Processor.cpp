@@ -62,6 +62,16 @@ void Processor::WriteInterruptPending(const xip_t& value)
     m_Csr.WriteInterruptPending(value);
 }
 
+uint64_t Processor::ReadTime() const
+{
+    return m_Csr.ReadTime();
+}
+
+void Processor::WriteTime(uint64_t value)
+{
+    m_Csr.WriteTime(value);
+}
+
 void Processor::ProcessOneCycle()
 {
     ClearOpEvent();

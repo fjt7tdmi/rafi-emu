@@ -46,6 +46,9 @@ public:
     xip_t ReadInterruptPending() const;
     void WriteInterruptPending(const xip_t& value);
 
+    uint64_t ReadTime() const;
+    void WriteTime(uint64_t value);
+
     // Process
     void ProcessOneCycle();
 

@@ -206,15 +206,15 @@ void InterruptController::UpdateCsr()
     {
         if ((mideleg >> static_cast<int>(InterruptType::MachineExternal)) == 0)
         {
-            pending.SetMember<xip_t::MTIP>(1);
+            pending.SetMember<xip_t::MEIP>(1);
         }
         else if ((sideleg >> static_cast<int>(InterruptType::SupervisorExternal)) == 0)
         {
-            pending.SetMember<xip_t::STIP>(1);
+            pending.SetMember<xip_t::SEIP>(1);
         }
         else
         {
-            pending.SetMember<xip_t::UTIP>(1);
+            pending.SetMember<xip_t::UEIP>(1);
         }
     }
 
