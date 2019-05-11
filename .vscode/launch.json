@@ -5,7 +5,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/rafi-emu",
+            "program": "${workspaceFolder}/build_Debug/rafi-emu",
             "args": [ "--help" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
