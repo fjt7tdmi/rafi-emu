@@ -56,21 +56,26 @@ def MakeEmulatorCommand(config):
     bbl_path = f"{BinaryDirPath}/bbl.bin"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
+    pc_log_path = f"{TraceDirPath}/linux.pc.log"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
 
     cmd = [
         GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
-        "--dump-skip-cycle", str(config['dump_skip_cycle']),
-        "--dump-path", trace_path,
         "--load", f"{rom_path}:0x1000",
         "--load", f"{bbl_path}:0x80000000",
         "--load", f"{vmlinux_path}:0x80200000",
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
         "--pc", "0x1000",
+        "--pc-log-path", pc_log_path,
         "--xlen", "64",
     ]
+    if config['dump']:
+        cmd.extend([
+            "--dump-path", trace_path,
+            "--dump-skip-cycle", str(config['dump_skip_cycle'])
+        ])
     if config['enable_dump_csr']:
         cmd.append("--enable-dump-csr")
     if config['enable_dump_memory']:
@@ -110,6 +115,7 @@ if __name__ == '__main__':
 
     config = {
         'cycle': options.cycle,
+        'dump': options.dump,
         'dump_skip_cycle': options.dump_skip_cycle,
         'enable_dump_csr': options.enable_dump_csr,
         'enable_dump_fp_reg': options.enable_dump_fp_reg,

@@ -31,19 +31,30 @@ using namespace rafi::trace;
 namespace rafi { namespace emu {
 
 TraceDumper::TraceDumper(XLEN xlen, const char* path, const System* pSystem)
-    : m_FileTraceWriter(path)
+    : m_XLEN(xlen)
+    , m_pPath(path)
     , m_pSystem(pSystem)
-    , m_XLEN(xlen)
 {
 }
 
 TraceDumper::~TraceDumper()
 {
+    if (m_pFileTraceWriter != nullptr)
+    {
+        delete m_pFileTraceWriter;
+        m_pFileTraceWriter = nullptr;
+    }
 }
 
 void TraceDumper::EnableDump()
 {
+    if (m_Enabled)
+    {
+        return;
+    }
+
     m_Enabled = true;
+    m_pFileTraceWriter = new FileTraceWriter(m_pPath);
 }
 
 void TraceDumper::EnableDumpCsr()
@@ -241,7 +252,7 @@ void TraceDumper::DumpCycle32(int cycle)
         builder.SetNode(ioNode);
     }
 
-    m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
+    m_pFileTraceWriter->Write(builder.GetData(), builder.GetDataSize());
 }
 
 void TraceDumper::DumpCycle64(int cycle)
@@ -387,7 +398,7 @@ void TraceDumper::DumpCycle64(int cycle)
         builder.SetNode(ioNode);
     }
 
-    m_FileTraceWriter.Write(builder.GetData(), builder.GetDataSize());
+    m_pFileTraceWriter->Write(builder.GetData(), builder.GetDataSize());
 }
 
 }}

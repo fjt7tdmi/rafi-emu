@@ -112,6 +112,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
         ("dtb-addr", po::value<std::string>(), "dtb address (hex)")
         ("pc", po::value<std::string>(), "initial program counter value (hex)")
+        ("pc-log-path", po::value<std::string>(), "path of PC log file")
         ("ram-size", po::value<size_t>(&m_RamSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("xlen", po::value<int>(), "XLEN");
 
@@ -133,12 +134,15 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         std::exit(0);
     }
 
+    m_HostIoEnabled = variables.count("host-io-addr") > 0;
+
+    m_PcLogEnabled = variables.count("pc-log-path") > 0;
+
     m_DumpEnabled = variables.count("dump-path") > 0;
     m_DumpCsrEnabled = variables.count("enable-dump-csr") > 0;
     m_DumpFpRegEnabled = variables.count("enable-dump-fp-reg") > 0;
     m_DumpIntRegEnabled = variables.count("enable-dump-int-reg") > 0;
     m_DumpMemoryEnabled = variables.count("enable-memory-csr") > 0;
-    m_HostIoEnabled = variables.count("host-io-addr") > 0;
 
     if (variables.count("dtb-addr"))
     {
@@ -151,6 +155,10 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     if (variables.count("pc"))
     {
         m_Pc = strtoull(variables["pc"].as<std::string>().c_str(), 0, 16);
+    }
+    if (variables.count("pc-log-path"))
+    {
+        m_PcLogPath = variables["pc-log-path"].as<std::string>();
     }
     if (variables.count("dump-path"))
     {
@@ -188,6 +196,16 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     }
 }
 
+bool CommandLineOption::IsHostIoEnabled() const
+{
+    return m_HostIoEnabled;
+}
+
+bool CommandLineOption::IsPcLogEnabled() const
+{
+    return m_PcLogEnabled;
+}
+
 bool CommandLineOption::IsDumpEnabled() const
 {
     return m_DumpEnabled;
@@ -213,9 +231,9 @@ bool CommandLineOption::IsDumpMemoryEnabled() const
     return m_DumpMemoryEnabled;
 }
 
-bool CommandLineOption::IsHostIoEnabled() const
+const std::string& CommandLineOption::GetPcLogPath() const
 {
-    return m_HostIoEnabled;
+    return m_PcLogPath;
 }
 
 const std::string& CommandLineOption::GetDumpPath() const

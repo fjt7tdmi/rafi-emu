@@ -42,13 +42,17 @@ class CommandLineOption
 public:
     CommandLineOption(int argc, char** argv);
 
+    bool IsHostIoEnabled() const;
+
+    bool IsPcLogEnabled() const;
+
     bool IsDumpEnabled() const;
     bool IsDumpCsrEnabled() const;
     bool IsDumpFpRegEnabled() const;
     bool IsDumpIntRegEnabled() const;
     bool IsDumpMemoryEnabled() const;
-    bool IsHostIoEnabled() const;
 
+    const std::string& GetPcLogPath() const;
     const std::string& GetDumpPath() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
     XLEN GetXLEN() const;
@@ -67,6 +71,7 @@ private:
 
     uint64_t ParseHex(const std::string str);
 
+    std::string m_PcLogPath;
     std::string m_DumpPath;
     std::vector<LoadOption> m_LoadOptions;
 
@@ -81,12 +86,15 @@ private:
     uint64_t m_HostIoAddress {0};
     uint64_t m_Pc {0};
 
+    bool m_HostIoEnabled {false};
+
+    bool m_PcLogEnabled {false};
+
     bool m_DumpEnabled {false};
     bool m_DumpCsrEnabled {false};
     bool m_DumpFpRegEnabled {false};
     bool m_DumpIntRegEnabled {false};
     bool m_DumpMemoryEnabled {false};
-    bool m_HostIoEnabled {false};
 };
 
 }}

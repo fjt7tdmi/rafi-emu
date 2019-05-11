@@ -24,37 +24,27 @@
 
 namespace rafi { namespace emu {
 
-class TraceDumper final
+class PcLogger final
 {
 public:
-    TraceDumper(XLEN xlen, const char* path, const System* pSystem);
-    ~TraceDumper();
+    PcLogger(XLEN xlen, const char* path, const System* pSystem);
+    ~PcLogger();
 
     void EnableDump();
-    void EnableDumpCsr();
-    void EnableDumpFpReg();
-    void EnableDumpIntReg();
-    void EnableDumpMemory();
-    void EnableDumpHostIo();
 
-    void DumpCycle(int cycle);
+    void DumpCycle();
 
 private:
-    void DumpCycle32(int cycle);
-    void DumpCycle64(int cycle);
+    void DumpCycle32();
+    void DumpCycle64();
 
     XLEN m_XLEN;
     const char* m_pPath;
     const System* m_pSystem;
 
-    rafi::trace::FileTraceWriter* m_pFileTraceWriter;
+    std::FILE* m_pFile {nullptr};
 
     bool m_Enabled {false};
-    bool m_EnableDumpCsr {false};
-    bool m_EnableDumpFpReg {false};
-    bool m_EnableDumpIntReg {false};
-    bool m_EnableDumpMemory {false};
-    bool m_EnableDumpHostIo {false};
 };
 
 }}
