@@ -16,15 +16,6 @@ import optparse
 import os
 import subprocess
 
-if os.name == "nt":
-    DumpPath = "./build/Debug/rafi-dump.exe"
-    DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
-    EmulatorPath = "./build/Debug/rafi-emu.exe"
-else:
-    DumpPath = "./build_Debug/rafi-dump"
-    DumpPcPath = "./build_Debug/rafi-dump-pc"
-    EmulatorPath = "./build_Debug/rafi-emu"
-
 FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
@@ -34,6 +25,24 @@ DefaultCycle = 10000000
 #
 # Functions
 #
+def GetDumpPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-dump.exe"
+    else:
+        return f"./build_{build_type}/rafi-dump"
+
+def GetDumpPcPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-dump-pc.exe"
+    else:
+        return f"./build_{build_type}/rafi-dump-pc"
+
+def GetEmulatorPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-emu.exe"
+    else:
+        return f"./build_{build_type}/rafi-emu"
+
 def InitializeDirectory(path):
     os.makedirs(path, exist_ok=True)
     for filename in os.listdir(f"{TraceDirPath}"):
@@ -56,7 +65,7 @@ def MakeEmulatorCommand(config):
     trace_path = f"{TraceDirPath}/linux.trace.bin"
 
     cmd = [
-        EmulatorPath,
+        GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
         "--dump-skip-cycle", str(config['dump_skip_cycle']),
         "--dump-path", trace_path,
@@ -91,12 +100,12 @@ def RunDump(config):
     pc_log_path = f"{TraceDirPath}/linux.pc.log"
     gdb_log_path = f"{TraceDirPath}/linux.gdb.log"
 
-    cmd_dump_pc = [ DumpPcPath, "--virtual", f"{TraceDirPath}/linux.trace.bin" ]
+    cmd_dump_pc = [ GetDumpPcPath(config['build_type']), "--virtual", f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd_dump_pc)
     with open(pc_log_path, 'w') as f:
         subprocess.run(cmd_dump_pc, stdout=f).returncode
 
-    cmd_dump_gdb = [ DumpPath, "--gdb", f"{TraceDirPath}/linux.trace.bin" ]
+    cmd_dump_gdb = [ GetDumpPath(config['build_type']), "--gdb", f"{TraceDirPath}/linux.trace.bin" ]
     PrintCommand("[cmd]", cmd_dump_gdb)
     with open(gdb_log_path, 'w') as f:
         subprocess.run(cmd_dump_gdb, stdout=f).returncode
@@ -110,19 +119,24 @@ if __name__ == '__main__':
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
+    parser.add_option("--enable-dump-fp-reg", dest="enable_dump_fp_reg", action="store_true", default=False, help="Enable fp register dump.")
+    parser.add_option("--enable-dump-int-reg", dest="enable_dump_int_reg", action="store_true", default=False, help="Enable integer register dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
+    parser.add_option("--release", dest="is_release", action="store_true", default=False, help="Use release build.")
 
     (options, args) = parser.parse_args()
+
+    InitializeDirectory(TraceDirPath)
 
     config = {
         'cycle': options.cycle,
         'dump_skip_cycle': options.dump_skip_cycle,
         'enable_dump_csr': options.enable_dump_csr,
+        'enable_dump_fp_reg': options.enable_dump_fp_reg,
+        'enable_dump_int_reg': options.enable_dump_int_reg,
         'enable_dump_memory': options.enable_dump_memory,
+        'build_type': "Release" if options.is_release else "Debug"
     }
-
-    InitializeDirectory(TraceDirPath)
-
     result = RunEmulator(config)
     if result != 0:
         exit(result)
