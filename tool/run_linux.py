@@ -21,9 +21,9 @@ if os.name == "nt":
     DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
     EmulatorPath = "./build/Debug/rafi-emu.exe"
 else:
-    DumpPath = "./build/rafi-dump"
-    DumpPcPath = "./build/rafi-dump-pc"
-    EmulatorPath = "./build/rafi-emu"
+    DumpPath = "./build_Debug/rafi-dump"
+    DumpPcPath = "./build_Debug/rafi-dump-pc"
+    EmulatorPath = "./build_Debug/rafi-emu"
 
 FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
