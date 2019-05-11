@@ -251,10 +251,6 @@ add_executable(rafi-diff
     src/rafi-diff/CycleComparator.h
 )
 
-add_executable(rafi-dump-pc
-    src/rafi-dump-pc/Main.cpp
-)
-
 add_executable(rafi-dump
     src/rafi-dump/DumpConfig.h
     src/rafi-dump/Main.cpp
@@ -336,7 +332,6 @@ include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
 include_directories(rafi-check-io include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
-include_directories(rafi-dump-pc include)
 include_directories(rafi-emu include src/rafi-emu/include)
 include_directories(test-op include)
 include_directories(test-trace include)
@@ -344,7 +339,6 @@ include_directories(test-trace include)
 target_link_libraries(rafi-check-io librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-dump-pc librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librafi_common librafi_fp librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(test-op librafi_common librafi_trace ${GoogleTest_LIBRARIES})
 target_link_libraries(test-trace librafi_common librafi_trace ${GoogleTest_LIBRARIES})

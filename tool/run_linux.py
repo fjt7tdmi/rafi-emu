@@ -31,12 +31,6 @@ def GetDumpPath(build_type):
     else:
         return f"./build_{build_type}/rafi-dump"
 
-def GetDumpPcPath(build_type):
-    if os.name == "nt":
-        return f"./build_{build_type}/{build_type}/rafi-dump-pc.exe"
-    else:
-        return f"./build_{build_type}/rafi-dump-pc"
-
 def GetEmulatorPath(build_type):
     if os.name == "nt":
         return f"./build_{build_type}/{build_type}/rafi-emu.exe"
@@ -96,20 +90,6 @@ def RunEmulator(config):
 
     return subprocess.run(cmd).returncode
 
-def RunDump(config):
-    pc_log_path = f"{TraceDirPath}/linux.pc.log"
-    gdb_log_path = f"{TraceDirPath}/linux.gdb.log"
-
-    cmd_dump_pc = [ GetDumpPcPath(config['build_type']), "--virtual", f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand("[cmd]", cmd_dump_pc)
-    with open(pc_log_path, 'w') as f:
-        subprocess.run(cmd_dump_pc, stdout=f).returncode
-
-    cmd_dump_gdb = [ GetDumpPath(config['build_type']), "--gdb", f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand("[cmd]", cmd_dump_gdb)
-    with open(gdb_log_path, 'w') as f:
-        subprocess.run(cmd_dump_gdb, stdout=f).returncode
-
 #
 # Entry point
 #
@@ -140,6 +120,3 @@ if __name__ == '__main__':
     result = RunEmulator(config)
     if result != 0:
         exit(result)
-
-    if options.dump:
-        RunDump(config)

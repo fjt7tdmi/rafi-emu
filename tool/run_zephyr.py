@@ -18,11 +18,9 @@ import subprocess
 
 if os.name == "nt":
     DumpPath = "./build_Debug/Debug/rafi-dump.exe"
-    DumpPcPath = "./build_Debug/Debug/rafi-dump-pc.exe"
     EmulatorPath = "./build_Debug/Debug/rafi-emu.exe"
 else:
     DumpPath = "./build_Debug/rafi-dump"
-    DumpPcPath = "./build_Debug/rafi-dump-pc"
     EmulatorPath = "./build_Debug/rafi-emu"
 
 BinaryDirPath = "./work/zephyr"
@@ -71,13 +69,6 @@ def MakeDumpCommand(testname):
         trace_bin_path
     ]
 
-def MakeDumpPcCommand(testname):
-    trace_bin_path = f"{TraceDirPath}/{testname}.trace.bin"
-    return [
-        DumpPcPath,
-        trace_bin_path
-    ]
-
 def MakeAddrToLineCommand(testname):
     elf_path = os.path.join(ZephyrDirPath, f"samples/{config['name']}/outdir/qemu_riscv32/zephyr.elf")
     return [
@@ -102,23 +93,6 @@ def RunDump(config):
 
     return subprocess.run(cmd).returncode
 
-def RunDumpPc(config):
-    pc_txt_path = f"{TraceDirPath}/{config['name']}.pc.txt"
-    line_txt_path = f"{TraceDirPath}/{config['name']}.line.txt"
-
-    cmd_dump_pc = MakeDumpPcCommand(config['name'])
-    PrintCommand(cmd_dump_pc)
-
-    with open(pc_txt_path, 'w') as f:
-        subprocess.run(cmd_dump_pc, stdout=f).returncode
-
-    cmd_addr2line = MakeAddrToLineCommand(config['name'])
-    PrintCommand(cmd_addr2line)
-
-    with open(pc_txt_path, 'r') as in_file:
-        with open(line_txt_path, 'w') as out_file:
-            subprocess.run(cmd_addr2line, stdin=in_file, stdout=out_file).returncode
-
 #
 # Entry point
 #
@@ -127,7 +101,6 @@ if __name__ == '__main__':
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
     parser.add_option("-n", dest="name", default=DefaultTestName, help="Test name.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
-    parser.add_option("--dump-pc", dest="dump_pc", action="store_true", default=False, help="Run rafi-dump-pc and addr2line after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
@@ -150,6 +123,3 @@ if __name__ == '__main__':
 
     if options.dump:
         RunDump(config)
-
-    if options.dump_pc:
-        RunDumpPc(config)
