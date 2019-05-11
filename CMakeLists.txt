@@ -33,11 +33,7 @@ else()
     set(FS_LIBRARIES "stdc++fs")
 
     set(GoogleTest_LIBRARIES "gtest" "gtest_main" "pthread")
-    if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
-        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/x64-Debug/googletest")
-    else()
-        set(GoogleTest_LIBRARY_DIRS "third_party/googletest/x64-Release/googletest")
-    endif()
+    set(GoogleTest_LIBRARY_DIRS "third_party/googletest/build/googletest")
 endif()
 
 set(Softfloat_INCLUDE_DIRS third_party/berkeley-softfloat-3/source/include third_party/berkeley-softfloat-3/source/RISCV src/librafi_fp/include)
