@@ -22,6 +22,7 @@
 #include "io/Uart.h"
 #include "io/Uart16550.h"
 #include "io/Timer.h"
+#include "io/VirtIo.h"
 #include "mem/Ram.h"
 #include "mem/Rom.h"
 #include "bus/Bus.h"
@@ -74,6 +75,14 @@ private:
     static const paddr_t AddrClint      = 0x02000000;
     static const paddr_t AddrPlic       = 0x0c000000;
     static const paddr_t AddrUart16550  = 0x10000000;
+    static const paddr_t AddrVirtIo1    = 0x10001000;
+    static const paddr_t AddrVirtIo2    = 0x10002000;
+    static const paddr_t AddrVirtIo3    = 0x10003000;
+    static const paddr_t AddrVirtIo4    = 0x10004000;
+    static const paddr_t AddrVirtIo5    = 0x10005000;
+    static const paddr_t AddrVirtIo6    = 0x10006000;
+    static const paddr_t AddrVirtIo7    = 0x10007000;
+    static const paddr_t AddrVirtIo8    = 0x10008000;
 
     // IOs for zephyr
     static const paddr_t AddrUart   = 0x40002000;
@@ -82,10 +91,22 @@ private:
     bus::Bus m_Bus;
     mem::Ram m_Ram;
     mem::Rom m_Rom;
+
+    // E31 compatible IOs
     io::Clint m_Clint;
     io::Plic m_Plic;
-    io::Uart m_Uart;
     io::Uart16550 m_Uart16550;
+    io::VirtIo m_VirtIo1;
+    io::VirtIo m_VirtIo2;
+    io::VirtIo m_VirtIo3;
+    io::VirtIo m_VirtIo4;
+    io::VirtIo m_VirtIo5;
+    io::VirtIo m_VirtIo6;
+    io::VirtIo m_VirtIo7;
+    io::VirtIo m_VirtIo8;
+
+    // IOs for zephyr
+    io::Uart m_Uart;
     io::Timer m_Timer;
 
     io::IoInterruptSource m_ExternalInterruptSource;

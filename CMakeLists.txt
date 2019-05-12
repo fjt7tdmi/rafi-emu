@@ -300,6 +300,8 @@ add_executable(rafi-emu
     src/rafi-emu/io/Uart16550.h
     src/rafi-emu/io/Timer.cpp
     src/rafi-emu/io/Timer.h
+    src/rafi-emu/io/VirtIo.cpp
+    src/rafi-emu/io/VirtIo.h
     src/rafi-emu/mem/IMemory.h
     src/rafi-emu/mem/Ram.cpp
     src/rafi-emu/mem/Ram.h

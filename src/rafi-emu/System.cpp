@@ -33,9 +33,20 @@ System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     m_Bus.RegisterMemory(&m_Ram, AddrRam, m_Ram.GetCapacity());
     m_Bus.RegisterMemory(&m_Rom, AddrRom, m_Rom.GetCapacity());
 
+    // E31 compatible IOs
     m_Bus.RegisterIo(&m_Clint, AddrClint, m_Clint.GetSize());
     m_Bus.RegisterIo(&m_Plic, AddrPlic, m_Plic.GetSize());
     m_Bus.RegisterIo(&m_Uart16550, AddrUart16550, m_Uart16550.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo1, AddrVirtIo1, m_VirtIo1.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo2, AddrVirtIo2, m_VirtIo2.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo3, AddrVirtIo3, m_VirtIo3.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo4, AddrVirtIo4, m_VirtIo4.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo5, AddrVirtIo5, m_VirtIo5.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo6, AddrVirtIo6, m_VirtIo6.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo7, AddrVirtIo7, m_VirtIo7.GetSize());
+    m_Bus.RegisterIo(&m_VirtIo8, AddrVirtIo8, m_VirtIo8.GetSize());
+
+    // IOs for zephyr
     m_Bus.RegisterIo(&m_Uart, AddrUart, m_Uart.GetSize());
     m_Bus.RegisterIo(&m_Timer, AddrTimer, m_Timer.GetSize());
 
