@@ -40,8 +40,29 @@ void Uart16550::Read(void* pOutBuffer, size_t size, uint64_t address)
 
     switch (address)
     {
+    case AddrData:
+        value = 0; // Not implemented.
+        break;
+    case AddrInterruptEnable:
+        value = m_InterruptEnable;
+        break;
+    case AddrFifoControl:
+        value = m_FifoControl;
+        break;
+    case AddrLineControl:
+        value = m_LineControl;
+        break;
+    case AddrModemControl:
+        value = 0; // Not implemented
+        break;
     case AddrLineStatus:
         value = m_LineStatus;
+        break;
+    case AddrModemStatus:
+        value = 0; // Not implemented
+        break;
+    case AddrScratch:
+        value = m_Scratch;
         break;
     default:
         RAFI_EMU_ERROR("[Uart16550] Read to register %llu is invalid or unimplmented.\n", static_cast<unsigned long long>(address));
@@ -91,6 +112,13 @@ void Uart16550::Write(const void* pBuffer, size_t size, uint64_t address)
     case AddrLineControl:
         m_LineControl = value;
         break;
+    case AddrModemControl:
+    case AddrLineStatus:
+    case AddrModemStatus:
+        break;  // Not implemented
+    case AddrScratch:
+        m_Scratch = value;
+        break;
     default:
         RAFI_EMU_ERROR("[Uart16550] Write to register %llu is invalid or unimplmented. (value: 0x%02x)\n", static_cast<unsigned long long>(address), value);
     }
@@ -109,11 +137,6 @@ bool Uart16550::IsInterruptRequested() const
 void Uart16550::ProcessCycle()
 {
     PrintTx();
-
-    if (m_InterruptEnable != 0)
-    {
-        RAFI_EMU_ERROR("[Uart16550] Interrupt is not implemented. (but, the value of IE is 0x%02x)\n", m_InterruptEnable);
-    }
 }
 
 void Uart16550::PrintTx()

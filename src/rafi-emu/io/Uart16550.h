@@ -64,6 +64,7 @@ private:
     uint8_t m_FifoControl{ 0x0 };
     uint8_t m_LineControl{ 0x0 };
     uint8_t m_LineStatus{ 0x60 };
+    uint8_t m_Scratch{ 0x0 };
 };
 
 }}}
