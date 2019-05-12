@@ -73,14 +73,14 @@ void System::SetHostIoAddress(vaddr_t address)
     m_HostIoAddress = address;
 }
 
-void System::ProcessOneCycle()
+void System::ProcessCycle()
 {
     m_Clint.ProcessCycle();
     m_Uart16550.ProcessCycle();
     m_Uart.ProcessCycle();
     m_Timer.ProcessCycle();
 
-    m_Processor.ProcessOneCycle();
+    m_Processor.ProcessCycle();
 }
 
 int System::GetCsrCount() const

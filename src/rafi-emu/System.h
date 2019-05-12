@@ -43,7 +43,7 @@ public:
     void SetHostIoAddress(vaddr_t address);
 
     // Process
-    void ProcessOneCycle();
+    void ProcessCycle();
 
     // for Dump
     int GetCsrCount() const;

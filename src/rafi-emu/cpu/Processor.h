@@ -50,7 +50,7 @@ public:
     void WriteTime(uint64_t value);
 
     // Process
-    void ProcessOneCycle();
+    void ProcessCycle();
 
     // for Dump
     int GetCsrCount() const;
