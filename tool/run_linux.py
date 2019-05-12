@@ -20,7 +20,7 @@ FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
 
-DefaultCycle = 10000000
+DefaultCycle = 250000000
 
 #
 # Functions
