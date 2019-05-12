@@ -11,7 +11,7 @@ source ./common.sh.inc
 cd ..
 
 mkdir -p work/gdb
-rm work/gdb/* # Remove old log
+rm -f work/gdb/* # Remove old log
 
 ${GDB} --batch-silent --command=script/dump_qemu.gdb
 cat ./work/gdb/qemu.log | grep pc | ${AWK} '{print $2}' > ./work/gdb/qemu.pc.log

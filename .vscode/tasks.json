@@ -9,7 +9,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build/",
+                "build_Debug/",
                 "--config",
                 "Debug"
             ],

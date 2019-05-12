@@ -16,24 +16,27 @@ import optparse
 import os
 import subprocess
 
-if os.name == "nt":
-    DumpPath = "./build/Debug/rafi-dump.exe"
-    DumpPcPath = "./build/Debug/rafi-dump-pc.exe"
-    EmulatorPath = "./build/Debug/rafi-emu.exe"
-else:
-    DumpPath = "./build/rafi-dump"
-    DumpPcPath = "./build/rafi-dump-pc"
-    EmulatorPath = "./build/rafi-emu"
-
 FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
 
-DefaultCycle = 10000000
+DefaultCycle = 250000000
 
 #
 # Functions
 #
+def GetDumpPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-dump.exe"
+    else:
+        return f"./build_{build_type}/rafi-dump"
+
+def GetEmulatorPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-emu.exe"
+    else:
+        return f"./build_{build_type}/rafi-emu"
+
 def InitializeDirectory(path):
     os.makedirs(path, exist_ok=True)
     for filename in os.listdir(f"{TraceDirPath}"):
@@ -53,21 +56,26 @@ def MakeEmulatorCommand(config):
     bbl_path = f"{BinaryDirPath}/bbl.bin"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
+    pc_log_path = f"{TraceDirPath}/linux.pc.log"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
 
     cmd = [
-        EmulatorPath,
+        GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
-        "--dump-skip-cycle", str(config['dump_skip_cycle']),
-        "--dump-path", trace_path,
         "--load", f"{rom_path}:0x1000",
         "--load", f"{bbl_path}:0x80000000",
         "--load", f"{vmlinux_path}:0x80200000",
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
         "--pc", "0x1000",
+        "--pc-log-path", pc_log_path,
         "--xlen", "64",
     ]
+    if config['dump']:
+        cmd.extend([
+            "--dump-path", trace_path,
+            "--dump-skip-cycle", str(config['dump_skip_cycle'])
+        ])
     if config['enable_dump_csr']:
         cmd.append("--enable-dump-csr")
     if config['enable_dump_memory']:
@@ -87,20 +95,6 @@ def RunEmulator(config):
 
     return subprocess.run(cmd).returncode
 
-def RunDump(config):
-    pc_log_path = f"{TraceDirPath}/linux.pc.log"
-    gdb_log_path = f"{TraceDirPath}/linux.gdb.log"
-
-    cmd_dump_pc = [ DumpPcPath, "--virtual", f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand("[cmd]", cmd_dump_pc)
-    with open(pc_log_path, 'w') as f:
-        subprocess.run(cmd_dump_pc, stdout=f).returncode
-
-    cmd_dump_gdb = [ DumpPath, "--gdb", f"{TraceDirPath}/linux.trace.bin" ]
-    PrintCommand("[cmd]", cmd_dump_gdb)
-    with open(gdb_log_path, 'w') as f:
-        subprocess.run(cmd_dump_gdb, stdout=f).returncode
-
 #
 # Entry point
 #
@@ -110,22 +104,25 @@ if __name__ == '__main__':
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
+    parser.add_option("--enable-dump-fp-reg", dest="enable_dump_fp_reg", action="store_true", default=False, help="Enable fp register dump.")
+    parser.add_option("--enable-dump-int-reg", dest="enable_dump_int_reg", action="store_true", default=False, help="Enable integer register dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
+    parser.add_option("--release", dest="is_release", action="store_true", default=False, help="Use release build.")
 
     (options, args) = parser.parse_args()
 
-    config = {
-        'cycle': options.cycle,
-        'dump_skip_cycle': options.dump_skip_cycle,
-        'enable_dump_csr': options.enable_dump_csr,
-        'enable_dump_memory': options.enable_dump_memory,
-    }
-
     InitializeDirectory(TraceDirPath)
 
+    config = {
+        'cycle': options.cycle,
+        'dump': options.dump,
+        'dump_skip_cycle': options.dump_skip_cycle,
+        'enable_dump_csr': options.enable_dump_csr,
+        'enable_dump_fp_reg': options.enable_dump_fp_reg,
+        'enable_dump_int_reg': options.enable_dump_int_reg,
+        'enable_dump_memory': options.enable_dump_memory,
+        'build_type': "Release" if options.is_release else "Debug"
+    }
     result = RunEmulator(config)
     if result != 0:
         exit(result)
-
-    if options.dump:
-        RunDump(config)

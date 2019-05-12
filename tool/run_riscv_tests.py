@@ -22,41 +22,28 @@ import subprocess
 from functools import reduce
 from operator import or_
 
-if os.name == "nt":
-    CheckIoPath = "./build_Debug/Debug/rafi-check-io.exe"
-    EmulatorPath = "./build_Debug/Debug/rafi-emu.exe"
-else:
-    CheckIoPath = "./build_Debug/rafi-check-io"
-    EmulatorPath = "./build_Debug/rafi-emu"
-
 BinaryDirPath = "./work/riscv-tests"
 TraceDirPath = "./work/riscv-tests/trace"
 
 #
 # Functions
 #
+def GetCheckIoPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-check-io.exe"
+    else:
+        return f"./build_{build_type}/rafi-check-io"
+
+def GetEmulatorPath(build_type):
+    if os.name == "nt":
+        return f"./build_{build_type}/{build_type}/rafi-emu.exe"
+    else:
+        return f"./build_{build_type}/rafi-emu"
+
 def InitializeDirectory(path):
     os.makedirs(path, exist_ok=True)
     for filename in os.listdir(f"{TraceDirPath}"):
         os.remove(f"{TraceDirPath}/{filename}")
-
-def MakeCheckIoCommand(trace_paths):
-    cmd = [CheckIoPath]
-    cmd.extend(trace_paths)
-    return cmd
-
-def MakeEmulatorCommand(config):
-    binary_path = f"{BinaryDirPath}/{config['name']}.bin"
-    trace_path = f"{TraceDirPath}/{config['name']}.trace.bin"
-    return [
-        EmulatorPath,
-        "--cycle", str(config['cycle']),
-        "--load", f"{binary_path}:0x80000000",
-        "--dump-path", trace_path,
-        "--pc", "0x80000000",
-        "--host-io-addr", str(config['host-io-addr']),
-        "--xlen", str(config['xlen']),
-    ]
 
 def PrintCommand(msg, cmd):
     print(f"{msg} {cmd[0]}")
@@ -67,25 +54,38 @@ def PrintCommand(msg, cmd):
             args = map(lambda x: f'"{x}"', cmd[1:])
             print(', '.join(args))
 
-
-def VerifyTraces(paths):
-    cmd = MakeCheckIoCommand(paths)
+def VerifyTraces(paths, build_type):
+    cmd = [GetCheckIoPath(build_type)]
+    cmd.extend(paths)
     subprocess.run(cmd)
 
 def RunEmulator(config):
-    cmd = MakeEmulatorCommand(config)
+    binary_path = f"{BinaryDirPath}/{config['name']}.bin"
+    trace_path = f"{TraceDirPath}/{config['name']}.trace.bin"
+    cmd = [
+        GetEmulatorPath(config['build_type']),
+        "--cycle", str(config['cycle']),
+        "--load", f"{binary_path}:0x80000000",
+        "--enable-dump-int-reg",
+        "--enable-dump-fp-reg",
+        "--dump-path", trace_path,
+        "--pc", "0x80000000",
+        "--host-io-addr", str(config['host-io-addr']),
+        "--xlen", str(config['xlen']),
+    ]
+
     PrintCommand("Run", cmd)
 
     result = subprocess.run(cmd)
     if result.returncode != 0:
         return False # Emulation Failure
 
-def RunTests(configs):
+def RunTests(configs, build_type):
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         p.map(RunEmulator, configs)
 
     trace_paths = list(map(lambda config: f"{TraceDirPath}/{config['name']}.trace.bin", configs))
-    VerifyTraces(trace_paths)
+    VerifyTraces(trace_paths, build_type)
 
 #
 # Entry point
@@ -95,6 +95,7 @@ if __name__ == '__main__':
     parser.add_option("-f", dest="filter", default=None, help="Filter test by name.")
     parser.add_option("-i", dest="input_path", default=None, help="Input test list json path.")
     parser.add_option("-l", dest="list_tests", action="store_true", default=False, help="List test names.")
+    parser.add_option("--release", dest="is_release", action="store_true", default=False, help="Use release build.")
 
     (options, args) = parser.parse_args()
 
@@ -115,8 +116,12 @@ if __name__ == '__main__':
     if options.filter is not None:
         configs = list(filter(lambda config: fnmatch.fnmatch(config['name'], options.filter), configs))
 
+    build_type = "Release" if options.is_release else "Debug"
+    for config in configs:
+        config['build_type'] = build_type
+
     print("-------------------------------------------------------------")
     InitializeDirectory(TraceDirPath)
 
     print("Run test on emulator:")
-    RunTests(configs)
+    RunTests(configs, build_type)

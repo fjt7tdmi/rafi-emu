@@ -23,6 +23,7 @@
 
 #include "bus/Bus.h"
 
+#include "PcLogger.h"
 #include "Profiler.h"
 #include "TraceDumper.h"
 
@@ -34,6 +35,7 @@ int main(int argc, char** argv)
     rafi::emu::CommandLineOption option(argc, argv);
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
+    rafi::emu::PcLogger pcLogger(option.GetXLEN(), option.GetPcLogPath().c_str(), &system);
     rafi::emu::TraceDumper dumper(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
     rafi::emu::Profiler profiler;
 
@@ -50,6 +52,11 @@ int main(int argc, char** argv)
         std::exit(1);
     }
 
+    if (option.IsPcLogEnabled())
+    {
+        pcLogger.EnableDump();
+    }
+
     if (option.IsDumpEnabled())
     {
         dumper.EnableDump();
@@ -58,10 +65,19 @@ int main(int argc, char** argv)
     {
         dumper.EnableDumpCsr();
     }
+    if (option.IsDumpFpRegEnabled())
+    {
+        dumper.EnableDumpFpReg();
+    }
+    if (option.IsDumpIntRegEnabled())
+    {
+        dumper.EnableDumpIntReg();
+    }
     if (option.IsDumpMemoryEnabled())
     {
         dumper.EnableDumpMemory();
     }
+
     if (option.IsHostIoEnabled())
     {
         dumper.EnableDumpHostIo();
@@ -69,8 +85,6 @@ int main(int argc, char** argv)
     }
 
     system.SetDtbAddress(option.GetDtbAddress());
-
-    dumper.DumpHeader();
 
     int cycle;
 
@@ -85,6 +99,8 @@ int main(int argc, char** argv)
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
+
+                pcLogger.DumpCycle();
                 dumper.DumpCycle(cycle);
             }
 
@@ -109,8 +125,6 @@ int main(int argc, char** argv)
     std::cout << "Emulation finished @ cycle "
         << std::dec << cycle
         << std::hex << " (0x" << cycle << ")" << std::endl;
-
-    dumper.DumpFooter();
 
     profiler.Dump();
 

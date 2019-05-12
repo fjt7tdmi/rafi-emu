@@ -45,10 +45,9 @@ private:
     CycleHeader GetCurrentCycleHeader();
     CycleFooter GetPreviousCycleFooter();
 
-    void CheckBufferSize();
     void CheckOffset(int64_t offset);
 
-    std::ifstream* m_pStream;
+    std::ifstream* m_pStream{ nullptr };
 
     int64_t m_FileSize{ 0 };
     int64_t m_Offset{ 0 };
