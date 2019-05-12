@@ -101,19 +101,20 @@ def RunEmulator(config):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-c", dest="cycle", default=DefaultCycle, help="Number of emulation cycles.")
+    parser.add_option("-d", dest="debug", action="store_true", default=False, help="Use debug build.")
     parser.add_option("--dump", dest="dump", action="store_true", default=False, help="Run rafi-dump after emulation.")
     parser.add_option("--dump-skip-cycle", dest="dump_skip_cycle", default=0, help="Skip dump for specified cycles.")
     parser.add_option("--enable-dump-csr", dest="enable_dump_csr", action="store_true", default=False, help="Enable csr dump.")
     parser.add_option("--enable-dump-fp-reg", dest="enable_dump_fp_reg", action="store_true", default=False, help="Enable fp register dump.")
     parser.add_option("--enable-dump-int-reg", dest="enable_dump_int_reg", action="store_true", default=False, help="Enable integer register dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
-    parser.add_option("--release", dest="is_release", action="store_true", default=False, help="Use release build.")
 
     (options, args) = parser.parse_args()
 
     InitializeDirectory(TraceDirPath)
 
     config = {
+        'build_type': "Debug" if options.debug else "Release",
         'cycle': options.cycle,
         'dump': options.dump,
         'dump_skip_cycle': options.dump_skip_cycle,
@@ -121,7 +122,6 @@ if __name__ == '__main__':
         'enable_dump_fp_reg': options.enable_dump_fp_reg,
         'enable_dump_int_reg': options.enable_dump_int_reg,
         'enable_dump_memory': options.enable_dump_memory,
-        'build_type': "Release" if options.is_release else "Debug"
     }
     result = RunEmulator(config)
     if result != 0:

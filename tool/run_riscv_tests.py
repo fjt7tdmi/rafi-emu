@@ -92,10 +92,10 @@ def RunTests(configs, build_type):
 #
 if __name__ == '__main__':
     parser = optparse.OptionParser()
+    parser.add_option("-d", dest="debug", action="store_true", default=False, help="Use debug build.")
     parser.add_option("-f", dest="filter", default=None, help="Filter test by name.")
     parser.add_option("-i", dest="input_path", default=None, help="Input test list json path.")
     parser.add_option("-l", dest="list_tests", action="store_true", default=False, help="List test names.")
-    parser.add_option("--release", dest="is_release", action="store_true", default=False, help="Use release build.")
 
     (options, args) = parser.parse_args()
 
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     if options.filter is not None:
         configs = list(filter(lambda config: fnmatch.fnmatch(config['name'], options.filter), configs))
 
-    build_type = "Release" if options.is_release else "Debug"
+    build_type = "Debug" if options.debug else "Release"
     for config in configs:
         config['build_type'] = build_type
 
