@@ -54,6 +54,7 @@ void VirtIo::Read(void* pOutBuffer, size_t size, uint64_t address)
 
 void VirtIo::Write(const void* pBuffer, size_t size, uint64_t address)
 {
+    (void)pBuffer;
     RAFI_EMU_CHECK_ACCESS(address, size, GetSize());
 }
 

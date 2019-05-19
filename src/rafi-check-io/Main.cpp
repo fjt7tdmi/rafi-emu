@@ -37,17 +37,17 @@ bool Check(const char* name, const char* path)
     {
         FileTraceReader reader(path);
 
+        std::unique_ptr<Cycle> pLastCycle;
+
         // Get last cycle data
         while (!reader.IsEnd())
         {
+            pLastCycle = std::make_unique<Cycle>(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
             reader.MoveToNextCycle();
         }
-        reader.MoveToPreviousCycle();
-
-        CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
         // Find IoNode
-        const auto ioNode = cycle.GetIoNode();
+        const auto ioNode = pLastCycle->GetIoNode();
 
         // Check IoValue
         if (ioNode->hostIoValue != ExpectedHostIoValue)

@@ -16,17 +16,29 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <stdint.h>
 
-#include "trace/Exception.h"
-#include "trace/FileTraceReader.h"
-#include "trace/FileTraceWriter.h"
-#include "trace/ITraceReader.h"
-#include "trace/ITraceWriter.h"
-#include "trace/MemoryTraceReader.h"
-#include "trace/MemoryTraceWriter.h"
-#include "trace/Cycle.h"
-#include "trace/CycleBuilder.h"
-#include "trace/CycleConfig.h"
-#include "trace/CycleReader.h"
-#include "trace/CycleTypes.h"
+#include <rafi/trace/CycleReader.h>
+
+namespace rafi { namespace trace {
+
+class CycleImpl;
+
+class Cycle
+{
+public:
+    Cycle();
+    Cycle(const void* buffer, size_t bufferSize);
+
+    ~Cycle();
+
+    const IoNode* GetIoNode() const;
+
+private:
+    void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
+
+    CycleReader* m_pView{ nullptr };
+};
+
+}}

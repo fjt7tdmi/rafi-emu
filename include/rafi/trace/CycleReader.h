@@ -19,6 +19,7 @@
 #include <stdint.h>
 
 #include <rafi/common.h>
+#include <rafi/trace/CycleTypes.h>
 
 namespace rafi { namespace trace {
 
