@@ -53,14 +53,9 @@ bool MemoryTraceReader::IsEnd()
     return m_pImpl->IsEnd();
 }
 
-void MemoryTraceReader::MoveToNextCycle()
+void MemoryTraceReader::Next()
 {
-    m_pImpl->MoveToNextCycle();
-}
-
-void MemoryTraceReader::MoveToPreviousCycle()
-{
-    m_pImpl->MoveToPreviousCycle();
+    m_pImpl->Next();
 }
 
 }}

@@ -43,7 +43,7 @@ bool Check(const char* name, const char* path)
         while (!reader.IsEnd())
         {
             pLastCycle = std::make_unique<Cycle>(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
-            reader.MoveToNextCycle();
+            reader.Next();
         }
 
         // Find IoNode

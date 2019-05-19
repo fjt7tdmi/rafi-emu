@@ -436,7 +436,7 @@ void PrintTrace(const std::string& path, const DumpConfig& config)
             }
         }
 
-        reader.MoveToNextCycle();
+        reader.Next();
     }
 }
 

@@ -100,7 +100,7 @@ bool FileTraceReaderImpl::IsEnd()
     return m_Offset == m_FileSize;
 }
 
-void FileTraceReaderImpl::MoveToNextCycle()
+void FileTraceReaderImpl::Next()
 {
     CheckOffset(m_Offset);
 
@@ -110,22 +110,6 @@ void FileTraceReaderImpl::MoveToNextCycle()
     {
         CheckOffset(m_Offset);
     }
-
-    UpdateCycleData();
-}
-
-void FileTraceReaderImpl::MoveToPreviousCycle()
-{
-    if (!IsEnd())
-    {
-        CheckOffset(m_Offset);
-    }
-
-    const auto size = GetPreviousCycleFooter().headerOffset + sizeof(CycleFooter);
-
-    m_Offset -= size;
-
-    CheckOffset(m_Offset);
 
     UpdateCycleData();
 }

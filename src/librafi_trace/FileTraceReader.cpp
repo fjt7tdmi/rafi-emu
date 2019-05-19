@@ -50,14 +50,9 @@ bool FileTraceReader::IsEnd()
     return m_pImpl->IsEnd();
 }
 
-void FileTraceReader::MoveToNextCycle()
+void FileTraceReader::Next()
 {
-    m_pImpl->MoveToNextCycle();
-}
-
-void FileTraceReader::MoveToPreviousCycle()
-{
-    m_pImpl->MoveToPreviousCycle();
+    m_pImpl->Next();
 }
 
 }}

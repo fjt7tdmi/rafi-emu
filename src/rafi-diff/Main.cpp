@@ -59,8 +59,8 @@ void CompareTrace(const std::string& expectPath, const std::string& actualPath, 
             return;
         }
 
-        expectReader.MoveToNextCycle();
-        actualReader.MoveToNextCycle();
+        expectReader.Next();
+        actualReader.Next();
 
         expectOpCount++;
         actualOpCount++;
@@ -69,12 +69,12 @@ void CompareTrace(const std::string& expectPath, const std::string& actualPath, 
     // Count ops
     while (!expectReader.IsEnd())
     {
-        expectReader.MoveToNextCycle();
+        expectReader.Next();
         expectOpCount++;
     }
     while (!actualReader.IsEnd())
     {
-        actualReader.MoveToNextCycle();
+        actualReader.Next();
         actualOpCount++;
     }
 

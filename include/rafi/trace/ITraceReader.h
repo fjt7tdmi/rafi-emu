@@ -33,7 +33,7 @@ public:
     virtual bool IsBegin() = 0;
     virtual bool IsEnd() = 0;
 
-    virtual void MoveToNextCycle() = 0;
+    virtual void Next() = 0;
 };
 
 }}

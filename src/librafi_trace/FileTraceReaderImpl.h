@@ -36,8 +36,7 @@ public:
     bool IsBegin();
     bool IsEnd();
 
-    void MoveToNextCycle();
-    void MoveToPreviousCycle();
+    void Next();
 
 private:
     void UpdateCycleData();

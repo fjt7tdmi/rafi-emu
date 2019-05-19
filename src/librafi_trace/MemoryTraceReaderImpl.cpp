@@ -70,7 +70,7 @@ bool MemoryTraceReaderImpl::IsEnd()
     return m_CurrentOffset == m_BufferSize;
 }
 
-void MemoryTraceReaderImpl::MoveToNextCycle()
+void MemoryTraceReaderImpl::Next()
 {
     CheckBufferSize();
     CheckOffset(m_CurrentOffset);
@@ -81,22 +81,6 @@ void MemoryTraceReaderImpl::MoveToNextCycle()
     {
         CheckOffset(m_CurrentOffset);
     }
-}
-
-void MemoryTraceReaderImpl::MoveToPreviousCycle()
-{
-    CheckBufferSize();
-
-    if (!IsEnd())
-    {
-        CheckOffset(m_CurrentOffset);
-    }
-
-    const auto size = GetPreviousCycleFooter()->headerOffset + sizeof(CycleFooter);
-
-    m_CurrentOffset -= size;
-
-    CheckOffset(m_CurrentOffset);
 }
 
 void MemoryTraceReaderImpl::CheckOffset(int64_t offset)

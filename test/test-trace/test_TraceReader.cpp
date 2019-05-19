@@ -51,14 +51,14 @@ TEST(TraceReaderTest, Basic)
     ASSERT_FALSE(reader.IsEnd());
     ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
-    reader.MoveToNextCycle();
+    reader.Next();
 
     // cycle 1
     ASSERT_FALSE(reader.IsBegin());
     ASSERT_FALSE(reader.IsEnd());
     ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
-    reader.MoveToNextCycle();
+    reader.Next();
 
     // end
     ASSERT_FALSE(reader.IsBegin());
@@ -79,6 +79,6 @@ TEST(TraceReaderTest, OutOfRangeAccess)
 
     MemoryTraceReader reader(buffer, builder->GetDataSize());
 
-    reader.MoveToNextCycle();
-    ASSERT_THROW(reader.MoveToNextCycle(), TraceException);
+    reader.Next();
+    ASSERT_THROW(reader.Next(), TraceException);
 }
