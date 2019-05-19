@@ -94,7 +94,7 @@ int main(int argc, char** argv)
         {
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_Process);
 
-            system.ProcessOneCycle();
+            system.ProcessCycle();
 
             if (cycle >= option.GetDumpSkipCycle())
             {

@@ -165,7 +165,7 @@ void Csr::SetPrivilegeLevel(PrivilegeLevel level)
     m_PrivilegeLevel = level;
 }
 
-void Csr::Update()
+void Csr::ProcessCycle()
 {
     m_CycleCounter++;
     m_TimeCounter++;

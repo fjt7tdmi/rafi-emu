@@ -72,11 +72,13 @@ void Processor::WriteTime(uint64_t value)
     m_Csr.WriteTime(value);
 }
 
-void Processor::ProcessOneCycle()
+void Processor::ProcessCycle()
 {
     ClearOpEvent();
     m_TrapProcessor.ClearEvent();
     m_MemAccessUnit.ClearEvent();
+
+    m_Csr.ProcessCycle();
 
     const auto privilegeLevel = m_Csr.GetPrivilegeLevel();
     const auto pc = m_Csr.GetProgramCounter();

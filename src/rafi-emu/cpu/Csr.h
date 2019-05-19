@@ -33,7 +33,7 @@ public:
     std::optional<Trap> CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint32_t insn) const;
 
     // Update registers for cycle
-    void Update();
+    void ProcessCycle();
 
     // Special register access
     vaddr_t GetProgramCounter() const;
