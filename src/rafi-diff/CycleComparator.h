@@ -37,7 +37,7 @@ public:
 
     bool AreCsr32NodesMatched(const rafi::trace::Csr32Node* pExpectNodes, int expectNodeCount, const rafi::trace::Csr32Node* pActualNodes, int actualNodeCount) const;
 
-    bool AreMatched(const rafi::trace::CycleReader& expect, const rafi::trace::CycleReader& actual) const;
+    bool AreMatched(const rafi::trace::CycleView& expect, const rafi::trace::CycleView& actual) const;
 
     // print diff
     void PrintPc32Diff(const rafi::trace::Pc32Node* pExpect, const rafi::trace::Pc32Node* pActual) const;
@@ -46,7 +46,7 @@ public:
 
     void PrintCsr32Diff(const rafi::trace::Csr32Node* pExpectNodes, int expectNodeCount, const rafi::trace::Csr32Node* pActualNodes, int actualNodeCount) const;
 
-    void PrintDiff(const rafi::trace::CycleReader& expect, const rafi::trace::CycleReader& actual) const;
+    void PrintDiff(const rafi::trace::CycleView& expect, const rafi::trace::CycleView& actual) const;
 
 private:
     bool m_CmpPhysicalPc;

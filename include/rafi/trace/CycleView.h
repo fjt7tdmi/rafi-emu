@@ -23,13 +23,13 @@
 
 namespace rafi { namespace trace {
 
-class CycleReaderImpl;
+class CycleViewImpl;
 
-class CycleReader
+class CycleView
 {
 public:
-    CycleReader(const void* buffer, int64_t bufferSize);
-    ~CycleReader();
+    CycleView(const void* buffer, int64_t bufferSize);
+    ~CycleView();
 
     int64_t GetOffsetOfPreviousCycle() const;
     int64_t GetOffsetOfNextCycle() const;
@@ -58,7 +58,7 @@ public:
     const void* GetMemoryNode() const;
 
 private:
-    CycleReaderImpl* m_pImpl;
+    CycleViewImpl* m_pImpl;
 };
 
 }}

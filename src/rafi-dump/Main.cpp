@@ -350,7 +350,7 @@ void PrintIoNode(const IoNode* node)
     );
 }
 
-void PrintCycle(const CycleReader& cycle, int cycleNum)
+void PrintCycle(const CycleView& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
@@ -424,7 +424,7 @@ void PrintTrace(const std::string& path, const DumpConfig& config)
 
         if (i >= config.cycleStart)
         {
-            CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+            CycleView cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
 
             if (config.mode == DumpMode::Gdb)
             {

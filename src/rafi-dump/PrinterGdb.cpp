@@ -27,7 +27,7 @@ PrinterGdb::PrinterGdb()
     std::memset(m_IntRegs, 0, sizeof(m_IntRegs));
 }
 
-void PrinterGdb::PrintCycle(const trace::CycleReader& cycle)
+void PrinterGdb::PrintCycle(const trace::CycleView& cycle)
 {
     const auto nodePc64 = cycle.GetPc64Node();
     const auto nodeIntReg64 = cycle.GetIntReg64Node();

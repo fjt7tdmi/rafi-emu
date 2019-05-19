@@ -104,13 +104,13 @@ TEST(TraceCycleTest, BuilderSetNodeAndReaderGetNode)
     builder.SetNode(NodeType::BasicInfo, 0, &basicInfo, sizeof(basicInfo));
     builder.SetNode(NodeType::Pc32, 0, &pc32, sizeof(pc32));
 
-    CycleReader reader(builder.GetData(), builder.GetDataSize());
+    CycleView view(builder.GetData(), builder.GetDataSize());
 
-    ASSERT_EQ(sizeof(basicInfo), reader.GetNodeSize(NodeType::BasicInfo));
-    ASSERT_EQ(sizeof(pc32), reader.GetNodeSize(NodeType::Pc32));
+    ASSERT_EQ(sizeof(basicInfo), view.GetNodeSize(NodeType::BasicInfo));
+    ASSERT_EQ(sizeof(pc32), view.GetNodeSize(NodeType::Pc32));
 
-    ASSERT_EQ(0, std::memcmp(&basicInfo, reader.GetNode(NodeType::BasicInfo), sizeof(basicInfo)));
-    ASSERT_EQ(0, std::memcmp(&pc32, reader.GetNode(NodeType::Pc32), sizeof(pc32)));
+    ASSERT_EQ(0, std::memcmp(&basicInfo, view.GetNode(NodeType::BasicInfo), sizeof(basicInfo)));
+    ASSERT_EQ(0, std::memcmp(&pc32, view.GetNode(NodeType::Pc32), sizeof(pc32)));
 }
 
 TEST(TraceCycleTest, ReaderIsNodeExist)
@@ -127,21 +127,21 @@ TEST(TraceCycleTest, ReaderIsNodeExist)
     CycleBuilder builder1(config1);
     CycleBuilder builder2(config2);
 
-    CycleReader reader0(builder0.GetData(), builder0.GetDataSize());
-    CycleReader reader1(builder1.GetData(), builder1.GetDataSize());
-    CycleReader reader2(builder2.GetData(), builder2.GetDataSize());
+    CycleView view0(builder0.GetData(), builder0.GetDataSize());
+    CycleView view1(builder1.GetData(), builder1.GetDataSize());
+    CycleView view2(builder2.GetData(), builder2.GetDataSize());
 
-    ASSERT_EQ(0, reader0.GetNodeCount(NodeType::BasicInfo));
-    ASSERT_EQ(1, reader1.GetNodeCount(NodeType::BasicInfo));
-    ASSERT_EQ(1, reader2.GetNodeCount(NodeType::BasicInfo));
+    ASSERT_EQ(0, view0.GetNodeCount(NodeType::BasicInfo));
+    ASSERT_EQ(1, view1.GetNodeCount(NodeType::BasicInfo));
+    ASSERT_EQ(1, view2.GetNodeCount(NodeType::BasicInfo));
 
-    ASSERT_EQ(0, reader0.GetNodeCount(NodeType::Pc32));
-    ASSERT_EQ(0, reader1.GetNodeCount(NodeType::Pc32));
-    ASSERT_EQ(1, reader2.GetNodeCount(NodeType::Pc32));
+    ASSERT_EQ(0, view0.GetNodeCount(NodeType::Pc32));
+    ASSERT_EQ(0, view1.GetNodeCount(NodeType::Pc32));
+    ASSERT_EQ(1, view2.GetNodeCount(NodeType::Pc32));
 
-    ASSERT_EQ(0, reader0.GetNodeCount(NodeType::Pc32));
-    ASSERT_EQ(0, reader1.GetNodeCount(NodeType::Pc64));
-    ASSERT_EQ(0, reader2.GetNodeCount(NodeType::Pc64));
+    ASSERT_EQ(0, view0.GetNodeCount(NodeType::Pc32));
+    ASSERT_EQ(0, view1.GetNodeCount(NodeType::Pc64));
+    ASSERT_EQ(0, view2.GetNodeCount(NodeType::Pc64));
 }
 
 TEST(TraceCycleTest, DISABLED_BuilderConfig)

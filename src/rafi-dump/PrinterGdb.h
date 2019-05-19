@@ -25,7 +25,7 @@ class PrinterGdb
 public:
     PrinterGdb();
 
-    void PrintCycle(const trace::CycleReader& cycle);
+    void PrintCycle(const trace::CycleView& cycle);
 
 private:
     // Very dirty workaround to resolve a gap betwee PC and IntRegs in a trace binary.

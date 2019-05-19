@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 
-#include <rafi/trace/CycleReader.h>
+#include <rafi/trace/CycleView.h>
 
 namespace rafi { namespace trace {
 
@@ -38,7 +38,7 @@ private:
     void* m_pBuffer{ nullptr };
     size_t m_BufferSize{ 0 };
 
-    CycleReader* m_pView{ nullptr };
+    CycleView* m_pView{ nullptr };
 };
 
 }}

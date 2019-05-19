@@ -28,5 +28,5 @@
 #include "trace/Cycle.h"
 #include "trace/CycleBuilder.h"
 #include "trace/CycleConfig.h"
-#include "trace/CycleReader.h"
 #include "trace/CycleTypes.h"
+#include "trace/CycleView.h"

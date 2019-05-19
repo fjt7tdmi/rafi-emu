@@ -39,7 +39,7 @@ Cycle::Cycle(const void* buffer, size_t bufferSize)
 
     std::memcpy(m_pBuffer, buffer, bufferSize);
 
-    m_pView = new CycleReader(m_pBuffer, m_BufferSize);
+    m_pView = new CycleView(m_pBuffer, m_BufferSize);
 }
 
 Cycle::~Cycle()

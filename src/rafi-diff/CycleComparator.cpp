@@ -105,7 +105,7 @@ bool CycleComparator::IsMemoryNodeMatched(const void* pExpect, int64_t expectSiz
     return std::memcmp(pExpect, pActual, static_cast<size_t>(expectSize)) == 0;
 }
 
-bool CycleComparator::AreMatched(const CycleReader& expect, const CycleReader& actual) const
+bool CycleComparator::AreMatched(const CycleView& expect, const CycleView& actual) const
 {
     if (!IsPc32NodeMatched(expect.GetPc32Node(), actual.GetPc32Node()))
     {
@@ -293,7 +293,7 @@ void CycleComparator::PrintMemoryDiff(const void* pExpect, size_t expectSize, co
     }
 }
 
-void CycleComparator::PrintDiff(const CycleReader& expect, const CycleReader& actual) const
+void CycleComparator::PrintDiff(const CycleView& expect, const CycleView& actual) const
 {
     const auto pExpectPc32 = expect.GetPc32Node();
     const auto pActualPc32 = actual.GetPc32Node();

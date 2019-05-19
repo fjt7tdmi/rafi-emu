@@ -220,7 +220,7 @@ add_library(librafi_trace
     include/rafi/trace/Cycle.h
     include/rafi/trace/CycleBuilder.h
     include/rafi/trace/CycleConfig.h
-    include/rafi/trace/CycleReader.h
+    include/rafi/trace/CycleView.h
     include/rafi/trace/CycleTypes.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
@@ -238,9 +238,9 @@ add_library(librafi_trace
     src/librafi_trace/CycleBuilder.cpp
     src/librafi_trace/CycleBuilderImpl.cpp
     src/librafi_trace/CycleBuilderImpl.h
-    src/librafi_trace/CycleReader.cpp
-    src/librafi_trace/CycleReaderImpl.cpp
-    src/librafi_trace/CycleReaderImpl.h
+    src/librafi_trace/CycleView.cpp
+    src/librafi_trace/CycleViewImpl.cpp
+    src/librafi_trace/CycleViewImpl.h
 )
 
 add_executable(rafi-check-io
