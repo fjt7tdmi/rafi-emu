@@ -34,7 +34,6 @@ public:
     virtual bool IsEnd() = 0;
 
     virtual void MoveToNextCycle() = 0;
-    virtual void MoveToPreviousCycle() = 0;
 };
 
 }}

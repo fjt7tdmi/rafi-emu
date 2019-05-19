@@ -39,7 +39,6 @@ public:
     virtual bool IsEnd();
 
     virtual void MoveToNextCycle();
-    virtual void MoveToPreviousCycle();
 
 private:
     MemoryTraceReaderImpl* m_pImpl;

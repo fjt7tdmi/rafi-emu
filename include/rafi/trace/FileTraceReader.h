@@ -40,7 +40,6 @@ public:
     virtual bool IsEnd();
 
     virtual void MoveToNextCycle();
-    virtual void MoveToPreviousCycle();
 
 private:
     FileTraceReaderImpl* m_pImpl;

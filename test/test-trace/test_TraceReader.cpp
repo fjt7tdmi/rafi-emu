@@ -63,20 +63,6 @@ TEST(TraceReaderTest, Basic)
     // end
     ASSERT_FALSE(reader.IsBegin());
     ASSERT_TRUE(reader.IsEnd());
-
-    reader.MoveToPreviousCycle();
-
-    // cycle 1
-    ASSERT_FALSE(reader.IsBegin());
-    ASSERT_FALSE(reader.IsEnd());
-    ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
-
-    reader.MoveToPreviousCycle();
-
-    // cycle 0
-    ASSERT_TRUE(reader.IsBegin());
-    ASSERT_FALSE(reader.IsEnd());
-    ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 }
 
 TEST(TraceReaderTest, OutOfRangeAccess)
@@ -92,8 +78,6 @@ TEST(TraceReaderTest, OutOfRangeAccess)
     }
 
     MemoryTraceReader reader(buffer, builder->GetDataSize());
-
-    ASSERT_THROW(reader.MoveToPreviousCycle(), TraceException);
 
     reader.MoveToNextCycle();
     ASSERT_THROW(reader.MoveToNextCycle(), TraceException);
