@@ -217,7 +217,6 @@ add_library(librafi_trace
     include/rafi/trace/ITraceWriter.h
     include/rafi/trace/MemoryTraceReader.h
     include/rafi/trace/MemoryTraceWriter.h
-    include/rafi/trace/Cycle.h
     include/rafi/trace/CycleBuilder.h
     include/rafi/trace/CycleConfig.h
     include/rafi/trace/CycleView.h
@@ -234,7 +233,6 @@ add_library(librafi_trace
     src/librafi_trace/MemoryTraceWriter.cpp
     src/librafi_trace/MemoryTraceWriterImpl.cpp
     src/librafi_trace/MemoryTraceWriterImpl.h
-    src/librafi_trace/Cycle.cpp
     src/librafi_trace/CycleBuilder.cpp
     src/librafi_trace/CycleBuilderImpl.cpp
     src/librafi_trace/CycleBuilderImpl.h

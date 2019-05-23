@@ -14,49 +14,39 @@
  * limitations under the License.
  */
 
-#include <cassert>
-#include <cstddef>
-#include <cstdlib>
+#pragma once
+
+#include <cstdint>
+#include <string>
+#include <vector>
 
 #include <rafi/trace.h>
 
+#include "TextCycle.h"
+
 namespace rafi { namespace trace {
 
-Cycle::Cycle()
+class TextTraceReaderImpl final
 {
-}
+public:
+    TextTraceReaderImpl(const char* path);
+    ~TextTraceReaderImpl();
 
-Cycle::Cycle(const void* buffer, size_t bufferSize)
-{
-    m_pBuffer = std::malloc(bufferSize);
-    m_BufferSize = bufferSize;
+    CycleView GetCycleView() const;
 
-    if (!m_pBuffer)
-    {
-        std::fprintf(stderr, "Out of memory.\n");
-        std::exit(1);
-    }
+    bool IsBegin() const;
+    bool IsEnd() const;
 
-    std::memcpy(m_pBuffer, buffer, bufferSize);
+    void Next();
 
-    m_pView = new CycleView(m_pBuffer, m_BufferSize);
-}
+private:
+    std::ifstream* m_pInput;
 
-Cycle::~Cycle()
-{
-    if (m_pView)
-    {
-        delete m_pView;
-    }
-    if (m_pBuffer)
-    {
-        std::free(m_pBuffer);
-    }
-}
+    std::unique_ptr<TextCycle> m_pTextCycle;
+    std::unique_ptr<CycleBuilder> m_pCycleBuilder;
 
-const IoNode* Cycle::GetIoNode() const
-{
-    return m_pView->GetIoNode();
-}
+    bool m_IsBegin{ false };
+    bool m_IsEnd{ false };
+};
 
 }}

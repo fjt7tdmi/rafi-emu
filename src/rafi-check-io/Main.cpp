@@ -31,17 +31,17 @@ namespace {
     uint32_t ExpectedHostIoValue = 1;
 }
 
-std::unique_ptr<Cycle> GetLastCycle(FileTraceReader* pReader)
+uint32_t GetLastHostIoValue(FileTraceReader* pReader)
 {
-    std::unique_ptr<Cycle> pCycle;
+    uint32_t hostIoValue = 0;
 
     while (!pReader->IsEnd())
     {
-        pCycle = pReader->GetCycle();
+        hostIoValue = pReader->GetCycle()->GetIoNode()->hostIoValue;
         pReader->Next();
     }
 
-    return pCycle;
+    return hostIoValue;
 }
 
 bool Check(const char* name, const char* path)
@@ -50,17 +50,15 @@ bool Check(const char* name, const char* path)
     {
         FileTraceReader reader(path);
 
-        const auto pLastCycle = GetLastCycle(&reader);
-
         // Find IoNode
-        const auto ioNode = pLastCycle->GetIoNode();
+        const auto hostIoValue = GetLastHostIoValue(&reader);
 
         // Check IoValue
-        if (ioNode->hostIoValue != ExpectedHostIoValue)
+        if (hostIoValue != ExpectedHostIoValue)
         {
             std::cout << Failed << " " << name << " ("
-                << std::hex << "hostIoValue:0x" << ioNode->hostIoValue << " "
-                << std::dec << "testId:" << (ioNode->hostIoValue / 2)
+                << std::hex << "hostIoValue:0x" << hostIoValue << " "
+                << std::dec << "testId:" << (hostIoValue / 2)
                 << ")" << std::endl;
             return false;
         }

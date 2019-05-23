@@ -16,29 +16,30 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <rafi/common.h>
+#include <rafi/trace/Cycle.h>
 
-#include <rafi/trace/CycleView.h>
+#include "ITraceReader.h"
 
 namespace rafi { namespace trace {
 
-class CycleImpl;
+class TextTraceReaderImpl;
 
-class Cycle
+class TextTraceReader : public ITraceReader
 {
 public:
-    Cycle();
-    Cycle(const void* buffer, size_t bufferSize);
+    TextTraceReader(const char* path);
+    virtual ~TextTraceReader();
 
-    ~Cycle();
+    virtual CycleView GetCycleView() const;
 
-    const IoNode* GetIoNode() const;
+    virtual bool IsBegin() const;
+    virtual bool IsEnd() const;
+
+    virtual void Next();
 
 private:
-    void* m_pBuffer{ nullptr };
-    size_t m_BufferSize{ 0 };
-
-    CycleView* m_pView{ nullptr };
+    TextTraceReaderImpl* m_pImpl;
 };
 
 }}
