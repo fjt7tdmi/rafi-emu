@@ -49,14 +49,12 @@ TEST(TraceReaderTest, Basic)
     // cycle 0
     ASSERT_TRUE(reader.IsBegin());
     ASSERT_FALSE(reader.IsEnd());
-    ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
     reader.Next();
 
     // cycle 1
     ASSERT_FALSE(reader.IsBegin());
     ASSERT_FALSE(reader.IsEnd());
-    ASSERT_EQ(builder->GetDataSize(), reader.GetCurrentCycleDataSize());
 
     reader.Next();
 

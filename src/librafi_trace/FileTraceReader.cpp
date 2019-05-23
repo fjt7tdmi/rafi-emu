@@ -30,22 +30,17 @@ FileTraceReader::~FileTraceReader()
     delete m_pImpl;
 }
 
-const void* FileTraceReader::GetCurrentCycleData()
+CycleView FileTraceReader::GetCycleView() const
 {
-    return m_pImpl->GetCurrentCycleData();
+    return m_pImpl->GetCycleView();
 }
 
-int64_t FileTraceReader::GetCurrentCycleDataSize()
-{
-    return m_pImpl->GetCurrentCycleDataSize();
-}
-
-bool FileTraceReader::IsBegin()
+bool FileTraceReader::IsBegin() const
 {
     return m_pImpl->IsBegin();
 }
 
-bool FileTraceReader::IsEnd()
+bool FileTraceReader::IsEnd() const
 {
     return m_pImpl->IsEnd();
 }
@@ -53,6 +48,11 @@ bool FileTraceReader::IsEnd()
 void FileTraceReader::Next()
 {
     m_pImpl->Next();
+}
+
+std::unique_ptr<Cycle> FileTraceReader::GetCycle() const
+{
+    return m_pImpl->GetCycle();
 }
 
 }}

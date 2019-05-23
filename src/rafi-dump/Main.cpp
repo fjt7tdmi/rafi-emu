@@ -424,7 +424,7 @@ void PrintTrace(const std::string& path, const DumpConfig& config)
 
         if (i >= config.cycleStart)
         {
-            CycleView cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
+            const auto cycle = reader.GetCycleView();
 
             if (config.mode == DumpMode::Gdb)
             {

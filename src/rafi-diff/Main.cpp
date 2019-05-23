@@ -47,8 +47,8 @@ void CompareTrace(const std::string& expectPath, const std::string& actualPath, 
 
     while (!expectReader.IsEnd() && !actualReader.IsEnd())
     {
-        CycleView expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
-        CycleView actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
+        const auto expectCycle = expectReader.GetCycleView();
+        const auto actualCycle = actualReader.GetCycleView();
 
         if (!comparator.AreMatched(expectCycle, actualCycle))
         {

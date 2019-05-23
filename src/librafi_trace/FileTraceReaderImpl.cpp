@@ -80,22 +80,17 @@ FileTraceReaderImpl::~FileTraceReaderImpl()
     m_pStream = nullptr;
 }
 
-const void* FileTraceReaderImpl::GetCurrentCycleData()
+CycleView FileTraceReaderImpl::GetCycleView() const
 {
-    return m_pCycleData;
+    return CycleView(m_pCycleData, m_CycleDataSize);
 }
 
-int64_t FileTraceReaderImpl::GetCurrentCycleDataSize()
-{
-    return m_CycleDataSize;
-}
-
-bool FileTraceReaderImpl::IsBegin()
+bool FileTraceReaderImpl::IsBegin() const
 {
     return m_Offset == 0;
 }
 
-bool FileTraceReaderImpl::IsEnd()
+bool FileTraceReaderImpl::IsEnd() const
 {
     return m_Offset == m_FileSize;
 }
@@ -104,7 +99,7 @@ void FileTraceReaderImpl::Next()
 {
     CheckOffset(m_Offset);
 
-    m_Offset += GetCurrentCycleDataSize();
+    m_Offset += m_CycleDataSize;
 
     if (!IsEnd())
     {
@@ -112,6 +107,11 @@ void FileTraceReaderImpl::Next()
     }
 
     UpdateCycleData();
+}
+
+std::unique_ptr<Cycle> FileTraceReaderImpl::GetCycle() const
+{
+    return std::make_unique<Cycle>(m_pCycleData, m_CycleDataSize);
 }
 
 void FileTraceReaderImpl::UpdateCycleData()
@@ -141,7 +141,7 @@ void FileTraceReaderImpl::UpdateCycleData()
     m_pStream->read(m_pCycleData, m_CycleDataSize);
 }
 
-void FileTraceReaderImpl::CheckOffset(int64_t offset)
+void FileTraceReaderImpl::CheckOffset(int64_t offset) const
 {
     if (!(0 <= offset && offset <= m_FileSize))
     {

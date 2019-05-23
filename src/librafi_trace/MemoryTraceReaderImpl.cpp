@@ -34,36 +34,19 @@ MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
 {
 }
 
-const void* MemoryTraceReaderImpl::GetCurrentCycleData()
+CycleView MemoryTraceReaderImpl::GetCycleView() const
 {
-    CheckBufferSize();
-    CheckOffset(m_CurrentOffset);
-
-    return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
+    return CycleView(GetCurrentCycleData(), GetCurrentCycleDataSize());
 }
 
-int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
-{
-    CheckBufferSize();
-
-    const auto size = GetCurrentCycleHeader()->footerOffset + sizeof(CycleFooter);
-
-    if (size < sizeof(CycleHeader) + sizeof(CycleFooter))
-    {
-        throw TraceException("detect data corruption. (Trace cycle size is too small)", m_CurrentOffset);
-    }
-
-    return size;
-}
-
-bool MemoryTraceReaderImpl::IsBegin()
+bool MemoryTraceReaderImpl::IsBegin() const
 {
     CheckBufferSize();
 
     return m_CurrentOffset == 0;
 }
 
-bool MemoryTraceReaderImpl::IsEnd()
+bool MemoryTraceReaderImpl::IsEnd() const
 {
     CheckBufferSize();
 
@@ -83,28 +66,34 @@ void MemoryTraceReaderImpl::Next()
     }
 }
 
-void MemoryTraceReaderImpl::CheckOffset(int64_t offset)
+const void* MemoryTraceReaderImpl::GetCurrentCycleData() const
 {
-    if (!(0 <= offset && offset <= m_BufferSize))
-    {
-        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
-    }
+    CheckBufferSize();
+    CheckOffset(m_CurrentOffset);
+
+    return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
 }
 
-void MemoryTraceReaderImpl::CheckBufferSize()
+int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize() const
 {
-    if (m_BufferSize < sizeof(CycleHeader))
+    CheckBufferSize();
+
+    const auto size = GetCurrentCycleHeader()->footerOffset + sizeof(CycleFooter);
+
+    if (size < sizeof(CycleHeader) + sizeof(CycleFooter))
     {
-        throw TraceException("detect data corruption. (Data size is too small)");
+        throw TraceException("detect data corruption. (Trace cycle size is too small)", m_CurrentOffset);
     }
+
+    return size;
 }
 
-const CycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader()
+const CycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader() const
 {
     return reinterpret_cast<const CycleHeader*>(GetCurrentCycleData());
 }
 
-const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
+const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter() const
 {
     const auto offset = m_CurrentOffset - sizeof(CycleFooter);
 
@@ -113,6 +102,22 @@ const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
     const auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
 
     return reinterpret_cast<const CycleFooter*>(p);
+}
+
+void MemoryTraceReaderImpl::CheckOffset(int64_t offset) const
+{
+    if (!(0 <= offset && offset <= m_BufferSize))
+    {
+        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
+    }
+}
+
+void MemoryTraceReaderImpl::CheckBufferSize() const
+{
+    if (m_BufferSize < sizeof(CycleHeader))
+    {
+        throw TraceException("detect data corruption. (Data size is too small)");
+    }
 }
 
 }}

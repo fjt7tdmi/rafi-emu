@@ -30,13 +30,14 @@ public:
     FileTraceReaderImpl(const char* path);
     ~FileTraceReaderImpl();
 
-    const void* GetCurrentCycleData();
-    int64_t GetCurrentCycleDataSize();
+    CycleView GetCycleView() const;
 
-    bool IsBegin();
-    bool IsEnd();
+    bool IsBegin() const;
+    bool IsEnd() const;
 
     void Next();
+
+    std::unique_ptr<Cycle> GetCycle() const;
 
 private:
     void UpdateCycleData();
@@ -44,7 +45,7 @@ private:
     CycleHeader GetCurrentCycleHeader();
     CycleFooter GetPreviousCycleFooter();
 
-    void CheckOffset(int64_t offset);
+    void CheckOffset(int64_t offset) const;
 
     std::ifstream* m_pStream{ nullptr };
 

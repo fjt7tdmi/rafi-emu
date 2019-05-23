@@ -31,20 +31,26 @@ namespace {
     uint32_t ExpectedHostIoValue = 1;
 }
 
+std::unique_ptr<Cycle> GetLastCycle(FileTraceReader* pReader)
+{
+    std::unique_ptr<Cycle> pCycle;
+
+    while (!pReader->IsEnd())
+    {
+        pCycle = pReader->GetCycle();
+        pReader->Next();
+    }
+
+    return pCycle;
+}
+
 bool Check(const char* name, const char* path)
 {
     try
     {
         FileTraceReader reader(path);
 
-        std::unique_ptr<Cycle> pLastCycle;
-
-        // Get last cycle data
-        while (!reader.IsEnd())
-        {
-            pLastCycle = std::make_unique<Cycle>(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
-            reader.Next();
-        }
+        const auto pLastCycle = GetLastCycle(&reader);
 
         // Find IoNode
         const auto ioNode = pLastCycle->GetIoNode();

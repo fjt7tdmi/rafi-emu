@@ -20,6 +20,8 @@
 
 #include <rafi/common.h>
 
+#include <rafi/trace/CycleView.h>
+
 namespace rafi { namespace trace {
 
 class ITraceReader
@@ -27,11 +29,10 @@ class ITraceReader
 public:
     virtual ~ITraceReader(){}
 
-    virtual const void* GetCurrentCycleData() = 0;
-    virtual int64_t GetCurrentCycleDataSize() = 0;
+    virtual CycleView GetCycleView() const = 0;
 
-    virtual bool IsBegin() = 0;
-    virtual bool IsEnd() = 0;
+    virtual bool IsBegin() const = 0;
+    virtual bool IsEnd() const = 0;
 
     virtual void Next() = 0;
 };

@@ -28,20 +28,22 @@ public:
     MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize);
     ~MemoryTraceReaderImpl();
 
-    const void* GetCurrentCycleData();
-    int64_t GetCurrentCycleDataSize();
+    CycleView GetCycleView() const;
 
-    bool IsBegin();
-    bool IsEnd();
+    bool IsBegin() const;
+    bool IsEnd() const;
 
     void Next();
 
 private:
-    const CycleHeader* GetCurrentCycleHeader();
-    const CycleFooter* GetPreviousCycleFooter();
+    const void* GetCurrentCycleData() const;
+    int64_t GetCurrentCycleDataSize() const;
 
-    void CheckBufferSize();
-    void CheckOffset(int64_t offset);
+    const CycleHeader* GetCurrentCycleHeader() const;
+    const CycleFooter* GetPreviousCycleFooter() const;
+
+    void CheckBufferSize() const;
+    void CheckOffset(int64_t offset) const;
 
     const void* m_pBuffer;
     int64_t m_BufferSize;
