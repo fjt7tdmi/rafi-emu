@@ -45,6 +45,10 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::basic_istream<char>* pInput, XL
         {
             p->ParseIntReg(pInput);
         }
+        else if (s == "NOTE")
+        {
+            p->ParseNote(pInput);
+        }
         else
         {
             throw TraceException("Trace text parse error: unknown literal.");
@@ -148,6 +152,13 @@ void TextCycle::ParseFpReg(std::basic_istream<char>* pInput)
     }
 
     m_FpRegExist = true;
+}
+
+void TextCycle::ParseNote(std::basic_istream<char>* pInput)
+{
+    std::string note;
+    
+    *pInput >> note;
 }
 
 }}

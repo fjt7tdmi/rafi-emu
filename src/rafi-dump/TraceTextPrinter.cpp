@@ -25,13 +25,13 @@ namespace rafi {
 
 void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
 {
-    if (!m_HeaderPrinted)
+    if (m_Cycle == 0)
     {
         PrintHeader(cycle);
-        m_HeaderPrinted = true;
     }
 
     printf(
+        "NOTE  cycle%" PRId64 "\n"
         "PC  %016" PRIx64 "  %016" PRIx64 "\n"
         "INT\n"
         "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
@@ -43,6 +43,7 @@ void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
         "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
         "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
         "BREAK\n",
+        m_Cycle,
         cycle->GetPc(false), cycle->GetPc(true),
         cycle->GetIntReg(0), cycle->GetIntReg(1), cycle->GetIntReg(2), cycle->GetIntReg(3),
         cycle->GetIntReg(4), cycle->GetIntReg(5), cycle->GetIntReg(6), cycle->GetIntReg(7),
@@ -52,6 +53,8 @@ void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
         cycle->GetIntReg(20), cycle->GetIntReg(21), cycle->GetIntReg(22), cycle->GetIntReg(23),
         cycle->GetIntReg(24), cycle->GetIntReg(25), cycle->GetIntReg(26), cycle->GetIntReg(27),
         cycle->GetIntReg(28), cycle->GetIntReg(29), cycle->GetIntReg(30), cycle->GetIntReg(31));
+    
+    m_Cycle++;
 }
 
 void TraceTextPrinter::PrintHeader(const trace::ICycle* cycle)

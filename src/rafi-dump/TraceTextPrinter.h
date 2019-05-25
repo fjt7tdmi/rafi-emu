@@ -28,7 +28,7 @@ public:
 private:
     void PrintHeader(const trace::ICycle* cycle);
 
-    bool m_HeaderPrinted{ false };
+    uint64_t m_Cycle{ 0 };
 };
 
 }

@@ -46,6 +46,7 @@ private:
     void ParsePc(std::basic_istream<char>* pInput);
     void ParseIntReg(std::basic_istream<char>* pInput);
     void ParseFpReg(std::basic_istream<char>* pInput);
+    void ParseNote(std::basic_istream<char>* pInput);
 
     XLEN m_XLEN;
 

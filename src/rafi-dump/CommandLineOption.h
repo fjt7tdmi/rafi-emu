@@ -46,6 +46,7 @@ private:
     Mode m_Mode;
 
     std::string m_Path;
+    
     int m_CycleCount;
     int m_CycleStart;
 };
