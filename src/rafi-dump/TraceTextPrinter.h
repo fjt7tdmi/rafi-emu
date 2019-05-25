@@ -20,18 +20,15 @@
 
 namespace rafi {
 
-class PrinterGdb
+class TraceTextPrinter
 {
 public:
-    PrinterGdb();
-
-    void PrintCycle(const trace::CycleView& cycle);
+    void PrintCycle(const trace::ICycle* cycle);
 
 private:
-    // Very dirty workaround to resolve a gap betwee PC and IntRegs in a trace binary.
-    void SaveIntRegs(const trace::IntReg64Node* pNode);
+    void PrintHeader(const trace::ICycle* cycle);
 
-    unsigned long long m_IntRegs[32];
+    bool m_HeaderPrinted{ false };
 };
 
 }

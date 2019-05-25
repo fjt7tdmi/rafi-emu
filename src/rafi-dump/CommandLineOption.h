@@ -16,21 +16,38 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <string>
+
+#include <rafi/trace.h>
 
 namespace rafi {
 
-enum class DumpMode
+enum class Mode
 {
     Normal = 0,
-    Gdb = 1,
+    TraceText = 1,
 };
 
-struct DumpConfig
+class CommandLineOption
 {
-    DumpMode mode;
-    int cycleStart;
-    int cycleCount;
+public:
+    CommandLineOption(int argc, char** argv);
+
+    Mode GetMode() const;
+
+    const std::string& GetPath() const;
+
+    const int GetCycleCount() const;
+    const int GetCycleStart() const;
+
+private:
+    static const int DefaultCount = 1000 * 1000 * 1000;
+
+    Mode m_Mode;
+
+    std::string m_Path;
+    int m_CycleCount;
+    int m_CycleStart;
 };
 
 }

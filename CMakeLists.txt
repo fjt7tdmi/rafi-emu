@@ -261,10 +261,11 @@ add_executable(rafi-diff
 )
 
 add_executable(rafi-dump
-    src/rafi-dump/DumpConfig.h
+    src/rafi-dump/CommandLineOption.cpp
+    src/rafi-dump/CommandLineOption.h
     src/rafi-dump/Main.cpp
-    src/rafi-dump/PrinterGdb.cpp
-    src/rafi-dump/PrinterGdb.h
+    src/rafi-dump/TraceTextPrinter.cpp
+    src/rafi-dump/TraceTextPrinter.h
 )
 
 add_executable(rafi-emu
