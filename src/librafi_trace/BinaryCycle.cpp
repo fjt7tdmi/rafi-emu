@@ -76,7 +76,7 @@ uint64_t BinaryCycle::GetPc(bool isPhysical) const
     {
         auto node = m_Impl.GetPc64Node();
 
-        return isPhysical ? node->physicalPc : m_Impl.GetPc32Node()->virtualPc;
+        return isPhysical ? node->physicalPc : m_Impl.GetPc64Node()->virtualPc;
     }
 }
 

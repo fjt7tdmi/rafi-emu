@@ -120,13 +120,13 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     try
     {
         po::store(po::parse_command_line(argc, argv, desc), variables);
+        po::notify(variables);
     }
     catch (const boost::program_options::error_with_option_name& e)
     {
         std::cout << e.what() << std::endl;
         std::exit(1);
     }
-    po::notify(variables);
 
     if (variables.count("help"))
     {

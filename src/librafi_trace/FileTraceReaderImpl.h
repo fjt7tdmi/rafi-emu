@@ -55,7 +55,7 @@ private:
     int64_t m_CycleDataSize{ 0 };
     char* m_pCycleData{ nullptr };
 
-    BinaryCycle* m_pCycle;
+    BinaryCycle* m_pCycle{ nullptr };
 };
 
 }}

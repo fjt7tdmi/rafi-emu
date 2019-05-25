@@ -254,6 +254,8 @@ add_executable(rafi-check-io
 
 add_executable(rafi-diff
     src/rafi-diff/Main.cpp
+    src/rafi-diff/CommandLineOption.cpp
+    src/rafi-diff/CommandLineOption.h
     src/rafi-diff/CycleComparator.cpp
     src/rafi-diff/CycleComparator.h
 )
