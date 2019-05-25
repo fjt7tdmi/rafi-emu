@@ -16,27 +16,36 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+#include <string>
+#include <vector>
 
-#include <rafi/common.h>
-#include <rafi/trace/CycleTypes.h>
+#include <rafi/trace.h>
+
+#include "TextCycle.h"
 
 namespace rafi { namespace trace {
 
-class ICycle
+class TextTrace final
 {
 public:
-    virtual ~ICycle(){}
+    TextTrace(std::basic_istream<char>* pInput);
+    ~TextTrace();
 
-    virtual XLEN GetXLEN() const = 0;
+    const ICycle* GetCycle() const;
 
-    virtual bool IsPcExist() const = 0;
-    virtual bool IsIntRegExist() const = 0;
-    virtual bool IsFpRegExist() const = 0;
+    bool IsEnd() const;
 
-    virtual uint64_t GetPc(bool isPhysical) const = 0;
-    virtual uint64_t GetIntReg(int index) const = 0;
-    virtual uint64_t GetFpReg(int index) const = 0;
+    void Next();
+
+private:
+    void UpdateTextCycle();
+
+    XLEN m_XLEN;
+
+    std::basic_istream<char>* m_pInput;
+
+    std::unique_ptr<TextCycle> m_pTextCycle;
 };
 
 }}

@@ -221,6 +221,14 @@ add_library(librafi_trace
     include/rafi/trace/CycleConfig.h
     include/rafi/trace/CycleView.h
     include/rafi/trace/CycleTypes.h
+    src/librafi_trace/BinaryCycle.cpp
+    src/librafi_trace/BinaryCycle.h
+    src/librafi_trace/CycleBuilder.cpp
+    src/librafi_trace/CycleBuilderImpl.cpp
+    src/librafi_trace/CycleBuilderImpl.h
+    src/librafi_trace/CycleView.cpp
+    src/librafi_trace/CycleViewImpl.cpp
+    src/librafi_trace/CycleViewImpl.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
     src/librafi_trace/FileTraceReaderImpl.h
@@ -233,12 +241,11 @@ add_library(librafi_trace
     src/librafi_trace/MemoryTraceWriter.cpp
     src/librafi_trace/MemoryTraceWriterImpl.cpp
     src/librafi_trace/MemoryTraceWriterImpl.h
-    src/librafi_trace/CycleBuilder.cpp
-    src/librafi_trace/CycleBuilderImpl.cpp
-    src/librafi_trace/CycleBuilderImpl.h
-    src/librafi_trace/CycleView.cpp
-    src/librafi_trace/CycleViewImpl.cpp
-    src/librafi_trace/CycleViewImpl.h
+    src/librafi_trace/TextCycle.cpp
+    src/librafi_trace/TextCycle.h
+    src/librafi_trace/TextTrace.cpp
+    src/librafi_trace/TextTrace.h
+    src/librafi_trace/TextTraceReader.cpp
 )
 
 add_executable(rafi-check-io
@@ -325,6 +332,7 @@ add_executable(test-op
 )
 
 add_executable(test-trace
+    test/test-trace/test_TextTrace.cpp
     test/test-trace/test_TraceCycle.cpp
     test/test-trace/test_TraceReader.cpp
     test/test-trace/test_TraceUtil.cpp

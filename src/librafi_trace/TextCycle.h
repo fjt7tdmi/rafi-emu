@@ -18,34 +18,34 @@
 
 #include <cstdint>
 #include <string>
-#include <fstream>
+#include <istream>
 #include <vector>
 #include <rafi/trace.h>
 
 namespace rafi { namespace trace {
 
-class TextCycle : ICycle
+class TextCycle : public ICycle
 {
 public:
-    static std::unique_ptr<TextCycle> Parse(std::ifstream& input);
+    static std::unique_ptr<TextCycle> Parse(std::basic_istream<char>* pInput, XLEN xlen);
 
     TextCycle(XLEN xlen);
     virtual ~TextCycle();
 
-    virtual XLEN GetXLEN() = 0;
+    virtual XLEN GetXLEN() const;
 
-    virtual bool IsPcExist() = 0;
-    virtual bool IsIntRegExist() = 0;
-    virtual bool IsFpRegExist() = 0;
+    virtual bool IsPcExist() const;
+    virtual bool IsIntRegExist() const;
+    virtual bool IsFpRegExist() const;
 
-    virtual uint64_t GetPc(bool isPhysical) = 0;
-    virtual uint64_t GetIntReg(int index) = 0;
-    virtual uint64_t GetFpReg(int index) = 0;
+    virtual uint64_t GetPc(bool isPhysical) const;
+    virtual uint64_t GetIntReg(int index) const;
+    virtual uint64_t GetFpReg(int index) const;
 
 private:
-    void ParsePc(std::ifstream& input);
-    void ParseIntReg(std::ifstream& input);
-    void ParseFpReg(std::ifstream& input);
+    void ParsePc(std::basic_istream<char>* pInput);
+    void ParseIntReg(std::basic_istream<char>* pInput);
+    void ParseFpReg(std::basic_istream<char>* pInput);
 
     XLEN m_XLEN;
 

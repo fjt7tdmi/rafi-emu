@@ -16,37 +16,41 @@
 
 #include <rafi/trace.h>
 
-#include "TextTraceReaderImpl.h"
+#include "TextTrace.h"
 
 namespace rafi { namespace trace {
 
 TextTraceReader::TextTraceReader(const char* path)
 {
-    m_pImpl = new TextTraceReaderImpl(path);
+    m_pInput = new std::ifstream(path, std::ios::in);
+    m_pTrace = new TextTrace(m_pInput);
 }
 
 TextTraceReader::~TextTraceReader()
 {
-    if (m_pImpl != nullptr)
+    if (m_pTrace != nullptr)
     {
-        delete m_pImpl;
-        m_pImpl = nullptr;
+        delete m_pTrace;
+    }
+    if (m_pInput != nullptr)
+    {
+        delete m_pInput;
     }
 }
 
 const ICycle* TextTraceReader::GetCycle() const
 {
-    return nullptr;
+    return m_pTrace->GetCycle();
 }
 
 bool TextTraceReader::IsEnd() const
 {
-    return m_pImpl->IsEnd();
+    return m_pTrace->IsEnd();
 }
 
 void TextTraceReader::Next()
 {
-    m_pImpl->Next();
+    m_pTrace->Next();
 }
 
 CycleView TextTraceReader::GetCycleView() const

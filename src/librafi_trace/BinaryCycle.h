@@ -16,32 +16,30 @@
 
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <vector>
-
 #include <rafi/trace.h>
 
-#include "TextCycle.h"
+#include "CycleViewImpl.h"
 
 namespace rafi { namespace trace {
 
-class TextTraceReaderImpl final
+class BinaryCycle : public ICycle
 {
 public:
-    TextTraceReaderImpl(const char* path);
-    ~TextTraceReaderImpl();
+    BinaryCycle(const void* buffer, int64_t bufferSize);
+    virtual ~BinaryCycle() override;
 
-    const ICycle* GetCycle() const;
+    virtual XLEN GetXLEN() const override;
 
-    bool IsEnd() const;
+    virtual bool IsPcExist() const override;
+    virtual bool IsIntRegExist() const override;
+    virtual bool IsFpRegExist() const override;
 
-    void Next();
+    virtual uint64_t GetPc(bool isPhysical) const override;
+    virtual uint64_t GetIntReg(int index) const override;
+    virtual uint64_t GetFpReg(int index) const override;
 
 private:
-    std::ifstream* m_pInput;
-
-    std::unique_ptr<TextCycle> m_pTextCycle;
+    CycleViewImpl m_Impl;
 };
 
 }}

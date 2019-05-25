@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <fstream>
+
 #include <rafi/common.h>
 #include <rafi/trace/CycleView.h>
 
@@ -23,7 +25,7 @@
 
 namespace rafi { namespace trace {
 
-class TextTraceReaderImpl;
+class TextTrace;
 
 class TextTraceReader : public ITraceReader
 {
@@ -40,7 +42,8 @@ public:
     CycleView GetCycleView() const;
 
 private:
-    TextTraceReaderImpl* m_pImpl;
+    std::ifstream* m_pInput{ nullptr };
+    TextTrace* m_pTrace{ nullptr };
 };
 
 }}

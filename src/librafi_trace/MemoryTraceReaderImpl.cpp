@@ -26,12 +26,16 @@ namespace rafi { namespace trace {
 MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
-    , m_CurrentOffset(0)
 {
 }
 
 MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
 {
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
 }
 
 CycleView MemoryTraceReaderImpl::GetCycleView() const
@@ -51,11 +55,17 @@ void MemoryTraceReaderImpl::Next()
     CheckBufferSize();
     CheckOffset(m_CurrentOffset);
 
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
+
     m_CurrentOffset += GetCurrentCycleDataSize();
 
     if (!IsEnd())
     {
-        CheckOffset(m_CurrentOffset);
+        m_pCycle = new BinaryCycle(GetCurrentCycleData(), GetCurrentCycleDataSize());
     }
 }
 
