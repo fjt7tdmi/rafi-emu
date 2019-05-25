@@ -35,11 +35,6 @@ CycleView FileTraceReader::GetCycleView() const
     return m_pImpl->GetCycleView();
 }
 
-bool FileTraceReader::IsBegin() const
-{
-    return m_pImpl->IsBegin();
-}
-
 bool FileTraceReader::IsEnd() const
 {
     return m_pImpl->IsEnd();
@@ -48,11 +43,6 @@ bool FileTraceReader::IsEnd() const
 void FileTraceReader::Next()
 {
     m_pImpl->Next();
-}
-
-std::unique_ptr<Cycle> FileTraceReader::GetCycle() const
-{
-    return m_pImpl->GetCycle();
 }
 
 }}

@@ -20,7 +20,7 @@
 #include <memory>
 
 #include <rafi/common.h>
-#include <rafi/trace/Cycle.h>
+#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 #include "MemoryTraceReader.h"
@@ -37,12 +37,9 @@ public:
 
     virtual CycleView GetCycleView() const;
 
-    virtual bool IsBegin() const;
     virtual bool IsEnd() const;
 
     virtual void Next();
-
-    std::unique_ptr<Cycle> GetCycle() const;
 
 private:
     FileTraceReaderImpl* m_pImpl;

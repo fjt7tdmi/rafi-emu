@@ -85,11 +85,6 @@ CycleView FileTraceReaderImpl::GetCycleView() const
     return CycleView(m_pCycleData, m_CycleDataSize);
 }
 
-bool FileTraceReaderImpl::IsBegin() const
-{
-    return m_Offset == 0;
-}
-
 bool FileTraceReaderImpl::IsEnd() const
 {
     return m_Offset == m_FileSize;
@@ -107,11 +102,6 @@ void FileTraceReaderImpl::Next()
     }
 
     UpdateCycleData();
-}
-
-std::unique_ptr<Cycle> FileTraceReaderImpl::GetCycle() const
-{
-    return std::make_unique<Cycle>(m_pCycleData, m_CycleDataSize);
 }
 
 void FileTraceReaderImpl::UpdateCycleData()

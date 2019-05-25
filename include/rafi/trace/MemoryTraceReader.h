@@ -34,7 +34,6 @@ public:
 
     virtual CycleView GetCycleView() const;
 
-    virtual bool IsBegin() const;
     virtual bool IsEnd() const;
 
     virtual void Next();

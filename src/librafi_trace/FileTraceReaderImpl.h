@@ -32,12 +32,9 @@ public:
 
     CycleView GetCycleView() const;
 
-    bool IsBegin() const;
     bool IsEnd() const;
 
     void Next();
-
-    std::unique_ptr<Cycle> GetCycle() const;
 
 private:
     void UpdateCycleData();

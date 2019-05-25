@@ -37,7 +37,7 @@ uint32_t GetLastHostIoValue(FileTraceReader* pReader)
 
     while (!pReader->IsEnd())
     {
-        hostIoValue = pReader->GetCycle()->GetIoNode()->hostIoValue;
+        hostIoValue = pReader->GetCycleView().GetIoNode()->hostIoValue;
         pReader->Next();
     }
 

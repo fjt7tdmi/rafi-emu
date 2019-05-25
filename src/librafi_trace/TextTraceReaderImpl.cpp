@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-#if defined(__GNUC__)
-#include <experimental/filesystem>
-#else
-#include <filesystem>
-#endif
-
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
 #include <fstream>
 
 #include <rafi/trace.h>
 
 #include "TextTraceReaderImpl.h"
-
-namespace fs = std::experimental::filesystem;
 
 namespace rafi { namespace trace {
 
@@ -43,33 +32,31 @@ TextTraceReaderImpl::~TextTraceReaderImpl()
     delete m_pInput;
 }
 
-CycleView TextTraceReaderImpl::GetCycleView() const
+ICycle* TextTraceReaderImpl::GetCycle() const
 {
-    return CycleView(m_pCycleBuilder->GetData(), m_pCycleBuilder->GetDataSize());
-}
-
-bool TextTraceReaderImpl::IsBegin() const
-{
-    return m_IsBegin;
+    return m_pTextCycle;
 }
 
 bool TextTraceReaderImpl::IsEnd() const
 {
-    return m_IsEnd;
+    return !m_pTextCycle;
 }
 
 void TextTraceReaderImpl::Next()
 {
-    if (m_IsEnd)
+    if (IsEnd())
     {
         throw TraceException("TextTraceReaderImpl reached the end of input.");
     }
 
-    m_pTextCycle = TextCycle::Parse(*m_pInput);
-
-    m_pCycleBuilder = std::make_unique<CycleBuilder>(m_pTextCycle->GetCycleConfig());
-
-
+    try
+    {
+        m_pTextCycle = TextCycle::Parse(*m_pInput);
+    }
+    catch (const TraceException&)
+    {
+        m_pTextCycle = nullptr;
+    }
 }
 
 }}

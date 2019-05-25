@@ -18,7 +18,6 @@
 
 #include <rafi/common.h>
 
-#include "trace/Cycle.h"
 #include "trace/CycleBuilder.h"
 #include "trace/CycleConfig.h"
 #include "trace/CycleTypes.h"

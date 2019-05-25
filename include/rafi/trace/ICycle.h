@@ -28,15 +28,15 @@ class ICycle
 public:
     virtual ~ICycle() = 0;
 
-    virtual XLEN GetXLEN() = 0;
+    virtual XLEN GetXLEN() const = 0;
 
-    virtual bool IsPcExist() = 0;
-    virtual bool IsIntRegExist() = 0;
-    virtual bool IsFpRegExist() = 0;
+    virtual bool IsPcExist() const = 0;
+    virtual bool IsIntRegExist() const = 0;
+    virtual bool IsFpRegExist() const = 0;
 
-    virtual uint64_t GetPc(bool isPhysical) = 0;
-    virtual uint64_t GetIntReg(int index) = 0;
-    virtual uint64_t GetFpReg(int index) = 0;
+    virtual uint64_t GetPc(bool isPhysical) const = 0;
+    virtual uint64_t GetIntReg(int index) const = 0;
+    virtual uint64_t GetFpReg(int index) const = 0;
 };
 
 }}

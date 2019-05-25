@@ -30,7 +30,6 @@ public:
 
     CycleView GetCycleView() const;
 
-    bool IsBegin() const;
     bool IsEnd() const;
 
     void Next();

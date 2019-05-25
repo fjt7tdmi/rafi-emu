@@ -38,11 +38,6 @@ CycleView MemoryTraceReader::GetCycleView() const
     return m_pImpl->GetCycleView();
 }
 
-bool MemoryTraceReader::IsBegin() const
-{
-    return m_pImpl->IsBegin();
-}
-
 bool MemoryTraceReader::IsEnd() const
 {
     return m_pImpl->IsEnd();

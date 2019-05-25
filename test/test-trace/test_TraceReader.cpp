@@ -47,19 +47,16 @@ TEST(TraceReaderTest, Basic)
     MemoryTraceReader reader(buffer, builder->GetDataSize() * 2);
 
     // cycle 0
-    ASSERT_TRUE(reader.IsBegin());
     ASSERT_FALSE(reader.IsEnd());
 
     reader.Next();
 
     // cycle 1
-    ASSERT_FALSE(reader.IsBegin());
     ASSERT_FALSE(reader.IsEnd());
 
     reader.Next();
 
     // end
-    ASSERT_FALSE(reader.IsBegin());
     ASSERT_TRUE(reader.IsEnd());
 }
 

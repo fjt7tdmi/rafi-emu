@@ -32,9 +32,8 @@ public:
     TextTraceReaderImpl(const char* path);
     ~TextTraceReaderImpl();
 
-    CycleView GetCycleView() const;
+    const ICycle* GetCycle() const;
 
-    bool IsBegin() const;
     bool IsEnd() const;
 
     void Next();
@@ -43,10 +42,6 @@ private:
     std::ifstream* m_pInput;
 
     std::unique_ptr<TextCycle> m_pTextCycle;
-    std::unique_ptr<CycleBuilder> m_pCycleBuilder;
-
-    bool m_IsBegin{ false };
-    bool m_IsEnd{ false };
 };
 
 }}

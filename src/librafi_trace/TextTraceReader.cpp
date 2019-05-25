@@ -36,12 +36,7 @@ TextTraceReader::~TextTraceReader()
 
 CycleView TextTraceReader::GetCycleView() const
 {
-    return m_pImpl->GetCycleView();
-}
-
-bool TextTraceReader::IsBegin() const
-{
-    return m_pImpl->IsBegin();
+    std::abort();
 }
 
 bool TextTraceReader::IsEnd() const

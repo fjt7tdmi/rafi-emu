@@ -32,18 +32,32 @@ public:
     TextCycle(XLEN xlen);
     virtual ~TextCycle();
 
-    bool IsNodeExist(NodeType nodeType) const;
+    virtual XLEN GetXLEN() = 0;
+
+    virtual bool IsPcExist() = 0;
+    virtual bool IsIntRegExist() = 0;
+    virtual bool IsFpRegExist() = 0;
+
+    virtual uint64_t GetPc(bool isPhysical) = 0;
+    virtual uint64_t GetIntReg(int index) = 0;
+    virtual uint64_t GetFpReg(int index) = 0;
 
 private:
-    void ParseIntReg32Node(std::ifstream& input);
-    void ParseIntReg64Node(std::ifstream& input);
-    void ParsePc32Node(std::ifstream& input);
-    void ParsePc64Node(std::ifstream& input);
+    void ParsePc(std::ifstream& input);
+    void ParseIntReg(std::ifstream& input);
+    void ParseFpReg(std::ifstream& input);
 
-    std::vector<IntReg32Node> m_IntReg32;
-    std::vector<IntReg64Node> m_IntReg64;
-    std::vector<Pc32Node> m_Pc32;
-    std::vector<Pc64Node> m_Pc64;
+    XLEN m_XLEN;
+
+    bool m_PcExist{ false };
+    bool m_IntRegExist{ false };
+    bool m_FpRegExist{ false };
+
+    uint64_t m_VirtualPc{ 0 };
+    uint64_t m_PhysicalPc{ 0 };
+
+    uint64_t m_IntRegs[IntRegCount];
+    uint64_t m_FpRegs[IntRegCount];
 };
 
 }}

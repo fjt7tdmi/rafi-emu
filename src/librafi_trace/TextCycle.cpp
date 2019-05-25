@@ -30,25 +30,21 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::ifstream& input)
     {
         input >> s;
 
-        if (s == "CYCLE")
+        if (s == "BREAK")
         {
             break;
         }
-        else if (s == "GPR32")
+        else if (s == "PC")
         {
-            p->ParseIntReg32Node(input);
+            p->ParsePc(input);
         }
-        else if (s == "GPR64")
+        else if (s == "INT")
         {
-            p->ParseIntReg64Node(input);
+            p->ParseIntReg(input);
         }
-        else if (s == "PC32")
+        else if (s == "FP")
         {
-            p->ParseIntReg32Node(input);
-        }
-        else if (s == "PC64")
-        {
-            p->ParseIntReg64Node(input);
+            p->ParseIntReg(input);
         }
         else
         {
@@ -57,85 +53,100 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::ifstream& input)
     }
 }
 
-CycleConfig TextCycle::GetCycleConfig() const
+TextCycle::TextCycle(XLEN xlen)
+    : m_XLEN(xlen)
 {
-    CycleConfig config;
-
-    config.SetNodeCount(NodeType::IntReg32, m_IntReg32.size());
-    config.SetNodeCount(NodeType::IntReg64, m_IntReg64.size());
-    config.SetNodeCount(NodeType::Pc32, m_Pc32.size());
-    config.SetNodeCount(NodeType::Pc64, m_Pc64.size());
-
-    return config;
 }
 
-const IntReg32Node& TextCycle::GetIntReg32Node() const
+TextCycle::~TextCycle()
 {
-    return m_IntReg32[0];
 }
 
-const IntReg64Node& TextCycle::GetIntReg64Node() const
+XLEN TextCycle::GetXLEN()
 {
-    return m_IntReg64[0];
+    return m_XLEN;
 }
 
-const Pc32Node& TextCycle::GetPc32Node() const
+bool TextCycle::IsPcExist()
 {
-    return m_Pc32[0];
+    return m_PcExist;
 }
 
-const Pc64Node& TextCycle::GetPc64Node() const
+bool TextCycle::IsIntRegExist()
 {
-    return m_Pc64[0];
+    return m_IntRegExist;
 }
 
-bool IsNodeExist(NodeType nodeType) const
+bool TextCycle::IsFpRegExist()
 {
-    return GetCycleConfig().nodeType)
+    return m_FpRegExist;
 }
 
-void TextCycle::ParseIntReg32Node(std::ifstream& input)
+uint64_t TextCycle::GetPc(bool isPhysical)
 {
-    IntReg32Node node;
-
-    for (int i = 0; i < 32; i++)
+    if (!m_PcExist)
     {
-        input >> std::hex >> node.regs[i];
+        throw TraceException("PC value is not exist.");
+    }
+    
+    return isPhysical ? m_PhysicalPc : m_VirtualPc;
+}
+
+uint64_t TextCycle::GetIntReg(int index)
+{
+    if (!m_IntRegExist)
+    {
+        throw TraceException("Integer register values are not exist.");
     }
 
-    m_IntReg32.push_back(node);
+    if (!(0 <= index && index < IntRegCount))
+    {
+        throw TraceException("Specified index is out of range");
+    }
+    
+    return m_IntRegs[index];
 }
 
-void TextCycle::ParseIntReg64Node(std::ifstream& input)
+uint64_t TextCycle::GetFpReg(int index)
 {
-    IntReg64Node node;
-
-    for (int i = 0; i < 32; i++)
+    if (!m_IntRegExist)
     {
-        input >> std::hex >> node.regs[i];
+        throw TraceException("Integer register values are not exist.");
     }
 
-    m_IntReg64.push_back(node);
+    if (!(0 <= index && index < IntRegCount))
+    {
+        throw TraceException("Specified index is out of range");
+    }
+
+    return m_FpRegs[index];
 }
 
-void TextCycle::ParsePc32Node(std::ifstream& input)
+void TextCycle::ParsePc(std::ifstream& input)
 {
-    Pc32Node node;
+    input >> std::hex >> m_VirtualPc >> m_PhysicalPc;
 
-    input >> std::hex >> node.virtualPc;
-    node.physicalPc = 0;
-
-    m_Pc32.push_back(node);
+    m_PcExist = true;
 }
 
-void TextCycle::ParsePc64Node(std::ifstream& input)
+void TextCycle::ParseIntReg(std::ifstream& input)
 {
-    Pc64Node node;
+    for (int i = 0; i < IntRegCount; i++)
+    {
+        input >> std::hex >> m_IntRegs[i];
+    }
 
-    input >> std::hex >> node.virtualPc;
-    node.physicalPc = 0;
+    m_IntRegExist = true;
+}
 
-    m_Pc64.push_back(node);
+void TextCycle::ParseFpReg(std::ifstream& input)
+{
+    for (int i = 0; i < IntRegCount; i++)
+    {
+        input >> std::hex >> m_FpRegs[i];
+    }
+
+    m_FpRegExist = true;
 }
 
 }}

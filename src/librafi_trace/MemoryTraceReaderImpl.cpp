@@ -39,13 +39,6 @@ CycleView MemoryTraceReaderImpl::GetCycleView() const
     return CycleView(GetCurrentCycleData(), GetCurrentCycleDataSize());
 }
 
-bool MemoryTraceReaderImpl::IsBegin() const
-{
-    CheckBufferSize();
-
-    return m_CurrentOffset == 0;
-}
-
 bool MemoryTraceReaderImpl::IsEnd() const
 {
     CheckBufferSize();

@@ -17,7 +17,7 @@
 #pragma once
 
 #include <rafi/common.h>
-#include <rafi/trace/Cycle.h>
+#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 
@@ -33,7 +33,6 @@ public:
 
     virtual CycleView GetCycleView() const;
 
-    virtual bool IsBegin() const;
     virtual bool IsEnd() const;
 
     virtual void Next();
