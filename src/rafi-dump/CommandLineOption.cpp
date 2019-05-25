@@ -29,6 +29,8 @@ namespace rafi { namespace dump {
 
 CommandLineOption::CommandLineOption(int argc, char** argv)
 {
+    const int DefaultCount = 1000 * 1000 * 1000;
+
     po::options_description optDesc("options");
     optDesc.add_options()
         ("begin,b", po::value<int>(&m_CycleBegin)->default_value(0), "cycle to begin printing")

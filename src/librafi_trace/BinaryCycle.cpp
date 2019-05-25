@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <cstring>
 #include <rafi/trace.h>
 
 #include "BinaryCycle.h"
