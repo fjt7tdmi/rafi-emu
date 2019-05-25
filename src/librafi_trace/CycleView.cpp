@@ -20,110 +20,110 @@
 
 #include <rafi/trace.h>
 
-#include "CycleReaderImpl.h"
+#include "CycleViewImpl.h"
 
 namespace rafi { namespace trace {
 
-CycleReader::CycleReader(const void* buffer, int64_t bufferSize)
+CycleView::CycleView(const void* buffer, int64_t bufferSize)
 {
-    m_pImpl = new CycleReaderImpl(buffer, bufferSize);
+    m_pImpl = new CycleViewImpl(buffer, bufferSize);
 }
 
-CycleReader::~CycleReader()
+CycleView::~CycleView()
 {
     delete m_pImpl;
 }
 
-const void* CycleReader::GetNode(NodeType nodeType) const
+const void* CycleView::GetNode(NodeType nodeType) const
 {
     assert(GetNodeCount(nodeType) == 1);
 
     return GetNode(nodeType, 0);
 }
 
-const void* CycleReader::GetNode(NodeType nodeType, int index) const
+const void* CycleView::GetNode(NodeType nodeType, int index) const
 {
     return m_pImpl->GetNode(nodeType, index);
 }
 
-int64_t CycleReader::GetNodeSize(NodeType nodeType) const
+int64_t CycleView::GetNodeSize(NodeType nodeType) const
 {
     assert(GetNodeCount(nodeType) == 1);
 
     return m_pImpl->GetNodeSize(nodeType, 0);
 }
 
-int64_t CycleReader::GetNodeSize(NodeType nodeType, int index) const
+int64_t CycleView::GetNodeSize(NodeType nodeType, int index) const
 {
     return m_pImpl->GetNodeSize(nodeType, index);
 }
 
-int CycleReader::GetNodeCount(NodeType nodeType) const
+int CycleView::GetNodeCount(NodeType nodeType) const
 {
     return m_pImpl->GetNodeCount(nodeType);
 }
 
-const BasicInfoNode* CycleReader::GetBasicInfoNode() const
+const BasicInfoNode* CycleView::GetBasicInfoNode() const
 {
     return m_pImpl->GetBasicInfoNode();
 }
 
-const FpRegNode* CycleReader::GetFpRegNode() const
+const FpRegNode* CycleView::GetFpRegNode() const
 {
     return m_pImpl->GetFpRegNode();
 }
 
-const IntReg32Node* CycleReader::GetIntReg32Node() const
+const IntReg32Node* CycleView::GetIntReg32Node() const
 {
     return m_pImpl->GetIntReg32Node();
 }
 
-const IntReg64Node* CycleReader::GetIntReg64Node() const
+const IntReg64Node* CycleView::GetIntReg64Node() const
 {
     return m_pImpl->GetIntReg64Node();
 }
 
-const Pc32Node* CycleReader::GetPc32Node() const
+const Pc32Node* CycleView::GetPc32Node() const
 {
     return m_pImpl->GetPc32Node();
 }
 
-const Pc64Node* CycleReader::GetPc64Node() const
+const Pc64Node* CycleView::GetPc64Node() const
 {
     return m_pImpl->GetPc64Node();
 }
 
-const Csr32Node* CycleReader::GetCsr32Node() const
+const Csr32Node* CycleView::GetCsr32Node() const
 {
     return m_pImpl->GetCsr32Node();
 }
 
-const Csr64Node* CycleReader::GetCsr64Node() const
+const Csr64Node* CycleView::GetCsr64Node() const
 {
     return m_pImpl->GetCsr64Node();
 }
 
-const Trap32Node* CycleReader::GetTrap32Node() const
+const Trap32Node* CycleView::GetTrap32Node() const
 {
     return m_pImpl->GetTrap32Node();
 }
 
-const Trap64Node* CycleReader::GetTrap64Node() const
+const Trap64Node* CycleView::GetTrap64Node() const
 {
     return m_pImpl->GetTrap64Node();
 }
 
-const MemoryAccessNode* CycleReader::GetMemoryAccessNode(int index) const
+const MemoryAccessNode* CycleView::GetMemoryAccessNode(int index) const
 {
     return m_pImpl->GetMemoryAccessNode(index);
 }
 
-const IoNode* CycleReader::GetIoNode() const
+const IoNode* CycleView::GetIoNode() const
 {
     return m_pImpl->GetIoNode();
 }
 
-const void* CycleReader::GetMemoryNode() const
+const void* CycleView::GetMemoryNode() const
 {
     return m_pImpl->GetMemoryNode();
 }

@@ -26,15 +26,50 @@ namespace rafi { namespace trace {
 MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
-    , m_CurrentOffset(0)
 {
 }
 
 MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
 {
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
 }
 
-const void* MemoryTraceReaderImpl::GetCurrentCycleData()
+CycleView MemoryTraceReaderImpl::GetCycleView() const
+{
+    return CycleView(GetCurrentCycleData(), GetCurrentCycleDataSize());
+}
+
+bool MemoryTraceReaderImpl::IsEnd() const
+{
+    CheckBufferSize();
+
+    return m_CurrentOffset == m_BufferSize;
+}
+
+void MemoryTraceReaderImpl::Next()
+{
+    CheckBufferSize();
+    CheckOffset(m_CurrentOffset);
+
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
+
+    m_CurrentOffset += GetCurrentCycleDataSize();
+
+    if (!IsEnd())
+    {
+        m_pCycle = new BinaryCycle(GetCurrentCycleData(), GetCurrentCycleDataSize());
+    }
+}
+
+const void* MemoryTraceReaderImpl::GetCurrentCycleData() const
 {
     CheckBufferSize();
     CheckOffset(m_CurrentOffset);
@@ -42,7 +77,7 @@ const void* MemoryTraceReaderImpl::GetCurrentCycleData()
     return reinterpret_cast<const uint8_t*>(m_pBuffer) + m_CurrentOffset;
 }
 
-int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
+int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize() const
 {
     CheckBufferSize();
 
@@ -56,71 +91,12 @@ int64_t MemoryTraceReaderImpl::GetCurrentCycleDataSize()
     return size;
 }
 
-bool MemoryTraceReaderImpl::IsBegin()
-{
-    CheckBufferSize();
-
-    return m_CurrentOffset == 0;
-}
-
-bool MemoryTraceReaderImpl::IsEnd()
-{
-    CheckBufferSize();
-
-    return m_CurrentOffset == m_BufferSize;
-}
-
-void MemoryTraceReaderImpl::MoveToNextCycle()
-{
-    CheckBufferSize();
-    CheckOffset(m_CurrentOffset);
-
-    m_CurrentOffset += GetCurrentCycleDataSize();
-
-    if (!IsEnd())
-    {
-        CheckOffset(m_CurrentOffset);
-    }
-}
-
-void MemoryTraceReaderImpl::MoveToPreviousCycle()
-{
-    CheckBufferSize();
-
-    if (!IsEnd())
-    {
-        CheckOffset(m_CurrentOffset);
-    }
-
-    const auto size = GetPreviousCycleFooter()->headerOffset + sizeof(CycleFooter);
-
-    m_CurrentOffset -= size;
-
-    CheckOffset(m_CurrentOffset);
-}
-
-void MemoryTraceReaderImpl::CheckOffset(int64_t offset)
-{
-    if (!(0 <= offset && offset <= m_BufferSize))
-    {
-        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
-    }
-}
-
-void MemoryTraceReaderImpl::CheckBufferSize()
-{
-    if (m_BufferSize < sizeof(CycleHeader))
-    {
-        throw TraceException("detect data corruption. (Data size is too small)");
-    }
-}
-
-const CycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader()
+const CycleHeader* MemoryTraceReaderImpl::GetCurrentCycleHeader() const
 {
     return reinterpret_cast<const CycleHeader*>(GetCurrentCycleData());
 }
 
-const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
+const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter() const
 {
     const auto offset = m_CurrentOffset - sizeof(CycleFooter);
 
@@ -129,6 +105,22 @@ const CycleFooter* MemoryTraceReaderImpl::GetPreviousCycleFooter()
     const auto p = reinterpret_cast<const uint8_t*>(m_pBuffer) + offset;
 
     return reinterpret_cast<const CycleFooter*>(p);
+}
+
+void MemoryTraceReaderImpl::CheckOffset(int64_t offset) const
+{
+    if (!(0 <= offset && offset <= m_BufferSize))
+    {
+        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_CurrentOffset);
+    }
+}
+
+void MemoryTraceReaderImpl::CheckBufferSize() const
+{
+    if (m_BufferSize < sizeof(CycleHeader))
+    {
+        throw TraceException("detect data corruption. (Data size is too small)");
+    }
 }
 
 }}

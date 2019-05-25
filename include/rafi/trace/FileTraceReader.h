@@ -17,8 +17,10 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 #include <rafi/common.h>
+#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 #include "MemoryTraceReader.h"
@@ -33,14 +35,13 @@ public:
     FileTraceReader(const char* path);
     virtual ~FileTraceReader();
 
-    virtual const void* GetCurrentCycleData();
-    virtual int64_t GetCurrentCycleDataSize();
+    virtual const ICycle* GetCycle() const;
 
-    virtual bool IsBegin();
-    virtual bool IsEnd();
+    virtual bool IsEnd() const;
 
-    virtual void MoveToNextCycle();
-    virtual void MoveToPreviousCycle();
+    virtual void Next();
+
+    CycleView GetCycleView() const;
 
 private:
     FileTraceReaderImpl* m_pImpl;

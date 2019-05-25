@@ -33,34 +33,24 @@ MemoryTraceReader::~MemoryTraceReader()
     delete m_pImpl;
 }
 
-const void* MemoryTraceReader::GetCurrentCycleData()
+const ICycle* MemoryTraceReader::GetCycle() const
 {
-    return m_pImpl->GetCurrentCycleData();
+    return nullptr;
 }
 
-int64_t MemoryTraceReader::GetCurrentCycleDataSize()
-{
-    return m_pImpl->GetCurrentCycleDataSize();
-}
-
-bool MemoryTraceReader::IsBegin()
-{
-    return m_pImpl->IsBegin();
-}
-
-bool MemoryTraceReader::IsEnd()
+bool MemoryTraceReader::IsEnd() const
 {
     return m_pImpl->IsEnd();
 }
 
-void MemoryTraceReader::MoveToNextCycle()
+void MemoryTraceReader::Next()
 {
-    m_pImpl->MoveToNextCycle();
+    m_pImpl->Next();
 }
 
-void MemoryTraceReader::MoveToPreviousCycle()
+CycleView MemoryTraceReader::GetCycleView() const
 {
-    m_pImpl->MoveToPreviousCycle();
+    return m_pImpl->GetCycleView();
 }
 
 }}

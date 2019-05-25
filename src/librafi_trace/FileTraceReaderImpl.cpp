@@ -70,6 +70,12 @@ FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
 
 FileTraceReaderImpl::~FileTraceReaderImpl()
 {
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
+
     if (m_pCycleData != nullptr)
     {
         delete m_pCycleData;
@@ -80,31 +86,21 @@ FileTraceReaderImpl::~FileTraceReaderImpl()
     m_pStream = nullptr;
 }
 
-const void* FileTraceReaderImpl::GetCurrentCycleData()
+const ICycle* FileTraceReaderImpl::GetCycle() const
 {
-    return m_pCycleData;
+    return m_pCycle;
 }
 
-int64_t FileTraceReaderImpl::GetCurrentCycleDataSize()
-{
-    return m_CycleDataSize;
-}
-
-bool FileTraceReaderImpl::IsBegin()
-{
-    return m_Offset == 0;
-}
-
-bool FileTraceReaderImpl::IsEnd()
+bool FileTraceReaderImpl::IsEnd() const
 {
     return m_Offset == m_FileSize;
 }
 
-void FileTraceReaderImpl::MoveToNextCycle()
+void FileTraceReaderImpl::Next()
 {
     CheckOffset(m_Offset);
 
-    m_Offset += GetCurrentCycleDataSize();
+    m_Offset += m_CycleDataSize;
 
     if (!IsEnd())
     {
@@ -114,41 +110,38 @@ void FileTraceReaderImpl::MoveToNextCycle()
     UpdateCycleData();
 }
 
-void FileTraceReaderImpl::MoveToPreviousCycle()
+CycleView FileTraceReaderImpl::GetCycleView() const
 {
-    if (!IsEnd())
-    {
-        CheckOffset(m_Offset);
-    }
-
-    const auto size = GetPreviousCycleFooter().headerOffset + sizeof(CycleFooter);
-
-    m_Offset -= size;
-
-    CheckOffset(m_Offset);
-
-    UpdateCycleData();
+    return CycleView(m_pCycleData, m_CycleDataSize);
 }
 
 void FileTraceReaderImpl::UpdateCycleData()
 {
-    if (m_pCycleData != nullptr)
-    {
-        m_CycleDataSize = 0;
-
-        delete m_pCycleData;
-        m_pCycleData = nullptr;
-    }
-
     if (IsEnd())
     {
         return;
     }
 
+    if (m_pCycle != nullptr)
+    {
+        delete m_pCycle;
+        m_pCycle = nullptr;
+    }
+
+    if (m_pCycleData != nullptr)
+    {
+        delete m_pCycleData;
+        m_pCycleData = nullptr;
+    }
+
+    m_CycleDataSize = 0;
+
     const auto header = GetCurrentCycleHeader();
 
     m_CycleDataSize = header.footerOffset + sizeof(CycleFooter);
     m_pCycleData = new char[static_cast<size_t>(m_CycleDataSize)];
+
+    m_pCycle = new BinaryCycle(m_pCycleData, m_CycleDataSize);
 
     CheckOffset(m_Offset);
     CheckOffset(m_Offset + m_CycleDataSize);
@@ -157,7 +150,7 @@ void FileTraceReaderImpl::UpdateCycleData()
     m_pStream->read(m_pCycleData, m_CycleDataSize);
 }
 
-void FileTraceReaderImpl::CheckOffset(int64_t offset)
+void FileTraceReaderImpl::CheckOffset(int64_t offset) const
 {
     if (!(0 <= offset && offset <= m_FileSize))
     {

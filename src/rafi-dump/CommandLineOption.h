@@ -14,40 +14,41 @@
  * limitations under the License.
  */
 
+#pragma once
+
+#include <string>
+
 #include <rafi/trace.h>
 
-#include "FileTraceReaderImpl.h"
+namespace rafi {
 
-namespace rafi { namespace trace {
-
-FileTraceReader::FileTraceReader(const char* path)
+enum class Mode
 {
-    m_pImpl = new FileTraceReaderImpl(path);
-}
+    Normal = 0,
+    TraceText = 1,
+};
 
-FileTraceReader::~FileTraceReader()
+class CommandLineOption
 {
-    delete m_pImpl;
-}
+public:
+    CommandLineOption(int argc, char** argv);
 
-const ICycle* FileTraceReader::GetCycle() const
-{
-    return m_pImpl->GetCycle();
-}
+    Mode GetMode() const;
 
-bool FileTraceReader::IsEnd() const
-{
-    return m_pImpl->IsEnd();
-}
+    const std::string& GetPath() const;
 
-void FileTraceReader::Next()
-{
-    m_pImpl->Next();
-}
+    const int GetCycleCount() const;
+    const int GetCycleStart() const;
 
-CycleView FileTraceReader::GetCycleView() const
-{
-    return m_pImpl->GetCycleView();
-}
+private:
+    static const int DefaultCount = 1000 * 1000 * 1000;
 
-}}
+    Mode m_Mode;
+
+    std::string m_Path;
+    
+    int m_CycleCount;
+    int m_CycleStart;
+};
+
+}

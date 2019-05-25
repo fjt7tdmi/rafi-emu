@@ -20,6 +20,7 @@
 
 #include <rafi/trace.h>
 
+#include "BinaryCycle.h"
 #include "MemoryTraceReaderImpl.h"
 
 namespace rafi { namespace trace {
@@ -30,14 +31,13 @@ public:
     FileTraceReaderImpl(const char* path);
     ~FileTraceReaderImpl();
 
-    const void* GetCurrentCycleData();
-    int64_t GetCurrentCycleDataSize();
+    const ICycle* GetCycle() const;
 
-    bool IsBegin();
-    bool IsEnd();
+    bool IsEnd() const;
 
-    void MoveToNextCycle();
-    void MoveToPreviousCycle();
+    void Next();
+
+    CycleView GetCycleView() const;
 
 private:
     void UpdateCycleData();
@@ -45,15 +45,17 @@ private:
     CycleHeader GetCurrentCycleHeader();
     CycleFooter GetPreviousCycleFooter();
 
-    void CheckOffset(int64_t offset);
+    void CheckOffset(int64_t offset) const;
 
     std::ifstream* m_pStream{ nullptr };
 
     int64_t m_FileSize{ 0 };
     int64_t m_Offset{ 0 };
 
-    char* m_pCycleData{ nullptr };
     int64_t m_CycleDataSize{ 0 };
+    char* m_pCycleData{ nullptr };
+
+    BinaryCycle* m_pCycle{ nullptr };
 };
 
 }}

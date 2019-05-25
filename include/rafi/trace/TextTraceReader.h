@@ -14,40 +14,36 @@
  * limitations under the License.
  */
 
-#include <rafi/trace.h>
+#pragma once
 
-#include "FileTraceReaderImpl.h"
+#include <fstream>
+
+#include <rafi/common.h>
+#include <rafi/trace/CycleView.h>
+
+#include "ITraceReader.h"
 
 namespace rafi { namespace trace {
 
-FileTraceReader::FileTraceReader(const char* path)
-{
-    m_pImpl = new FileTraceReaderImpl(path);
-}
+class TextTrace;
 
-FileTraceReader::~FileTraceReader()
+class TextTraceReader : public ITraceReader
 {
-    delete m_pImpl;
-}
+public:
+    TextTraceReader(const char* path);
+    virtual ~TextTraceReader();
 
-const ICycle* FileTraceReader::GetCycle() const
-{
-    return m_pImpl->GetCycle();
-}
+    virtual const ICycle* GetCycle() const;
 
-bool FileTraceReader::IsEnd() const
-{
-    return m_pImpl->IsEnd();
-}
+    virtual bool IsEnd() const;
 
-void FileTraceReader::Next()
-{
-    m_pImpl->Next();
-}
+    virtual void Next();
 
-CycleView FileTraceReader::GetCycleView() const
-{
-    return m_pImpl->GetCycleView();
-}
+    CycleView GetCycleView() const;
+
+private:
+    std::ifstream* m_pInput{ nullptr };
+    TextTrace* m_pTrace{ nullptr };
+};
 
 }}

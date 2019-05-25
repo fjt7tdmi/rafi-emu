@@ -20,37 +20,47 @@
 #include <string>
 #include <vector>
 
-#include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <rafi/trace.h>
 
+#include "CommandLineOption.h"
 #include "CycleComparator.h"
 
 using namespace rafi::trace;
 
-namespace po = boost::program_options;
-
-namespace {
+namespace rafi {
 
 const char* Pass = "[  PASS  ]";
 const char* Failed = "[ FAILED ]";
 
-void CompareTrace(const std::string& expectPath, const std::string& actualPath, bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
+std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
 {
-    CycleComparator comparator(cmpPhysicalPc, cmpCsr, cmpMemory);
+    if (boost::algorithm::ends_with(path, ".tbin") ||
+        boost::algorithm::ends_with(path, ".bin"))
+    {
+        return std::make_unique<FileTraceReader>(path.c_str());
+    }
+    else
+    {
+        return std::make_unique<TextTraceReader>(path.c_str());
+    }
+}
 
-    FileTraceReader expectReader(expectPath.c_str());
-    FileTraceReader actualReader(actualPath.c_str());
+void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysicalPc)
+{
+    CycleComparator comparator(checkPhysicalPc);
 
+    int checkOpCount = 0;
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    while (!expectReader.IsEnd() && !actualReader.IsEnd())
+    while (!expect->IsEnd() && !actual->IsEnd())
     {
-        CycleReader expectCycle(expectReader.GetCurrentCycleData(), expectReader.GetCurrentCycleDataSize());
-        CycleReader actualCycle(actualReader.GetCurrentCycleData(), actualReader.GetCurrentCycleDataSize());
+        const auto expectCycle = expect->GetCycle();
+        const auto actualCycle = actual->GetCycle();
 
-        if (!comparator.AreMatched(expectCycle, actualCycle))
+        if (!comparator.IsMatched(expectCycle, actualCycle))
         {
             std::cout << std::hex << "Archtecture state is not matched for opId 0x" << expectOpCount << "." << std::endl;
             comparator.PrintDiff(expectCycle, actualCycle);
@@ -59,26 +69,27 @@ void CompareTrace(const std::string& expectPath, const std::string& actualPath, 
             return;
         }
 
-        expectReader.MoveToNextCycle();
-        actualReader.MoveToNextCycle();
+        expect->Next();
+        actual->Next();
 
+        checkOpCount++;
         expectOpCount++;
         actualOpCount++;
     }
 
     // Count ops
-    while (!expectReader.IsEnd())
+    while (!expect->IsEnd())
     {
-        expectReader.MoveToNextCycle();
+        expect->Next();
         expectOpCount++;
     }
-    while (!actualReader.IsEnd())
+    while (!actual->IsEnd())
     {
-        actualReader.MoveToNextCycle();
+        actual->Next();
         actualOpCount++;
     }
 
-    std::cout << "All compared ops are matched. (" << actualOpCount << " ops compared)" << std::endl;
+    std::cout << "All compared ops are matched. (" << checkOpCount << " ops compared)" << std::endl;
     std::cout << "    - expect trace has " << expectOpCount << " ops." << std::endl;
     std::cout << "    - actual trace has " << actualOpCount << " ops." << std::endl;
     std::cout << Pass << std::endl;
@@ -88,53 +99,19 @@ void CompareTrace(const std::string& expectPath, const std::string& actualPath, 
 
 int main(int argc, char** argv)
 {
-    po::options_description optionDesc("options");
-    optionDesc.add_options()
-        ("cmp-physical-pc", "enable comparing physical PC")
-        ("cmp-csr", "enable comparing physical PC")
-        ("cmp-memory", "enable comparing physical PC")
-        ("expect", po::value<std::string>()->required(), "expect trace binary")
-        ("actual", po::value<std::string>()->required(), "actual trace binary")
-        ("help", "show help");
-
-    po::variables_map optionMap;
-    try
-    {
-        po::store(po::parse_command_line(argc, argv, optionDesc), optionMap);
-    }
-    catch (const boost::program_options::error_with_option_name& e)
-    {
-        std::cout << e.what() << std::endl;
-        exit(1);
-    }
+    rafi::CommandLineOption option(argc, argv);
+ 
+    auto expect = rafi::MakeTraceReader(option.GetExpectPath());
+    auto actual = rafi::MakeTraceReader(option.GetActualPath());
 
     try
     {
-        po::notify(optionMap);
-    }
-    catch (const boost::program_options::required_option& e)
-    {
-        std::cout << e.what() << std::endl;
-        exit(1);
-    }
-
-    if (optionMap.count("help"))
-    {
-        std::cout << optionDesc << std::endl;
-        exit(0);
-    }
-
-    const bool cmpPhysicalPc = optionMap.count("cmp-physical-pc") != 0;
-    const bool cmpCsr = optionMap.count("cmp-csr") != 0;
-    const bool cmpMemory = optionMap.count("cmp-memory") != 0;
-
-    try
-    {
-        CompareTrace(optionMap["expect"].as<std::string>(), optionMap["actual"].as<std::string>(), cmpPhysicalPc, cmpCsr, cmpMemory);
+        rafi::CompareTrace(expect.get(), actual.get(), option.CheckPhysicalPc());
     }
     catch (const TraceException& e)
     {
         e.PrintMessage();
+        return 1;
     }
 
     return 0;

@@ -21,19 +21,15 @@
 #include <string>
 #include <vector>
 
-#include <boost/program_options.hpp>
-
 #include <rafi/trace.h>
 
-#include "DumpConfig.h"
-#include "PrinterGdb.h"
+#include "CommandLineOption.h"
+#include "TraceTextPrinter.h"
 
 #pragma warning(disable:4477)
 
 using namespace rafi;
 using namespace rafi::trace;
-
-namespace po = boost::program_options;
 
 namespace {
 
@@ -350,7 +346,7 @@ void PrintIoNode(const IoNode* node)
     );
 }
 
-void PrintCycle(const CycleReader& cycle, int cycleNum)
+void PrintCycle(const CycleView& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
@@ -409,34 +405,32 @@ void PrintCycle(const CycleReader& cycle, int cycleNum)
     printf("}\n");
 }
 
-void PrintTrace(const std::string& path, const DumpConfig& config)
+void PrintTrace(const CommandLineOption& option)
 {
-    FileTraceReader reader(path.c_str());
+    FileTraceReader reader(option.GetPath().c_str());
 
-    PrinterGdb m_PrinterGdb;
+    TraceTextPrinter m_TraceTextPrinter;
 
-    for (int i = 0; i < config.cycleStart + config.cycleCount; i++)
+    for (int i = 0; i < option.GetCycleStart() + option.GetCycleCount(); i++)
     {
         if (reader.IsEnd())
         {
             return;
         }
 
-        if (i >= config.cycleStart)
+        if (i >= option.GetCycleStart())
         {
-            CycleReader cycle(reader.GetCurrentCycleData(), reader.GetCurrentCycleDataSize());
-
-            if (config.mode == DumpMode::Gdb)
+            if (option.GetMode() == Mode::TraceText)
             {
-                m_PrinterGdb.PrintCycle(cycle);
+                m_TraceTextPrinter.PrintCycle(reader.GetCycle());
             }
             else
             {
-                PrintCycle(cycle, i);
+                PrintCycle(reader.GetCycleView(), i);
             }
         }
 
-        reader.MoveToNextCycle();
+        reader.Next();
     }
 }
 
@@ -444,48 +438,9 @@ void PrintTrace(const std::string& path, const DumpConfig& config)
 
 int main(int argc, char** argv)
 {
-    const int DefaultCount = 1000 * 1000 * 1000;
+    rafi::CommandLineOption option(argc, argv);
 
-    DumpConfig config;
+    PrintTrace(option);
 
-    po::options_description optDesc("options");
-    optDesc.add_options()
-        ("count,c", po::value<int>(&config.cycleCount)->default_value(DefaultCount), "number of cycles to print")
-        ("start-cycle,s", po::value<int>(&config.cycleStart)->default_value(0), "cycle to start print")
-        ("input-file", po::value<std::string>(), "input trace binary path")
-        ("gdb", "set output format to compare with gdb log")
-        ("help", "show help");
-
-    po::positional_options_description posOptDesc;
-    posOptDesc.add("input-file", -1);
-
-    po::variables_map optMap;
-    try
-    {
-        po::store(po::command_line_parser(argc, argv).options(optDesc).positional(posOptDesc).run(), optMap);
-    }
-    catch (const boost::program_options::error_with_option_name& e)
-    {
-        std::cout << e.what() << std::endl;
-        exit(1);
-    }
-    po::notify(optMap);
-
-    if (optMap.count("help") > 0 || optMap.count("input-file") == 0)
-    {
-        std::cout << optDesc << std::endl;
-        return 0;
-    }
-
-    if (optMap.count("gdb") > 0)
-    {
-        config.mode = DumpMode::Gdb;
-    }
-    else
-    {
-        config.mode = DumpMode::Normal;
-    }
-
-    PrintTrace(optMap["input-file"].as<std::string>(), config);
     return 0;
 }

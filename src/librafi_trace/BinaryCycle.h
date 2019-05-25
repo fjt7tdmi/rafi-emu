@@ -18,20 +18,28 @@
 
 #include <rafi/trace.h>
 
-namespace rafi {
+#include "CycleViewImpl.h"
 
-class PrinterGdb
+namespace rafi { namespace trace {
+
+class BinaryCycle : public ICycle
 {
 public:
-    PrinterGdb();
+    BinaryCycle(const void* buffer, int64_t bufferSize);
+    virtual ~BinaryCycle() override;
 
-    void PrintCycle(const trace::CycleReader& cycle);
+    virtual XLEN GetXLEN() const override;
+
+    virtual bool IsPcExist() const override;
+    virtual bool IsIntRegExist() const override;
+    virtual bool IsFpRegExist() const override;
+
+    virtual uint64_t GetPc(bool isPhysical) const override;
+    virtual uint64_t GetIntReg(int index) const override;
+    virtual uint64_t GetFpReg(int index) const override;
 
 private:
-    // Very dirty workaround to resolve a gap betwee PC and IntRegs in a trace binary.
-    void SaveIntRegs(const trace::IntReg64Node* pNode);
-
-    unsigned long long m_IntRegs[32];
+    CycleViewImpl m_Impl;
 };
 
-}
+}}

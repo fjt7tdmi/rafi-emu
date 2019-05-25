@@ -32,14 +32,13 @@ public:
     MemoryTraceReader(const void* buffer, int64_t bufferSize);
     virtual ~MemoryTraceReader();
 
-    virtual const void* GetCurrentCycleData();
-    virtual int64_t GetCurrentCycleDataSize();
+    virtual const ICycle* GetCycle() const;
 
-    virtual bool IsBegin();
-    virtual bool IsEnd();
+    virtual bool IsEnd() const;
 
-    virtual void MoveToNextCycle();
-    virtual void MoveToPreviousCycle();
+    virtual void Next();
+
+    CycleView GetCycleView() const;
 
 private:
     MemoryTraceReaderImpl* m_pImpl;

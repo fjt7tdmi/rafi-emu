@@ -14,40 +14,21 @@
  * limitations under the License.
  */
 
+#pragma once
+
 #include <rafi/trace.h>
 
-#include "FileTraceReaderImpl.h"
+namespace rafi {
 
-namespace rafi { namespace trace {
-
-FileTraceReader::FileTraceReader(const char* path)
+class TraceTextPrinter
 {
-    m_pImpl = new FileTraceReaderImpl(path);
-}
+public:
+    void PrintCycle(const trace::ICycle* cycle);
 
-FileTraceReader::~FileTraceReader()
-{
-    delete m_pImpl;
-}
+private:
+    void PrintHeader(const trace::ICycle* cycle);
 
-const ICycle* FileTraceReader::GetCycle() const
-{
-    return m_pImpl->GetCycle();
-}
+    uint64_t m_Cycle{ 0 };
+};
 
-bool FileTraceReader::IsEnd() const
-{
-    return m_pImpl->IsEnd();
 }
-
-void FileTraceReader::Next()
-{
-    m_pImpl->Next();
-}
-
-CycleView FileTraceReader::GetCycleView() const
-{
-    return m_pImpl->GetCycleView();
-}
-
-}}

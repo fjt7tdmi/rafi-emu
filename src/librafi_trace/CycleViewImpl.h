@@ -22,10 +22,10 @@
 
 namespace rafi { namespace trace {
 
-class CycleReaderImpl
+class CycleViewImpl
 {
 public:
-    CycleReaderImpl(const void* buffer, int64_t bufferSize);
+    CycleViewImpl(const void* buffer, int64_t bufferSize);
 
     int64_t GetOffsetOfPreviousCycle() const;
     int64_t GetOffsetOfNextCycle() const;

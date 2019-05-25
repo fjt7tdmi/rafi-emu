@@ -16,21 +16,27 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include <rafi/common.h>
+#include <rafi/trace/CycleTypes.h>
 
-namespace rafi {
+namespace rafi { namespace trace {
 
-enum class DumpMode
+class ICycle
 {
-    Normal = 0,
-    Gdb = 1,
+public:
+    virtual ~ICycle(){}
+
+    virtual XLEN GetXLEN() const = 0;
+
+    virtual bool IsPcExist() const = 0;
+    virtual bool IsIntRegExist() const = 0;
+    virtual bool IsFpRegExist() const = 0;
+
+    virtual uint64_t GetPc(bool isPhysical) const = 0;
+    virtual uint64_t GetIntReg(int index) const = 0;
+    virtual uint64_t GetFpReg(int index) const = 0;
 };
 
-struct DumpConfig
-{
-    DumpMode mode;
-    int cycleStart;
-    int cycleCount;
-};
-
-}
+}}

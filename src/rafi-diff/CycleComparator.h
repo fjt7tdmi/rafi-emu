@@ -20,36 +20,30 @@
 
 #include <rafi/trace.h>
 
+namespace rafi {
+
 class CycleComparator final
 {
 public:
-    CycleComparator(bool cmpPhysicalPc, bool cmpCsr, bool cmpMemory)
+    CycleComparator(bool cmpPhysicalPc)
         : m_CmpPhysicalPc(cmpPhysicalPc)
-        , m_CmpCsr(cmpCsr)
-        , m_CmpMemory(cmpMemory)
     {
     }
 
     // compare
-    bool IsPc32NodeMatched(const rafi::trace::Pc32Node* pExpect, const rafi::trace::Pc32Node* pActual) const;
-    bool IsIntReg32NodeMatched(const rafi::trace::IntReg32Node* pExpect, const rafi::trace::IntReg32Node* pActual) const;
-    bool IsMemoryNodeMatched(const void* pExpect, int64_t expectSize, const void* pActual, int64_t actualSize) const;
+    bool IsPcMatched(const trace::ICycle* expect, const trace::ICycle* actual) const;
+    bool IsIntRegMatched(const trace::ICycle* expect, const trace::ICycle* actual) const;
 
-    bool AreCsr32NodesMatched(const rafi::trace::Csr32Node* pExpectNodes, int expectNodeCount, const rafi::trace::Csr32Node* pActualNodes, int actualNodeCount) const;
-
-    bool AreMatched(const rafi::trace::CycleReader& expect, const rafi::trace::CycleReader& actual) const;
+    bool IsMatched(const trace::ICycle* expect, const trace::ICycle* actual) const;
 
     // print diff
-    void PrintPc32Diff(const rafi::trace::Pc32Node* pExpect, const rafi::trace::Pc32Node* pActual) const;
-    void PrintIntReg32Diff(const rafi::trace::IntReg32Node* pExpect, const rafi::trace::IntReg32Node* pActual) const;
-    void PrintMemoryDiff(const void* pExpect, size_t expectMemorySize, const void* pActual, size_t actualMemorySize) const;
+    void PrintDiffPc(const trace::ICycle* expect, const trace::ICycle* actual) const;
+    void PrintDiffIntReg(const trace::ICycle* expect, const trace::ICycle* actual) const;
 
-    void PrintCsr32Diff(const rafi::trace::Csr32Node* pExpectNodes, int expectNodeCount, const rafi::trace::Csr32Node* pActualNodes, int actualNodeCount) const;
-
-    void PrintDiff(const rafi::trace::CycleReader& expect, const rafi::trace::CycleReader& actual) const;
+    void PrintDiff(const trace::ICycle* expect, const trace::ICycle* actual) const;
 
 private:
     bool m_CmpPhysicalPc;
-    bool m_CmpCsr;
-    bool m_CmpMemory;
 };
+
+}

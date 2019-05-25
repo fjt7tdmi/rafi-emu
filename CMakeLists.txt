@@ -219,8 +219,16 @@ add_library(librafi_trace
     include/rafi/trace/MemoryTraceWriter.h
     include/rafi/trace/CycleBuilder.h
     include/rafi/trace/CycleConfig.h
-    include/rafi/trace/CycleReader.h
+    include/rafi/trace/CycleView.h
     include/rafi/trace/CycleTypes.h
+    src/librafi_trace/BinaryCycle.cpp
+    src/librafi_trace/BinaryCycle.h
+    src/librafi_trace/CycleBuilder.cpp
+    src/librafi_trace/CycleBuilderImpl.cpp
+    src/librafi_trace/CycleBuilderImpl.h
+    src/librafi_trace/CycleView.cpp
+    src/librafi_trace/CycleViewImpl.cpp
+    src/librafi_trace/CycleViewImpl.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
     src/librafi_trace/FileTraceReaderImpl.h
@@ -233,12 +241,11 @@ add_library(librafi_trace
     src/librafi_trace/MemoryTraceWriter.cpp
     src/librafi_trace/MemoryTraceWriterImpl.cpp
     src/librafi_trace/MemoryTraceWriterImpl.h
-    src/librafi_trace/CycleBuilder.cpp
-    src/librafi_trace/CycleBuilderImpl.cpp
-    src/librafi_trace/CycleBuilderImpl.h
-    src/librafi_trace/CycleReader.cpp
-    src/librafi_trace/CycleReaderImpl.cpp
-    src/librafi_trace/CycleReaderImpl.h
+    src/librafi_trace/TextCycle.cpp
+    src/librafi_trace/TextCycle.h
+    src/librafi_trace/TextTrace.cpp
+    src/librafi_trace/TextTrace.h
+    src/librafi_trace/TextTraceReader.cpp
 )
 
 add_executable(rafi-check-io
@@ -247,15 +254,18 @@ add_executable(rafi-check-io
 
 add_executable(rafi-diff
     src/rafi-diff/Main.cpp
+    src/rafi-diff/CommandLineOption.cpp
+    src/rafi-diff/CommandLineOption.h
     src/rafi-diff/CycleComparator.cpp
     src/rafi-diff/CycleComparator.h
 )
 
 add_executable(rafi-dump
-    src/rafi-dump/DumpConfig.h
+    src/rafi-dump/CommandLineOption.cpp
+    src/rafi-dump/CommandLineOption.h
     src/rafi-dump/Main.cpp
-    src/rafi-dump/PrinterGdb.cpp
-    src/rafi-dump/PrinterGdb.h
+    src/rafi-dump/TraceTextPrinter.cpp
+    src/rafi-dump/TraceTextPrinter.h
 )
 
 add_executable(rafi-emu
@@ -325,6 +335,7 @@ add_executable(test-op
 )
 
 add_executable(test-trace
+    test/test-trace/test_TextTrace.cpp
     test/test-trace/test_TraceCycle.cpp
     test/test-trace/test_TraceReader.cpp
     test/test-trace/test_TraceUtil.cpp
