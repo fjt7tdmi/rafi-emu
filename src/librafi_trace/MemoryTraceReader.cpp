@@ -33,9 +33,9 @@ MemoryTraceReader::~MemoryTraceReader()
     delete m_pImpl;
 }
 
-CycleView MemoryTraceReader::GetCycleView() const
+const ICycle* MemoryTraceReader::GetCycle() const
 {
-    return m_pImpl->GetCycleView();
+    return nullptr;
 }
 
 bool MemoryTraceReader::IsEnd() const
@@ -46,6 +46,11 @@ bool MemoryTraceReader::IsEnd() const
 void MemoryTraceReader::Next()
 {
     m_pImpl->Next();
+}
+
+CycleView MemoryTraceReader::GetCycleView() const
+{
+    return m_pImpl->GetCycleView();
 }
 
 }}

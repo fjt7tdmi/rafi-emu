@@ -34,9 +34,9 @@ TextTraceReader::~TextTraceReader()
     }
 }
 
-CycleView TextTraceReader::GetCycleView() const
+const ICycle* TextTraceReader::GetCycle() const
 {
-    std::abort();
+    return nullptr;
 }
 
 bool TextTraceReader::IsEnd() const
@@ -47,6 +47,11 @@ bool TextTraceReader::IsEnd() const
 void TextTraceReader::Next()
 {
     m_pImpl->Next();
+}
+
+CycleView TextTraceReader::GetCycleView() const
+{
+    std::abort();
 }
 
 }}

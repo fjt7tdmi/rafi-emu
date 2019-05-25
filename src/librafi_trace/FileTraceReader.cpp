@@ -30,9 +30,9 @@ FileTraceReader::~FileTraceReader()
     delete m_pImpl;
 }
 
-CycleView FileTraceReader::GetCycleView() const
+const ICycle* FileTraceReader::GetCycle() const
 {
-    return m_pImpl->GetCycleView();
+    return nullptr;
 }
 
 bool FileTraceReader::IsEnd() const
@@ -43,6 +43,11 @@ bool FileTraceReader::IsEnd() const
 void FileTraceReader::Next()
 {
     m_pImpl->Next();
+}
+
+CycleView FileTraceReader::GetCycleView() const
+{
+    return m_pImpl->GetCycleView();
 }
 
 }}
