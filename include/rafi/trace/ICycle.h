@@ -18,6 +18,8 @@
 
 #include <stdint.h>
 
+#include <string>
+
 #include <rafi/common.h>
 #include <rafi/trace/CycleTypes.h>
 
@@ -41,6 +43,7 @@ public:
     virtual uint64_t GetFpReg(int index) const = 0;
 
     virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const = 0;
+    virtual const char* GetNote() const = 0;
 };
 
 }}

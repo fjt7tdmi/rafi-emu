@@ -42,6 +42,10 @@ public:
 
     virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const override;
 
+    virtual const char* GetNote() const
+    {
+        return "(null)";
+    }
 private:
     CycleViewImpl m_Impl;
 };

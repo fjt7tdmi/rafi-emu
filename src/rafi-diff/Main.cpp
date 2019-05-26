@@ -64,8 +64,8 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
             if (!prevCycleMatched)
             {
                 std::cout << "Detect matched cycles." << std::endl;
-                std::cout << "    - expect: " << expectOpCount << " cycle." << std::endl;
-                std::cout << "    - actual: " << actualOpCount << " cycle." << std::endl;
+                std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
+                std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
                 std::cout << "Proceed expect and actual." << std::endl;
             }
             prevCycleMatched = true;
@@ -82,8 +82,8 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
             if (prevCycleMatched)
             {
                 std::cout << "Detect mismatched cycles." << std::endl;
-                std::cout << "    - expect: " << expectOpCount << " cycle." << std::endl;
-                std::cout << "    - actual: " << actualOpCount << " cycle." << std::endl;
+                std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
+                std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
                 std::cout << "Proceed actual." << std::endl;
             }
             prevCycleMatched = false;
@@ -94,8 +94,8 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
     }
 
     std::cout << "Comparation finished." << std::endl;
-    std::cout << "    - expect: " << expectOpCount << " ops." << std::endl;
-    std::cout << "    - actual: " << actualOpCount << " ops." << std::endl;
+    std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") ops." << std::endl;
+    std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") ops." << std::endl;
 }
 
 }

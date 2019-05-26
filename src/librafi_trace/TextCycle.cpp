@@ -168,9 +168,7 @@ void TextCycle::ParseFpReg(std::basic_istream<char>* pInput)
 
 void TextCycle::ParseNote(std::basic_istream<char>* pInput)
 {
-    std::string note;
-
-    *pInput >> note;
+    *pInput >> m_Note;
 }
 
 }}

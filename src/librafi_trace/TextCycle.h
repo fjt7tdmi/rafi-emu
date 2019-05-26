@@ -46,6 +46,11 @@ public:
 
     virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const;
 
+    virtual const char* GetNote() const
+    {
+        return m_Note.c_str();
+    }
+
 private:
     void ParsePc(std::basic_istream<char>* pInput);
     void ParseIntReg(std::basic_istream<char>* pInput);
@@ -63,6 +68,8 @@ private:
 
     uint64_t m_IntRegs[IntRegCount];
     uint64_t m_FpRegs[IntRegCount];
+
+    std::string m_Note;
 };
 
 }}

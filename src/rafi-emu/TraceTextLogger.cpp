@@ -83,15 +83,18 @@ void TraceTextLogger::DumpCycle32(int cycle)
     IntReg32Node intReg;
     m_pSystem->CopyIntReg(&intReg);
 
-    //fprintf(m_pFile, "NOTE cycle%" PRId32, cycle);
-    fprintf(m_pFile, "PC %" PRIx32 " 0", static_cast<uint32_t>(pc));
+    fprintf(m_pFile, "NOTE cycle%" PRId32 "\n", cycle);
+    fprintf(m_pFile, "PC %08" PRIx32 " 0\n", static_cast<uint32_t>(pc));
 
-    fprintf(m_pFile, " INT");
+    fprintf(m_pFile, "INT\n");
     for (int i = 0; i < 32; i++) {
-        fprintf(m_pFile, " %" PRIx32, intReg.regs[i]);
+        fprintf(m_pFile, " %08" PRIx32, intReg.regs[i]);
+        if ((i & 3) == 3) {
+            fprintf(m_pFile, "\n");
+        }
     }
 
-    fprintf(m_pFile, " BREAK\n");
+    fprintf(m_pFile, "BREAK\n");
 }
 
 void TraceTextLogger::DumpCycle64(int cycle)
@@ -101,15 +104,18 @@ void TraceTextLogger::DumpCycle64(int cycle)
     IntReg64Node intReg;
     m_pSystem->CopyIntReg(&intReg);
 
-    //fprintf(m_pFile, "NOTE %" PRIx32, cycle);
-    fprintf(m_pFile, "PC %" PRIx64 " 0", static_cast<uint64_t>(pc));
+    fprintf(m_pFile, "NOTE %" PRIx32 "\n", cycle);
+    fprintf(m_pFile, "PC %016" PRIx64 " 0\n", static_cast<uint64_t>(pc));
 
-    fprintf(m_pFile, " INT");
+    fprintf(m_pFile, " INT\n");
     for (int i = 0; i < 32; i++) {
-        fprintf(m_pFile, " %" PRIx64, intReg.regs[i]);
+        fprintf(m_pFile, " %016" PRIx64, intReg.regs[i]);
+        if ((i & 3) == 3) {
+            fprintf(m_pFile, "\n");
+        }
     }
 
-    fprintf(m_pFile, " BREAK\n");
+    fprintf(m_pFile, "BREAK\n");
 }
 
 }}

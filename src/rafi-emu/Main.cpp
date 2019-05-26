@@ -92,21 +92,15 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < option.GetCycle(); cycle++)
         {
-            if (cycle >= option.GetDumpSkipCycle())
-            {
-                profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
-
-                traceTextLogger.DumpCycle(cycle);
-            }
+            profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
+            traceTextLogger.DumpCycle(cycle);
 
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_Process);
-
             system.ProcessCycle();
 
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
-
                 dumper.DumpCycle(cycle);
             }
 
