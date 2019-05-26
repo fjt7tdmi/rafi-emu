@@ -18,9 +18,9 @@
 .text
 _start:
     li      t0, 0x1000
-    li      a1, 0x1020
-    li      t0, 0x80000000
-    nop
-    jalr    zero, t0, 0x1f8 # jump to 0x800001f8
+    addi    a1, t0, 0x20
+    li      t0, 0x1000
+    slli    t0, t0, 0x13
+    jr      t0
 .data
 .incbin "work/qemu.dtb"
