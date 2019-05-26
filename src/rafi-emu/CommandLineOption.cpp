@@ -105,7 +105,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("dump-skip-cycle", po::value<int>(&m_DumpSkipCycle)->default_value(0), "number of cycles to skip dump")
         ("enable-dump-csr", "output csr contents to dump file")
         ("enable-dump-fp-reg", "output fp register contents to dump file")
-        ("enable-dump-int-reg", "output integer register contents to dump file")
         ("enable-dump-memory", "output memory contents to dump file")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("help", "show help")
@@ -141,7 +140,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     m_DumpEnabled = variables.count("dump-path") > 0;
     m_DumpCsrEnabled = variables.count("enable-dump-csr") > 0;
     m_DumpFpRegEnabled = variables.count("enable-dump-fp-reg") > 0;
-    m_DumpIntRegEnabled = variables.count("enable-dump-int-reg") > 0;
     m_DumpMemoryEnabled = variables.count("enable-memory-csr") > 0;
 
     if (variables.count("dtb-addr"))
@@ -223,7 +221,7 @@ bool CommandLineOption::IsDumpFpRegEnabled() const
 
 bool CommandLineOption::IsDumpIntRegEnabled() const
 {
-    return m_DumpIntRegEnabled;
+    return true;
 }
 
 bool CommandLineOption::IsDumpMemoryEnabled() const

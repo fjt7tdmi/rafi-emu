@@ -93,7 +93,6 @@ private:
     bool m_DumpEnabled {false};
     bool m_DumpCsrEnabled {false};
     bool m_DumpFpRegEnabled {false};
-    bool m_DumpIntRegEnabled {false};
     bool m_DumpMemoryEnabled {false};
 };
 
