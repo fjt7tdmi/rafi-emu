@@ -16,20 +16,32 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <fstream>
 
-#include "trace/CycleBuilder.h"
-#include "trace/CycleConfig.h"
-#include "trace/CyclePrinter.h"
-#include "trace/CycleTypes.h"
-#include "trace/CycleView.h"
-#include "trace/ICycle.h"
-#include "trace/Exception.h"
-#include "trace/GdbTraceReader.h"
-#include "trace/FileTraceReader.h"
-#include "trace/FileTraceWriter.h"
-#include "trace/ITraceReader.h"
-#include "trace/ITraceWriter.h"
-#include "trace/MemoryTraceReader.h"
-#include "trace/MemoryTraceWriter.h"
-#include "trace/TextTraceReader.h"
+#include <rafi/common.h>
+#include <rafi/trace/CycleView.h>
+
+#include "ITraceReader.h"
+
+namespace rafi { namespace trace {
+
+class GdbTrace;
+
+class GdbTraceReader : public ITraceReader
+{
+public:
+    GdbTraceReader(const char* path);
+    virtual ~GdbTraceReader();
+
+    virtual const ICycle* GetCycle() const;
+
+    virtual bool IsEnd() const;
+
+    virtual void Next();
+
+private:
+    std::ifstream* m_pInput{ nullptr };
+    GdbTrace* m_pTrace{ nullptr };
+};
+
+}}

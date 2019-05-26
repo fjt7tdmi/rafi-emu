@@ -213,6 +213,7 @@ add_library(librafi_trace
     include/rafi/trace.h
     include/rafi/trace/FileTraceReader.h
     include/rafi/trace/FileTraceWriter.h
+    include/rafi/trace/GdbTraceReader.h
     include/rafi/trace/ITraceReader.h
     include/rafi/trace/ITraceWriter.h
     include/rafi/trace/MemoryTraceReader.h
@@ -235,6 +236,11 @@ add_library(librafi_trace
     src/librafi_trace/FileTraceWriter.cpp
     src/librafi_trace/FileTraceWriterImpl.cpp
     src/librafi_trace/FileTraceWriterImpl.h
+    src/librafi_trace/GdbCycle.cpp
+    src/librafi_trace/GdbCycle.h
+    src/librafi_trace/GdbTrace.cpp
+    src/librafi_trace/GdbTrace.h
+    src/librafi_trace/GdbTraceReader.cpp
     src/librafi_trace/MemoryTraceReader.cpp
     src/librafi_trace/MemoryTraceReaderImpl.cpp
     src/librafi_trace/MemoryTraceReaderImpl.h

@@ -38,6 +38,10 @@ std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
     {
         return std::make_unique<FileTraceReader>(path.c_str());
     }
+    else if (boost::algorithm::ends_with(path, ".gdb.log"))
+    {
+        return std::make_unique<GdbTraceReader>(path.c_str());
+    }
     else
     {
         return std::make_unique<TextTraceReader>(path.c_str());
@@ -52,7 +56,7 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    bool prevCycleMatched = false;
+    bool prevCycleMatched = true;
 
     while (!expect->IsEnd() && !actual->IsEnd())
     {
@@ -85,6 +89,8 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
                 std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
                 std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
                 std::cout << "Proceed actual." << std::endl;
+
+                comparator.PrintDiff(expectCycle, actualCycle);
             }
             prevCycleMatched = false;
 
