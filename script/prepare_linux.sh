@@ -16,15 +16,10 @@ pushd `dirname $0`
 source ./common.sh.inc
 cd ..
 
-rm -rf fw/work/*
 rm -rf work/linux/*
 
 mkdir -p fw/work
 mkdir -p work/linux
-
-# dtb
-echo "preparing dtb..."
-${QEMU} -nographic -machine virt,dumpdtb=./fw/work/qemu.dtb -bios ${RAFI_FREEDOM_U_SDK}/work/riscv-pk/bbl -kernel ${RAFI_FREEDOM_U_SDK}/work/linux/vmlinux -initrd ${RAFI_FREEDOM_U_SDK}/work/initramfs.cpio.gz
 
 # rom
 echo "preparing rom..."
