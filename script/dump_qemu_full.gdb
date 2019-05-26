@@ -1,10 +1,14 @@
 # Connect to gdbserver
 target remote :8080
 
-# number of instructions to execute
-set $count = 20000000
+set riscv use_compressed_breakpoint off
+b *(0xffffffe0001e8cc0)
+continue
 
-set logging file work/gdb/qemu_full.log
+# number of instructions to execute
+set $count = 21000
+
+set logging file work/gdb/qemu.gdb.log
 set $i = 0
 while $i < $count
     set logging on
