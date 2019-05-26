@@ -62,7 +62,7 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
 
         if (!comparator.IsMatched(expectCycle, actualCycle))
         {
-            std::cout << std::hex << "Archtecture state is not matched for opId 0x" << expectOpCount << "." << std::endl;
+            std::cout << std::hex << "Archtecture state is not matched for opId 0x" << checkOpCount << " (" << std::dec << checkOpCount << ")." << std::endl;
             comparator.PrintDiff(expectCycle, actualCycle);
             std::cout << Failed << std::endl;
 
@@ -100,7 +100,7 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
 int main(int argc, char** argv)
 {
     rafi::CommandLineOption option(argc, argv);
- 
+
     auto expect = rafi::MakeTraceReader(option.GetExpectPath());
     auto actual = rafi::MakeTraceReader(option.GetActualPath());
 
