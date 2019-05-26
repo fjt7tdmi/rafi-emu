@@ -31,9 +31,6 @@ using namespace rafi::trace;
 
 namespace rafi {
 
-const char* Pass = "[  PASS  ]";
-const char* Failed = "[ FAILED ]";
-
 std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
 {
     if (boost::algorithm::ends_with(path, ".tbin") ||
@@ -55,44 +52,50 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
     int expectOpCount = 0;
     int actualOpCount = 0;
 
+    bool prevCycleMatched = false;
+
     while (!expect->IsEnd() && !actual->IsEnd())
     {
         const auto expectCycle = expect->GetCycle();
         const auto actualCycle = actual->GetCycle();
 
-        if (!comparator.IsMatched(expectCycle, actualCycle))
+        if (comparator.IsMatched(expectCycle, actualCycle))
         {
-            std::cout << std::hex << "Archtecture state is not matched for opId 0x" << checkOpCount << " (" << std::dec << checkOpCount << ")." << std::endl;
-            comparator.PrintDiff(expectCycle, actualCycle);
-            std::cout << Failed << std::endl;
+            if (!prevCycleMatched)
+            {
+                std::cout << "Detect matched cycles." << std::endl;
+                std::cout << "    - expect: " << expectOpCount << " cycle." << std::endl;
+                std::cout << "    - actual: " << actualOpCount << " cycle." << std::endl;
+                std::cout << "Proceed expect and actual." << std::endl;
+            }
+            prevCycleMatched = true;
 
-            return;
+            expect->Next();
+            actual->Next();
+
+            checkOpCount++;
+            expectOpCount++;
+            actualOpCount++;
         }
+        else
+        {
+            if (prevCycleMatched)
+            {
+                std::cout << "Detect mismatched cycles." << std::endl;
+                std::cout << "    - expect: " << expectOpCount << " cycle." << std::endl;
+                std::cout << "    - actual: " << actualOpCount << " cycle." << std::endl;
+                std::cout << "Proceed actual." << std::endl;
+            }
+            prevCycleMatched = false;
 
-        expect->Next();
-        actual->Next();
-
-        checkOpCount++;
-        expectOpCount++;
-        actualOpCount++;
+            actual->Next();
+            actualOpCount++;
+        }
     }
 
-    // Count ops
-    while (!expect->IsEnd())
-    {
-        expect->Next();
-        expectOpCount++;
-    }
-    while (!actual->IsEnd())
-    {
-        actual->Next();
-        actualOpCount++;
-    }
-
-    std::cout << "All compared ops are matched. (" << checkOpCount << " ops compared)" << std::endl;
-    std::cout << "    - expect trace has " << expectOpCount << " ops." << std::endl;
-    std::cout << "    - actual trace has " << actualOpCount << " ops." << std::endl;
-    std::cout << Pass << std::endl;
+    std::cout << "Comparation finished." << std::endl;
+    std::cout << "    - expect: " << expectOpCount << " ops." << std::endl;
+    std::cout << "    - actual: " << actualOpCount << " ops." << std::endl;
 }
 
 }
