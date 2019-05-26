@@ -23,7 +23,7 @@
 
 #include "bus/Bus.h"
 
-#include "PcLogger.h"
+#include "TraceTextLogger.h"
 #include "Profiler.h"
 #include "TraceDumper.h"
 
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     rafi::emu::CommandLineOption option(argc, argv);
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
-    rafi::emu::PcLogger pcLogger(option.GetXLEN(), option.GetPcLogPath().c_str(), &system);
+    rafi::emu::TraceTextLogger traceTextLogger(option.GetXLEN(), option.GetStateLogPath().c_str(), &system);
     rafi::emu::TraceDumper dumper(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
     rafi::emu::Profiler profiler;
 
@@ -52,9 +52,9 @@ int main(int argc, char** argv)
         std::exit(1);
     }
 
-    if (option.IsPcLogEnabled())
+    if (option.IsTraceTextEnabled())
     {
-        pcLogger.EnableDump();
+        traceTextLogger.EnableDump();
     }
 
     if (option.IsDumpEnabled())
@@ -92,6 +92,13 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < option.GetCycle(); cycle++)
         {
+            if (cycle >= option.GetDumpSkipCycle())
+            {
+                profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
+
+                traceTextLogger.DumpCycle(cycle);
+            }
+
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_Process);
 
             system.ProcessCycle();
@@ -100,7 +107,6 @@ int main(int argc, char** argv)
             {
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
 
-                pcLogger.DumpCycle();
                 dumper.DumpCycle(cycle);
             }
 

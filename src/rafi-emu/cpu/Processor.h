@@ -53,6 +53,7 @@ public:
     void ProcessCycle();
 
     // for Dump
+    vaddr_t GetPc() const;
     int GetCsrCount() const;
     size_t GetMemoryAccessEventCount() const;
 

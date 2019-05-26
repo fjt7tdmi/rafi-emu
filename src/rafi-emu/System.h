@@ -51,6 +51,7 @@ public:
     size_t GetMemoryAccessEventCount() const;
 
     uint32_t GetHostIoValue() const;
+    vaddr_t GetPc() const;
 
     void CopyIntReg(trace::IntReg32Node* pOut) const;
     void CopyIntReg(trace::IntReg64Node* pOut) const;

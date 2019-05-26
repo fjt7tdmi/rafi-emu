@@ -24,19 +24,19 @@
 
 namespace rafi { namespace emu {
 
-class PcLogger final
+class TraceTextLogger final
 {
 public:
-    PcLogger(XLEN xlen, const char* path, const System* pSystem);
-    ~PcLogger();
+    TraceTextLogger(XLEN xlen, const char* path, const System* pSystem);
+    ~TraceTextLogger();
 
     void EnableDump();
 
-    void DumpCycle();
+    void DumpCycle(int cycle);
 
 private:
-    void DumpCycle32();
-    void DumpCycle64();
+    void DumpCycle32(int cycle);
+    void DumpCycle64(int cycle);
 
     XLEN m_XLEN;
     const char* m_pPath;

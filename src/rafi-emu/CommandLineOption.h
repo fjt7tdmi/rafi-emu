@@ -44,7 +44,7 @@ public:
 
     bool IsHostIoEnabled() const;
 
-    bool IsPcLogEnabled() const;
+    bool IsTraceTextEnabled() const;
 
     bool IsDumpEnabled() const;
     bool IsDumpCsrEnabled() const;
@@ -52,7 +52,7 @@ public:
     bool IsDumpIntRegEnabled() const;
     bool IsDumpMemoryEnabled() const;
 
-    const std::string& GetPcLogPath() const;
+    const std::string& GetStateLogPath() const;
     const std::string& GetDumpPath() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
     XLEN GetXLEN() const;
@@ -71,7 +71,7 @@ private:
 
     uint64_t ParseHex(const std::string str);
 
-    std::string m_PcLogPath;
+    std::string m_StateLogPath;
     std::string m_DumpPath;
     std::vector<LoadOption> m_LoadOptions;
 
@@ -88,7 +88,7 @@ private:
 
     bool m_HostIoEnabled {false};
 
-    bool m_PcLogEnabled {false};
+    bool m_TraceTextEnabled {false};
 
     bool m_DumpEnabled {false};
     bool m_DumpCsrEnabled {false};

@@ -112,7 +112,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
         ("dtb-addr", po::value<std::string>(), "dtb address (hex)")
         ("pc", po::value<std::string>(), "initial program counter value (hex)")
-        ("pc-log-path", po::value<std::string>(), "path of PC log file")
+        ("trace-txt-path", po::value<std::string>(), "path of trace txt file")
         ("ram-size", po::value<size_t>(&m_RamSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("xlen", po::value<int>(), "XLEN");
 
@@ -136,7 +136,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
 
     m_HostIoEnabled = variables.count("host-io-addr") > 0;
 
-    m_PcLogEnabled = variables.count("pc-log-path") > 0;
+    m_TraceTextEnabled = variables.count("trace-txt-path") > 0;
 
     m_DumpEnabled = variables.count("dump-path") > 0;
     m_DumpCsrEnabled = variables.count("enable-dump-csr") > 0;
@@ -156,9 +156,9 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     {
         m_Pc = strtoull(variables["pc"].as<std::string>().c_str(), 0, 16);
     }
-    if (variables.count("pc-log-path"))
+    if (variables.count("trace-txt-path"))
     {
-        m_PcLogPath = variables["pc-log-path"].as<std::string>();
+        m_StateLogPath = variables["trace-txt-path"].as<std::string>();
     }
     if (variables.count("dump-path"))
     {
@@ -201,9 +201,9 @@ bool CommandLineOption::IsHostIoEnabled() const
     return m_HostIoEnabled;
 }
 
-bool CommandLineOption::IsPcLogEnabled() const
+bool CommandLineOption::IsTraceTextEnabled() const
 {
-    return m_PcLogEnabled;
+    return m_TraceTextEnabled;
 }
 
 bool CommandLineOption::IsDumpEnabled() const
@@ -231,9 +231,9 @@ bool CommandLineOption::IsDumpMemoryEnabled() const
     return m_DumpMemoryEnabled;
 }
 
-const std::string& CommandLineOption::GetPcLogPath() const
+const std::string& CommandLineOption::GetStateLogPath() const
 {
-    return m_PcLogPath;
+    return m_StateLogPath;
 }
 
 const std::string& CommandLineOption::GetDumpPath() const
