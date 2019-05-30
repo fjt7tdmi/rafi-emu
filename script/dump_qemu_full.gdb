@@ -2,11 +2,9 @@
 target remote :8080
 
 set riscv use_compressed_breakpoint off
-b *(0xffffffe0001e8cc0)
-continue
 
 # number of instructions to execute
-set $count = 21000
+set $count = 2 * 1000 * 1000
 
 set logging file work/gdb/qemu.gdb.log
 set $i = 0
