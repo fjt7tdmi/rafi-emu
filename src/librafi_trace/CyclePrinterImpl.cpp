@@ -14,21 +14,38 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <cinttypes>
 
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+#include "CyclePrinterImpl.h"
 
-class TraceTextPrinter
+namespace rafi { namespace trace {
+
+void CyclePrinterImpl::Print(const ICycle* pCycle)
 {
-public:
-    void PrintCycle(const trace::ICycle* cycle);
+    PrintPc(pCycle);
+}
 
-private:
-    void PrintHeader(const trace::ICycle* cycle);
+void CyclePrinterImpl::Enable(NodeType nodeType)
+{
+    switch (nodeType)
+    {
+    case NodeType::Pc32:
+    case NodeType::Pc64:
+        m_EnablePc = true;
+        break;
+    default:
+        break;
+    }
+}
 
-    uint64_t m_Cycle{ 0 };
-};
+void CyclePrinterImpl::PrintPc(const ICycle* pCycle)
+{
+    printf(
+        "PC %016" PRIx64 " %016" PRIx64 "\n",
+        pCycle->GetPc(false), pCycle->GetPc(true)
+    );
+}
 
 }}

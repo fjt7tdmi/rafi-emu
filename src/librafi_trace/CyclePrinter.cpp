@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+#include "CyclePrinterImpl.h"
 
-class TraceTextPrinter
+namespace rafi { namespace trace {
+
+void CyclePrinter::Print(const ICycle* pCycle)
 {
-public:
-    void PrintCycle(const trace::ICycle* cycle);
+    m_pImpl->Print(pCycle);
+}
 
-private:
-    void PrintHeader(const trace::ICycle* cycle);
-
-    uint64_t m_Cycle{ 0 };
-};
+void CyclePrinter::Enable(NodeType nodeType)
+{
+    m_pImpl->Enable(nodeType);
+}
 
 }}

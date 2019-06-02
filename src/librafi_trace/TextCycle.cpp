@@ -87,13 +87,18 @@ bool TextCycle::IsFpRegExist() const
     return m_FpRegExist;
 }
 
+int TextCycle::GetMemoryAccessCount() const
+{
+    RAFI_NOT_IMPLEMENTED();
+}
+
 uint64_t TextCycle::GetPc(bool isPhysical) const
 {
     if (!m_PcExist)
     {
         throw TraceException("PC value is not exist.");
     }
-    
+
     return isPhysical ? m_PhysicalPc : m_VirtualPc;
 }
 
@@ -108,7 +113,7 @@ uint64_t TextCycle::GetIntReg(int index) const
     {
         throw TraceException("Specified index is out of range");
     }
-    
+
     return m_IntRegs[index];
 }
 
@@ -125,6 +130,13 @@ uint64_t TextCycle::GetFpReg(int index) const
     }
 
     return m_FpRegs[index];
+}
+
+void TextCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+{
+    (void)pOutNode;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
 }
 
 void TextCycle::ParsePc(std::basic_istream<char>* pInput)
@@ -157,7 +169,7 @@ void TextCycle::ParseFpReg(std::basic_istream<char>* pInput)
 void TextCycle::ParseNote(std::basic_istream<char>* pInput)
 {
     std::string note;
-    
+
     *pInput >> note;
 }
 

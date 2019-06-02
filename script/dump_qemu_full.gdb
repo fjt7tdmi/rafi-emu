@@ -8,9 +8,8 @@ set logging file work/gdb/qemu_full.log
 set $i = 0
 while $i < $count
     set logging on
-    echo GDB [\n
     info reg
-    echo ]\n
+    echo BREAK\n
     set logging off
     stepi
     set $i = $i + 1

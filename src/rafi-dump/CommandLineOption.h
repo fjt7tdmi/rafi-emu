@@ -20,7 +20,7 @@
 
 #include <rafi/trace.h>
 
-namespace rafi {
+namespace rafi { namespace dump {
 
 enum class Mode
 {
@@ -35,20 +35,25 @@ public:
 
     Mode GetMode() const;
 
+    const std::string& GetFilterDescription() const;
     const std::string& GetPath() const;
 
+    const int GetCycleBegin() const;
     const int GetCycleCount() const;
-    const int GetCycleStart() const;
+    const int GetCycleEnd() const;
 
 private:
-    static const int DefaultCount = 1000 * 1000 * 1000;
+    static const int DefaultCycleCount = 1000 * 1000 * 1000;
+    static const int DefaultCycleEnd = DefaultCycleCount;
 
     Mode m_Mode;
 
+    std::string m_FilterDescription;
     std::string m_Path;
-    
+
+    int m_CycleBegin;
     int m_CycleCount;
-    int m_CycleStart;
+    int m_CycleEnd;
 };
 
-}
+}}

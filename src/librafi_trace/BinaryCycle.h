@@ -34,9 +34,13 @@ public:
     virtual bool IsIntRegExist() const override;
     virtual bool IsFpRegExist() const override;
 
+    virtual int GetMemoryAccessCount() const override;
+
     virtual uint64_t GetPc(bool isPhysical) const override;
     virtual uint64_t GetIntReg(int index) const override;
     virtual uint64_t GetFpReg(int index) const override;
+
+    virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const override;
 
 private:
     CycleViewImpl m_Impl;
