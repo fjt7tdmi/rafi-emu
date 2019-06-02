@@ -34,9 +34,13 @@ public:
     virtual bool IsIntRegExist() const = 0;
     virtual bool IsFpRegExist() const = 0;
 
+    virtual int GetMemoryAccessCount() const = 0;
+
     virtual uint64_t GetPc(bool isPhysical) const = 0;
     virtual uint64_t GetIntReg(int index) const = 0;
     virtual uint64_t GetFpReg(int index) const = 0;
+
+    virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const = 0;
 };
 
 }}

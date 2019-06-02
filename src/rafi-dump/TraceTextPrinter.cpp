@@ -21,7 +21,7 @@
 
 #include "TraceTextPrinter.h"
 
-namespace rafi {
+namespace rafi { namespace dump {
 
 void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
 {
@@ -53,7 +53,7 @@ void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
         cycle->GetIntReg(20), cycle->GetIntReg(21), cycle->GetIntReg(22), cycle->GetIntReg(23),
         cycle->GetIntReg(24), cycle->GetIntReg(25), cycle->GetIntReg(26), cycle->GetIntReg(27),
         cycle->GetIntReg(28), cycle->GetIntReg(29), cycle->GetIntReg(30), cycle->GetIntReg(31));
-    
+
     m_Cycle++;
 }
 
@@ -74,5 +74,4 @@ void TraceTextPrinter::PrintHeader(const trace::ICycle* cycle)
     }
 }
 
-}
- 
+}}

@@ -16,19 +16,23 @@
 
 #pragma once
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
 
-namespace rafi { namespace dump {
+#include "ICycle.h"
 
-class TraceTextPrinter
+namespace rafi { namespace trace {
+
+class CyclePrinterImpl;
+
+class CyclePrinter
 {
 public:
-    void PrintCycle(const trace::ICycle* cycle);
+    void Print(const ICycle* cycle);
+
+    void Enable(NodeType nodeType);
 
 private:
-    void PrintHeader(const trace::ICycle* cycle);
-
-    uint64_t m_Cycle{ 0 };
+    CyclePrinterImpl* m_pImpl;
 };
 
 }}

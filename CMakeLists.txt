@@ -263,6 +263,8 @@ add_executable(rafi-diff
 add_executable(rafi-dump
     src/rafi-dump/CommandLineOption.cpp
     src/rafi-dump/CommandLineOption.h
+    src/rafi-dump/CycleFilter.cpp
+    src/rafi-dump/CycleFilter.h
     src/rafi-dump/Main.cpp
     src/rafi-dump/TraceTextPrinter.cpp
     src/rafi-dump/TraceTextPrinter.h

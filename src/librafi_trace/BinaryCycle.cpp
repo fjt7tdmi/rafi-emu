@@ -64,6 +64,11 @@ bool BinaryCycle::IsFpRegExist() const
     return m_Impl.GetNodeCount(NodeType::FpReg) > 0;
 }
 
+int BinaryCycle::GetMemoryAccessCount() const
+{
+    return m_Impl.GetNodeCount(trace::NodeType::MemoryAccess);
+}
+
 uint64_t BinaryCycle::GetPc(bool isPhysical) const
 {
     if (GetXLEN() == XLEN::XLEN32)
@@ -105,6 +110,11 @@ uint64_t BinaryCycle::GetFpReg(int index) const
     }
 
     return m_Impl.GetFpRegNode()->regs[index].u64.value;
+}
+
+void BinaryCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+{
+    std::memcpy(pOutNode, m_Impl.GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
 }
 
 }}

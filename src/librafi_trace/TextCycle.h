@@ -38,9 +38,13 @@ public:
     virtual bool IsIntRegExist() const;
     virtual bool IsFpRegExist() const;
 
+    virtual int GetMemoryAccessCount() const;
+
     virtual uint64_t GetPc(bool isPhysical) const;
     virtual uint64_t GetIntReg(int index) const;
     virtual uint64_t GetFpReg(int index) const;
+
+    virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const;
 
 private:
     void ParsePc(std::basic_istream<char>* pInput);

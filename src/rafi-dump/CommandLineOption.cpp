@@ -25,17 +25,19 @@
 
 namespace po = boost::program_options;
 
-namespace rafi {
+namespace rafi { namespace dump {
 
 CommandLineOption::CommandLineOption(int argc, char** argv)
 {
     po::options_description optDesc("options");
     optDesc.add_options()
-        ("count,c", po::value<int>(&m_CycleCount)->default_value(DefaultCount), "number of cycles to print")
-        ("start-cycle,s", po::value<int>(&m_CycleStart)->default_value(0), "cycle to start print")
-        ("input", po::value<std::string>(&m_Path), "input trace binary path")
-        ("trace-text", "set output format as trace-text")
-        ("help", "show help");
+        ("begin,b", po::value<int>(&m_CycleBegin)->default_value(0), "cycle to begin printing")
+        ("count,c", po::value<int>(&m_CycleCount)->default_value(DefaultCycleCount), "number of cycles to print")
+        ("end,e", po::value<int>(&m_CycleEnd)->default_value(DefaultCycleEnd), "cycle to end printing")
+        ("filter,f", po::value<std::string>(&m_FilterDescription), "description of cycle print filter")
+        ("input,i", po::value<std::string>(&m_Path), "input trace binary path")
+        ("trace-text,t", "set output format as trace-text")
+        ("help,h", "show help");
 
     po::positional_options_description posOptDesc;
     posOptDesc.add("input", -1);
@@ -73,9 +75,19 @@ Mode CommandLineOption::GetMode() const
     return m_Mode;
 }
 
+const std::string& CommandLineOption::GetFilterDescription() const
+{
+    return m_FilterDescription;
+}
+
 const std::string& CommandLineOption::GetPath() const
 {
     return m_Path;
+}
+
+const int CommandLineOption::GetCycleBegin() const
+{
+    return m_CycleBegin;
 }
 
 const int CommandLineOption::GetCycleCount() const
@@ -83,9 +95,9 @@ const int CommandLineOption::GetCycleCount() const
     return m_CycleCount;
 }
 
-const int CommandLineOption::GetCycleStart() const
+const int CommandLineOption::GetCycleEnd() const
 {
-    return m_CycleStart;
+    return m_CycleEnd;
 }
 
-}
+}}

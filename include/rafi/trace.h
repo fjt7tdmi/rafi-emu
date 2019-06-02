@@ -20,6 +20,7 @@
 
 #include "trace/CycleBuilder.h"
 #include "trace/CycleConfig.h"
+#include "trace/CyclePrinter.h"
 #include "trace/CycleTypes.h"
 #include "trace/CycleView.h"
 #include "trace/ICycle.h"

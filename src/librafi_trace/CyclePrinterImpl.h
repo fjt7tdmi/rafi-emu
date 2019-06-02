@@ -18,17 +18,19 @@
 
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+namespace rafi { namespace trace {
 
-class TraceTextPrinter
+class CyclePrinterImpl
 {
 public:
-    void PrintCycle(const trace::ICycle* cycle);
+    void Print(const ICycle* pCycle);
+
+    void Enable(NodeType nodeType);
 
 private:
-    void PrintHeader(const trace::ICycle* cycle);
+    void PrintPc(const ICycle* pCycle);
 
-    uint64_t m_Cycle{ 0 };
+    bool m_EnablePc{ false };
 };
 
 }}

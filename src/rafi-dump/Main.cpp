@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -24,14 +25,10 @@
 #include <rafi/trace.h>
 
 #include "CommandLineOption.h"
+#include "CycleFilter.h"
 #include "TraceTextPrinter.h"
 
-#pragma warning(disable:4477)
-
-using namespace rafi;
-using namespace rafi::trace;
-
-namespace {
+namespace rafi { namespace dump {
 
 const char* GetCauseString(TrapType trapType, uint32_t cause)
 {
@@ -46,7 +43,7 @@ const char* GetCauseString(TrapType trapType, uint32_t cause)
     }
 }
 
-void PrintBasicInfoNode(const BasicInfoNode* node)
+void PrintBasicInfoNode(const trace::BasicInfoNode* node)
 {
     Decoder decoder(XLEN::XLEN32);
     auto op = decoder.Decode(node->insn);
@@ -69,7 +66,7 @@ void PrintBasicInfoNode(const BasicInfoNode* node)
     );
 }
 
-void PrintFpRegNode(const FpRegNode* node)
+void PrintFpRegNode(const trace::FpRegNode* node)
 {
     printf("  FpReg: {\n");
 
@@ -88,7 +85,7 @@ void PrintFpRegNode(const FpRegNode* node)
     printf("  }\n");
 }
 
-void PrintIntReg32Node(const IntReg32Node* node)
+void PrintIntReg32Node(const trace::IntReg32Node* node)
 {
     printf(
         "  IntReg32: {\n"
@@ -160,7 +157,7 @@ void PrintIntReg32Node(const IntReg32Node* node)
     );
 }
 
-void PrintIntReg64Node(const IntReg64Node* node)
+void PrintIntReg64Node(const trace::IntReg64Node* node)
 {
     printf(
         "  IntReg64: {\n"
@@ -232,7 +229,7 @@ void PrintIntReg64Node(const IntReg64Node* node)
     );
 }
 
-void PrintPc32Node(const Pc32Node* node)
+void PrintPc32Node(const trace::Pc32Node* node)
 {
     printf(
         "  Pc32 {\n"
@@ -244,7 +241,7 @@ void PrintPc32Node(const Pc32Node* node)
     );
 }
 
-void PrintPc64Node(const Pc64Node* node)
+void PrintPc64Node(const trace::Pc64Node* node)
 {
     printf(
         "  Pc64 {\n"
@@ -256,7 +253,7 @@ void PrintPc64Node(const Pc64Node* node)
     );
 }
 
-void PrintTrap32Node(const Trap32Node* node)
+void PrintTrap32Node(const trace::Trap32Node* node)
 {
     printf(
         "  Trap32 {\n"
@@ -274,7 +271,7 @@ void PrintTrap32Node(const Trap32Node* node)
     );
 }
 
-void PrintTrap64Node(const Trap64Node* node)
+void PrintTrap64Node(const trace::Trap64Node* node)
 {
     printf(
         "  Trap64 {\n"
@@ -292,7 +289,7 @@ void PrintTrap64Node(const Trap64Node* node)
     );
 }
 
-void PrintMemoryAccessNode(const MemoryAccessNode* node)
+void PrintMemoryAccessNode(const trace::MemoryAccessNode* node)
 {
     printf(
         "  MemoryAccess {\n"
@@ -310,7 +307,7 @@ void PrintMemoryAccessNode(const MemoryAccessNode* node)
     );
 }
 
-void PrintCsr32Node(const Csr32Node* pNodes, int64_t nodeCount)
+void PrintCsr32Node(const trace::Csr32Node* pNodes, int64_t nodeCount)
 {
     printf("  Csr32 {\n");
 
@@ -323,7 +320,7 @@ void PrintCsr32Node(const Csr32Node* pNodes, int64_t nodeCount)
     printf("  }\n");
 }
 
-void PrintCsr64Node(const Csr64Node* pNodes, int64_t nodeCount)
+void PrintCsr64Node(const trace::Csr64Node* pNodes, int64_t nodeCount)
 {
     printf("  Cs64 {\n");
 
@@ -336,7 +333,7 @@ void PrintCsr64Node(const Csr64Node* pNodes, int64_t nodeCount)
     printf("  }\n");
 }
 
-void PrintIoNode(const IoNode* node)
+void PrintIoNode(const trace::IoNode* node)
 {
     printf(
         "  Io {\n"
@@ -346,56 +343,56 @@ void PrintIoNode(const IoNode* node)
     );
 }
 
-void PrintCycle(const CycleView& cycle, int cycleNum)
+void PrintCycle(const trace::CycleView& cycle, int cycleNum)
 {
     printf("{ // cycle: 0x%08x\n", cycleNum);
 
-    if (cycle.GetNodeCount(NodeType::BasicInfo) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::BasicInfo) > 0)
     {
         PrintBasicInfoNode(cycle.GetBasicInfoNode());
     }
-    if (cycle.GetNodeCount(NodeType::Io) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Io) > 0)
     {
         PrintIoNode(cycle.GetIoNode());
     }
-    if (cycle.GetNodeCount(NodeType::Pc32) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Pc32) > 0)
     {
         PrintPc32Node(cycle.GetPc32Node());
     }
-    if (cycle.GetNodeCount(NodeType::Pc64) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Pc64) > 0)
     {
         PrintPc64Node(cycle.GetPc64Node());
     }
-    if (cycle.GetNodeCount(NodeType::IntReg32) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::IntReg32) > 0)
     {
         PrintIntReg32Node(cycle.GetIntReg32Node());
     }
-    if (cycle.GetNodeCount(NodeType::IntReg64) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::IntReg64) > 0)
     {
         PrintIntReg64Node(cycle.GetIntReg64Node());
     }
-    if (cycle.GetNodeCount(NodeType::FpReg) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::FpReg) > 0)
     {
         PrintFpRegNode(cycle.GetFpRegNode());
     }
-    if (cycle.GetNodeCount(NodeType::Csr32) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Csr32) > 0)
     {
-        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(NodeType::Csr32) / sizeof(Csr32Node));
+        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(trace::NodeType::Csr32) / sizeof(trace::Csr32Node));
     }
-    if (cycle.GetNodeCount(NodeType::Csr64) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Csr64) > 0)
     {
-        PrintCsr64Node(cycle.GetCsr64Node(), cycle.GetNodeSize(NodeType::Csr64) / sizeof(Csr64Node));
+        PrintCsr64Node(cycle.GetCsr64Node(), cycle.GetNodeSize(trace::NodeType::Csr64) / sizeof(trace::Csr64Node));
     }
-    if (cycle.GetNodeCount(NodeType::Trap32) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Trap32) > 0)
     {
         PrintTrap32Node(cycle.GetTrap32Node());
     }
-    if (cycle.GetNodeCount(NodeType::Trap64) > 0)
+    if (cycle.GetNodeCount(trace::NodeType::Trap64) > 0)
     {
         PrintTrap64Node(cycle.GetTrap64Node());
     }
 
-    for (int index = 0; index < cycle.GetNodeCount(NodeType::MemoryAccess); index++)
+    for (int index = 0; index < cycle.GetNodeCount(trace::NodeType::MemoryAccess); index++)
     {
         PrintMemoryAccessNode(cycle.GetMemoryAccessNode(index));
     }
@@ -405,20 +402,23 @@ void PrintCycle(const CycleView& cycle, int cycleNum)
     printf("}\n");
 }
 
-void PrintTrace(const CommandLineOption& option)
+void PrintTrace(const CommandLineOption& option, IFilter* filter)
 {
-    FileTraceReader reader(option.GetPath().c_str());
+    trace::FileTraceReader reader(option.GetPath().c_str());
 
     TraceTextPrinter m_TraceTextPrinter;
 
-    for (int i = 0; i < option.GetCycleStart() + option.GetCycleCount(); i++)
+    const int begin = option.GetCycleBegin();
+    const int end = std::min(option.GetCycleBegin() + option.GetCycleCount(), option.GetCycleEnd());
+
+    for (int i = 0; i < end; i++)
     {
         if (reader.IsEnd())
         {
             return;
         }
 
-        if (i >= option.GetCycleStart())
+        if (i >= begin && filter->Apply(reader.GetCycle()))
         {
             if (option.GetMode() == Mode::TraceText)
             {
@@ -434,13 +434,15 @@ void PrintTrace(const CommandLineOption& option)
     }
 }
 
-}
+}}
 
 int main(int argc, char** argv)
 {
-    rafi::CommandLineOption option(argc, argv);
+    rafi::dump::CommandLineOption option(argc, argv);
 
-    PrintTrace(option);
+    auto filter = rafi::dump::MakeFilter(option.GetFilterDescription());
+
+    PrintTrace(option, filter.get());
 
     return 0;
 }
