@@ -130,6 +130,7 @@ void CycleComparator::PrintDiff(const trace::ICycle* expect, const trace::ICycle
     if (!IsPcMatched(expect, actual))
     {
         PrintDiffPc(expect, actual);
+        return;
     }
 
     if (!IsIntRegMatched(expect, actual))

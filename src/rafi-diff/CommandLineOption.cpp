@@ -31,6 +31,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
 {
     po::options_description desc("options");
     desc.add_options()
+        ("count,c", po::value<int>(&m_CycleCount)->default_value(DefaultCycleCount), "number of cycles to print")
         ("check-physical-pc", "enable comparing physical PC")
         ("expect", po::value<std::string>(&m_ExpectPath)->required(), "expect trace binary")
         ("actual", po::value<std::string>(&m_ActualPath)->required(), "actual trace binary")
@@ -65,6 +66,11 @@ const std::string& CommandLineOption::GetExpectPath() const
 const std::string& CommandLineOption::GetActualPath() const
 {
     return m_ActualPath;
+}
+
+int CommandLineOption::GetCycleCount() const
+{
+    return m_CycleCount;
 }
 
 bool CommandLineOption::CheckPhysicalPc() const

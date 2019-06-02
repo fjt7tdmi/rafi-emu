@@ -48,31 +48,31 @@ std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
     }
 }
 
-void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysicalPc)
+void CompareTrace(ITraceReader* expect, ITraceReader* actual, const CommandLineOption& option)
 {
-    CycleComparator comparator(checkPhysicalPc);
+    const int StopComparationThreshold = 8;
+
+    CycleComparator comparator(option.CheckPhysicalPc());
+
+    int continuousUnmatchCount = 0;
 
     int checkOpCount = 0;
     int expectOpCount = 0;
     int actualOpCount = 0;
 
-    bool prevCycleMatched = true;
-
-    while (!expect->IsEnd() && !actual->IsEnd())
+    for (int i = 0; i < option.GetCycleCount(); i++)
     {
+        if (expect->IsEnd() || actual->IsEnd())
+        {
+            break;
+        }
+
         const auto expectCycle = expect->GetCycle();
         const auto actualCycle = actual->GetCycle();
 
         if (comparator.IsMatched(expectCycle, actualCycle))
         {
-            if (!prevCycleMatched)
-            {
-                std::cout << "Detect matched cycles." << std::endl;
-                std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
-                std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
-                std::cout << "Proceed expect and actual." << std::endl;
-            }
-            prevCycleMatched = true;
+            continuousUnmatchCount = 0;
 
             expect->Next();
             actual->Next();
@@ -83,19 +83,27 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, bool checkPhysical
         }
         else
         {
-            if (prevCycleMatched)
-            {
-                std::cout << "Detect mismatched cycles." << std::endl;
-                std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
-                std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
-                std::cout << "Proceed actual." << std::endl;
+            std::cout << "Detect mismatched cycle." << std::endl;
+            std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
+            std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
+            std::cout << "Proceed actual." << std::endl;
 
-                comparator.PrintDiff(expectCycle, actualCycle);
+            comparator.PrintDiff(expectCycle, actualCycle);
+
+            if (++continuousUnmatchCount == StopComparationThreshold)
+            {
+                std::cout << "==========================================" << std::endl;
+                std::cout << "STOP: detect " << std::dec << StopComparationThreshold << " contiguous unmatced cycles" << std::endl;
+                break;
             }
-            prevCycleMatched = false;
 
             actual->Next();
             actualOpCount++;
+        }
+
+        if (i > 0 && i % 100000 == 0)
+        {
+            std::cout << "Compare " << std::dec << i << " cycles." << std::endl;
         }
     }
 
@@ -115,7 +123,7 @@ int main(int argc, char** argv)
 
     try
     {
-        rafi::CompareTrace(expect.get(), actual.get(), option.CheckPhysicalPc());
+        rafi::CompareTrace(expect.get(), actual.get(), option);
     }
     catch (const TraceException& e)
     {
