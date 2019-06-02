@@ -43,9 +43,6 @@ public:
     const int GetCycleEnd() const;
 
 private:
-    static const int DefaultCycleCount = 1000 * 1000 * 1000;
-    static const int DefaultCycleEnd = DefaultCycleCount;
-
     Mode m_Mode;
 
     std::string m_FilterDescription;

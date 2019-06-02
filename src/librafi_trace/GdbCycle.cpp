@@ -109,6 +109,11 @@ bool GdbCycle::IsFpRegExist() const
     return false;
 }
 
+int GdbCycle::GetMemoryAccessCount() const
+{
+    return 0;
+}
+
 uint64_t GdbCycle::GetPc(bool isPhysical) const
 {
     return isPhysical ? 0 : m_Pc;
@@ -128,6 +133,13 @@ uint64_t GdbCycle::GetFpReg(int index) const
 {
     (void)index;
     return 0;
+}
+
+void GdbCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+{
+    (void)pOutNode;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
 }
 
 }}

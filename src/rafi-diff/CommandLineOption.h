@@ -36,9 +36,6 @@ public:
     bool CheckPhysicalPc() const;
 
 private:
-    static const int DefaultCycleCount = 1000 * 1000 * 1000;
-    static const int DefaultThreshold = 10;
-
     std::string m_ExpectPath;
     std::string m_ActualPath;
 
