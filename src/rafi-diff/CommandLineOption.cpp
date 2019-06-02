@@ -31,11 +31,16 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
 {
     po::options_description desc("options");
     desc.add_options()
+        ("expect,e", po::value<std::string>(&m_ExpectPath)->required(), "expect trace binary")
+        ("actual,a", po::value<std::string>(&m_ActualPath)->required(), "actual trace binary")
+        ("check-physical-pc,p", "enable comparing physical PC")
         ("count,c", po::value<int>(&m_CycleCount)->default_value(DefaultCycleCount), "number of cycles to print")
-        ("check-physical-pc", "enable comparing physical PC")
-        ("expect", po::value<std::string>(&m_ExpectPath)->required(), "expect trace binary")
-        ("actual", po::value<std::string>(&m_ActualPath)->required(), "actual trace binary")
-        ("help", "show help");
+        ("threshold,t", po::value<int>(&m_Threshold)->default_value(DefaultThreshold), "threshold to stop somparation")
+        ("help,h", "show help");
+
+    po::positional_options_description posOptDesc;
+    posOptDesc.add("expect", 1);
+    posOptDesc.add("actual", 1);
 
     po::variables_map variables;
     try
@@ -71,6 +76,11 @@ const std::string& CommandLineOption::GetActualPath() const
 int CommandLineOption::GetCycleCount() const
 {
     return m_CycleCount;
+}
+
+int CommandLineOption::GetThreshold() const
+{
+    return m_Threshold;
 }
 
 bool CommandLineOption::CheckPhysicalPc() const

@@ -50,7 +50,7 @@ std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
 
 void CompareTrace(ITraceReader* expect, ITraceReader* actual, const CommandLineOption& option)
 {
-    const int StopComparationThreshold = 8;
+    const int StopComparationThreshold = option.GetThreshold();
 
     CycleComparator comparator(option.CheckPhysicalPc());
 
