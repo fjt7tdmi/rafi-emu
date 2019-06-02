@@ -264,6 +264,8 @@ add_executable(rafi-diff
     src/rafi-diff/CommandLineOption.h
     src/rafi-diff/CycleComparator.cpp
     src/rafi-diff/CycleComparator.h
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
 )
 
 add_executable(rafi-dump
@@ -274,6 +276,8 @@ add_executable(rafi-dump
     src/rafi-dump/Main.cpp
     src/rafi-dump/TraceTextPrinter.cpp
     src/rafi-dump/TraceTextPrinter.h
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
 )
 
 add_executable(rafi-emu

@@ -20,9 +20,9 @@
 #include <string>
 #include <vector>
 
-#include <boost/algorithm/string.hpp>
-
 #include <rafi/trace.h>
+
+#include "../util/TraceUtil.h"
 
 #include "CommandLineOption.h"
 #include "CycleComparator.h"
@@ -30,23 +30,6 @@
 using namespace rafi::trace;
 
 namespace rafi {
-
-std::unique_ptr<ITraceReader> MakeTraceReader(const std::string& path)
-{
-    if (boost::algorithm::ends_with(path, ".tbin") ||
-        boost::algorithm::ends_with(path, ".bin"))
-    {
-        return std::make_unique<FileTraceReader>(path.c_str());
-    }
-    else if (boost::algorithm::ends_with(path, ".gdb.log"))
-    {
-        return std::make_unique<GdbTraceReader>(path.c_str());
-    }
-    else
-    {
-        return std::make_unique<TextTraceReader>(path.c_str());
-    }
-}
 
 void CompareTrace(ITraceReader* expect, ITraceReader* actual, const CommandLineOption& option)
 {
