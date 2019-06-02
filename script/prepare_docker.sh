@@ -5,10 +5,12 @@ pushd `dirname $0`
 cd ..
 source script/common.sh.inc
 
+cd docker
+
 if [[ "$(uname)" =~ ^MINGW ]]; then
-    winpty /c/Program\ Files/Docker/Docker/Resources/bin/docker pull sbates130272/riscv
+    winpty /c/Program\ Files/Docker/Docker/Resources/bin/docker build -t rafi_test:1 .
 else
-    docker pull sbates130272/riscv
+    docker build -t rafi_test:1 .
 fi
 
 popd
