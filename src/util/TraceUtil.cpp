@@ -14,43 +14,29 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+#include <boost/algorithm/string.hpp>
 
-enum class Mode
+#include "TraceUtil.h"
+
+namespace rafi {
+
+std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path)
 {
-    Normal = 0,
-    TraceText = 1,
-};
+    if (boost::algorithm::ends_with(path, ".tbin") ||
+        boost::algorithm::ends_with(path, ".bin"))
+    {
+        return std::make_unique<trace::FileTraceReader>(path.c_str());
+    }
+    else if (boost::algorithm::ends_with(path, ".gdb.log"))
+    {
+        return std::make_unique<trace::GdbTraceReader>(path.c_str());
+    }
+    else
+    {
+        return std::make_unique<trace::TextTraceReader>(path.c_str());
+    }
+}
 
-class CommandLineOption
-{
-public:
-    CommandLineOption(int argc, char** argv);
-
-    Mode GetMode() const;
-
-    const std::string& GetFilterDescription() const;
-    const std::string& GetPath() const;
-
-    const int GetCycleBegin() const;
-    const int GetCycleCount() const;
-    const int GetCycleEnd() const;
-
-private:
-    Mode m_Mode;
-
-    std::string m_FilterDescription;
-    std::string m_Path;
-
-    int m_CycleBegin;
-    int m_CycleCount;
-    int m_CycleEnd;
-};
-
-}}
+}

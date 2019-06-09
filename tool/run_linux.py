@@ -20,7 +20,7 @@ FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
 
-DefaultCycle = 300000000
+DefaultCycle = 5 * 1000 * 1000
 
 #
 # Functions
@@ -56,7 +56,7 @@ def MakeEmulatorCommand(config):
     bbl_path = f"{BinaryDirPath}/bbl.bin"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
-    pc_log_path = f"{TraceDirPath}/linux.pc.log"
+    trace_txt_path = f"{TraceDirPath}/linux.trace.txt"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
 
     cmd = [
@@ -68,7 +68,7 @@ def MakeEmulatorCommand(config):
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
         "--pc", "0x1000",
-        "--pc-log-path", pc_log_path,
+        "--trace-txt-path", trace_txt_path,
         "--xlen", "64",
     ]
     if config['dump']:

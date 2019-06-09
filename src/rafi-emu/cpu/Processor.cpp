@@ -149,6 +149,11 @@ void Processor::ProcessCycle()
     }
 }
 
+vaddr_t Processor::GetPc() const
+{
+    return m_Csr.GetProgramCounter();
+}
+
 int Processor::GetCsrCount() const
 {
     return m_Csr.GetRegCount();

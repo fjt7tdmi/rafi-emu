@@ -107,18 +107,6 @@ const Pc64Node* CycleViewImpl::GetPc64Node() const
     return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64, 0));
 }
 
-const Csr32Node* CycleViewImpl::GetCsr32Node() const
-{
-    CheckNodeSizeGreaterThan(NodeType::Csr32, 0, sizeof(Csr32Node));
-    return reinterpret_cast<const Csr32Node*>(GetNode(NodeType::Csr32, 0));
-}
-
-const Csr64Node* CycleViewImpl::GetCsr64Node() const
-{
-    CheckNodeSizeGreaterThan(NodeType::Csr64, 0, sizeof(Csr64Node));
-    return reinterpret_cast<const Csr64Node*>(GetNode(NodeType::Csr64, 0));
-}
-
 const Trap32Node* CycleViewImpl::GetTrap32Node() const
 {
     CheckNodeSizeEqualTo(NodeType::Trap32, 0, sizeof(Trap32Node));

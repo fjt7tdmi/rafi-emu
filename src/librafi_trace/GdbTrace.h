@@ -16,35 +16,36 @@
 
 #pragma once
 
-#include <cstdio>
+#include <cstdint>
+#include <string>
+#include <vector>
 
 #include <rafi/trace.h>
 
-#include "System.h"
+#include "GdbCycle.h"
 
-namespace rafi { namespace emu {
+namespace rafi { namespace trace {
 
-class PcLogger final
+class GdbTrace final
 {
 public:
-    PcLogger(XLEN xlen, const char* path, const System* pSystem);
-    ~PcLogger();
+    GdbTrace(std::basic_istream<char>* pInput);
+    ~GdbTrace();
 
-    void EnableDump();
+    const ICycle* GetCycle() const;
 
-    void DumpCycle();
+    bool IsEnd() const;
+
+    void Next();
 
 private:
-    void DumpCycle32();
-    void DumpCycle64();
+    void UpdateGdbCycle();
 
     XLEN m_XLEN;
-    const char* m_pPath;
-    const System* m_pSystem;
 
-    std::FILE* m_pFile {nullptr};
+    std::basic_istream<char>* m_pInput;
 
-    bool m_Enabled {false};
+    std::unique_ptr<GdbCycle> m_pGdbCycle;
 };
 
 }}

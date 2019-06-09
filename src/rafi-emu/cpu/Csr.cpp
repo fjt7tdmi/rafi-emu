@@ -141,8 +141,9 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
         RAFI_EMU_NOT_IMPLEMENTED();
     }
 
-    m_Status.SetMember<xstatus_t::SXL>(static_cast<uint32_t>(m_XLEN));
-    m_Status.SetMember<xstatus_t::UXL>(static_cast<uint32_t>(m_XLEN));
+    // Disable SXL and UXL bit for qemu-compatibility.
+    // m_Status.SetMember<xstatus_t::SXL>(static_cast<uint32_t>(m_XLEN));
+    // m_Status.SetMember<xstatus_t::UXL>(static_cast<uint32_t>(m_XLEN));
 }
 
 vaddr_t Csr::GetProgramCounter() const

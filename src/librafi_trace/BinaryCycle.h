@@ -33,14 +33,22 @@ public:
     virtual bool IsPcExist() const override;
     virtual bool IsIntRegExist() const override;
     virtual bool IsFpRegExist() const override;
+    virtual bool IsIoStateExist() const;
+    virtual bool IsNoteExist() const;
 
-    virtual int GetMemoryAccessCount() const override;
+    virtual int GetOpEventCount() const override;
+    virtual int GetMemoryEventCount() const override;
+    virtual int GetTrapEventCount() const override;
 
     virtual uint64_t GetPc(bool isPhysical) const override;
     virtual uint64_t GetIntReg(int index) const override;
     virtual uint64_t GetFpReg(int index) const override;
 
-    virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const override;
+    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
+    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const override;
+    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const override;
+    virtual void CopyIoState(IoState* pOutState) const override;
+    virtual void CopyNote(std::string* pOutNote) const override;
 
 private:
     CycleViewImpl m_Impl;

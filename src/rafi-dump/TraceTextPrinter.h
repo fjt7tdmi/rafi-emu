@@ -26,7 +26,16 @@ public:
     void PrintCycle(const trace::ICycle* cycle);
 
 private:
-    void PrintHeader(const trace::ICycle* cycle);
+    void PrintHeader(const trace::ICycle* cycle) const;
+    void PrintNote(const trace::ICycle* cycle) const;
+    void PrintPc(const trace::ICycle* cycle) const;
+    void PrintIntReg(const trace::ICycle* cycle) const;
+    void PrintFpReg(const trace::ICycle* cycle) const;
+    void PrintIoState(const trace::ICycle* cycle) const;
+    void PrintOpEvent(const trace::ICycle* cycle) const;
+    void PrintMemoryEvent(const trace::ICycle* cycle) const;
+    void PrintTrapEvent(const trace::ICycle* cycle) const;
+    void PrintBreak() const;
 
     uint64_t m_Cycle{ 0 };
 };

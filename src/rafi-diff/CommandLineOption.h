@@ -30,12 +30,17 @@ public:
     const std::string& GetExpectPath() const;
     const std::string& GetActualPath() const;
 
+    int GetCycleCount() const;
+    int GetThreshold() const;
+
     bool CheckPhysicalPc() const;
 
 private:
     std::string m_ExpectPath;
     std::string m_ActualPath;
 
+    int m_CycleCount{ 0 };
+    int m_Threshold{ 0 };
     bool m_CheckPhysicalPc{ false };
 };
 

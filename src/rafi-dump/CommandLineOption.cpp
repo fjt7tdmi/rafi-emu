@@ -27,6 +27,12 @@ namespace po = boost::program_options;
 
 namespace rafi { namespace dump {
 
+namespace {
+    static const int DefaultCycleCount = 1000 * 1000 * 1000;
+    static const int DefaultCycleEnd = DefaultCycleCount;
+
+}
+
 CommandLineOption::CommandLineOption(int argc, char** argv)
 {
     po::options_description optDesc("options");

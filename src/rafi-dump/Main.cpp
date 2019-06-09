@@ -24,6 +24,8 @@
 
 #include <rafi/trace.h>
 
+#include "../util/TraceUtil.h"
+
 #include "CommandLineOption.h"
 #include "CycleFilter.h"
 #include "TraceTextPrinter.h"
@@ -375,14 +377,6 @@ void PrintCycle(const trace::CycleView& cycle, int cycleNum)
     {
         PrintFpRegNode(cycle.GetFpRegNode());
     }
-    if (cycle.GetNodeCount(trace::NodeType::Csr32) > 0)
-    {
-        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(trace::NodeType::Csr32) / sizeof(trace::Csr32Node));
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Csr64) > 0)
-    {
-        PrintCsr64Node(cycle.GetCsr64Node(), cycle.GetNodeSize(trace::NodeType::Csr64) / sizeof(trace::Csr64Node));
-    }
     if (cycle.GetNodeCount(trace::NodeType::Trap32) > 0)
     {
         PrintTrap32Node(cycle.GetTrap32Node());
@@ -404,7 +398,7 @@ void PrintCycle(const trace::CycleView& cycle, int cycleNum)
 
 void PrintTrace(const CommandLineOption& option, IFilter* filter)
 {
-    trace::FileTraceReader reader(option.GetPath().c_str());
+    auto reader = rafi::MakeTraceReader(option.GetPath());
 
     TraceTextPrinter m_TraceTextPrinter;
 
@@ -413,24 +407,25 @@ void PrintTrace(const CommandLineOption& option, IFilter* filter)
 
     for (int i = 0; i < end; i++)
     {
-        if (reader.IsEnd())
+        if (reader->IsEnd())
         {
             return;
         }
 
-        if (i >= begin && filter->Apply(reader.GetCycle()))
+        if (i >= begin && filter->Apply(reader->GetCycle()))
         {
             if (option.GetMode() == Mode::TraceText)
             {
-                m_TraceTextPrinter.PrintCycle(reader.GetCycle());
+                m_TraceTextPrinter.PrintCycle(reader->GetCycle());
             }
             else
             {
-                PrintCycle(reader.GetCycleView(), i);
+                //PrintCycle(reader->GetCycleView(), i);
+                RAFI_NOT_IMPLEMENTED();
             }
         }
 
-        reader.Next();
+        reader->Next();
     }
 }
 

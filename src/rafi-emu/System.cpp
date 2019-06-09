@@ -108,6 +108,11 @@ uint32_t System::GetHostIoValue() const
     return value;
 }
 
+vaddr_t System::GetPc() const
+{
+    return m_Processor.GetPc();
+}
+
 void System::CopyIntReg(trace::IntReg32Node* pOut) const
 {
     m_Processor.CopyIntReg(pOut);

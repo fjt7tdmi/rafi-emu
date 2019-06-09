@@ -166,9 +166,39 @@ struct MemoryAccessNode
     uint64_t physicalAddress;
 };
 
+struct OpEvent
+{
+    uint32_t insn;
+    PrivilegeLevel priv;
+};
+
 struct IoNode
 {
     uint32_t hostIoValue;
+    uint32_t reserved;
+};
+
+struct TrapEvent
+{
+    TrapType trapType;
+    PrivilegeLevel from;
+    PrivilegeLevel to;
+    uint32_t cause;
+    uint64_t trapValue;
+};
+
+struct MemoryEvent
+{
+    MemoryAccessType accessType;
+    uint32_t size;
+    uint64_t value;
+    uint64_t virtualAddress;
+    uint64_t physicalAddress;
+};
+
+struct IoState
+{
+    uint32_t hostIo;
     uint32_t reserved;
 };
 

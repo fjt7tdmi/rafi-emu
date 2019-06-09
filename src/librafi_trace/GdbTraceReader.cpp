@@ -14,43 +14,43 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+#include "GdbTrace.h"
 
-enum class Mode
+namespace rafi { namespace trace {
+
+GdbTraceReader::GdbTraceReader(const char* path)
 {
-    Normal = 0,
-    TraceText = 1,
-};
+    m_pInput = new std::ifstream(path, std::ios::in);
+    m_pTrace = new GdbTrace(m_pInput);
+}
 
-class CommandLineOption
+GdbTraceReader::~GdbTraceReader()
 {
-public:
-    CommandLineOption(int argc, char** argv);
+    if (m_pTrace != nullptr)
+    {
+        delete m_pTrace;
+    }
+    if (m_pInput != nullptr)
+    {
+        delete m_pInput;
+    }
+}
 
-    Mode GetMode() const;
+const ICycle* GdbTraceReader::GetCycle() const
+{
+    return m_pTrace->GetCycle();
+}
 
-    const std::string& GetFilterDescription() const;
-    const std::string& GetPath() const;
+bool GdbTraceReader::IsEnd() const
+{
+    return m_pTrace->IsEnd();
+}
 
-    const int GetCycleBegin() const;
-    const int GetCycleCount() const;
-    const int GetCycleEnd() const;
-
-private:
-    Mode m_Mode;
-
-    std::string m_FilterDescription;
-    std::string m_Path;
-
-    int m_CycleBegin;
-    int m_CycleCount;
-    int m_CycleEnd;
-};
+void GdbTraceReader::Next()
+{
+    m_pTrace->Next();
+}
 
 }}

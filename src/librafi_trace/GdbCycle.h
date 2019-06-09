@@ -24,13 +24,13 @@
 
 namespace rafi { namespace trace {
 
-class TextCycle : public ICycle
+class GdbCycle : public ICycle
 {
 public:
-    static std::unique_ptr<TextCycle> Parse(std::basic_istream<char>* pInput, XLEN xlen);
+    static std::unique_ptr<GdbCycle> Parse(std::basic_istream<char>* pInput);
 
-    TextCycle(XLEN xlen);
-    virtual ~TextCycle();
+    GdbCycle();
+    virtual ~GdbCycle();
 
     virtual XLEN GetXLEN() const;
 
@@ -55,24 +55,8 @@ public:
     virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const;
 
 private:
-    void ParsePc(std::basic_istream<char>* pInput);
-    void ParseIntReg(std::basic_istream<char>* pInput);
-    void ParseFpReg(std::basic_istream<char>* pInput);
-    void ParseNote(std::basic_istream<char>* pInput);
-
-    XLEN m_XLEN;
-
-    bool m_PcExist{ false };
-    bool m_IntRegExist{ false };
-    bool m_FpRegExist{ false };
-
-    uint64_t m_VirtualPc{ 0 };
-    uint64_t m_PhysicalPc{ 0 };
-
+    uint64_t m_Pc{ 0 };
     uint64_t m_IntRegs[IntRegCount];
-    uint64_t m_FpRegs[IntRegCount];
-
-    std::string m_Note;
 };
 
 }}

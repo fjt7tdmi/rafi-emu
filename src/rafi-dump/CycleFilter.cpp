@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <sstream>
 
 #include <rafi/trace.h>
@@ -49,17 +50,17 @@ MemoryAccessFilter::MemoryAccessFilter(uint64_t address, bool isPhysical, bool c
 
 bool MemoryAccessFilter::Apply(const trace::ICycle* pCycle) const
 {
-    const auto count = pCycle->GetMemoryAccessCount();
+    const auto count = pCycle->GetMemoryEventCount();
 
     for (int i = 0; i < count; i++)
     {
-        trace::MemoryAccessNode node;
-        pCycle->CopyMemoryAccess(&node, i);
+        trace::MemoryEvent e;
+        pCycle->CopyMemoryEvent(&e, i);
 
-        const auto address = m_IsPhysical ? node.physicalAddress : node.virtualAddress;
-        const bool addressIncluded = (address <= m_Address && m_Address < address + node.size);
+        const auto address = m_IsPhysical ? e.physicalAddress : e.virtualAddress;
+        const bool addressIncluded = (address <= m_Address && m_Address < address + e.size);
 
-        switch (node.accessType)
+        switch (e.accessType)
         {
         case MemoryAccessType::Instruction:
         case MemoryAccessType::Load:
