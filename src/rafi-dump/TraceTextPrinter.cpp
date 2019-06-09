@@ -23,47 +23,33 @@
 
 namespace rafi { namespace dump {
 
-void TraceTextPrinter::PrintCycle(const trace::ICycle* cycle)
+void TraceTextPrinter::PrintCycle(const trace::ICycle* pCycle)
 {
-    if (m_Cycle == 0)
-    {
-        PrintHeader(cycle);
-    }
-
-    printf(
-        "NOTE  cycle%" PRId64 "\n"
-        "PC  %016" PRIx64 "  %016" PRIx64 "\n"
-        "INT\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "  %016" PRIx64 "\n"
-        "BREAK\n",
-        m_Cycle,
-        cycle->GetPc(false), cycle->GetPc(true),
-        cycle->GetIntReg(0), cycle->GetIntReg(1), cycle->GetIntReg(2), cycle->GetIntReg(3),
-        cycle->GetIntReg(4), cycle->GetIntReg(5), cycle->GetIntReg(6), cycle->GetIntReg(7),
-        cycle->GetIntReg(8), cycle->GetIntReg(9), cycle->GetIntReg(10), cycle->GetIntReg(11),
-        cycle->GetIntReg(12), cycle->GetIntReg(13), cycle->GetIntReg(14), cycle->GetIntReg(15),
-        cycle->GetIntReg(16), cycle->GetIntReg(17), cycle->GetIntReg(18), cycle->GetIntReg(19),
-        cycle->GetIntReg(20), cycle->GetIntReg(21), cycle->GetIntReg(22), cycle->GetIntReg(23),
-        cycle->GetIntReg(24), cycle->GetIntReg(25), cycle->GetIntReg(26), cycle->GetIntReg(27),
-        cycle->GetIntReg(28), cycle->GetIntReg(29), cycle->GetIntReg(30), cycle->GetIntReg(31));
+    PrintHeader(pCycle);
+    PrintNote(pCycle);
+    PrintPc(pCycle);
+    PrintIntReg(pCycle);
+    PrintFpReg(pCycle);
+    PrintIo(pCycle);
+    PrintMemoryEvent(pCycle);
+    PrintTrapEvent(pCycle);
+    PrintBreak();
 
     m_Cycle++;
 }
 
-void TraceTextPrinter::PrintHeader(const trace::ICycle* cycle)
+void TraceTextPrinter::PrintHeader(const trace::ICycle* pCycle) const
 {
-    if (cycle->GetXLEN() == XLEN::XLEN32)
+    if (m_Cycle == 0)
+    {
+        return;
+    }
+
+    if (pCycle->GetXLEN() == XLEN::XLEN32)
     {
         printf("XLEN  32\n");
     }
-    else if (cycle->GetXLEN() == XLEN::XLEN64)
+    else if (pCycle->GetXLEN() == XLEN::XLEN64)
     {
         printf("XLEN  64\n");
     }
@@ -72,6 +58,110 @@ void TraceTextPrinter::PrintHeader(const trace::ICycle* cycle)
         fprintf(stderr, "Unexpected XLEN.\n");
         std::exit(1);
     }
+}
+
+void TraceTextPrinter::PrintNote(const trace::ICycle* pCycle) const
+{
+    if (!pCycle->IsNoteExist())
+    {
+        return;
+    }
+
+    std::string s;
+    pCycle->CopyNote(&s);
+
+    printf("NOTE %s\n", s.c_str());
+}
+
+void TraceTextPrinter::PrintPc(const trace::ICycle* pCycle) const
+{
+    if (!pCycle->IsPcExist())
+    {
+        return;
+    }
+
+    printf("PC %016" PRIx64 " %016" PRIx64 "\n", pCycle->GetPc(false), pCycle->GetPc(true));
+}
+
+void TraceTextPrinter::PrintIntReg(const trace::ICycle* pCycle) const
+{
+    printf(
+        "INT\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n",
+        pCycle->GetIntReg(0), pCycle->GetIntReg(1), pCycle->GetIntReg(2), pCycle->GetIntReg(3),
+        pCycle->GetIntReg(4), pCycle->GetIntReg(5), pCycle->GetIntReg(6), pCycle->GetIntReg(7),
+        pCycle->GetIntReg(8), pCycle->GetIntReg(9), pCycle->GetIntReg(10), pCycle->GetIntReg(11),
+        pCycle->GetIntReg(12), pCycle->GetIntReg(13), pCycle->GetIntReg(14), pCycle->GetIntReg(15),
+        pCycle->GetIntReg(16), pCycle->GetIntReg(17), pCycle->GetIntReg(18), pCycle->GetIntReg(19),
+        pCycle->GetIntReg(20), pCycle->GetIntReg(21), pCycle->GetIntReg(22), pCycle->GetIntReg(23),
+        pCycle->GetIntReg(24), pCycle->GetIntReg(25), pCycle->GetIntReg(26), pCycle->GetIntReg(27),
+        pCycle->GetIntReg(28), pCycle->GetIntReg(29), pCycle->GetIntReg(30), pCycle->GetIntReg(31));
+}
+
+void TraceTextPrinter::PrintFpReg(const trace::ICycle* pCycle) const
+{
+    printf(
+        "FP\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n"
+        " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 " %016" PRIx64 "\n",
+        pCycle->GetFpReg(0), pCycle->GetFpReg(1), pCycle->GetFpReg(2), pCycle->GetFpReg(3),
+        pCycle->GetFpReg(4), pCycle->GetFpReg(5), pCycle->GetFpReg(6), pCycle->GetFpReg(7),
+        pCycle->GetFpReg(8), pCycle->GetFpReg(9), pCycle->GetFpReg(10), pCycle->GetFpReg(11),
+        pCycle->GetFpReg(12), pCycle->GetFpReg(13), pCycle->GetFpReg(14), pCycle->GetFpReg(15),
+        pCycle->GetFpReg(16), pCycle->GetFpReg(17), pCycle->GetFpReg(18), pCycle->GetFpReg(19),
+        pCycle->GetFpReg(20), pCycle->GetFpReg(21), pCycle->GetFpReg(22), pCycle->GetFpReg(23),
+        pCycle->GetFpReg(24), pCycle->GetFpReg(25), pCycle->GetFpReg(26), pCycle->GetFpReg(27),
+        pCycle->GetFpReg(28), pCycle->GetFpReg(29), pCycle->GetFpReg(30), pCycle->GetFpReg(31));
+}
+
+void TraceTextPrinter::PrintIo(const trace::ICycle* pCycle) const
+{
+    trace::IoState state;
+    pCycle->CopyIoState(&state);
+
+    printf("IO %08" PRIx32 "\n", state.hostIo);
+}
+
+void TraceTextPrinter::PrintMemoryEvent(const trace::ICycle* pCycle) const
+{
+    for (int i = 0; i < pCycle->GetMemoryEventCount(); i++)
+    {
+        trace::MemoryEvent e;
+        pCycle->CopyMemoryEvent(&e, i);
+
+        printf("MA %s %" PRIx32 " %" PRIx64 " %" PRIx64 " %" PRIx64 "\n",
+            GetString(e.accessType), e.size, e.value, e.virtualAddress, e.physicalAddress);
+    }
+}
+
+void TraceTextPrinter::PrintTrapEvent(const trace::ICycle* pCycle) const
+{
+    for (int i = 0; i < pCycle->GetTrapEventCount(); i++)
+    {
+        trace::TrapEvent e;
+        pCycle->CopyTrapEvent(&e, i);
+
+        printf("TRAP %s %s %s %" PRIx32 " %" PRIx64 "\n",
+            GetString(e.trapType), GetString(e.from), GetString(e.to), e.cause, e.trapValue);
+    }
+}
+
+void TraceTextPrinter::PrintBreak() const
+{
+    printf("BREAK\n");
 }
 
 }}

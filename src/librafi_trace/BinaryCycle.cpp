@@ -82,7 +82,7 @@ int BinaryCycle::GetMemoryEventCount() const
 
 int BinaryCycle::GetTrapEventCount() const
 {
-    return  m_Impl.GetNodeCount(trace::NodeType::Trap32) + m_Impl.GetNodeCount(trace::NodeType::Trap64);
+    return m_Impl.GetNodeCount(trace::NodeType::Trap32) + m_Impl.GetNodeCount(trace::NodeType::Trap64);
 }
 
 uint64_t BinaryCycle::GetPc(bool isPhysical) const
