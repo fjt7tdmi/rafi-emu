@@ -166,6 +166,12 @@ struct MemoryAccessNode
     uint64_t physicalAddress;
 };
 
+struct OpEvent
+{
+    uint32_t insn;
+    PrivilegeLevel priv;
+};
+
 struct IoNode
 {
     uint32_t hostIoValue;

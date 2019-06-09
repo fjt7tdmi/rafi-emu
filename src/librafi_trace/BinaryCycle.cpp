@@ -75,6 +75,11 @@ bool BinaryCycle::IsNoteExist() const
     return false;
 }
 
+int BinaryCycle::GetOpEventCount() const
+{
+    return 1;
+}
+
 int BinaryCycle::GetMemoryEventCount() const
 {
     return m_Impl.GetNodeCount(trace::NodeType::MemoryAccess);
@@ -137,6 +142,13 @@ void BinaryCycle::CopyIoState(IoState* pOutState) const
 void BinaryCycle::CopyNote(std::string* pOutNote) const
 {
     *pOutNote = "(null)";
+}
+
+void BinaryCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
+{
+    (void)index;
+    pOutEvent->insn = m_Impl.GetBasicInfoNode()->insn;
+    pOutEvent->priv = m_Impl.GetBasicInfoNode()->privilegeLevel;
 }
 
 void BinaryCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const

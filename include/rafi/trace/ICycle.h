@@ -38,6 +38,7 @@ public:
     virtual bool IsIoStateExist() const = 0;
     virtual bool IsNoteExist() const = 0;
 
+    virtual int GetOpEventCount() const = 0;
     virtual int GetMemoryEventCount() const = 0;
     virtual int GetTrapEventCount() const = 0;
 
@@ -47,6 +48,7 @@ public:
 
     virtual void CopyIoState(IoState* pOutState) const = 0;
     virtual void CopyNote(std::string* pOutNote) const = 0;
+    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const = 0;
     virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const = 0;
     virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const = 0;
 };

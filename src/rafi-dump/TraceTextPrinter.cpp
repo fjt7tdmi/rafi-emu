@@ -31,6 +31,7 @@ void TraceTextPrinter::PrintCycle(const trace::ICycle* pCycle)
     PrintIntReg(pCycle);
     PrintFpReg(pCycle);
     PrintIoState(pCycle);
+    PrintOpEvent(pCycle);
     PrintMemoryEvent(pCycle);
     PrintTrapEvent(pCycle);
     PrintBreak();
@@ -148,6 +149,17 @@ void TraceTextPrinter::PrintIoState(const trace::ICycle* pCycle) const
     pCycle->CopyIoState(&state);
 
     printf("IO %08" PRIx32 "\n", state.hostIo);
+}
+
+void TraceTextPrinter::PrintOpEvent(const trace::ICycle* pCycle) const
+{
+    for (int i = 0; i < pCycle->GetOpEventCount(); i++)
+    {
+        trace::OpEvent e;
+        pCycle->CopyOpEvent(&e, i);
+
+        printf("OP %" PRIx32 " %s\n", e.insn, GetString(e.priv));
+    }
 }
 
 void TraceTextPrinter::PrintMemoryEvent(const trace::ICycle* pCycle) const

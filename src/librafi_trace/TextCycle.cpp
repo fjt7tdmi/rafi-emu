@@ -97,6 +97,11 @@ bool TextCycle::IsNoteExist() const
     return !m_Note.empty();
 }
 
+int TextCycle::GetOpEventCount() const
+{
+    return 0;
+}
+
 int TextCycle::GetMemoryEventCount() const
 {
     return 0;
@@ -156,6 +161,13 @@ void TextCycle::CopyIoState(IoState* pOutState) const
 void TextCycle::CopyNote(std::string* pOutNote) const
 {
     *pOutNote = m_Note;
+}
+
+void TextCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
 }
 
 void TextCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const

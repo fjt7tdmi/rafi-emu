@@ -36,6 +36,7 @@ public:
     virtual bool IsIoStateExist() const;
     virtual bool IsNoteExist() const;
 
+    virtual int GetOpEventCount() const override;
     virtual int GetMemoryEventCount() const override;
     virtual int GetTrapEventCount() const override;
 
@@ -43,6 +44,7 @@ public:
     virtual uint64_t GetIntReg(int index) const override;
     virtual uint64_t GetFpReg(int index) const override;
 
+    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
     virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const override;
     virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const override;
     virtual void CopyIoState(IoState* pOutState) const override;

@@ -32,6 +32,7 @@ private:
     void PrintIntReg(const trace::ICycle* cycle) const;
     void PrintFpReg(const trace::ICycle* cycle) const;
     void PrintIoState(const trace::ICycle* cycle) const;
+    void PrintOpEvent(const trace::ICycle* cycle) const;
     void PrintMemoryEvent(const trace::ICycle* cycle) const;
     void PrintTrapEvent(const trace::ICycle* cycle) const;
     void PrintBreak() const;

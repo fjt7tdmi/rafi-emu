@@ -119,6 +119,11 @@ bool GdbCycle::IsNoteExist() const
     return false;
 }
 
+int GdbCycle::GetOpEventCount() const
+{
+    return 0;
+}
+
 int GdbCycle::GetMemoryEventCount() const
 {
     return 0;
@@ -150,6 +155,19 @@ uint64_t GdbCycle::GetFpReg(int index) const
     return 0;
 }
 
+void GdbCycle::CopyNote(std::string* pOutNote) const
+{
+    (void)pOutNote;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
 void GdbCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
 {
     (void)pOutEvent;
@@ -167,12 +185,6 @@ void GdbCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
 void GdbCycle::CopyIoState(IoState* pOutState) const
 {
     (void)pOutState;
-    RAFI_NOT_IMPLEMENTED();
-}
-
-void GdbCycle::CopyNote(std::string* pOutNote) const
-{
-    (void)pOutNote;
     RAFI_NOT_IMPLEMENTED();
 }
 
