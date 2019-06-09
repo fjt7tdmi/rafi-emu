@@ -15,6 +15,7 @@
  */
 
 #include <rafi/emu.h>
+
 #include "System.h"
 
 namespace rafi { namespace emu {
@@ -73,14 +74,18 @@ void System::SetHostIoAddress(vaddr_t address)
     m_HostIoAddress = address;
 }
 
-void System::ProcessCycle()
+void System::ProcessCycle(Profiler* pProfiler)
 {
+    pProfiler->Switch(Profiler::Phase_Io);
+
     m_Clint.ProcessCycle();
     m_Uart16550.ProcessCycle();
     m_Uart.ProcessCycle();
     m_Timer.ProcessCycle();
 
-    m_Processor.ProcessCycle();
+    pProfiler->Switch(Profiler::Phase_Cpu);
+
+    m_Processor.ProcessCycle(pProfiler);
 }
 
 int System::GetCsrCount() const

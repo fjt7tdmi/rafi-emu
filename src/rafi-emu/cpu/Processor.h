@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <rafi/common.h>
+#include <rafi/emu.h>
+
 #include "Csr.h"
 #include "Executor.h"
 #include "FpRegFile.h"
@@ -25,8 +28,7 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-#include <rafi/common.h>
-#include <rafi/emu.h>
+#include "../Profiler.h"
 
 namespace rafi { namespace emu { namespace cpu {
 
@@ -50,7 +52,7 @@ public:
     void WriteTime(uint64_t value);
 
     // Process
-    void ProcessCycle();
+    void ProcessCycle(Profiler* pProfiler);
 
     // for Dump
     vaddr_t GetPc() const;

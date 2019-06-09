@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <rafi/emu.h>
+
 #include "io/IoInterruptSource.h"
 #include "io/Clint.h"
 #include "io/Plic.h"
@@ -23,12 +25,15 @@
 #include "io/Uart16550.h"
 #include "io/Timer.h"
 #include "io/VirtIo.h"
+
 #include "mem/Ram.h"
 #include "mem/Rom.h"
+
 #include "bus/Bus.h"
+
 #include "cpu/Processor.h"
 
-#include <rafi/emu.h>
+#include "Profiler.h"
 
 namespace rafi { namespace emu {
 
@@ -43,7 +48,7 @@ public:
     void SetHostIoAddress(vaddr_t address);
 
     // Process
-    void ProcessCycle();
+    void ProcessCycle(Profiler* pProfiler);
 
     // for Dump
     int GetCsrCount() const;
