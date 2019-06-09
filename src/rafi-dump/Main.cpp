@@ -377,14 +377,6 @@ void PrintCycle(const trace::CycleView& cycle, int cycleNum)
     {
         PrintFpRegNode(cycle.GetFpRegNode());
     }
-    if (cycle.GetNodeCount(trace::NodeType::Csr32) > 0)
-    {
-        PrintCsr32Node(cycle.GetCsr32Node(), cycle.GetNodeSize(trace::NodeType::Csr32) / sizeof(trace::Csr32Node));
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Csr64) > 0)
-    {
-        PrintCsr64Node(cycle.GetCsr64Node(), cycle.GetNodeSize(trace::NodeType::Csr64) / sizeof(trace::Csr64Node));
-    }
     if (cycle.GetNodeCount(trace::NodeType::Trap32) > 0)
     {
         PrintTrap32Node(cycle.GetTrap32Node());

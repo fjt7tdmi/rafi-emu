@@ -93,16 +93,6 @@ const Pc64Node* CycleView::GetPc64Node() const
     return m_pImpl->GetPc64Node();
 }
 
-const Csr32Node* CycleView::GetCsr32Node() const
-{
-    return m_pImpl->GetCsr32Node();
-}
-
-const Csr64Node* CycleView::GetCsr64Node() const
-{
-    return m_pImpl->GetCsr64Node();
-}
-
 const Trap32Node* CycleView::GetTrap32Node() const
 {
     return m_pImpl->GetTrap32Node();

@@ -43,8 +43,6 @@ public:
     const IntReg64Node* GetIntReg64Node() const;
     const Pc32Node* GetPc32Node() const;
     const Pc64Node* GetPc64Node() const;
-    const Csr32Node* GetCsr32Node() const;
-    const Csr64Node* GetCsr64Node() const;
     const Trap32Node* GetTrap32Node() const;
     const Trap64Node* GetTrap64Node() const;
     const MemoryAccessNode* GetMemoryAccessNode(int index) const;
