@@ -103,7 +103,6 @@ int main(int argc, char** argv)
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
                 logger.DumpCycle(cycle);
             }
-
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_None);
 
             if (option.IsHostIoEnabled())
