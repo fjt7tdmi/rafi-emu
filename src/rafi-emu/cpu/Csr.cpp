@@ -231,6 +231,12 @@ std::optional<Trap> Csr::CheckTrap(csr_addr_t addr, bool write, vaddr_t pc, uint
         }
     }
 
+    // to be compatible with qemu
+    if (addr == csr_addr_t::time)
+    {
+        return MakeIllegalInstructionException(pc, 0);
+    }
+
     return std::nullopt;
 }
 
