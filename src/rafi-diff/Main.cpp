@@ -66,9 +66,15 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, const CommandLineO
         }
         else
         {
+            std::string expectNote;
+            std::string actualNote;
+
+            expectCycle->CopyNote(&expectNote);
+            actualCycle->CopyNote(&actualNote);
+
             std::cout << "Detect mismatched cycle." << std::endl;
-            std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectCycle->GetNote() << std::endl;
-            std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualCycle->GetNote() << std::endl;
+            std::cout << "    - expect: 0x" << std::hex << expectOpCount << " (" << std::dec << expectOpCount << ") cycle. note: " << expectNote << std::endl;
+            std::cout << "    - actual: 0x" << std::hex << actualOpCount << " (" << std::dec << actualOpCount << ") cycle. note: " << actualNote << std::endl;
             std::cout << "Proceed actual." << std::endl;
 
             comparator.PrintDiff(expectCycle, actualCycle);

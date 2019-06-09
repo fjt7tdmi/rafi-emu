@@ -87,9 +87,24 @@ bool TextCycle::IsFpRegExist() const
     return m_FpRegExist;
 }
 
-int TextCycle::GetMemoryAccessCount() const
+bool TextCycle::IsIoStateExist() const
 {
-    RAFI_NOT_IMPLEMENTED();
+    return false;
+}
+
+bool TextCycle::IsNoteExist() const
+{
+    return !m_Note.empty();
+}
+
+int TextCycle::GetMemoryEventCount() const
+{
+    return 0;
+}
+
+int TextCycle::GetTrapEventCount() const
+{
+    return 0;
 }
 
 uint64_t TextCycle::GetPc(bool isPhysical) const
@@ -132,9 +147,27 @@ uint64_t TextCycle::GetFpReg(int index) const
     return m_FpRegs[index];
 }
 
-void TextCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+void TextCycle::CopyIoState(IoState* pOutState) const
 {
-    (void)pOutNode;
+    (void)pOutState;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void TextCycle::CopyNote(std::string* pOutNote) const
+{
+    *pOutNote = m_Note;
+}
+
+void TextCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void TextCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+{
+    (void)pOutEvent;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }

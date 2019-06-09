@@ -37,19 +37,20 @@ public:
     virtual bool IsPcExist() const;
     virtual bool IsIntRegExist() const;
     virtual bool IsFpRegExist() const;
+    virtual bool IsIoStateExist() const;
+    virtual bool IsNoteExist() const;
 
-    virtual int GetMemoryAccessCount() const;
+    virtual int GetMemoryEventCount() const;
+    virtual int GetTrapEventCount() const;
 
     virtual uint64_t GetPc(bool isPhysical) const;
     virtual uint64_t GetIntReg(int index) const;
     virtual uint64_t GetFpReg(int index) const;
 
-    virtual void CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const;
-
-    virtual const char* GetNote() const
-    {
-        return "";
-    }
+    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const;
+    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const;
+    virtual void CopyIoState(IoState* pOutState) const;
+    virtual void CopyNote(std::string* pOutNote) const;
 
 private:
     uint64_t m_Pc{ 0 };

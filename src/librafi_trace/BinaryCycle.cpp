@@ -65,9 +65,24 @@ bool BinaryCycle::IsFpRegExist() const
     return m_Impl.GetNodeCount(NodeType::FpReg) > 0;
 }
 
-int BinaryCycle::GetMemoryAccessCount() const
+bool BinaryCycle::IsIoStateExist() const
+{
+    return m_Impl.GetNodeCount(NodeType::Io) > 0;
+}
+
+bool BinaryCycle::IsNoteExist() const
+{
+    return false;
+}
+
+int BinaryCycle::GetMemoryEventCount() const
 {
     return m_Impl.GetNodeCount(trace::NodeType::MemoryAccess);
+}
+
+int BinaryCycle::GetTrapEventCount() const
+{
+    return  m_Impl.GetNodeCount(trace::NodeType::Trap32) + m_Impl.GetNodeCount(trace::NodeType::Trap64);
 }
 
 uint64_t BinaryCycle::GetPc(bool isPhysical) const
@@ -113,9 +128,46 @@ uint64_t BinaryCycle::GetFpReg(int index) const
     return m_Impl.GetFpRegNode()->regs[index].u64.value;
 }
 
-void BinaryCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+void BinaryCycle::CopyIoState(IoState* pOutState) const
 {
-    std::memcpy(pOutNode, m_Impl.GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
+    pOutState->hostIo = m_Impl.GetIoNode()->hostIoValue;
+    pOutState->reserved = 0;
+}
+
+void BinaryCycle::CopyNote(std::string* pOutNote) const
+{
+    *pOutNote = "(null)";
+}
+
+void BinaryCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
+{
+    std::memcpy(pOutEvent, m_Impl.GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
+}
+
+void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+{
+    (void)index;
+
+    if (GetXLEN() == XLEN::XLEN32)
+    {
+        auto pNode = m_Impl.GetTrap32Node();
+
+        pOutEvent->cause = pNode->cause;
+        pOutEvent->from = pNode->from;
+        pOutEvent->to = pNode->to;
+        pOutEvent->trapType = pNode->trapType;
+        pOutEvent->trapValue = pNode->trapValue;
+    }
+    else
+    {
+        auto pNode = m_Impl.GetTrap64Node();
+
+        pOutEvent->cause = pNode->cause;
+        pOutEvent->from = pNode->from;
+        pOutEvent->to = pNode->to;
+        pOutEvent->trapType = pNode->trapType;
+        pOutEvent->trapValue = pNode->trapValue;
+    }
 }
 
 }}

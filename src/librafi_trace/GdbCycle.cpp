@@ -109,7 +109,22 @@ bool GdbCycle::IsFpRegExist() const
     return false;
 }
 
-int GdbCycle::GetMemoryAccessCount() const
+bool GdbCycle::IsIoStateExist() const
+{
+    return false;
+}
+
+bool GdbCycle::IsNoteExist() const
+{
+    return false;
+}
+
+int GdbCycle::GetMemoryEventCount() const
+{
+    return 0;
+}
+
+int GdbCycle::GetTrapEventCount() const
 {
     return 0;
 }
@@ -135,10 +150,29 @@ uint64_t GdbCycle::GetFpReg(int index) const
     return 0;
 }
 
-void GdbCycle::CopyMemoryAccess(MemoryAccessNode* pOutNode, int index) const
+void GdbCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
 {
-    (void)pOutNode;
+    (void)pOutEvent;
     (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyIoState(IoState* pOutState) const
+{
+    (void)pOutState;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyNote(std::string* pOutNote) const
+{
+    (void)pOutNote;
     RAFI_NOT_IMPLEMENTED();
 }
 
