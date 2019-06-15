@@ -42,10 +42,10 @@ public:
     virtual uint64_t GetIntReg(int index) const override;
     virtual uint64_t GetFpReg(int index) const override;
 
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const override;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const override;
-    virtual void CopyIoState(IoState* pOutState) const override;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, int index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const override;
+    virtual void CopyIo(NodeIo* pOutState) const override;
     virtual void CopyNote(std::string* pOutNote) const override;
 
 private:

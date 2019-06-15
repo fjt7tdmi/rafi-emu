@@ -198,14 +198,14 @@ void TraceJsonPrinterImpl::PrintIoState(const trace::ICycle* pCycle) const
         return;
     }
 
-    trace::IoState state;
-    pCycle->CopyIoState(&state);
+    trace::NodeIo node;
+    pCycle->CopyIo(&node);
 
     printf(
         "  Io {\n"
         "    host: 0x%" PRIx32 "\n"
         "  }\n",
-        state.hostIo
+        node.hostIo
     );
 }
 
@@ -215,7 +215,7 @@ void TraceJsonPrinterImpl::PrintOpEvent(const trace::ICycle* pCycle) const
 
     for (int i = 0; i < pCycle->GetOpEventCount(); i++)
     {
-        OpEvent e;
+        NodeOpEvent e;
         pCycle->CopyOpEvent(&e, i);
 
         auto op = decoder.Decode(e.insn);
@@ -239,7 +239,7 @@ void TraceJsonPrinterImpl::PrintMemoryEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetMemoryEventCount(); i++)
     {
-        trace::MemoryEvent e;
+        trace::NodeMemoryEvent e;
         pCycle->CopyMemoryEvent(&e, i);
 
         printf(
@@ -252,9 +252,9 @@ void TraceJsonPrinterImpl::PrintMemoryEvent(const trace::ICycle* pCycle) const
             "  }\n",
             GetString(e.accessType),
             e.size,
-            static_cast<unsigned long long>(e.value),
-            static_cast<unsigned long long>(e.virtualAddress),
-            static_cast<unsigned long long>(e.physicalAddress)
+            e.value,
+            e.vaddr,
+            e.paddr
         );
     }
 }
@@ -263,7 +263,7 @@ void TraceJsonPrinterImpl::PrintTrapEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetTrapEventCount(); i++)
     {
-        trace::TrapEvent e;
+        trace::NodeTrapEvent e;
         pCycle->CopyTrapEvent(&e, i);
 
         printf(

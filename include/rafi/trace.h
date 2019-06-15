@@ -18,6 +18,7 @@
 
 #include <rafi/common.h>
 
+#include "trace/BinaryCycleLogger.h"
 #include "trace/CycleBuilder.h"
 #include "trace/CycleConfig.h"
 #include "trace/CycleTypes.h"

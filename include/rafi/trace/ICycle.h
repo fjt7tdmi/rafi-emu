@@ -46,11 +46,11 @@ public:
     virtual uint64_t GetIntReg(int index) const = 0;
     virtual uint64_t GetFpReg(int index) const = 0;
 
-    virtual void CopyIoState(IoState* pOutState) const = 0;
     virtual void CopyNote(std::string* pOutNote) const = 0;
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const = 0;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const = 0;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const = 0;
+    virtual void CopyIo(NodeIo* pOutState) const = 0;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, int index) const = 0;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const = 0;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const = 0;
 };
 
 }}

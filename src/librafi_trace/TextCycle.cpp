@@ -152,7 +152,7 @@ uint64_t TextCycle::GetFpReg(int index) const
     return m_FpRegs[index];
 }
 
-void TextCycle::CopyIoState(IoState* pOutState) const
+void TextCycle::CopyIo(NodeIo* pOutState) const
 {
     (void)pOutState;
     RAFI_NOT_IMPLEMENTED();
@@ -163,21 +163,21 @@ void TextCycle::CopyNote(std::string* pOutNote) const
     *pOutNote = m_Note;
 }
 
-void TextCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
+void TextCycle::CopyOpEvent(NodeOpEvent* pOutEvent, int index) const
 {
     (void)pOutEvent;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
+void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const
 {
     (void)pOutEvent;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const
 {
     (void)pOutEvent;
     (void)index;

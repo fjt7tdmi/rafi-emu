@@ -24,11 +24,11 @@
 
 namespace rafi { namespace emu {
 
-class TraceDumper final
+class TraceLogger final
 {
 public:
-    TraceDumper(XLEN xlen, const char* path, const System* pSystem);
-    ~TraceDumper();
+    TraceLogger(XLEN xlen, const char* path, const System* pSystem);
+    ~TraceLogger();
 
     void EnableDump();
     void EnableDumpCsr();
@@ -40,9 +40,6 @@ public:
     void DumpCycle(int cycle);
 
 private:
-    void DumpCycle32(int cycle);
-    void DumpCycle64(int cycle);
-
     XLEN m_XLEN;
     const char* m_pPath;
     const System* m_pSystem;

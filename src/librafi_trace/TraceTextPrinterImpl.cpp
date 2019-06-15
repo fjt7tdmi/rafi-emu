@@ -145,8 +145,8 @@ void TraceTextPrinterImpl::PrintIoState(const trace::ICycle* pCycle) const
         return;
     }
 
-    trace::IoState state;
-    pCycle->CopyIoState(&state);
+    trace::NodeIo state;
+    pCycle->CopyIo(&state);
 
     printf("IO %08" PRIx32 "\n", state.hostIo);
 }
@@ -155,7 +155,7 @@ void TraceTextPrinterImpl::PrintOpEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetOpEventCount(); i++)
     {
-        trace::OpEvent e;
+        trace::NodeOpEvent e;
         pCycle->CopyOpEvent(&e, i);
 
         printf("OP %" PRIx32 " %s\n", e.insn, GetString(e.priv));
@@ -166,11 +166,11 @@ void TraceTextPrinterImpl::PrintMemoryEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetMemoryEventCount(); i++)
     {
-        trace::MemoryEvent e;
+        trace::NodeMemoryEvent e;
         pCycle->CopyMemoryEvent(&e, i);
 
         printf("MA %s %" PRIx32 " %" PRIx64 " %" PRIx64 " %" PRIx64 "\n",
-            GetString(e.accessType), e.size, e.value, e.virtualAddress, e.physicalAddress);
+            GetString(e.accessType), e.size, e.value, e.vaddr, e.paddr);
     }
 }
 
@@ -178,7 +178,7 @@ void TraceTextPrinterImpl::PrintTrapEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetTrapEventCount(); i++)
     {
-        trace::TrapEvent e;
+        trace::NodeTrapEvent e;
         pCycle->CopyTrapEvent(&e, i);
 
         printf("TRAP %s %s %s %" PRIx32 " %" PRIx64 "\n",

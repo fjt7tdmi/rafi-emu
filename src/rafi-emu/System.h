@@ -53,8 +53,8 @@ public:
     uint32_t GetHostIoValue() const;
     vaddr_t GetPc() const;
 
-    void CopyIntReg(trace::IntReg32Node* pOut) const;
-    void CopyIntReg(trace::IntReg64Node* pOut) const;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const;
     void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
     void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;

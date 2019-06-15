@@ -57,8 +57,8 @@ public:
     int GetCsrCount() const;
     size_t GetMemoryAccessEventCount() const;
 
-    void CopyIntReg(trace::IntReg32Node* pOut) const;
-    void CopyIntReg(trace::IntReg64Node* pOut) const;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const;
     void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
     void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;

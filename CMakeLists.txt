@@ -211,18 +211,27 @@ endif()
 
 add_library(librafi_trace
     include/rafi/trace.h
+    include/rafi/trace/BinaryCycleLogger.h
+    include/rafi/trace/CycleBuilder.h
+    include/rafi/trace/CycleConfig.h
+    include/rafi/trace/CycleTypes.h
+    include/rafi/trace/Exception.h
     include/rafi/trace/FileTraceReader.h
     include/rafi/trace/FileTraceWriter.h
     include/rafi/trace/GdbTraceReader.h
+    include/rafi/trace/ICycle.h
     include/rafi/trace/ITraceReader.h
     include/rafi/trace/ITraceWriter.h
     include/rafi/trace/MemoryTraceReader.h
     include/rafi/trace/MemoryTraceWriter.h
-    include/rafi/trace/CycleBuilder.h
-    include/rafi/trace/CycleConfig.h
-    include/rafi/trace/CycleTypes.h
+    include/rafi/trace/TextTraceReader.h
+    include/rafi/trace/TraceJsonPrinter.h
+    include/rafi/trace/TraceTextPrinter.h
     src/librafi_trace/BinaryCycle.cpp
     src/librafi_trace/BinaryCycle.h
+    src/librafi_trace/BinaryCycleLogger.cpp
+    src/librafi_trace/BinaryCycleLoggerImpl.cpp
+    src/librafi_trace/BinaryCycleLoggerImpl.h
     src/librafi_trace/CycleBuilder.cpp
     src/librafi_trace/CycleBuilderImpl.cpp
     src/librafi_trace/CycleBuilderImpl.h
@@ -338,8 +347,8 @@ add_executable(rafi-emu
     src/rafi-emu/Profiler.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
-    src/rafi-emu/TraceDumper.cpp
-    src/rafi-emu/TraceDumper.h
+    src/rafi-emu/TraceLogger.cpp
+    src/rafi-emu/TraceLogger.h
 )
 
 add_executable(test-op

@@ -48,11 +48,11 @@ public:
     virtual uint64_t GetIntReg(int index) const;
     virtual uint64_t GetFpReg(int index) const;
 
-    virtual void CopyIoState(IoState* pOutState) const;
+    virtual void CopyIo(NodeIo* pOutState) const;
     virtual void CopyNote(std::string* pOutNote) const;
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, int index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const;
 
 private:
     void ParsePc(std::basic_istream<char>* pInput);

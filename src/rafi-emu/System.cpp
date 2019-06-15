@@ -113,12 +113,12 @@ vaddr_t System::GetPc() const
     return m_Processor.GetPc();
 }
 
-void System::CopyIntReg(trace::IntReg32Node* pOut) const
+void System::CopyIntReg(trace::NodeIntReg32* pOut) const
 {
     m_Processor.CopyIntReg(pOut);
 }
 
-void System::CopyIntReg(trace::IntReg64Node* pOut) const
+void System::CopyIntReg(trace::NodeIntReg64* pOut) const
 {
     m_Processor.CopyIntReg(pOut);
 }

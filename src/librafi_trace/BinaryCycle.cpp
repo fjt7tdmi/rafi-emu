@@ -134,7 +134,7 @@ uint64_t BinaryCycle::GetFpReg(int index) const
     return GetFpRegNode()->regs[index].u64.value;
 }
 
-void BinaryCycle::CopyIoState(IoState* pOutState) const
+void BinaryCycle::CopyIo(NodeIo* pOutState) const
 {
     pOutState->hostIo = GetIoNode()->hostIoValue;
     pOutState->reserved = 0;
@@ -145,19 +145,19 @@ void BinaryCycle::CopyNote(std::string* pOutNote) const
     *pOutNote = "(null)";
 }
 
-void BinaryCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
+void BinaryCycle::CopyOpEvent(NodeOpEvent* pOutEvent, int index) const
 {
     (void)index;
     pOutEvent->insn = GetBasicInfoNode()->insn;
     pOutEvent->priv = GetBasicInfoNode()->privilegeLevel;
 }
 
-void BinaryCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
+void BinaryCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const
 {
     std::memcpy(pOutEvent, GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
 }
 
-void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+void BinaryCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const
 {
     (void)index;
 

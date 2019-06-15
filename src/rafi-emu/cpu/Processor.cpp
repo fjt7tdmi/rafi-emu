@@ -164,12 +164,12 @@ size_t Processor::GetMemoryAccessEventCount() const
     return m_MemAccessUnit.GetEventCount();
 }
 
-void Processor::CopyIntReg(trace::IntReg32Node* pOut) const
+void Processor::CopyIntReg(trace::NodeIntReg32* pOut) const
 {
     m_IntRegFile.Copy(pOut);
 }
 
-void Processor::CopyIntReg(trace::IntReg64Node* pOut) const
+void Processor::CopyIntReg(trace::NodeIntReg64* pOut) const
 {
     m_IntRegFile.Copy(pOut);
 }

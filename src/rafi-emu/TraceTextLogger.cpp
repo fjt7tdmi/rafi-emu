@@ -80,7 +80,7 @@ void TraceTextLogger::DumpCycle32(int cycle)
 {
     const auto pc = m_pSystem->GetPc();
 
-    IntReg32Node intReg;
+    NodeIntReg32 intReg;
     m_pSystem->CopyIntReg(&intReg);
 
     fprintf(m_pFile, "NOTE cycle%" PRId32 "\n", cycle);
@@ -101,7 +101,7 @@ void TraceTextLogger::DumpCycle64(int cycle)
 {
     const auto pc = m_pSystem->GetPc();
 
-    IntReg64Node intReg;
+    NodeIntReg64 intReg;
     m_pSystem->CopyIntReg(&intReg);
 
     fprintf(m_pFile, "NOTE %" PRIx32 "\n", cycle);

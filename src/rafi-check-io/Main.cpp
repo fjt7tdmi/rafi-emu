@@ -37,12 +37,12 @@ uint32_t GetLastHostIoValue(FileTraceReader* pReader)
 
     while (!pReader->IsEnd())
     {
-        IoState ioState;
+        NodeIo io;
 
-        pReader->GetCycle()->CopyIoState(&ioState);
+        pReader->GetCycle()->CopyIo(&io);
         pReader->Next();
 
-        hostIoValue = ioState.hostIo;
+        hostIoValue = io.hostIo;
     }
 
     return hostIoValue;
