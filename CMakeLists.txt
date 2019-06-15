@@ -212,7 +212,6 @@ endif()
 add_library(librafi_trace
     include/rafi/trace.h
     include/rafi/trace/BinaryCycleLogger.h
-    include/rafi/trace/CycleBuilder.h
     include/rafi/trace/CycleConfig.h
     include/rafi/trace/CycleTypes.h
     include/rafi/trace/Exception.h
@@ -232,9 +231,6 @@ add_library(librafi_trace
     src/librafi_trace/BinaryCycleLogger.cpp
     src/librafi_trace/BinaryCycleLoggerImpl.cpp
     src/librafi_trace/BinaryCycleLoggerImpl.h
-    src/librafi_trace/CycleBuilder.cpp
-    src/librafi_trace/CycleBuilderImpl.cpp
-    src/librafi_trace/CycleBuilderImpl.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
     src/librafi_trace/FileTraceReaderImpl.h
@@ -357,11 +353,6 @@ add_executable(test-op
 
 add_executable(test-trace
     test/test-trace/test_TextTrace.cpp
-    test/test-trace/test_TraceCycle.cpp
-    test/test-trace/test_TraceReader.cpp
-    test/test-trace/test_TraceUtil.cpp
-    test/test-trace/test_TraceUtil.h
-    test/test-trace/test_TraceWriter.cpp
 )
 
 include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
