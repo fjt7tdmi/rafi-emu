@@ -37,8 +37,6 @@ public:
 
     void Next();
 
-    CycleView GetCycleView() const;
-
 private:
     void UpdateCycleData();
 

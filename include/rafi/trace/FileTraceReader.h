@@ -16,11 +16,7 @@
 
 #pragma once
 
-#include <cstdint>
-#include <memory>
-
 #include <rafi/common.h>
-#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 #include "MemoryTraceReader.h"
@@ -40,8 +36,6 @@ public:
     virtual bool IsEnd() const;
 
     virtual void Next();
-
-    CycleView GetCycleView() const;
 
 private:
     FileTraceReaderImpl* m_pImpl;

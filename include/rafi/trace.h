@@ -21,7 +21,6 @@
 #include "trace/CycleBuilder.h"
 #include "trace/CycleConfig.h"
 #include "trace/CycleTypes.h"
-#include "trace/CycleView.h"
 #include "trace/Exception.h"
 #include "trace/FileTraceReader.h"
 #include "trace/FileTraceWriter.h"

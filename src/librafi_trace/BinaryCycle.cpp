@@ -22,7 +22,8 @@
 namespace rafi { namespace trace {
 
 BinaryCycle::BinaryCycle(const void* buffer, int64_t bufferSize)
-    : m_Impl(buffer, bufferSize)
+    : m_pBuffer(buffer)
+    , m_BufferSize(bufferSize)
 {
 }
 
@@ -32,11 +33,11 @@ BinaryCycle::~BinaryCycle()
 
 XLEN BinaryCycle::GetXLEN() const
 {
-    if (m_Impl.GetNodeCount(NodeType::Pc32) > 0)
+    if (GetNodeCount(NodeType::Pc32) > 0)
     {
         return XLEN::XLEN32;
     }
-    else if (m_Impl.GetNodeCount(NodeType::Pc64) > 0)
+    else if (GetNodeCount(NodeType::Pc64) > 0)
     {
         return XLEN::XLEN64;
     }
@@ -50,24 +51,24 @@ bool BinaryCycle::IsPcExist() const
 {
     const auto nodeType = (GetXLEN() == XLEN::XLEN32) ? NodeType::Pc32 : NodeType::Pc64;
 
-    return m_Impl.GetNodeCount(nodeType) > 0;
+    return GetNodeCount(nodeType) > 0;
 }
 
 bool BinaryCycle::IsIntRegExist() const
 {
     const auto nodeType = (GetXLEN() == XLEN::XLEN32) ? NodeType::IntReg32 : NodeType::IntReg64;
 
-    return m_Impl.GetNodeCount(nodeType) > 0;
+    return GetNodeCount(nodeType) > 0;
 }
 
 bool BinaryCycle::IsFpRegExist() const
 {
-    return m_Impl.GetNodeCount(NodeType::FpReg) > 0;
+    return GetNodeCount(NodeType::FpReg) > 0;
 }
 
 bool BinaryCycle::IsIoStateExist() const
 {
-    return m_Impl.GetNodeCount(NodeType::Io) > 0;
+    return GetNodeCount(NodeType::Io) > 0;
 }
 
 bool BinaryCycle::IsNoteExist() const
@@ -82,27 +83,27 @@ int BinaryCycle::GetOpEventCount() const
 
 int BinaryCycle::GetMemoryEventCount() const
 {
-    return m_Impl.GetNodeCount(trace::NodeType::MemoryAccess);
+    return GetNodeCount(trace::NodeType::MemoryAccess);
 }
 
 int BinaryCycle::GetTrapEventCount() const
 {
-    return m_Impl.GetNodeCount(trace::NodeType::Trap32) + m_Impl.GetNodeCount(trace::NodeType::Trap64);
+    return GetNodeCount(trace::NodeType::Trap32) + GetNodeCount(trace::NodeType::Trap64);
 }
 
 uint64_t BinaryCycle::GetPc(bool isPhysical) const
 {
     if (GetXLEN() == XLEN::XLEN32)
     {
-        auto node = m_Impl.GetPc32Node();
+        auto node = GetPc32Node();
 
-        return isPhysical ? node->physicalPc : m_Impl.GetPc32Node()->virtualPc;
+        return isPhysical ? node->physicalPc : GetPc32Node()->virtualPc;
     }
     else
     {
-        auto node = m_Impl.GetPc64Node();
+        auto node = GetPc64Node();
 
-        return isPhysical ? node->physicalPc : m_Impl.GetPc64Node()->virtualPc;
+        return isPhysical ? node->physicalPc : GetPc64Node()->virtualPc;
     }
 }
 
@@ -115,11 +116,11 @@ uint64_t BinaryCycle::GetIntReg(int index) const
 
     if (GetXLEN() == XLEN::XLEN32)
     {
-        return m_Impl.GetIntReg32Node()->regs[index];
+        return GetIntReg32Node()->regs[index];
     }
     else
     {
-        return m_Impl.GetIntReg64Node()->regs[index];
+        return GetIntReg64Node()->regs[index];
     }
 }
 
@@ -130,12 +131,12 @@ uint64_t BinaryCycle::GetFpReg(int index) const
         throw TraceException("Specified index is out-of-range.");
     }
 
-    return m_Impl.GetFpRegNode()->regs[index].u64.value;
+    return GetFpRegNode()->regs[index].u64.value;
 }
 
 void BinaryCycle::CopyIoState(IoState* pOutState) const
 {
-    pOutState->hostIo = m_Impl.GetIoNode()->hostIoValue;
+    pOutState->hostIo = GetIoNode()->hostIoValue;
     pOutState->reserved = 0;
 }
 
@@ -147,13 +148,13 @@ void BinaryCycle::CopyNote(std::string* pOutNote) const
 void BinaryCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
 {
     (void)index;
-    pOutEvent->insn = m_Impl.GetBasicInfoNode()->insn;
-    pOutEvent->priv = m_Impl.GetBasicInfoNode()->privilegeLevel;
+    pOutEvent->insn = GetBasicInfoNode()->insn;
+    pOutEvent->priv = GetBasicInfoNode()->privilegeLevel;
 }
 
 void BinaryCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
 {
-    std::memcpy(pOutEvent, m_Impl.GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
+    std::memcpy(pOutEvent, GetMemoryAccessNode(index), sizeof(MemoryAccessNode));
 }
 
 void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
@@ -162,7 +163,7 @@ void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
 
     if (GetXLEN() == XLEN::XLEN32)
     {
-        auto pNode = m_Impl.GetTrap32Node();
+        auto pNode = GetTrap32Node();
 
         pOutEvent->cause = pNode->cause;
         pOutEvent->from = pNode->from;
@@ -172,7 +173,7 @@ void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
     }
     else
     {
-        auto pNode = m_Impl.GetTrap64Node();
+        auto pNode = GetTrap64Node();
 
         pOutEvent->cause = pNode->cause;
         pOutEvent->from = pNode->from;
@@ -180,6 +181,178 @@ void BinaryCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
         pOutEvent->trapType = pNode->trapType;
         pOutEvent->trapValue = pNode->trapValue;
     }
+}
+
+int BinaryCycle::GetNodeCount(NodeType nodeType) const
+{
+    int count = 0;
+
+    for (auto i = 0u; i < GetPointerToHeader()->metaCount; i++)
+    {
+        auto pMeta = GetPointerToMeta(i);
+
+        if (pMeta->nodeType == nodeType)
+        {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+const void* BinaryCycle::GetNode(NodeType nodeType, int index) const
+{
+    const auto pNode = GetPointerToNode(nodeType, index);
+
+    if (pNode == nullptr)
+    {
+        throw TraceException("Cannot find node.");
+    }
+
+    return pNode;
+}
+
+int64_t BinaryCycle::GetNodeSize(NodeType nodeType, int index) const
+{
+    const auto pMeta = GetPointerToMeta(nodeType, index);
+
+    if (pMeta == nullptr)
+    {
+        throw TraceException("Cannot find node.");
+    }
+
+    return pMeta->size;
+}
+
+const BasicInfoNode* BinaryCycle::GetBasicInfoNode() const
+{
+    CheckNodeSizeEqualTo(NodeType::BasicInfo, 0, sizeof(BasicInfoNode));
+    return reinterpret_cast<const BasicInfoNode*>(GetNode(NodeType::BasicInfo, 0));
+}
+
+const FpRegNode* BinaryCycle::GetFpRegNode() const
+{
+    CheckNodeSizeEqualTo(NodeType::FpReg, 0, sizeof(FpRegNode));
+    return reinterpret_cast<const FpRegNode*>(GetNode(NodeType::FpReg, 0));
+}
+
+const IntReg32Node* BinaryCycle::GetIntReg32Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::IntReg32, 0, sizeof(IntReg32Node));
+    return reinterpret_cast<const IntReg32Node*>(GetNode(NodeType::IntReg32, 0));
+}
+
+const IntReg64Node* BinaryCycle::GetIntReg64Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::IntReg64, 0, sizeof(IntReg64Node));
+    return reinterpret_cast<const IntReg64Node*>(GetNode(NodeType::IntReg64, 0));
+}
+
+const Pc32Node* BinaryCycle::GetPc32Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Pc32, 0, sizeof(Pc32Node));
+    return reinterpret_cast<const Pc32Node*>(GetNode(NodeType::Pc32, 0));
+}
+
+const Pc64Node* BinaryCycle::GetPc64Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Pc64, 0, sizeof(Pc64Node));
+    return reinterpret_cast<const Pc64Node*>(GetNode(NodeType::Pc64, 0));
+}
+
+const Trap32Node* BinaryCycle::GetTrap32Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Trap32, 0, sizeof(Trap32Node));
+    return reinterpret_cast<const Trap32Node*>(GetNode(NodeType::Trap32, 0));
+}
+
+const Trap64Node* BinaryCycle::GetTrap64Node() const
+{
+    CheckNodeSizeEqualTo(NodeType::Trap64, 0, sizeof(Trap64Node));
+    return reinterpret_cast<const Trap64Node*>(GetNode(NodeType::Trap64, 0));
+}
+
+const MemoryAccessNode* BinaryCycle::GetMemoryAccessNode(int index) const
+{
+    CheckNodeSizeEqualTo(NodeType::MemoryAccess, index, sizeof(MemoryAccessNode));
+    return reinterpret_cast<const MemoryAccessNode*>(GetNode(NodeType::MemoryAccess, index));
+}
+
+const IoNode* BinaryCycle::GetIoNode() const
+{
+    CheckNodeSizeEqualTo(NodeType::Io, 0, sizeof(IoNode));
+    return reinterpret_cast<const IoNode*>(GetNode(NodeType::Io, 0));
+}
+
+void BinaryCycle::CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const
+{
+    const auto nodeSize = GetNodeSize(nodeType, index);
+
+    if (nodeSize < 0 || static_cast<size_t>(nodeSize) != size)
+    {
+        throw TraceException("node size is incorrect.");
+    }
+}
+
+void BinaryCycle::CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const
+{
+    const auto nodeSize = GetNodeSize(nodeType, index);
+
+    if (nodeSize < 0 || static_cast<size_t>(nodeSize) <= size)
+    {
+        throw TraceException("node size is incorrect.");
+    }
+}
+
+const CycleHeader* BinaryCycle::GetPointerToHeader() const
+{
+    return reinterpret_cast<const CycleHeader*>(m_pBuffer);
+}
+
+const CycleMetaNode* BinaryCycle::GetPointerToMeta(uint32_t index) const
+{
+    assert(0 <= index);
+    assert(index < GetPointerToHeader()->metaCount);
+
+    const auto metaNodes = reinterpret_cast<const CycleMetaNode*>(GetPointerToHeader() + 1);
+
+    return &metaNodes[index];
+}
+
+const CycleMetaNode* BinaryCycle::GetPointerToMeta(NodeType nodeType, int index) const
+{
+    const auto metaCount = GetPointerToHeader()->metaCount;
+
+    int matched = 0;
+
+    for (auto i = 0u; i < metaCount; i++)
+    {
+        auto pMeta = GetPointerToMeta(i);
+
+        if (pMeta->nodeType == nodeType)
+        {
+            if (index == matched)
+            {
+                return pMeta;
+            }
+
+            matched++;
+        }
+    }
+
+    return nullptr;
+}
+
+const void* BinaryCycle::GetPointerToNode(NodeType nodeType, int index) const
+{
+    const auto pMeta = GetPointerToMeta(nodeType, index);
+
+    if (pMeta == nullptr)
+    {
+        return nullptr;
+    }
+
+    return reinterpret_cast<const uint8_t*>(m_pBuffer) + pMeta->offset;
 }
 
 }}

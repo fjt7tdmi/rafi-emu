@@ -18,8 +18,6 @@
 
 #include <rafi/trace.h>
 
-#include "CycleViewImpl.h"
-
 namespace rafi { namespace trace {
 
 class BinaryCycle : public ICycle
@@ -51,7 +49,33 @@ public:
     virtual void CopyNote(std::string* pOutNote) const override;
 
 private:
-    CycleViewImpl m_Impl;
+    int GetNodeCount(NodeType nodeType) const;
+    int64_t GetNodeSize(NodeType nodeType, int index) const;
+    const void* GetNode(NodeType nodeType, int index) const;
+
+    const BasicInfoNode* GetBasicInfoNode() const;
+    const FpRegNode* GetFpRegNode() const;
+    const IntReg32Node* GetIntReg32Node() const;
+    const IntReg64Node* GetIntReg64Node() const;
+    const Pc32Node* GetPc32Node() const;
+    const Pc64Node* GetPc64Node() const;
+    const Trap32Node* GetTrap32Node() const;
+    const Trap64Node* GetTrap64Node() const;
+    const MemoryAccessNode* GetMemoryAccessNode(int index) const;
+    const IoNode* GetIoNode() const;
+    const void* GetMemoryNode() const;
+
+    void CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const;
+    void CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const;
+
+    const CycleHeader* GetPointerToHeader() const;
+    const CycleMetaNode* GetPointerToMeta(uint32_t index) const;
+    const CycleMetaNode* GetPointerToMeta(NodeType nodeType, int index) const;
+
+    const void* GetPointerToNode(NodeType nodeType, int index) const;
+
+    const void* m_pBuffer;
+    int64_t m_BufferSize;
 };
 
 }}

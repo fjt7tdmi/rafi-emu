@@ -19,7 +19,6 @@
 #include <fstream>
 
 #include <rafi/common.h>
-#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 
@@ -38,8 +37,6 @@ public:
     virtual bool IsEnd() const;
 
     virtual void Next();
-
-    CycleView GetCycleView() const;
 
 private:
     std::ifstream* m_pInput{ nullptr };

@@ -45,9 +45,4 @@ void FileTraceReader::Next()
     m_pImpl->Next();
 }
 
-CycleView FileTraceReader::GetCycleView() const
-{
-    return m_pImpl->GetCycleView();
-}
-
 }}

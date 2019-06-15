@@ -53,9 +53,4 @@ void TextTraceReader::Next()
     m_pTrace->Next();
 }
 
-CycleView TextTraceReader::GetCycleView() const
-{
-    std::abort();
-}
-
 }}

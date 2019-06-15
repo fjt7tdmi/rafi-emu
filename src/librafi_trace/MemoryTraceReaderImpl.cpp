@@ -38,11 +38,6 @@ MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
     }
 }
 
-CycleView MemoryTraceReaderImpl::GetCycleView() const
-{
-    return CycleView(GetCurrentCycleData(), GetCurrentCycleDataSize());
-}
-
 bool MemoryTraceReaderImpl::IsEnd() const
 {
     CheckBufferSize();

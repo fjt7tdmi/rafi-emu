@@ -220,16 +220,12 @@ add_library(librafi_trace
     include/rafi/trace/MemoryTraceWriter.h
     include/rafi/trace/CycleBuilder.h
     include/rafi/trace/CycleConfig.h
-    include/rafi/trace/CycleView.h
     include/rafi/trace/CycleTypes.h
     src/librafi_trace/BinaryCycle.cpp
     src/librafi_trace/BinaryCycle.h
     src/librafi_trace/CycleBuilder.cpp
     src/librafi_trace/CycleBuilderImpl.cpp
     src/librafi_trace/CycleBuilderImpl.h
-    src/librafi_trace/CycleView.cpp
-    src/librafi_trace/CycleViewImpl.cpp
-    src/librafi_trace/CycleViewImpl.h
     src/librafi_trace/FileTraceReader.cpp
     src/librafi_trace/FileTraceReaderImpl.cpp
     src/librafi_trace/FileTraceReaderImpl.h

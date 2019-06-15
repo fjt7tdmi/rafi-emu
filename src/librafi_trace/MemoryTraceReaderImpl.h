@@ -36,8 +36,6 @@ public:
 
     void Next();
 
-    CycleView GetCycleView() const;
-
 private:
     const void* GetCurrentCycleData() const;
     int64_t GetCurrentCycleDataSize() const;

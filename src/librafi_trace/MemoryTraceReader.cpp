@@ -48,9 +48,4 @@ void MemoryTraceReader::Next()
     m_pImpl->Next();
 }
 
-CycleView MemoryTraceReader::GetCycleView() const
-{
-    return m_pImpl->GetCycleView();
-}
-
 }}

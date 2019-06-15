@@ -110,11 +110,6 @@ void FileTraceReaderImpl::Next()
     UpdateCycleData();
 }
 
-CycleView FileTraceReaderImpl::GetCycleView() const
-{
-    return CycleView(m_pCycleData, m_CycleDataSize);
-}
-
 void FileTraceReaderImpl::UpdateCycleData()
 {
     if (IsEnd())

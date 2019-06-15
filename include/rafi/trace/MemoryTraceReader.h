@@ -38,8 +38,6 @@ public:
 
     virtual void Next();
 
-    CycleView GetCycleView() const;
-
 private:
     MemoryTraceReaderImpl* m_pImpl;
 };
