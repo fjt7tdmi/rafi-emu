@@ -20,10 +20,10 @@
 
 namespace rafi { namespace trace {
 
-class TraceJsonPrinter
+class TraceJsonPrinterImpl
 {
 public:
-    void PrintCycle(const trace::ICycle* cycle);
+    void Print(const trace::ICycle* cycle);
 
 private:
     void PrintNote(const trace::ICycle* cycle) const;

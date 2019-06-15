@@ -28,7 +28,6 @@ public:
     virtual ~ITracePrinter(){};
 
     virtual void Print(const ICycle* cycle) = 0;
-    virtual void Enable(NodeType nodeType) = 0;
 };
 
 }}

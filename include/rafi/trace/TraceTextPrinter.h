@@ -18,18 +18,16 @@
 
 #include <rafi/common.h>
 
-#include "ICycle.h"
+#include "ITracePrinter.h"
 
 namespace rafi { namespace trace {
 
 class TraceTextPrinterImpl;
 
-class TraceTextPrinter
+class TraceTextPrinter : public ITracePrinter
 {
 public:
-    void Print(const ICycle* cycle);
-
-    void Enable(NodeType nodeType);
+    virtual void Print(const ICycle* cycle) override;
 
 private:
     TraceTextPrinterImpl* m_pImpl;

@@ -28,66 +28,13 @@
 
 #include "CommandLineOption.h"
 #include "CycleFilter.h"
-#include "TraceTextPrinter.h"
 
 namespace rafi { namespace dump {
-
-void PrintCycle(const trace::CycleView& cycle, int cycleNum)
-{
-    printf("{ // cycle: 0x%08x\n", cycleNum);
-
-    if (cycle.GetNodeCount(trace::NodeType::BasicInfo) > 0)
-    {
-        PrintBasicInfoNode(cycle.GetBasicInfoNode());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Io) > 0)
-    {
-        PrintIoNode(cycle.GetIoNode());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Pc32) > 0)
-    {
-        PrintPc32Node(cycle.GetPc32Node());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Pc64) > 0)
-    {
-        PrintPc64Node(cycle.GetPc64Node());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::IntReg32) > 0)
-    {
-        PrintIntReg32Node(cycle.GetIntReg32Node());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::IntReg64) > 0)
-    {
-        PrintIntReg64Node(cycle.GetIntReg64Node());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::FpReg) > 0)
-    {
-        PrintFpRegNode(cycle.GetFpRegNode());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Trap32) > 0)
-    {
-        PrintTrap32Node(cycle.GetTrap32Node());
-    }
-    if (cycle.GetNodeCount(trace::NodeType::Trap64) > 0)
-    {
-        PrintTrap64Node(cycle.GetTrap64Node());
-    }
-
-    for (int index = 0; index < cycle.GetNodeCount(trace::NodeType::MemoryAccess); index++)
-    {
-        PrintMemoryAccessNode(cycle.GetMemoryAccessNode(index));
-    }
-
-    // TODO: implement PrintMemory()
-
-    printf("}\n");
-}
 
 void PrintTrace(const CommandLineOption& option, IFilter* filter)
 {
     auto reader = rafi::MakeTraceReader(option.GetPath());
-
-    TraceTextPrinter m_TraceTextPrinter;
+    auto printer = rafi::MakeTracePrinter(option.GetPrinterType());
 
     const int begin = option.GetCycleBegin();
     const int end = std::min(option.GetCycleBegin() + option.GetCycleCount(), option.GetCycleEnd());
@@ -101,15 +48,7 @@ void PrintTrace(const CommandLineOption& option, IFilter* filter)
 
         if (i >= begin && filter->Apply(reader->GetCycle()))
         {
-            if (option.GetMode() == Mode::TraceText)
-            {
-                m_TraceTextPrinter.PrintCycle(reader->GetCycle());
-            }
-            else
-            {
-                //PrintCycle(reader->GetCycleView(), i);
-                RAFI_NOT_IMPLEMENTED();
-            }
+            printer->Print(reader->GetCycle());
         }
 
         reader->Next();

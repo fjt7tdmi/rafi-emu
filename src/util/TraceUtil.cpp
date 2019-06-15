@@ -39,4 +39,17 @@ std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path)
     }
 }
 
+std::unique_ptr<trace::ITracePrinter> MakeTracePrinter(PrinterType printerType)
+{
+    switch (printerType)
+    {
+        case PrinterType::Text:
+            return std::make_unique<trace::TraceTextPrinter>();
+        case PrinterType::Json:
+            return std::make_unique<trace::TraceJsonPrinter>();
+        default:
+            RAFI_NOT_IMPLEMENTED();
+    }
+}
+
 }

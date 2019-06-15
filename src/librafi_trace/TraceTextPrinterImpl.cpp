@@ -19,11 +19,11 @@
 
 #include <rafi/trace.h>
 
-#include "TraceTextPrinter.h"
+#include "TraceTextPrinterImpl.h"
 
 namespace rafi { namespace trace {
 
-void TraceTextPrinter::PrintCycle(const trace::ICycle* pCycle)
+void TraceTextPrinterImpl::Print(const trace::ICycle* pCycle)
 {
     PrintHeader(pCycle);
     PrintNote(pCycle);
@@ -39,7 +39,7 @@ void TraceTextPrinter::PrintCycle(const trace::ICycle* pCycle)
     m_Cycle++;
 }
 
-void TraceTextPrinter::PrintHeader(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintHeader(const trace::ICycle* pCycle) const
 {
     if (m_Cycle == 0)
     {
@@ -61,7 +61,7 @@ void TraceTextPrinter::PrintHeader(const trace::ICycle* pCycle) const
     }
 }
 
-void TraceTextPrinter::PrintNote(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintNote(const trace::ICycle* pCycle) const
 {
     if (!pCycle->IsNoteExist())
     {
@@ -74,7 +74,7 @@ void TraceTextPrinter::PrintNote(const trace::ICycle* pCycle) const
     printf("NOTE %s\n", s.c_str());
 }
 
-void TraceTextPrinter::PrintPc(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintPc(const trace::ICycle* pCycle) const
 {
     if (!pCycle->IsPcExist())
     {
@@ -84,7 +84,7 @@ void TraceTextPrinter::PrintPc(const trace::ICycle* pCycle) const
     printf("PC %016" PRIx64 " %016" PRIx64 "\n", pCycle->GetPc(false), pCycle->GetPc(true));
 }
 
-void TraceTextPrinter::PrintIntReg(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintIntReg(const trace::ICycle* pCycle) const
 {
     if (!pCycle->IsIntRegExist())
     {
@@ -111,7 +111,7 @@ void TraceTextPrinter::PrintIntReg(const trace::ICycle* pCycle) const
         pCycle->GetIntReg(28), pCycle->GetIntReg(29), pCycle->GetIntReg(30), pCycle->GetIntReg(31));
 }
 
-void TraceTextPrinter::PrintFpReg(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintFpReg(const trace::ICycle* pCycle) const
 {
     if (!pCycle->IsFpRegExist())
     {
@@ -138,7 +138,7 @@ void TraceTextPrinter::PrintFpReg(const trace::ICycle* pCycle) const
         pCycle->GetFpReg(28), pCycle->GetFpReg(29), pCycle->GetFpReg(30), pCycle->GetFpReg(31));
 }
 
-void TraceTextPrinter::PrintIoState(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintIoState(const trace::ICycle* pCycle) const
 {
     if (!pCycle->IsIoStateExist())
     {
@@ -151,7 +151,7 @@ void TraceTextPrinter::PrintIoState(const trace::ICycle* pCycle) const
     printf("IO %08" PRIx32 "\n", state.hostIo);
 }
 
-void TraceTextPrinter::PrintOpEvent(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintOpEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetOpEventCount(); i++)
     {
@@ -162,7 +162,7 @@ void TraceTextPrinter::PrintOpEvent(const trace::ICycle* pCycle) const
     }
 }
 
-void TraceTextPrinter::PrintMemoryEvent(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintMemoryEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetMemoryEventCount(); i++)
     {
@@ -174,7 +174,7 @@ void TraceTextPrinter::PrintMemoryEvent(const trace::ICycle* pCycle) const
     }
 }
 
-void TraceTextPrinter::PrintTrapEvent(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintTrapEvent(const trace::ICycle* pCycle) const
 {
     for (int i = 0; i < pCycle->GetTrapEventCount(); i++)
     {
@@ -186,7 +186,7 @@ void TraceTextPrinter::PrintTrapEvent(const trace::ICycle* pCycle) const
     }
 }
 
-void TraceTextPrinter::PrintBreak() const
+void TraceTextPrinterImpl::PrintBreak() const
 {
     printf("BREAK\n");
 }

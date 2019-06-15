@@ -252,6 +252,12 @@ add_library(librafi_trace
     src/librafi_trace/TextTrace.cpp
     src/librafi_trace/TextTrace.h
     src/librafi_trace/TextTraceReader.cpp
+    src/librafi_trace/TraceJsonPrinter.cpp
+    src/librafi_trace/TraceJsonPrinterImpl.cpp
+    src/librafi_trace/TraceJsonPrinterImpl.h
+    src/librafi_trace/TraceTextPrinter.cpp
+    src/librafi_trace/TraceTextPrinterImpl.cpp
+    src/librafi_trace/TraceTextPrinterImpl.h
 )
 
 add_executable(rafi-check-io
@@ -274,8 +280,6 @@ add_executable(rafi-dump
     src/rafi-dump/CycleFilter.cpp
     src/rafi-dump/CycleFilter.h
     src/rafi-dump/Main.cpp
-    src/rafi-dump/TraceTextPrinter.cpp
-    src/rafi-dump/TraceTextPrinter.h
     src/util/TraceUtil.cpp
     src/util/TraceUtil.h
 )
