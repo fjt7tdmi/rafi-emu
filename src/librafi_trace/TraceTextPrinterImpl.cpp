@@ -21,7 +21,7 @@
 
 #include "TraceTextPrinter.h"
 
-namespace rafi { namespace dump {
+namespace rafi { namespace trace {
 
 void TraceTextPrinter::PrintCycle(const trace::ICycle* pCycle)
 {

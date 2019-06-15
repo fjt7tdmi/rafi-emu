@@ -14,38 +14,25 @@
  * limitations under the License.
  */
 
-#include <cinttypes>
+#pragma once
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
 
-#include "CyclePrinterImpl.h"
+#include "ICycle.h"
 
 namespace rafi { namespace trace {
 
-void CyclePrinterImpl::Print(const ICycle* pCycle)
-{
-    PrintPc(pCycle);
-}
+class TraceJsonPrinterImpl;
 
-void CyclePrinterImpl::Enable(NodeType nodeType)
+class TraceJsonPrinter
 {
-    switch (nodeType)
-    {
-    case NodeType::Pc32:
-    case NodeType::Pc64:
-        m_EnablePc = true;
-        break;
-    default:
-        break;
-    }
-}
+public:
+    void Print(const ICycle* cycle);
 
-void CyclePrinterImpl::PrintPc(const ICycle* pCycle)
-{
-    printf(
-        "PC %016" PRIx64 " %016" PRIx64 "\n",
-        pCycle->GetPc(false), pCycle->GetPc(true)
-    );
-}
+    void Enable(NodeType nodeType);
+
+private:
+    TraceJsonPrinterImpl* m_pImpl;
+};
 
 }}

@@ -22,17 +22,13 @@
 
 namespace rafi { namespace trace {
 
-class CyclePrinterImpl;
-
-class CyclePrinter
+class ITracePrinter
 {
 public:
-    void Print(const ICycle* cycle);
+    virtual ~ITracePrinter(){};
 
-    void Enable(NodeType nodeType);
-
-private:
-    CyclePrinterImpl* m_pImpl;
+    virtual void Print(const ICycle* cycle) = 0;
+    virtual void Enable(NodeType nodeType) = 0;
 };
 
 }}

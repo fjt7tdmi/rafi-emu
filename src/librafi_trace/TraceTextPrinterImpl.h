@@ -18,7 +18,7 @@
 
 #include <rafi/trace.h>
 
-namespace rafi { namespace dump {
+namespace rafi { namespace trace {
 
 class TraceTextPrinter
 {
