@@ -39,17 +39,17 @@ public:
     virtual bool IsIoStateExist() const;
     virtual bool IsNoteExist() const;
 
-    virtual int GetOpEventCount() const override;
-    virtual int GetMemoryEventCount() const override;
-    virtual int GetTrapEventCount() const override;
+    virtual size_t GetOpEventCount() const override;
+    virtual size_t GetMemoryEventCount() const override;
+    virtual size_t GetTrapEventCount() const override;
 
     virtual uint64_t GetPc(bool isPhysical) const override;
-    virtual uint64_t GetIntReg(int index) const override;
-    virtual uint64_t GetFpReg(int index) const override;
+    virtual uint64_t GetIntReg(size_t index) const override;
+    virtual uint64_t GetFpReg(size_t index) const override;
 
-    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const override;
-    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const override;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
     virtual void CopyIo(NodeIo* pOutState) const override;
     virtual void CopyNote(std::string* pOutNote) const override;
 

@@ -74,17 +74,17 @@ bool BinaryCycle::IsNoteExist() const
     return nullptr;
 }
 
-int BinaryCycle::GetOpEventCount() const
+size_t BinaryCycle::GetOpEventCount() const
 {
     return m_OpEvents.size();
 }
 
-int BinaryCycle::GetMemoryEventCount() const
+size_t BinaryCycle::GetMemoryEventCount() const
 {
     return m_MemoryEvents.size();
 }
 
-int BinaryCycle::GetTrapEventCount() const
+size_t BinaryCycle::GetTrapEventCount() const
 {
     return m_TrapEvents.size();
 }
@@ -99,7 +99,7 @@ uint64_t BinaryCycle::GetPc(bool isPhysical) const
     return m_pNodeBasic->pc;
 }
 
-uint64_t BinaryCycle::GetIntReg(int index) const
+uint64_t BinaryCycle::GetIntReg(size_t index) const
 {
     if (m_pNodeIntReg32 != nullptr)
     {
@@ -115,7 +115,7 @@ uint64_t BinaryCycle::GetIntReg(int index) const
     }
 }
 
-uint64_t BinaryCycle::GetFpReg(int index) const
+uint64_t BinaryCycle::GetFpReg(size_t index) const
 {
     return m_pNodeIntReg32->regs[index];
 }
@@ -130,17 +130,17 @@ void BinaryCycle::CopyNote(std::string* pOutNote) const
     RAFI_NOT_IMPLEMENTED();
 }
 
-void BinaryCycle::CopyOpEvent(NodeOpEvent* pOutEvent, int index) const
+void BinaryCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
 {
     std::memcpy(pOutEvent, m_OpEvents[index], sizeof(NodeOpEvent));
 }
 
-void BinaryCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const
+void BinaryCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const
 {
     std::memcpy(pOutEvent, m_MemoryEvents[index], sizeof(NodeMemoryEvent));
 }
 
-void BinaryCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const
+void BinaryCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
 {
     std::memcpy(pOutEvent, m_TrapEvents[index], sizeof(NodeTrapEvent));
 }

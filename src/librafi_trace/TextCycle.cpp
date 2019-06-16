@@ -97,17 +97,17 @@ bool TextCycle::IsNoteExist() const
     return !m_Note.empty();
 }
 
-int TextCycle::GetOpEventCount() const
+size_t TextCycle::GetOpEventCount() const
 {
     return 0;
 }
 
-int TextCycle::GetMemoryEventCount() const
+size_t TextCycle::GetMemoryEventCount() const
 {
     return 0;
 }
 
-int TextCycle::GetTrapEventCount() const
+size_t TextCycle::GetTrapEventCount() const
 {
     return 0;
 }
@@ -122,7 +122,7 @@ uint64_t TextCycle::GetPc(bool isPhysical) const
     return isPhysical ? m_PhysicalPc : m_VirtualPc;
 }
 
-uint64_t TextCycle::GetIntReg(int index) const
+uint64_t TextCycle::GetIntReg(size_t index) const
 {
     if (!m_IntRegExist)
     {
@@ -137,7 +137,7 @@ uint64_t TextCycle::GetIntReg(int index) const
     return m_IntRegs[index];
 }
 
-uint64_t TextCycle::GetFpReg(int index) const
+uint64_t TextCycle::GetFpReg(size_t index) const
 {
     if (!m_IntRegExist)
     {
@@ -163,21 +163,21 @@ void TextCycle::CopyNote(std::string* pOutNote) const
     *pOutNote = m_Note;
 }
 
-void TextCycle::CopyOpEvent(NodeOpEvent* pOutEvent, int index) const
+void TextCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const
+void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const
+void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
