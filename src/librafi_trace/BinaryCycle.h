@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include <rafi/trace.h>
 
 namespace rafi { namespace trace {
@@ -23,7 +26,9 @@ namespace rafi { namespace trace {
 class BinaryCycle : public ICycle
 {
 public:
-    BinaryCycle(const void* buffer, int64_t bufferSize);
+    static std::unique_ptr<BinaryCycle> Parse(const void* buffer, size_t bufferSize);
+
+    BinaryCycle();
     virtual ~BinaryCycle() override;
 
     virtual XLEN GetXLEN() const override;
@@ -49,33 +54,23 @@ public:
     virtual void CopyNote(std::string* pOutNote) const override;
 
 private:
-    int GetNodeCount(NodeType nodeType) const;
-    int64_t GetNodeSize(NodeType nodeType, int index) const;
-    const void* GetNode(NodeType nodeType, int index) const;
+    size_t ParseNode(const void* buffer, size_t bufferSize);
 
-    const BasicInfoNode* GetBasicInfoNode() const;
-    const FpRegNode* GetFpRegNode() const;
-    const IntReg32Node* GetIntReg32Node() const;
-    const IntReg64Node* GetIntReg64Node() const;
-    const Pc32Node* GetPc32Node() const;
-    const Pc64Node* GetPc64Node() const;
-    const Trap32Node* GetTrap32Node() const;
-    const Trap64Node* GetTrap64Node() const;
-    const MemoryAccessNode* GetMemoryAccessNode(int index) const;
-    const IoNode* GetIoNode() const;
-    const void* GetMemoryNode() const;
+    const void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
+    size_t m_DataSize{ 0 };
 
-    void CheckNodeSizeEqualTo(NodeType nodeType, int index, size_t size) const;
-    void CheckNodeSizeGreaterThan(NodeType nodeType, int index, size_t size) const;
+    const NodeBasic* m_pNodeBasic{ nullptr };
+    const NodeIntReg32* m_pNodeIntReg32{ nullptr };
+    const NodeIntReg64* m_pNodeIntReg64{ nullptr };
+    const NodeFpReg* m_pNodeFpReg{ nullptr };
+    const NodeIo* m_pNodeIo{ nullptr };
 
-    const CycleHeader* GetPointerToHeader() const;
-    const CycleMetaNode* GetPointerToMeta(uint32_t index) const;
-    const CycleMetaNode* GetPointerToMeta(NodeType nodeType, int index) const;
+    std::vector<const NodeOpEvent*> m_OpEvents;
+    std::vector<const NodeMemoryEvent*> m_MemoryEvents;
+    std::vector<const NodeTrapEvent*> m_TrapEvents;
 
-    const void* GetPointerToNode(NodeType nodeType, int index) const;
-
-    const void* m_pBuffer;
-    int64_t m_BufferSize;
+    bool m_Break{ false };
 };
 
 }}
