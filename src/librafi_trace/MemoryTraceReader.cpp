@@ -23,7 +23,7 @@
 
 namespace rafi { namespace trace {
 
-MemoryTraceReader::MemoryTraceReader(const void* buffer, int64_t bufferSize)
+MemoryTraceReader::MemoryTraceReader(const void* buffer, size_t bufferSize)
 {
     m_pImpl = new MemoryTraceReaderImpl(buffer, bufferSize);
 }

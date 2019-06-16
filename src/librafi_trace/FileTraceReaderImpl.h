@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdlib>
 
 #include <rafi/trace.h>
 
@@ -38,22 +38,10 @@ public:
     void Next();
 
 private:
-    void UpdateCycleData();
+    void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
 
-    CycleHeader GetCurrentCycleHeader();
-    CycleFooter GetPreviousCycleFooter();
-
-    void CheckOffset(int64_t offset) const;
-
-    std::ifstream* m_pStream{ nullptr };
-
-    int64_t m_FileSize{ 0 };
-    int64_t m_Offset{ 0 };
-
-    int64_t m_CycleDataSize{ 0 };
-    char* m_pCycleData{ nullptr };
-
-    BinaryCycle* m_pCycle{ nullptr };
+    MemoryTraceReader* m_pImpl;
 };
 
 }}

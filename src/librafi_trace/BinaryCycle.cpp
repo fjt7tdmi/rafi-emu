@@ -30,7 +30,7 @@ std::unique_ptr<BinaryCycle> BinaryCycle::Parse(const void* buffer, size_t buffe
 
     while (!p->m_Break)
     {
-        p->m_DataSize += p->ParseNode(buffer, bufferSize);
+        p->m_Size += p->ParseNode(buffer, bufferSize);
     }
 
     return p;
@@ -143,6 +143,11 @@ void BinaryCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, int index) const
 void BinaryCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, int index) const
 {
     std::memcpy(pOutEvent, m_TrapEvents[index], sizeof(NodeTrapEvent));
+}
+
+size_t BinaryCycle::GetSize() const
+{
+    return m_Size;
 }
 
 size_t BinaryCycle::ParseNode(const void* buffer, size_t bufferSize)

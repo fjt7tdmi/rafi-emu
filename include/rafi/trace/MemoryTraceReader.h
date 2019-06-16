@@ -29,7 +29,7 @@ class MemoryTraceReaderImpl;
 class MemoryTraceReader : public ITraceReader
 {
 public:
-    MemoryTraceReader(const void* buffer, int64_t bufferSize);
+    MemoryTraceReader(const void* buffer, size_t bufferSize);
     virtual ~MemoryTraceReader();
 
     virtual const ICycle* GetCycle() const;

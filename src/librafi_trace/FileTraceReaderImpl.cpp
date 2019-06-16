@@ -22,8 +22,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
-#include <fstream>
 
 #include <rafi/trace.h>
 
@@ -53,130 +51,51 @@ FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
     }
 #endif
 
-#if UINTMAX_MAX > INT64_MAX
-    if (fileSize > INT64_MAX)
+    m_pBuffer = malloc(fileSize);
+    if (m_pBuffer == nullptr)
     {
-        throw FileOpenFailureException(path);
+        throw TraceException("Failed to allocate memory.\n");
     }
-#endif
+    m_BufferSize = fileSize;
 
-    m_pStream = new std::ifstream(path, std::ios::in | std::ios::binary);
+    auto fp = std::fopen(path, "rb");
 
-    m_FileSize = static_cast<int64_t>(fileSize);
-    m_Offset = 0;
+    auto n = std::fread(m_pBuffer, m_BufferSize, 1, fp);
+    if (n != m_BufferSize)
+    {
+        throw TraceException("Failed to read file.\n");
+    }
 
-    UpdateCycleData();
+    std::fclose(fp);
+
+    m_pImpl = new MemoryTraceReader(m_pBuffer, m_BufferSize);
 }
 
 FileTraceReaderImpl::~FileTraceReaderImpl()
 {
-    if (m_pCycle != nullptr)
+    if (m_pImpl != nullptr)
     {
-        delete m_pCycle;
-        m_pCycle = nullptr;
+        delete m_pImpl;
     }
-
-    if (m_pCycleData != nullptr)
+    if (m_pBuffer != nullptr)
     {
-        delete m_pCycleData;
-        m_pCycleData = nullptr;
+        free(m_pBuffer);
     }
-
-    delete m_pStream;
-    m_pStream = nullptr;
 }
 
 const ICycle* FileTraceReaderImpl::GetCycle() const
 {
-    return m_pCycle;
+    return m_pImpl->GetCycle();
 }
 
 bool FileTraceReaderImpl::IsEnd() const
 {
-    return m_Offset == m_FileSize;
+    return m_pImpl->IsEnd();
 }
 
 void FileTraceReaderImpl::Next()
 {
-    CheckOffset(m_Offset);
-
-    m_Offset += m_CycleDataSize;
-
-    if (!IsEnd())
-    {
-        CheckOffset(m_Offset);
-    }
-
-    UpdateCycleData();
-}
-
-void FileTraceReaderImpl::UpdateCycleData()
-{
-    if (IsEnd())
-    {
-        return;
-    }
-
-    if (m_pCycle != nullptr)
-    {
-        delete m_pCycle;
-        m_pCycle = nullptr;
-    }
-
-    if (m_pCycleData != nullptr)
-    {
-        delete m_pCycleData;
-        m_pCycleData = nullptr;
-    }
-
-    m_CycleDataSize = 0;
-
-    const auto header = GetCurrentCycleHeader();
-
-    m_CycleDataSize = header.footerOffset + sizeof(CycleFooter);
-    m_pCycleData = new char[static_cast<size_t>(m_CycleDataSize)];
-
-    m_pCycle = new BinaryCycle(m_pCycleData, m_CycleDataSize);
-
-    CheckOffset(m_Offset);
-    CheckOffset(m_Offset + m_CycleDataSize);
-
-    m_pStream->seekg(m_Offset, std::ios_base::beg);
-    m_pStream->read(m_pCycleData, m_CycleDataSize);
-}
-
-void FileTraceReaderImpl::CheckOffset(int64_t offset) const
-{
-    if (!(0 <= offset && offset <= m_FileSize))
-    {
-        throw TraceException("detect data corruption. (Current offset value is out-of-range)", m_Offset);
-    }
-}
-
-CycleHeader FileTraceReaderImpl::GetCurrentCycleHeader()
-{
-    CycleHeader header;
-
-    CheckOffset(m_Offset);
-    CheckOffset(m_Offset + sizeof(header));
-
-    m_pStream->seekg(m_Offset, std::ios_base::beg);
-    m_pStream->read(reinterpret_cast<char*>(&header), sizeof(header));
-
-    return header;
-}
-
-CycleFooter FileTraceReaderImpl::GetPreviousCycleFooter()
-{
-    CycleFooter footer;
-
-    CheckOffset(m_Offset - sizeof(footer));
-    CheckOffset(m_Offset);
-
-    m_pStream->seekg(m_Offset - sizeof(footer), std::ios_base::beg);
-    m_pStream->read(reinterpret_cast<char*>(&footer), sizeof(footer));
-
-    return footer;
+    m_pImpl->Next();
 }
 
 }}

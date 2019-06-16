@@ -53,12 +53,14 @@ public:
     virtual void CopyIo(NodeIo* pOutState) const override;
     virtual void CopyNote(std::string* pOutNote) const override;
 
+    size_t GetSize() const;
+
 private:
     size_t ParseNode(const void* buffer, size_t bufferSize);
 
     const void* m_pBuffer{ nullptr };
     size_t m_BufferSize{ 0 };
-    size_t m_DataSize{ 0 };
+    size_t m_Size{ 0 };
 
     const NodeBasic* m_pNodeBasic{ nullptr };
     const NodeIntReg32* m_pNodeIntReg32{ nullptr };

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 #include <rafi/trace.h>
 
@@ -27,7 +28,7 @@ namespace rafi { namespace trace {
 class MemoryTraceReaderImpl
 {
 public:
-    MemoryTraceReaderImpl(const void* buffer, int64_t bufferSize);
+    MemoryTraceReaderImpl(const void* buffer, size_t bufferSize);
     ~MemoryTraceReaderImpl();
 
     const ICycle* GetCycle() const;
@@ -37,21 +38,13 @@ public:
     void Next();
 
 private:
-    const void* GetCurrentCycleData() const;
-    int64_t GetCurrentCycleDataSize() const;
-
-    const CycleHeader* GetCurrentCycleHeader() const;
-    const CycleFooter* GetPreviousCycleFooter() const;
-
     void CheckBufferSize() const;
-    void CheckOffset(int64_t offset) const;
+    void CheckOffset() const;
 
-    const void* m_pBuffer;
-    int64_t m_BufferSize;
-
-    BinaryCycle* m_pCycle{ nullptr };
-
-    int64_t m_CurrentOffset{ 0 };
+    const void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
+    size_t m_Offset{ 0 };
+    std::unique_ptr<BinaryCycle> m_pCycle{ nullptr };
 };
 
 }}
