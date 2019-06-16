@@ -26,7 +26,6 @@ public:
     void Print(const trace::ICycle* cycle);
 
 private:
-    void PrintNote(const trace::ICycle* cycle) const;
     void PrintPc(const trace::ICycle* cycle) const;
     void PrintIntReg(const trace::ICycle* cycle) const;
     void PrintFpReg(const trace::ICycle* cycle) const;

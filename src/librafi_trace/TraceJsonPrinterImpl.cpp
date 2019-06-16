@@ -44,7 +44,6 @@ void TraceJsonPrinterImpl::Print(const trace::ICycle* pCycle)
 {
     printf("{\n");
 
-    PrintNote(pCycle);
     PrintPc(pCycle);
     PrintIntReg(pCycle);
     PrintFpReg(pCycle);
@@ -56,19 +55,6 @@ void TraceJsonPrinterImpl::Print(const trace::ICycle* pCycle)
     printf("}\n");
 
     m_Cycle++;
-}
-
-void TraceJsonPrinterImpl::PrintNote(const trace::ICycle* pCycle) const
-{
-    if (!pCycle->IsNoteExist())
-    {
-        return;
-    }
-
-    std::string s;
-    pCycle->CopyNote(&s);
-
-    printf("Note: %s\n", s.c_str());
 }
 
 void TraceJsonPrinterImpl::PrintPc(const trace::ICycle* pCycle) const

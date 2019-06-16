@@ -69,11 +69,6 @@ bool BinaryCycle::IsIoStateExist() const
     return m_pNodeIo;
 }
 
-bool BinaryCycle::IsNoteExist() const
-{
-    return nullptr;
-}
-
 size_t BinaryCycle::GetOpEventCount() const
 {
     return m_OpEvents.size();
@@ -123,11 +118,6 @@ uint64_t BinaryCycle::GetFpReg(size_t index) const
 void BinaryCycle::CopyIo(NodeIo* pOutState) const
 {
     std::memcpy(pOutState, m_pNodeIo, sizeof(NodeIo));
-}
-
-void BinaryCycle::CopyNote(std::string* pOutNote) const
-{
-    RAFI_NOT_IMPLEMENTED();
 }
 
 void BinaryCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const

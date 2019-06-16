@@ -114,11 +114,6 @@ bool GdbCycle::IsIoStateExist() const
     return false;
 }
 
-bool GdbCycle::IsNoteExist() const
-{
-    return false;
-}
-
 size_t GdbCycle::GetOpEventCount() const
 {
     return 0;
@@ -153,12 +148,6 @@ uint64_t GdbCycle::GetFpReg(size_t index) const
 {
     (void)index;
     return 0;
-}
-
-void GdbCycle::CopyNote(std::string* pOutNote) const
-{
-    (void)pOutNote;
-    RAFI_NOT_IMPLEMENTED();
 }
 
 void GdbCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const

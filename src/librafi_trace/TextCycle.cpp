@@ -45,10 +45,6 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::basic_istream<char>* pInput, XL
         {
             p->ParseIntReg(pInput);
         }
-        else if (s == "NOTE")
-        {
-            p->ParseNote(pInput);
-        }
         else
         {
             throw TraceException("Trace text parse error: unknown literal.");
@@ -90,11 +86,6 @@ bool TextCycle::IsFpRegExist() const
 bool TextCycle::IsIoStateExist() const
 {
     return false;
-}
-
-bool TextCycle::IsNoteExist() const
-{
-    return !m_Note.empty();
 }
 
 size_t TextCycle::GetOpEventCount() const
@@ -158,11 +149,6 @@ void TextCycle::CopyIo(NodeIo* pOutState) const
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyNote(std::string* pOutNote) const
-{
-    *pOutNote = m_Note;
-}
-
 void TextCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
@@ -209,11 +195,6 @@ void TextCycle::ParseFpReg(std::basic_istream<char>* pInput)
     }
 
     m_FpRegExist = true;
-}
-
-void TextCycle::ParseNote(std::basic_istream<char>* pInput)
-{
-    *pInput >> m_Note;
 }
 
 }}

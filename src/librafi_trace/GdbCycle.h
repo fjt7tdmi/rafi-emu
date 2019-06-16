@@ -32,27 +32,25 @@ public:
     GdbCycle();
     virtual ~GdbCycle();
 
-    virtual XLEN GetXLEN() const;
+    virtual XLEN GetXLEN() const override;
 
-    virtual bool IsPcExist() const;
-    virtual bool IsIntRegExist() const;
-    virtual bool IsFpRegExist() const;
-    virtual bool IsIoStateExist() const;
-    virtual bool IsNoteExist() const;
+    virtual bool IsPcExist() const override;
+    virtual bool IsIntRegExist() const override;
+    virtual bool IsFpRegExist() const override;
+    virtual bool IsIoStateExist() const override;
 
     virtual size_t GetOpEventCount() const override;
-    virtual size_t GetMemoryEventCount() const;
-    virtual size_t GetTrapEventCount() const;
+    virtual size_t GetMemoryEventCount() const override;
+    virtual size_t GetTrapEventCount() const override;
 
-    virtual uint64_t GetPc(bool isPhysical) const;
-    virtual uint64_t GetIntReg(size_t index) const;
-    virtual uint64_t GetFpReg(size_t index) const;
+    virtual uint64_t GetPc(bool isPhysical) const override;
+    virtual uint64_t GetIntReg(size_t index) const override;
+    virtual uint64_t GetFpReg(size_t index) const override;
 
-    virtual void CopyIo(NodeIo* pOutState) const;
-    virtual void CopyNote(std::string* pOutNote) const;
+    virtual void CopyIo(NodeIo* pOutState) const override;
     virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
-    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const;
-    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
 
 private:
     uint64_t m_Pc{ 0 };

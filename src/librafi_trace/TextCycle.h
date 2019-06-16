@@ -38,7 +38,6 @@ public:
     virtual bool IsIntRegExist() const;
     virtual bool IsFpRegExist() const;
     virtual bool IsIoStateExist() const;
-    virtual bool IsNoteExist() const;
 
     virtual size_t GetOpEventCount() const override;
     virtual size_t GetMemoryEventCount() const;
@@ -49,7 +48,6 @@ public:
     virtual uint64_t GetFpReg(size_t index) const;
 
     virtual void CopyIo(NodeIo* pOutState) const;
-    virtual void CopyNote(std::string* pOutNote) const;
     virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
     virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const;
     virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const;
@@ -58,7 +56,6 @@ private:
     void ParsePc(std::basic_istream<char>* pInput);
     void ParseIntReg(std::basic_istream<char>* pInput);
     void ParseFpReg(std::basic_istream<char>* pInput);
-    void ParseNote(std::basic_istream<char>* pInput);
 
     XLEN m_XLEN;
 
@@ -71,8 +68,6 @@ private:
 
     uint64_t m_IntRegs[IntRegCount];
     uint64_t m_FpRegs[IntRegCount];
-
-    std::string m_Note;
 };
 
 }}

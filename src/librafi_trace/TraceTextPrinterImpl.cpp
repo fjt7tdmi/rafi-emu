@@ -26,7 +26,6 @@ namespace rafi { namespace trace {
 void TraceTextPrinterImpl::Print(const trace::ICycle* pCycle)
 {
     PrintHeader(pCycle);
-    PrintNote(pCycle);
     PrintPc(pCycle);
     PrintIntReg(pCycle);
     PrintFpReg(pCycle);
@@ -59,19 +58,6 @@ void TraceTextPrinterImpl::PrintHeader(const trace::ICycle* pCycle) const
         fprintf(stderr, "Unexpected XLEN.\n");
         std::exit(1);
     }
-}
-
-void TraceTextPrinterImpl::PrintNote(const trace::ICycle* pCycle) const
-{
-    if (!pCycle->IsNoteExist())
-    {
-        return;
-    }
-
-    std::string s;
-    pCycle->CopyNote(&s);
-
-    printf("NOTE %s\n", s.c_str());
 }
 
 void TraceTextPrinterImpl::PrintPc(const trace::ICycle* pCycle) const

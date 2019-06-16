@@ -36,7 +36,6 @@ public:
     virtual bool IsIntRegExist() const = 0;
     virtual bool IsFpRegExist() const = 0;
     virtual bool IsIoStateExist() const = 0;
-    virtual bool IsNoteExist() const = 0;
 
     virtual size_t GetOpEventCount() const = 0;
     virtual size_t GetMemoryEventCount() const = 0;
@@ -46,7 +45,6 @@ public:
     virtual uint64_t GetIntReg(size_t index) const = 0;
     virtual uint64_t GetFpReg(size_t index) const = 0;
 
-    virtual void CopyNote(std::string* pOutNote) const = 0;
     virtual void CopyIo(NodeIo* pOutState) const = 0;
     virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const = 0;
     virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const = 0;

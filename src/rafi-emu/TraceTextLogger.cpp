@@ -78,12 +78,12 @@ void TraceTextLogger::DumpCycle(int cycle)
 
 void TraceTextLogger::DumpCycle32(int cycle)
 {
+    (void)cycle;
     const auto pc = m_pSystem->GetPc();
 
     NodeIntReg32 intReg;
     m_pSystem->CopyIntReg(&intReg);
 
-    fprintf(m_pFile, "NOTE cycle%" PRId32 "\n", cycle);
     fprintf(m_pFile, "PC %08" PRIx32 " 0\n", static_cast<uint32_t>(pc));
 
     fprintf(m_pFile, "INT\n");
@@ -99,12 +99,12 @@ void TraceTextLogger::DumpCycle32(int cycle)
 
 void TraceTextLogger::DumpCycle64(int cycle)
 {
+    (void)cycle;
     const auto pc = m_pSystem->GetPc();
 
     NodeIntReg64 intReg;
     m_pSystem->CopyIntReg(&intReg);
 
-    fprintf(m_pFile, "NOTE %" PRIx32 "\n", cycle);
     fprintf(m_pFile, "PC %016" PRIx64 " 0\n", static_cast<uint64_t>(pc));
 
     fprintf(m_pFile, " INT\n");
