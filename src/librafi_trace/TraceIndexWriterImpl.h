@@ -16,21 +16,33 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <cstdio>
 
-#include "trace/BinaryCycleLogger.h"
-#include "trace/CycleTypes.h"
-#include "trace/Exception.h"
-#include "trace/GdbTraceReader.h"
-#include "trace/ICycle.h"
-#include "trace/ITracePrinter.h"
-#include "trace/ITraceReader.h"
-#include "trace/ITraceWriter.h"
-#include "trace/TraceBinaryMemoryReader.h"
-#include "trace/TraceBinaryMemoryWriter.h"
-#include "trace/TraceBinaryReader.h"
-#include "trace/TraceBinaryWriter.h"
-#include "trace/TraceIndexWriter.h"
-#include "trace/TraceTextReader.h"
-#include "trace/TraceJsonPrinter.h"
-#include "trace/TraceTextPrinter.h"
+#include <rafi/trace.h>
+
+namespace rafi { namespace trace {
+
+class TraceIndexWriterImpl final
+{
+public:
+    explicit TraceIndexWriterImpl(const char* pathBase);
+    ~TraceIndexWriterImpl();
+
+    void Write(void* buffer, int64_t size);
+
+private:
+    static const int MaxCycleCount = 10000;
+
+    void OpenBinaryFile();
+    void CloseBinaryFile();
+
+    std::FILE* m_pBinaryFile{ nullptr };
+    std::FILE* m_pIndexFile{ nullptr };
+
+    int m_BinaryFileCount{ 0 };
+    int m_CycleCount{ 0 };
+
+    std::string m_PathBase;
+};
+
+}}
