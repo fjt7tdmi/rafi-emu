@@ -18,7 +18,7 @@
 
 #include <rafi/common.h>
 
-#include "CycleConfig.h"
+#include "CycleTypes.h"
 
 namespace rafi { namespace trace {
 

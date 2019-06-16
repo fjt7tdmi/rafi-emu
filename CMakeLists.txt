@@ -212,7 +212,6 @@ endif()
 add_library(librafi_trace
     include/rafi/trace.h
     include/rafi/trace/BinaryCycleLogger.h
-    include/rafi/trace/CycleConfig.h
     include/rafi/trace/CycleTypes.h
     include/rafi/trace/Exception.h
     include/rafi/trace/GdbTraceReader.h
