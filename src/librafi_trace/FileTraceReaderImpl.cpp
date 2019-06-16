@@ -61,7 +61,7 @@ FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
     auto fp = std::fopen(path, "rb");
 
     auto n = std::fread(m_pBuffer, m_BufferSize, 1, fp);
-    if (n != m_BufferSize)
+    if (n != 1)
     {
         throw TraceException("Failed to read file.\n");
     }

@@ -57,6 +57,7 @@ def PrintCommand(msg, cmd):
 def VerifyTraces(paths, build_type):
     cmd = [GetCheckIoPath(build_type)]
     cmd.extend(paths)
+    PrintCommand("Run", cmd)
     subprocess.run(cmd)
 
 def RunEmulator(config):

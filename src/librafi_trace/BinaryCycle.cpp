@@ -30,7 +30,7 @@ std::unique_ptr<BinaryCycle> BinaryCycle::Parse(const void* buffer, size_t buffe
 
     while (!p->m_Break)
     {
-        p->m_Size += p->ParseNode(buffer, bufferSize);
+        p->m_Size += p->ParseNode(reinterpret_cast<const uint8_t*>(buffer) + p->m_Size, bufferSize - p->m_Size);
     }
 
     return p;

@@ -35,7 +35,7 @@ MemoryTraceReader::~MemoryTraceReader()
 
 const ICycle* MemoryTraceReader::GetCycle() const
 {
-    return nullptr;
+    return m_pImpl->GetCycle();
 }
 
 bool MemoryTraceReader::IsEnd() const
