@@ -39,7 +39,9 @@ public:
     void Next();
 
 private:
-    void UpdateGdbCycle();
+    void Update();
+
+    uint32_t m_CycleCount{ 0 };
 
     XLEN m_XLEN;
 

@@ -31,10 +31,12 @@ namespace {
     };
 }
 
-std::unique_ptr<GdbCycle> GdbCycle::Parse(std::basic_istream<char>* pInput)
+std::unique_ptr<GdbCycle> GdbCycle::Parse(std::basic_istream<char>* pInput, uint32_t cycle)
 {
     auto p = std::make_unique<GdbCycle>();
-
+    
+    p->m_CycleCount = cycle;
+    
     for (;;)
     {
         std::string head;
@@ -91,7 +93,7 @@ GdbCycle::~GdbCycle()
 
 uint32_t GdbCycle::GetCycle() const
 {
-    RAFI_NOT_IMPLEMENTED();
+    return m_CycleCount;
 }
 
 XLEN GdbCycle::GetXLEN() const

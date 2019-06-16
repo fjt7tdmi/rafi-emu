@@ -33,9 +33,9 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::basic_istream<char>* pInput, XL
         {
             break;
         }
-        else if (s == "PC")
+        else if (s == "BASIC")
         {
-            p->ParsePc(pInput);
+            p->ParseBasic(pInput);
         }
         else if (s == "INT")
         {
@@ -65,19 +65,29 @@ TextCycle::~TextCycle()
 
 uint32_t TextCycle::GetCycle() const
 {
-    RAFI_NOT_IMPLEMENTED();
+    if (!m_BasicExist)
+    {
+        throw TraceException("NodeBasic is not exist.");
+    }
+
+    return m_CycleCount;
 }
 
 XLEN TextCycle::GetXLEN() const
 {
+    if (!m_BasicExist)
+    {
+        throw TraceException("NodeBasic is not exist.");
+    }
+
     return m_XLEN;
 }
 
 uint64_t TextCycle::GetPc() const
 {
-    if (!m_PcExist)
+    if (!m_BasicExist)
     {
-        throw TraceException("PC value is not exist.");
+        throw TraceException("NodeBasic is not exist.");
     }
 
     return m_Pc;
@@ -143,39 +153,40 @@ uint64_t TextCycle::GetFpReg(size_t index) const
     return m_FpRegs[index];
 }
 
-void TextCycle::CopyIo(NodeIo* pOutState) const
+void TextCycle::CopyIo(NodeIo* pOutNode) const
 {
-    (void)pOutState;
+    (void)pOutNode;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
+void TextCycle::CopyOpEvent(NodeOpEvent* pOutNode, size_t index) const
 {
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const
+void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutNode, size_t index) const
 {
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
+void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutNode, size_t index) const
 {
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::ParsePc(std::basic_istream<char>* pInput)
+void TextCycle::ParseBasic(std::basic_istream<char>* pInput)
 {
-    uint64_t physicalPc;
-    *pInput >> std::hex >> m_Pc >> physicalPc;
+    uint32_t xlen;
+    *pInput >> std::hex >> m_CycleCount >> xlen >> m_Pc;
 
-    m_PcExist = true;
+    m_XLEN = static_cast<XLEN>(xlen);
+    m_BasicExist = true;
 }
 
 void TextCycle::ParseIntReg(std::basic_istream<char>* pInput)

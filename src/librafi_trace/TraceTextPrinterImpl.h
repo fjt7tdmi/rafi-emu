@@ -27,7 +27,7 @@ public:
 
 private:
     void PrintHeader(const trace::ICycle* cycle) const;
-    void PrintPc(const trace::ICycle* cycle) const;
+    void PrintBasic(const trace::ICycle* cycle) const;
     void PrintIntReg(const trace::ICycle* cycle) const;
     void PrintFpReg(const trace::ICycle* cycle) const;
     void PrintIoState(const trace::ICycle* cycle) const;

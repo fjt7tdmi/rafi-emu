@@ -27,7 +27,7 @@ namespace rafi { namespace trace {
 class GdbCycle : public ICycle
 {
 public:
-    static std::unique_ptr<GdbCycle> Parse(std::basic_istream<char>* pInput);
+    static std::unique_ptr<GdbCycle> Parse(std::basic_istream<char>* pInput, uint32_t cycle);
 
     GdbCycle();
     virtual ~GdbCycle();
@@ -53,6 +53,7 @@ public:
     virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
 
 private:
+    uint32_t m_CycleCount{ 0 };
     uint64_t m_Pc{ 0 };
     uint64_t m_IntRegs[IntRegCount];
 };

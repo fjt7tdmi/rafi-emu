@@ -53,17 +53,17 @@ public:
     virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
 
 private:
-    void ParsePc(std::basic_istream<char>* pInput);
+    void ParseBasic(std::basic_istream<char>* pInput);
     void ParseIntReg(std::basic_istream<char>* pInput);
     void ParseFpReg(std::basic_istream<char>* pInput);
 
+    uint32_t m_CycleCount;
     XLEN m_XLEN;
+    uint64_t m_Pc;
 
-    bool m_PcExist{ false };
+    bool m_BasicExist{ false };
     bool m_IntRegExist{ false };
     bool m_FpRegExist{ false };
-
-    uint64_t m_Pc{ 0 };
 
     uint64_t m_IntRegs[IntRegCount];
     uint64_t m_FpRegs[IntRegCount];

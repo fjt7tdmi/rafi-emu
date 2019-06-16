@@ -26,7 +26,7 @@ namespace rafi { namespace trace {
 void TraceTextPrinterImpl::Print(const trace::ICycle* pCycle)
 {
     PrintHeader(pCycle);
-    PrintPc(pCycle);
+    PrintBasic(pCycle);
     PrintIntReg(pCycle);
     PrintFpReg(pCycle);
     PrintIoState(pCycle);
@@ -60,9 +60,9 @@ void TraceTextPrinterImpl::PrintHeader(const trace::ICycle* pCycle) const
     }
 }
 
-void TraceTextPrinterImpl::PrintPc(const trace::ICycle* pCycle) const
+void TraceTextPrinterImpl::PrintBasic(const trace::ICycle* pCycle) const
 {
-    printf("PC %016" PRIx64 " 0\n", pCycle->GetPc());
+    printf("BASIC %08" PRIx32 " %" PRIx32 " %016" PRIx64 " 0\n", pCycle->GetCycle(), static_cast<uint32_t>(pCycle->GetXLEN()), pCycle->GetPc());
 }
 
 void TraceTextPrinterImpl::PrintIntReg(const trace::ICycle* pCycle) const

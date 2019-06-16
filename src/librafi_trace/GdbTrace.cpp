@@ -25,7 +25,7 @@ namespace rafi { namespace trace {
 GdbTrace::GdbTrace(std::basic_istream<char>* pInput)
     : m_pInput(pInput)
 {
-    UpdateGdbCycle();
+    Update();
 }
 
 GdbTrace::~GdbTrace()
@@ -49,14 +49,14 @@ void GdbTrace::Next()
         throw TraceException("GdbTrace reached the end of input.");
     }
 
-    UpdateGdbCycle();
+    Update();
 }
 
-void GdbTrace::UpdateGdbCycle()
+void GdbTrace::Update()
 {
     try
     {
-        m_pGdbCycle = GdbCycle::Parse(m_pInput);
+        m_pGdbCycle = GdbCycle::Parse(m_pInput, m_CycleCount++);
     }
     catch (const TraceException&)
     {
