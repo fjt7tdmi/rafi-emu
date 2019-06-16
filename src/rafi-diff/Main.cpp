@@ -35,7 +35,7 @@ void CompareTrace(ITraceReader* expect, ITraceReader* actual, const CommandLineO
 {
     const int StopComparationThreshold = option.GetThreshold();
 
-    CycleComparator comparator(option.CheckPhysicalPc());
+    CycleComparator comparator;
 
     int continuousUnmatchCount = 0;
 

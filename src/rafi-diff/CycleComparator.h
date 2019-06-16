@@ -25,11 +25,6 @@ namespace rafi {
 class CycleComparator final
 {
 public:
-    CycleComparator(bool cmpPhysicalPc)
-        : m_CmpPhysicalPc(cmpPhysicalPc)
-    {
-    }
-
     // compare
     bool IsPcMatched(const trace::ICycle* expect, const trace::ICycle* actual) const;
     bool IsIntRegMatched(const trace::ICycle* expect, const trace::ICycle* actual) const;
@@ -41,9 +36,6 @@ public:
     void PrintDiffIntReg(const trace::ICycle* expect, const trace::ICycle* actual) const;
 
     void PrintDiff(const trace::ICycle* expect, const trace::ICycle* actual) const;
-
-private:
-    bool m_CmpPhysicalPc;
 };
 
 }

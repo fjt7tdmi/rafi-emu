@@ -44,14 +44,19 @@ BinaryCycle::~BinaryCycle()
 {
 }
 
+uint32_t BinaryCycle::GetCycle() const
+{
+    return m_pNodeBasic->cycle;
+}
+
 XLEN BinaryCycle::GetXLEN() const
 {
     return m_pNodeBasic->xlen;
 }
 
-bool BinaryCycle::IsPcExist() const
+uint64_t BinaryCycle::GetPc() const
 {
-    return m_pNodeBasic;
+    return m_pNodeBasic->pc;
 }
 
 bool BinaryCycle::IsIntRegExist() const
@@ -64,7 +69,7 @@ bool BinaryCycle::IsFpRegExist() const
     return m_pNodeFpReg;
 }
 
-bool BinaryCycle::IsIoStateExist() const
+bool BinaryCycle::IsIoExist() const
 {
     return m_pNodeIo;
 }
@@ -82,16 +87,6 @@ size_t BinaryCycle::GetMemoryEventCount() const
 size_t BinaryCycle::GetTrapEventCount() const
 {
     return m_TrapEvents.size();
-}
-
-uint64_t BinaryCycle::GetPc(bool isPhysical) const
-{
-    if (isPhysical)
-    {
-        RAFI_NOT_IMPLEMENTED();
-    }
-
-    return m_pNodeBasic->pc;
 }
 
 uint64_t BinaryCycle::GetIntReg(size_t index) const

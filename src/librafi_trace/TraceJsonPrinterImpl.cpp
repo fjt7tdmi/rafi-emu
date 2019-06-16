@@ -59,18 +59,12 @@ void TraceJsonPrinterImpl::Print(const trace::ICycle* pCycle)
 
 void TraceJsonPrinterImpl::PrintPc(const trace::ICycle* pCycle) const
 {
-    if (!pCycle->IsPcExist())
-    {
-        return;
-    }
-
     printf(
         "  Pc {\n"
         "    vaddr: 0x%" PRIx64 "\n"
-        "    paddr: 0x%" PRIx64 "\n"
+        "    paddr: 0\n"
         "  }\n",
-        pCycle->GetPc(false),
-        pCycle->GetPc(true)
+        pCycle->GetPc()
     );
 }
 
@@ -179,7 +173,7 @@ void TraceJsonPrinterImpl::PrintFpReg(const trace::ICycle* pCycle) const
 
 void TraceJsonPrinterImpl::PrintIoState(const trace::ICycle* pCycle) const
 {
-    if (!pCycle->IsIoStateExist())
+    if (!pCycle->IsIoExist())
     {
         return;
     }

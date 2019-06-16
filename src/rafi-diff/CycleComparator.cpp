@@ -28,19 +28,7 @@ namespace rafi {
 
 bool CycleComparator::IsPcMatched(const trace::ICycle* expect, const trace::ICycle* actual) const
 {
-    if (!expect->IsPcExist() || !actual->IsPcExist())
-    {
-        return false;
-    }
-
-    if (m_CmpPhysicalPc)
-    {
-        return (expect->GetPc(false) == actual->GetPc(false)) && (expect->GetPc(true) == actual->GetPc(true));
-    }
-    else
-    {
-        return (expect->GetPc(false) == actual->GetPc(false));
-    }
+    return expect->GetPc() == actual->GetPc();
 }
 
 bool CycleComparator::IsIntRegMatched(const trace::ICycle* expect, const trace::ICycle* actual) const
@@ -78,26 +66,9 @@ bool CycleComparator::IsMatched(const trace::ICycle* expect, const trace::ICycle
 
 void CycleComparator::PrintDiffPc(const trace::ICycle* expect, const trace::ICycle* actual) const
 {
-    if (!expect->IsPcExist())
+    if (expect->GetPc() != actual->GetPc())
     {
-        printf("    - expect has no PC node.\n");
-    }
-
-    if (!actual->IsPcExist())
-    {
-        printf("    - actual has no PC node.\n");
-    }
-
-    if (expect->IsPcExist() && actual->IsPcExist())
-    {
-        if (expect->GetPc(false) != actual->GetPc(false))
-        {
-            printf("    - virtual PCs are not matched (expect:0x%" PRIx64 ", actual:0x%" PRIx64 ")\n", expect->GetPc(false), actual->GetPc(false));
-        }
-        if (m_CmpPhysicalPc && expect->GetPc(true) != actual->GetPc(true))
-        {
-            printf("    - physical PCs are not matched (expect:0x%" PRIx64 ", actual:0x%" PRIx64 ")\n", expect->GetPc(true), actual->GetPc(true));
-        }
+        printf("    - virtual PCs are not matched (expect:0x%" PRIx64 ", actual:0x%" PRIx64 ")\n", expect->GetPc(), actual->GetPc());
     }
 }
 

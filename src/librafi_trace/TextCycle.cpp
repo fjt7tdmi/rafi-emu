@@ -63,14 +63,24 @@ TextCycle::~TextCycle()
 {
 }
 
+uint32_t TextCycle::GetCycle() const
+{
+    RAFI_NOT_IMPLEMENTED();
+}
+
 XLEN TextCycle::GetXLEN() const
 {
     return m_XLEN;
 }
 
-bool TextCycle::IsPcExist() const
+uint64_t TextCycle::GetPc() const
 {
-    return m_PcExist;
+    if (!m_PcExist)
+    {
+        throw TraceException("PC value is not exist.");
+    }
+
+    return m_Pc;
 }
 
 bool TextCycle::IsIntRegExist() const
@@ -83,7 +93,7 @@ bool TextCycle::IsFpRegExist() const
     return m_FpRegExist;
 }
 
-bool TextCycle::IsIoStateExist() const
+bool TextCycle::IsIoExist() const
 {
     return false;
 }
@@ -101,16 +111,6 @@ size_t TextCycle::GetMemoryEventCount() const
 size_t TextCycle::GetTrapEventCount() const
 {
     return 0;
-}
-
-uint64_t TextCycle::GetPc(bool isPhysical) const
-{
-    if (!m_PcExist)
-    {
-        throw TraceException("PC value is not exist.");
-    }
-
-    return isPhysical ? m_PhysicalPc : m_VirtualPc;
 }
 
 uint64_t TextCycle::GetIntReg(size_t index) const
@@ -172,7 +172,8 @@ void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
 
 void TextCycle::ParsePc(std::basic_istream<char>* pInput)
 {
-    *pInput >> std::hex >> m_VirtualPc >> m_PhysicalPc;
+    uint64_t physicalPc;
+    *pInput >> std::hex >> m_Pc >> physicalPc;
 
     m_PcExist = true;
 }

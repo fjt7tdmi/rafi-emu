@@ -62,12 +62,7 @@ void TraceTextPrinterImpl::PrintHeader(const trace::ICycle* pCycle) const
 
 void TraceTextPrinterImpl::PrintPc(const trace::ICycle* pCycle) const
 {
-    if (!pCycle->IsPcExist())
-    {
-        return;
-    }
-
-    printf("PC %016" PRIx64 " %016" PRIx64 "\n", pCycle->GetPc(false), pCycle->GetPc(true));
+    printf("PC %016" PRIx64 " 0\n", pCycle->GetPc());
 }
 
 void TraceTextPrinterImpl::PrintIntReg(const trace::ICycle* pCycle) const
@@ -126,7 +121,7 @@ void TraceTextPrinterImpl::PrintFpReg(const trace::ICycle* pCycle) const
 
 void TraceTextPrinterImpl::PrintIoState(const trace::ICycle* pCycle) const
 {
-    if (!pCycle->IsIoStateExist())
+    if (!pCycle->IsIoExist())
     {
         return;
     }

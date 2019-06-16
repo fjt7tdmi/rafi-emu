@@ -32,18 +32,18 @@ public:
     GdbCycle();
     virtual ~GdbCycle();
 
+    virtual uint32_t GetCycle() const override;
     virtual XLEN GetXLEN() const override;
+    virtual uint64_t GetPc() const override;
 
-    virtual bool IsPcExist() const override;
     virtual bool IsIntRegExist() const override;
     virtual bool IsFpRegExist() const override;
-    virtual bool IsIoStateExist() const override;
+    virtual bool IsIoExist() const override;
 
     virtual size_t GetOpEventCount() const override;
     virtual size_t GetMemoryEventCount() const override;
     virtual size_t GetTrapEventCount() const override;
 
-    virtual uint64_t GetPc(bool isPhysical) const override;
     virtual uint64_t GetIntReg(size_t index) const override;
     virtual uint64_t GetFpReg(size_t index) const override;
 
