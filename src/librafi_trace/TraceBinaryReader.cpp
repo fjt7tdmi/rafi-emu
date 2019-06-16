@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <rafi/trace.h>
 
-#include <cstdio>
-
-#include <rafi/common.h>
-
-#include "ITraceWriter.h"
+#include "TraceBinaryReaderImpl.h"
 
 namespace rafi { namespace trace {
 
-class MemoryTraceWriterImpl;
-
-class MemoryTraceWriter : ITraceWriter
+TraceBinaryReader::TraceBinaryReader(const char* path)
 {
-public:
-    MemoryTraceWriter(void* buffer, int64_t size);
-    virtual ~MemoryTraceWriter();
+    m_pImpl = new TraceBinaryReaderImpl(path);
+}
 
-    virtual void Write(void* buffer, int64_t size);
+TraceBinaryReader::~TraceBinaryReader()
+{
+    delete m_pImpl;
+}
 
-private:
-    MemoryTraceWriterImpl* m_pImpl;
-};
+const ICycle* TraceBinaryReader::GetCycle() const
+{
+    return m_pImpl->GetCycle();
+}
+
+bool TraceBinaryReader::IsEnd() const
+{
+    return m_pImpl->IsEnd();
+}
+
+void TraceBinaryReader::Next()
+{
+    m_pImpl->Next();
+}
 
 }}

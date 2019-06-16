@@ -39,10 +39,10 @@ TraceLogger::TraceLogger(XLEN xlen, const char* path, const System* pSystem)
 
 TraceLogger::~TraceLogger()
 {
-    if (m_pFileTraceWriter != nullptr)
+    if (m_pTraceBinaryWriter != nullptr)
     {
-        delete m_pFileTraceWriter;
-        m_pFileTraceWriter = nullptr;
+        delete m_pTraceBinaryWriter;
+        m_pTraceBinaryWriter = nullptr;
     }
 }
 
@@ -54,7 +54,7 @@ void TraceLogger::EnableDump()
     }
 
     m_Enabled = true;
-    m_pFileTraceWriter = new FileTraceWriter(m_pPath);
+    m_pTraceBinaryWriter = new TraceBinaryWriter(m_pPath);
 }
 
 void TraceLogger::EnableDumpCsr()
@@ -197,7 +197,7 @@ void TraceLogger::DumpCycle(int cycle)
     }
 
     cycleLogger.Break();
-    m_pFileTraceWriter->Write(cycleLogger.GetData(), cycleLogger.GetDataSize());
+    m_pTraceBinaryWriter->Write(cycleLogger.GetData(), cycleLogger.GetDataSize());
 }
 
 }}

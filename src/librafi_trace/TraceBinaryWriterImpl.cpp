@@ -14,28 +14,39 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <cstdio>
 
-#include <rafi/common.h>
+#include <rafi/trace.h>
 
-#include "ITraceWriter.h"
+#include "TraceBinaryWriterImpl.h"
 
 namespace rafi { namespace trace {
 
-class FileTraceWriterImpl;
-
-class FileTraceWriter : ITraceWriter
+TraceBinaryWriterImpl::TraceBinaryWriterImpl(const char* path)
 {
-public:
-    FileTraceWriter(const char* path);
-    virtual ~FileTraceWriter();
+    m_File = std::fopen(path, "wb");
+    if (m_File == nullptr)
+    {
+        throw FileOpenFailureException(path);
+    }
+}
 
-    virtual void Write(void* buffer, int64_t size);
+TraceBinaryWriterImpl::~TraceBinaryWriterImpl()
+{
+    std::fclose(m_File);
+}
 
-private:
-    FileTraceWriterImpl* m_pImpl;
-};
+void TraceBinaryWriterImpl::Write(void* buffer, int64_t size)
+{
+#if INT64_MAX > SIZE_MAX
+    if (size > SIZE_MAX)
+    {
+        throw TraceException("argument 'size' overflow.");
+    }
+#endif
+
+    std::fwrite(buffer, static_cast<size_t>(size), 1, m_File);
+    std::fflush(m_File);
+}
 
 }}

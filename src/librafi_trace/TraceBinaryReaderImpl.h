@@ -14,35 +14,34 @@
  * limitations under the License.
  */
 
+#pragma once
+
+#include <cstdlib>
+
 #include <rafi/trace.h>
 
-#include "FileTraceReaderImpl.h"
+#include "BinaryCycle.h"
+#include "TraceBinaryMemoryReaderImpl.h"
 
 namespace rafi { namespace trace {
 
-FileTraceReader::FileTraceReader(const char* path)
+class TraceBinaryReaderImpl final
 {
-    m_pImpl = new FileTraceReaderImpl(path);
-}
+public:
+    TraceBinaryReaderImpl(const char* path);
+    ~TraceBinaryReaderImpl();
 
-FileTraceReader::~FileTraceReader()
-{
-    delete m_pImpl;
-}
+    const ICycle* GetCycle() const;
 
-const ICycle* FileTraceReader::GetCycle() const
-{
-    return m_pImpl->GetCycle();
-}
+    bool IsEnd() const;
 
-bool FileTraceReader::IsEnd() const
-{
-    return m_pImpl->IsEnd();
-}
+    void Next();
 
-void FileTraceReader::Next()
-{
-    m_pImpl->Next();
-}
+private:
+    void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
+
+    TraceBinaryMemoryReader* m_pImpl;
+};
 
 }}

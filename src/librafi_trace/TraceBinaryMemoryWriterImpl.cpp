@@ -20,23 +20,37 @@
 
 #include <rafi/trace.h>
 
-#include "MemoryTraceWriterImpl.h"
+#include "TraceBinaryMemoryWriterImpl.h"
 
 namespace rafi { namespace trace {
 
-MemoryTraceWriter::MemoryTraceWriter(void* buffer, int64_t bufferSize)
+TraceBinaryMemoryWriterImpl::TraceBinaryMemoryWriterImpl(void* buffer, int64_t bufferSize)
+    : m_pBuffer(buffer)
+    , m_BufferSize(bufferSize)
 {
-    m_pImpl = new MemoryTraceWriterImpl(buffer, bufferSize);
 }
 
-MemoryTraceWriter::~MemoryTraceWriter()
+TraceBinaryMemoryWriterImpl::~TraceBinaryMemoryWriterImpl()
 {
-    delete m_pImpl;
 }
 
-void MemoryTraceWriter::Write(void* buffer, int64_t size)
+void TraceBinaryMemoryWriterImpl::Write(void* buffer, int64_t size)
 {
-    m_pImpl->Write(buffer, size);
+    if (m_CurrentOffset + size > m_BufferSize)
+    {
+        throw TraceException("detect buffer overflow.");
+    }
+
+    if (!(0 <= size && size < SIZE_MAX))
+    {
+        throw TraceException("argument 'size' is out-of-range.");
+    }
+
+    auto destination = reinterpret_cast<uint8_t*>(m_pBuffer) + m_CurrentOffset;
+
+    std::memcpy(destination, buffer, static_cast<size_t>(size));
+
+    m_CurrentOffset += size;
 }
 
 }}

@@ -14,39 +14,38 @@
  * limitations under the License.
  */
 
-#include <cstdio>
+#include <cstdint>
+#include <cstdlib>
 
 #include <rafi/trace.h>
 
-#include "FileTraceWriterImpl.h"
+#include "TraceBinaryMemoryReaderImpl.h"
 
 namespace rafi { namespace trace {
 
-FileTraceWriterImpl::FileTraceWriterImpl(const char* path)
+TraceBinaryMemoryReader::TraceBinaryMemoryReader(const void* buffer, size_t bufferSize)
 {
-    m_File = std::fopen(path, "wb");
-    if (m_File == nullptr)
-    {
-        throw FileOpenFailureException(path);
-    }
+    m_pImpl = new TraceBinaryMemoryReaderImpl(buffer, bufferSize);
 }
 
-FileTraceWriterImpl::~FileTraceWriterImpl()
+TraceBinaryMemoryReader::~TraceBinaryMemoryReader()
 {
-    std::fclose(m_File);
+    delete m_pImpl;
 }
 
-void FileTraceWriterImpl::Write(void* buffer, int64_t size)
+const ICycle* TraceBinaryMemoryReader::GetCycle() const
 {
-#if INT64_MAX > SIZE_MAX
-    if (size > SIZE_MAX)
-    {
-        throw TraceException("argument 'size' overflow.");
-    }
-#endif
+    return m_pImpl->GetCycle();
+}
 
-    std::fwrite(buffer, static_cast<size_t>(size), 1, m_File);
-    std::fflush(m_File);
+bool TraceBinaryMemoryReader::IsEnd() const
+{
+    return m_pImpl->IsEnd();
+}
+
+void TraceBinaryMemoryReader::Next()
+{
+    m_pImpl->Next();
 }
 
 }}

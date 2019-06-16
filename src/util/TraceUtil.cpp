@@ -27,7 +27,7 @@ std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path)
     if (boost::algorithm::ends_with(path, ".tbin") ||
         boost::algorithm::ends_with(path, ".bin"))
     {
-        return std::make_unique<trace::FileTraceReader>(path.c_str());
+        return std::make_unique<trace::TraceBinaryReader>(path.c_str());
     }
     else if (boost::algorithm::ends_with(path, ".gdb.log"))
     {
@@ -35,7 +35,7 @@ std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path)
     }
     else
     {
-        return std::make_unique<trace::TextTraceReader>(path.c_str());
+        return std::make_unique<trace::TraceTextReader>(path.c_str());
     }
 }
 

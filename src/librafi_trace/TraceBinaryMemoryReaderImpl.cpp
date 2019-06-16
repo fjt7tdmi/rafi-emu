@@ -19,11 +19,11 @@
 
 #include <rafi/trace.h>
 
-#include "MemoryTraceReaderImpl.h"
+#include "TraceBinaryMemoryReaderImpl.h"
 
 namespace rafi { namespace trace {
 
-MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, size_t bufferSize)
+TraceBinaryMemoryReaderImpl::TraceBinaryMemoryReaderImpl(const void* buffer, size_t bufferSize)
     : m_pBuffer(buffer)
     , m_BufferSize(bufferSize)
 {
@@ -32,22 +32,22 @@ MemoryTraceReaderImpl::MemoryTraceReaderImpl(const void* buffer, size_t bufferSi
     m_pCycle = BinaryCycle::Parse(m_pBuffer, m_BufferSize);
 }
 
-MemoryTraceReaderImpl::~MemoryTraceReaderImpl()
+TraceBinaryMemoryReaderImpl::~TraceBinaryMemoryReaderImpl()
 {
     m_pCycle = nullptr;
 }
 
-const ICycle* MemoryTraceReaderImpl::GetCycle() const
+const ICycle* TraceBinaryMemoryReaderImpl::GetCycle() const
 {
     return m_pCycle.get();
 }
 
-bool MemoryTraceReaderImpl::IsEnd() const
+bool TraceBinaryMemoryReaderImpl::IsEnd() const
 {
     return m_Offset == m_BufferSize;
 }
 
-void MemoryTraceReaderImpl::Next()
+void TraceBinaryMemoryReaderImpl::Next()
 {
     m_Offset += m_pCycle->GetSize();
 
@@ -63,7 +63,7 @@ void MemoryTraceReaderImpl::Next()
     }
 }
 
-void MemoryTraceReaderImpl::CheckOffset() const
+void TraceBinaryMemoryReaderImpl::CheckOffset() const
 {
     if (!(0 <= m_Offset && m_Offset <= m_BufferSize))
     {
@@ -71,7 +71,7 @@ void MemoryTraceReaderImpl::CheckOffset() const
     }
 }
 
-void MemoryTraceReaderImpl::CheckBufferSize() const
+void TraceBinaryMemoryReaderImpl::CheckBufferSize() const
 {
     if (m_BufferSize < sizeof(NodeHeader))
     {

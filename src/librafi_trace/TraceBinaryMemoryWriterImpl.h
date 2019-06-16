@@ -16,21 +16,25 @@
 
 #pragma once
 
-#include <rafi/common.h>
+#include <cstdio>
 
-#include "trace/BinaryCycleLogger.h"
-#include "trace/CycleConfig.h"
-#include "trace/CycleTypes.h"
-#include "trace/Exception.h"
-#include "trace/GdbTraceReader.h"
-#include "trace/ICycle.h"
-#include "trace/ITracePrinter.h"
-#include "trace/ITraceReader.h"
-#include "trace/ITraceWriter.h"
-#include "trace/TraceBinaryMemoryReader.h"
-#include "trace/TraceBinaryMemoryWriter.h"
-#include "trace/TraceBinaryReader.h"
-#include "trace/TraceBinaryWriter.h"
-#include "trace/TraceTextReader.h"
-#include "trace/TraceJsonPrinter.h"
-#include "trace/TraceTextPrinter.h"
+#include <rafi/trace.h>
+
+namespace rafi { namespace trace {
+
+class TraceBinaryMemoryWriterImpl final
+{
+public:
+    TraceBinaryMemoryWriterImpl(void* buffer, int64_t size);
+    ~TraceBinaryMemoryWriterImpl();
+
+    void Write(void* buffer, int64_t size);
+
+private:
+    void* m_pBuffer;
+    int64_t m_BufferSize;
+
+    int64_t m_CurrentOffset {0};
+};
+
+}}

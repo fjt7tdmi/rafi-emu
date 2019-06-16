@@ -215,50 +215,50 @@ add_library(librafi_trace
     include/rafi/trace/CycleConfig.h
     include/rafi/trace/CycleTypes.h
     include/rafi/trace/Exception.h
-    include/rafi/trace/FileTraceReader.h
-    include/rafi/trace/FileTraceWriter.h
     include/rafi/trace/GdbTraceReader.h
     include/rafi/trace/ICycle.h
     include/rafi/trace/ITraceReader.h
     include/rafi/trace/ITraceWriter.h
-    include/rafi/trace/MemoryTraceReader.h
-    include/rafi/trace/MemoryTraceWriter.h
-    include/rafi/trace/TextTraceReader.h
+    include/rafi/trace/TraceBinaryMemoryReader.h
+    include/rafi/trace/TraceBinaryMemoryWriter.h
+    include/rafi/trace/TraceBinaryReader.h
+    include/rafi/trace/TraceBinaryWriter.h
     include/rafi/trace/TraceJsonPrinter.h
     include/rafi/trace/TraceTextPrinter.h
+    include/rafi/trace/TraceTextReader.h
     src/librafi_trace/BinaryCycle.cpp
     src/librafi_trace/BinaryCycle.h
     src/librafi_trace/BinaryCycleLogger.cpp
     src/librafi_trace/BinaryCycleLoggerImpl.cpp
     src/librafi_trace/BinaryCycleLoggerImpl.h
-    src/librafi_trace/FileTraceReader.cpp
-    src/librafi_trace/FileTraceReaderImpl.cpp
-    src/librafi_trace/FileTraceReaderImpl.h
-    src/librafi_trace/FileTraceWriter.cpp
-    src/librafi_trace/FileTraceWriterImpl.cpp
-    src/librafi_trace/FileTraceWriterImpl.h
     src/librafi_trace/GdbCycle.cpp
     src/librafi_trace/GdbCycle.h
     src/librafi_trace/GdbTrace.cpp
     src/librafi_trace/GdbTrace.h
     src/librafi_trace/GdbTraceReader.cpp
-    src/librafi_trace/MemoryTraceReader.cpp
-    src/librafi_trace/MemoryTraceReaderImpl.cpp
-    src/librafi_trace/MemoryTraceReaderImpl.h
-    src/librafi_trace/MemoryTraceWriter.cpp
-    src/librafi_trace/MemoryTraceWriterImpl.cpp
-    src/librafi_trace/MemoryTraceWriterImpl.h
     src/librafi_trace/TextCycle.cpp
     src/librafi_trace/TextCycle.h
     src/librafi_trace/TextTrace.cpp
     src/librafi_trace/TextTrace.h
-    src/librafi_trace/TextTraceReader.cpp
+    src/librafi_trace/TraceBinaryMemoryReader.cpp
+    src/librafi_trace/TraceBinaryMemoryReaderImpl.cpp
+    src/librafi_trace/TraceBinaryMemoryReaderImpl.h
+    src/librafi_trace/TraceBinaryMemoryWriter.cpp
+    src/librafi_trace/TraceBinaryMemoryWriterImpl.cpp
+    src/librafi_trace/TraceBinaryMemoryWriterImpl.h
+    src/librafi_trace/TraceBinaryReader.cpp
+    src/librafi_trace/TraceBinaryReaderImpl.cpp
+    src/librafi_trace/TraceBinaryReaderImpl.h
+    src/librafi_trace/TraceBinaryWriter.cpp
+    src/librafi_trace/TraceBinaryWriterImpl.cpp
+    src/librafi_trace/TraceBinaryWriterImpl.h
     src/librafi_trace/TraceJsonPrinter.cpp
     src/librafi_trace/TraceJsonPrinterImpl.cpp
     src/librafi_trace/TraceJsonPrinterImpl.h
     src/librafi_trace/TraceTextPrinter.cpp
     src/librafi_trace/TraceTextPrinterImpl.cpp
     src/librafi_trace/TraceTextPrinterImpl.h
+    src/librafi_trace/TraceTextReader.cpp
 )
 
 add_executable(rafi-check-io

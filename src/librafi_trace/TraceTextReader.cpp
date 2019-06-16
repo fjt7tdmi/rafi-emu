@@ -14,38 +14,43 @@
  * limitations under the License.
  */
 
-#include <cstdint>
-#include <cstdlib>
-
 #include <rafi/trace.h>
 
-#include "MemoryTraceReaderImpl.h"
+#include "TextTrace.h"
 
 namespace rafi { namespace trace {
 
-MemoryTraceReader::MemoryTraceReader(const void* buffer, size_t bufferSize)
+TraceTextReader::TraceTextReader(const char* path)
 {
-    m_pImpl = new MemoryTraceReaderImpl(buffer, bufferSize);
+    m_pInput = new std::ifstream(path, std::ios::in);
+    m_pTrace = new TextTrace(m_pInput);
 }
 
-MemoryTraceReader::~MemoryTraceReader()
+TraceTextReader::~TraceTextReader()
 {
-    delete m_pImpl;
+    if (m_pTrace != nullptr)
+    {
+        delete m_pTrace;
+    }
+    if (m_pInput != nullptr)
+    {
+        delete m_pInput;
+    }
 }
 
-const ICycle* MemoryTraceReader::GetCycle() const
+const ICycle* TraceTextReader::GetCycle() const
 {
-    return m_pImpl->GetCycle();
+    return m_pTrace->GetCycle();
 }
 
-bool MemoryTraceReader::IsEnd() const
+bool TraceTextReader::IsEnd() const
 {
-    return m_pImpl->IsEnd();
+    return m_pTrace->IsEnd();
 }
 
-void MemoryTraceReader::Next()
+void TraceTextReader::Next()
 {
-    m_pImpl->Next();
+    m_pTrace->Next();
 }
 
 }}

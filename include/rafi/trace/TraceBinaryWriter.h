@@ -18,23 +18,24 @@
 
 #include <cstdio>
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
+
+#include "ITraceWriter.h"
 
 namespace rafi { namespace trace {
 
-class MemoryTraceWriterImpl final
+class TraceBinaryWriterImpl;
+
+class TraceBinaryWriter : ITraceWriter
 {
 public:
-    MemoryTraceWriterImpl(void* buffer, int64_t size);
-    ~MemoryTraceWriterImpl();
+    TraceBinaryWriter(const char* path);
+    virtual ~TraceBinaryWriter();
 
-    void Write(void* buffer, int64_t size);
+    virtual void Write(void* buffer, int64_t size);
 
 private:
-    void* m_pBuffer;
-    int64_t m_BufferSize;
-
-    int64_t m_CurrentOffset {0};
+    TraceBinaryWriterImpl* m_pImpl;
 };
 
 }}

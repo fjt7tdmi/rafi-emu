@@ -25,13 +25,13 @@
 
 #include <rafi/trace.h>
 
-#include "FileTraceReaderImpl.h"
+#include "TraceBinaryReaderImpl.h"
 
 namespace fs = std::experimental::filesystem;
 
 namespace rafi { namespace trace {
 
-FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
+TraceBinaryReaderImpl::TraceBinaryReaderImpl(const char* path)
 {
     uintmax_t fileSize;
 
@@ -68,10 +68,10 @@ FileTraceReaderImpl::FileTraceReaderImpl(const char* path)
 
     std::fclose(fp);
 
-    m_pImpl = new MemoryTraceReader(m_pBuffer, m_BufferSize);
+    m_pImpl = new TraceBinaryMemoryReader(m_pBuffer, m_BufferSize);
 }
 
-FileTraceReaderImpl::~FileTraceReaderImpl()
+TraceBinaryReaderImpl::~TraceBinaryReaderImpl()
 {
     if (m_pImpl != nullptr)
     {
@@ -83,17 +83,17 @@ FileTraceReaderImpl::~FileTraceReaderImpl()
     }
 }
 
-const ICycle* FileTraceReaderImpl::GetCycle() const
+const ICycle* TraceBinaryReaderImpl::GetCycle() const
 {
     return m_pImpl->GetCycle();
 }
 
-bool FileTraceReaderImpl::IsEnd() const
+bool TraceBinaryReaderImpl::IsEnd() const
 {
     return m_pImpl->IsEnd();
 }
 
-void FileTraceReaderImpl::Next()
+void TraceBinaryReaderImpl::Next()
 {
     m_pImpl->Next();
 }

@@ -16,22 +16,30 @@
 
 #pragma once
 
-#include <cstdio>
+#include <cstdint>
 
-#include <rafi/trace.h>
+#include <rafi/common.h>
+
+#include "ITraceReader.h"
 
 namespace rafi { namespace trace {
 
-class FileTraceWriterImpl final
+class TraceBinaryMemoryReaderImpl;
+
+class TraceBinaryMemoryReader : public ITraceReader
 {
 public:
-    explicit FileTraceWriterImpl(const char* path);
-    ~FileTraceWriterImpl();
+    TraceBinaryMemoryReader(const void* buffer, size_t bufferSize);
+    virtual ~TraceBinaryMemoryReader();
 
-    void Write(void* buffer, int64_t size);
+    virtual const ICycle* GetCycle() const;
+
+    virtual bool IsEnd() const;
+
+    virtual void Next();
 
 private:
-    std::FILE* m_File;
+    TraceBinaryMemoryReaderImpl* m_pImpl;
 };
 
 }}
