@@ -16,42 +16,61 @@
 
 #pragma once
 
-#include <rafi/trace.h>
+#include <memory>
+#include <vector>
 
-#include "CycleViewImpl.h"
+#include <rafi/trace.h>
 
 namespace rafi { namespace trace {
 
 class BinaryCycle : public ICycle
 {
 public:
-    BinaryCycle(const void* buffer, int64_t bufferSize);
+    static std::unique_ptr<BinaryCycle> Parse(const void* buffer, size_t bufferSize);
+
+    BinaryCycle();
     virtual ~BinaryCycle() override;
 
+    virtual uint32_t GetCycle() const override;
     virtual XLEN GetXLEN() const override;
+    virtual uint64_t GetPc() const override;
 
-    virtual bool IsPcExist() const override;
     virtual bool IsIntRegExist() const override;
     virtual bool IsFpRegExist() const override;
-    virtual bool IsIoStateExist() const;
-    virtual bool IsNoteExist() const;
+    virtual bool IsIoExist() const override;
 
-    virtual int GetOpEventCount() const override;
-    virtual int GetMemoryEventCount() const override;
-    virtual int GetTrapEventCount() const override;
+    virtual size_t GetOpEventCount() const override;
+    virtual size_t GetMemoryEventCount() const override;
+    virtual size_t GetTrapEventCount() const override;
 
-    virtual uint64_t GetPc(bool isPhysical) const override;
-    virtual uint64_t GetIntReg(int index) const override;
-    virtual uint64_t GetFpReg(int index) const override;
+    virtual uint64_t GetIntReg(size_t index) const override;
+    virtual uint64_t GetFpReg(size_t index) const override;
 
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const override;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const override;
-    virtual void CopyIoState(IoState* pOutState) const override;
-    virtual void CopyNote(std::string* pOutNote) const override;
+    virtual void CopyIo(NodeIo* pOutState) const override;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
+
+    size_t GetSize() const;
 
 private:
-    CycleViewImpl m_Impl;
+    size_t ParseNode(const void* buffer, size_t bufferSize);
+
+    const void* m_pBuffer{ nullptr };
+    size_t m_BufferSize{ 0 };
+    size_t m_Size{ 0 };
+
+    const NodeBasic* m_pNodeBasic{ nullptr };
+    const NodeIntReg32* m_pNodeIntReg32{ nullptr };
+    const NodeIntReg64* m_pNodeIntReg64{ nullptr };
+    const NodeFpReg* m_pNodeFpReg{ nullptr };
+    const NodeIo* m_pNodeIo{ nullptr };
+
+    std::vector<const NodeOpEvent*> m_OpEvents;
+    std::vector<const NodeMemoryEvent*> m_MemoryEvents;
+    std::vector<const NodeTrapEvent*> m_TrapEvents;
+
+    bool m_Break{ false };
 };
 
 }}

@@ -30,7 +30,6 @@ namespace rafi { namespace dump {
 namespace {
     static const int DefaultCycleCount = 1000 * 1000 * 1000;
     static const int DefaultCycleEnd = DefaultCycleCount;
-
 }
 
 CommandLineOption::CommandLineOption(int argc, char** argv)
@@ -42,7 +41,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("end,e", po::value<int>(&m_CycleEnd)->default_value(DefaultCycleEnd), "cycle to end printing")
         ("filter,f", po::value<std::string>(&m_FilterDescription), "description of cycle print filter")
         ("input,i", po::value<std::string>(&m_Path), "input trace binary path")
-        ("trace-text,t", "set output format as trace-text")
+        ("json,j", "set output format as json")
         ("help,h", "show help");
 
     po::positional_options_description posOptDesc;
@@ -66,19 +65,12 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         std::exit(0);
     }
 
-    if (optMap.count("trace-text") > 0)
-    {
-        m_Mode = Mode::TraceText;
-    }
-    else
-    {
-        m_Mode = Mode::Normal;
-    }
+    m_PrinterType = (optMap.count("json") > 0) ? PrinterType::Json : PrinterType::Text;
 }
 
-Mode CommandLineOption::GetMode() const
+PrinterType CommandLineOption::GetPrinterType() const
 {
-    return m_Mode;
+    return m_PrinterType;
 }
 
 const std::string& CommandLineOption::GetFilterDescription() const

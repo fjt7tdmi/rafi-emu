@@ -30,27 +30,25 @@ class ICycle
 public:
     virtual ~ICycle(){}
 
+    virtual uint32_t GetCycle() const = 0;
     virtual XLEN GetXLEN() const = 0;
+    virtual uint64_t GetPc() const = 0;
 
-    virtual bool IsPcExist() const = 0;
     virtual bool IsIntRegExist() const = 0;
     virtual bool IsFpRegExist() const = 0;
-    virtual bool IsIoStateExist() const = 0;
-    virtual bool IsNoteExist() const = 0;
+    virtual bool IsIoExist() const = 0;
 
-    virtual int GetOpEventCount() const = 0;
-    virtual int GetMemoryEventCount() const = 0;
-    virtual int GetTrapEventCount() const = 0;
+    virtual size_t GetOpEventCount() const = 0;
+    virtual size_t GetMemoryEventCount() const = 0;
+    virtual size_t GetTrapEventCount() const = 0;
 
-    virtual uint64_t GetPc(bool isPhysical) const = 0;
-    virtual uint64_t GetIntReg(int index) const = 0;
-    virtual uint64_t GetFpReg(int index) const = 0;
+    virtual uint64_t GetIntReg(size_t index) const = 0;
+    virtual uint64_t GetFpReg(size_t index) const = 0;
 
-    virtual void CopyIoState(IoState* pOutState) const = 0;
-    virtual void CopyNote(std::string* pOutNote) const = 0;
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const = 0;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const = 0;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const = 0;
+    virtual void CopyIo(NodeIo* pOutState) const = 0;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const = 0;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const = 0;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const = 0;
 };
 
 }}

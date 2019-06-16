@@ -28,8 +28,8 @@ class IntRegFile
 public:
     IntRegFile();
 
-    void Copy(trace::IntReg32Node* pOut) const;
-    void Copy(trace::IntReg64Node* pOut) const;
+    void Copy(trace::NodeIntReg32* pOut) const;
+    void Copy(trace::NodeIntReg64* pOut) const;
 
 	int32_t ReadInt32(int regId) const;
 	int64_t ReadInt64(int regId) const;

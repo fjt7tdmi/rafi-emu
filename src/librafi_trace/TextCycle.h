@@ -32,47 +32,41 @@ public:
     TextCycle(XLEN xlen);
     virtual ~TextCycle();
 
-    virtual XLEN GetXLEN() const;
+    virtual uint32_t GetCycle() const override;
+    virtual XLEN GetXLEN() const override;
+    virtual uint64_t GetPc() const override;
 
-    virtual bool IsPcExist() const;
-    virtual bool IsIntRegExist() const;
-    virtual bool IsFpRegExist() const;
-    virtual bool IsIoStateExist() const;
-    virtual bool IsNoteExist() const;
+    virtual bool IsIntRegExist() const override;
+    virtual bool IsFpRegExist() const override;
+    virtual bool IsIoExist() const override;
 
-    virtual int GetOpEventCount() const override;
-    virtual int GetMemoryEventCount() const;
-    virtual int GetTrapEventCount() const;
+    virtual size_t GetOpEventCount() const override;
+    virtual size_t GetMemoryEventCount() const override;
+    virtual size_t GetTrapEventCount() const override;
 
-    virtual uint64_t GetPc(bool isPhysical) const;
-    virtual uint64_t GetIntReg(int index) const;
-    virtual uint64_t GetFpReg(int index) const;
+    virtual uint64_t GetIntReg(size_t index) const override;
+    virtual uint64_t GetFpReg(size_t index) const override;
 
-    virtual void CopyIoState(IoState* pOutState) const;
-    virtual void CopyNote(std::string* pOutNote) const;
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const;
+    virtual void CopyIo(NodeIo* pOutState) const override;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
 
 private:
-    void ParsePc(std::basic_istream<char>* pInput);
+    void ParseBasic(std::basic_istream<char>* pInput);
     void ParseIntReg(std::basic_istream<char>* pInput);
     void ParseFpReg(std::basic_istream<char>* pInput);
-    void ParseNote(std::basic_istream<char>* pInput);
 
+    uint32_t m_CycleCount;
     XLEN m_XLEN;
+    uint64_t m_Pc;
 
-    bool m_PcExist{ false };
+    bool m_BasicExist{ false };
     bool m_IntRegExist{ false };
     bool m_FpRegExist{ false };
 
-    uint64_t m_VirtualPc{ 0 };
-    uint64_t m_PhysicalPc{ 0 };
-
     uint64_t m_IntRegs[IntRegCount];
     uint64_t m_FpRegs[IntRegCount];
-
-    std::string m_Note;
 };
 
 }}

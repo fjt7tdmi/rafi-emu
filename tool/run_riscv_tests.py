@@ -57,6 +57,7 @@ def PrintCommand(msg, cmd):
 def VerifyTraces(paths, build_type):
     cmd = [GetCheckIoPath(build_type)]
     cmd.extend(paths)
+    PrintCommand("Run", cmd)
     subprocess.run(cmd)
 
 def RunEmulator(config):
@@ -66,7 +67,6 @@ def RunEmulator(config):
         GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
         "--load", f"{binary_path}:0x80000000",
-        "--enable-dump-int-reg",
         "--enable-dump-fp-reg",
         "--dump-path", trace_path,
         "--pc", "0x80000000",

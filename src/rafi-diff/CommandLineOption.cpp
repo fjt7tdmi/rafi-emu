@@ -64,8 +64,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         std::cout << desc << std::endl;
         std::exit(0);
     }
-
-    m_CheckPhysicalPc = variables.count("check-physical-pc") > 0;
 }
 
 const std::string& CommandLineOption::GetExpectPath() const
@@ -86,11 +84,6 @@ int CommandLineOption::GetCycleCount() const
 int CommandLineOption::GetThreshold() const
 {
     return m_Threshold;
-}
-
-bool CommandLineOption::CheckPhysicalPc() const
-{
-    return m_CheckPhysicalPc;
 }
 
 }

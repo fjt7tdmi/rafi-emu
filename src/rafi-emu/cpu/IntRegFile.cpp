@@ -27,7 +27,7 @@ IntRegFile::IntRegFile()
     std::memset(m_Entries, 0, sizeof(m_Entries));
 }
 
-void IntRegFile::Copy(trace::IntReg32Node* pOut) const
+void IntRegFile::Copy(trace::NodeIntReg32* pOut) const
 {
     for (int i = 0; i < IntRegCount; i++)
     {
@@ -35,7 +35,7 @@ void IntRegFile::Copy(trace::IntReg32Node* pOut) const
     }
 }
 
-void IntRegFile::Copy(trace::IntReg64Node* pOut) const
+void IntRegFile::Copy(trace::NodeIntReg64* pOut) const
 {
     for (int i = 0; i < IntRegCount; i++)
     {

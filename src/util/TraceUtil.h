@@ -23,6 +23,13 @@
 
 namespace rafi {
 
+enum class PrinterType
+{
+    Text = 0,
+    Json = 1,
+};
+
 std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path);
+std::unique_ptr<trace::ITracePrinter> MakeTracePrinter(PrinterType printerType);
 
 }

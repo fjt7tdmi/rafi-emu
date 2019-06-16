@@ -51,12 +51,10 @@ TEST(TextTrace, Basic)
 
         ASSERT_EQ(XLEN::XLEN32, pCycle->GetXLEN());
 
-        ASSERT_TRUE(pCycle->IsPcExist());
         ASSERT_TRUE(pCycle->IsIntRegExist());
         ASSERT_FALSE(pCycle->IsFpRegExist());
 
-        ASSERT_EQ(0x80000000, pCycle->GetPc(false));
-        ASSERT_EQ(0x1000, pCycle->GetPc(true));
+        ASSERT_EQ(0x80000000, pCycle->GetPc());
 
         for (int i = 0; i < IntRegCount; i++)
         {
@@ -73,12 +71,10 @@ TEST(TextTrace, Basic)
 
         ASSERT_EQ(XLEN::XLEN32, pCycle->GetXLEN());
 
-        ASSERT_TRUE(pCycle->IsPcExist());
         ASSERT_FALSE(pCycle->IsIntRegExist());
         ASSERT_FALSE(pCycle->IsFpRegExist());
 
-        ASSERT_EQ(0x80000004, pCycle->GetPc(false));
-        ASSERT_EQ(0x1004, pCycle->GetPc(true));
+        ASSERT_EQ(0x80000004, pCycle->GetPc());
     }
 
     pTrace->Next();

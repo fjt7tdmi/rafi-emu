@@ -37,7 +37,9 @@ PcFilter::PcFilter(uint64_t address, bool isPhysical)
 
 bool PcFilter::Apply(const trace::ICycle* pCycle) const
 {
-    return pCycle->GetPc(m_IsPhysical) == m_Address;
+    assert(!m_IsPhysical);
+
+    return pCycle->GetPc() == m_Address;
 }
 
 MemoryAccessFilter::MemoryAccessFilter(uint64_t address, bool isPhysical, bool checkLoad, bool checkStore)
@@ -54,10 +56,10 @@ bool MemoryAccessFilter::Apply(const trace::ICycle* pCycle) const
 
     for (int i = 0; i < count; i++)
     {
-        trace::MemoryEvent e;
+        trace::NodeMemoryEvent e;
         pCycle->CopyMemoryEvent(&e, i);
 
-        const auto address = m_IsPhysical ? e.physicalAddress : e.virtualAddress;
+        const auto address = m_IsPhysical ? e.paddr : e.vaddr;
         const bool addressIncluded = (address <= m_Address && m_Address < address + e.size);
 
         switch (e.accessType)
@@ -128,10 +130,6 @@ std::unique_ptr<IFilter> MakeFilter(const std::string& description)
     else if (command == "P")
     {
         return std::unique_ptr<IFilter>(new PcFilter(value, false));
-    }
-    else if (command == "PP")
-    {
-        return std::unique_ptr<IFilter>(new PcFilter(value, true));
     }
     else
     {

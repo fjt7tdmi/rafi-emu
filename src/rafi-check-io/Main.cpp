@@ -31,14 +31,18 @@ namespace {
     uint32_t ExpectedHostIoValue = 1;
 }
 
-uint32_t GetLastHostIoValue(FileTraceReader* pReader)
+uint32_t GetLastHostIoValue(TraceBinaryReader* pReader)
 {
     uint32_t hostIoValue = 0;
 
     while (!pReader->IsEnd())
     {
-        hostIoValue = pReader->GetCycleView().GetIoNode()->hostIoValue;
+        NodeIo io;
+
+        pReader->GetCycle()->CopyIo(&io);
         pReader->Next();
+
+        hostIoValue = io.hostIo;
     }
 
     return hostIoValue;
@@ -48,7 +52,7 @@ bool Check(const char* name, const char* path)
 {
     try
     {
-        FileTraceReader reader(path);
+        TraceBinaryReader reader(path);
 
         // Find IoNode
         const auto hostIoValue = GetLastHostIoValue(&reader);

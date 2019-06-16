@@ -25,7 +25,7 @@
 
 #include "TraceTextLogger.h"
 #include "Profiler.h"
-#include "TraceDumper.h"
+#include "TraceLogger.h"
 
 #include "CommandLineOption.h"
 #include "System.h"
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
     rafi::emu::TraceTextLogger traceTextLogger(option.GetXLEN(), option.GetStateLogPath().c_str(), &system);
-    rafi::emu::TraceDumper dumper(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
+    rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
     rafi::emu::Profiler profiler;
 
     try
@@ -59,28 +59,28 @@ int main(int argc, char** argv)
 
     if (option.IsDumpEnabled())
     {
-        dumper.EnableDump();
+        logger.EnableDump();
     }
     if (option.IsDumpCsrEnabled())
     {
-        dumper.EnableDumpCsr();
+        logger.EnableDumpCsr();
     }
     if (option.IsDumpFpRegEnabled())
     {
-        dumper.EnableDumpFpReg();
+        logger.EnableDumpFpReg();
     }
     if (option.IsDumpIntRegEnabled())
     {
-        dumper.EnableDumpIntReg();
+        logger.EnableDumpIntReg();
     }
     if (option.IsDumpMemoryEnabled())
     {
-        dumper.EnableDumpMemory();
+        logger.EnableDumpMemory();
     }
 
     if (option.IsHostIoEnabled())
     {
-        dumper.EnableDumpHostIo();
+        logger.EnableDumpHostIo();
         system.SetHostIoAddress(option.GetHostIoAddress());
     }
 
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
-                dumper.DumpCycle(cycle);
+                logger.DumpCycle(cycle);
             }
 
             profiler.SwitchPhase(rafi::emu::Profiler::Phase_None);

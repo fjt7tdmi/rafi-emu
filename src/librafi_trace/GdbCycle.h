@@ -27,34 +27,33 @@ namespace rafi { namespace trace {
 class GdbCycle : public ICycle
 {
 public:
-    static std::unique_ptr<GdbCycle> Parse(std::basic_istream<char>* pInput);
+    static std::unique_ptr<GdbCycle> Parse(std::basic_istream<char>* pInput, uint32_t cycle);
 
     GdbCycle();
     virtual ~GdbCycle();
 
-    virtual XLEN GetXLEN() const;
+    virtual uint32_t GetCycle() const override;
+    virtual XLEN GetXLEN() const override;
+    virtual uint64_t GetPc() const override;
 
-    virtual bool IsPcExist() const;
-    virtual bool IsIntRegExist() const;
-    virtual bool IsFpRegExist() const;
-    virtual bool IsIoStateExist() const;
-    virtual bool IsNoteExist() const;
+    virtual bool IsIntRegExist() const override;
+    virtual bool IsFpRegExist() const override;
+    virtual bool IsIoExist() const override;
 
-    virtual int GetOpEventCount() const override;
-    virtual int GetMemoryEventCount() const;
-    virtual int GetTrapEventCount() const;
+    virtual size_t GetOpEventCount() const override;
+    virtual size_t GetMemoryEventCount() const override;
+    virtual size_t GetTrapEventCount() const override;
 
-    virtual uint64_t GetPc(bool isPhysical) const;
-    virtual uint64_t GetIntReg(int index) const;
-    virtual uint64_t GetFpReg(int index) const;
+    virtual uint64_t GetIntReg(size_t index) const override;
+    virtual uint64_t GetFpReg(size_t index) const override;
 
-    virtual void CopyIoState(IoState* pOutState) const;
-    virtual void CopyNote(std::string* pOutNote) const;
-    virtual void CopyOpEvent(OpEvent* pOutEvent, int index) const override;
-    virtual void CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const;
-    virtual void CopyTrapEvent(TrapEvent* pOutEvent, int index) const;
+    virtual void CopyIo(NodeIo* pOutState) const override;
+    virtual void CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const override;
+    virtual void CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const override;
+    virtual void CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const override;
 
 private:
+    uint32_t m_CycleCount{ 0 };
     uint64_t m_Pc{ 0 };
     uint64_t m_IntRegs[IntRegCount];
 };

@@ -19,7 +19,6 @@
 #include <fstream>
 
 #include <rafi/common.h>
-#include <rafi/trace/CycleView.h>
 
 #include "ITraceReader.h"
 

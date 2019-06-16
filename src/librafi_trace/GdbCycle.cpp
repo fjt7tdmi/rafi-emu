@@ -31,10 +31,12 @@ namespace {
     };
 }
 
-std::unique_ptr<GdbCycle> GdbCycle::Parse(std::basic_istream<char>* pInput)
+std::unique_ptr<GdbCycle> GdbCycle::Parse(std::basic_istream<char>* pInput, uint32_t cycle)
 {
     auto p = std::make_unique<GdbCycle>();
-
+    
+    p->m_CycleCount = cycle;
+    
     for (;;)
     {
         std::string head;
@@ -89,14 +91,19 @@ GdbCycle::~GdbCycle()
 {
 }
 
+uint32_t GdbCycle::GetCycle() const
+{
+    return m_CycleCount;
+}
+
 XLEN GdbCycle::GetXLEN() const
 {
     return XLEN::XLEN64;
 }
 
-bool GdbCycle::IsPcExist() const
+uint64_t GdbCycle::GetPc() const
 {
-    return true;
+    return m_Pc;
 }
 
 bool GdbCycle::IsIntRegExist() const
@@ -109,37 +116,27 @@ bool GdbCycle::IsFpRegExist() const
     return false;
 }
 
-bool GdbCycle::IsIoStateExist() const
+bool GdbCycle::IsIoExist() const
 {
     return false;
 }
 
-bool GdbCycle::IsNoteExist() const
-{
-    return false;
-}
-
-int GdbCycle::GetOpEventCount() const
+size_t GdbCycle::GetOpEventCount() const
 {
     return 0;
 }
 
-int GdbCycle::GetMemoryEventCount() const
+size_t GdbCycle::GetMemoryEventCount() const
 {
     return 0;
 }
 
-int GdbCycle::GetTrapEventCount() const
+size_t GdbCycle::GetTrapEventCount() const
 {
     return 0;
 }
 
-uint64_t GdbCycle::GetPc(bool isPhysical) const
-{
-    return isPhysical ? 0 : m_Pc;
-}
-
-uint64_t GdbCycle::GetIntReg(int index) const
+uint64_t GdbCycle::GetIntReg(size_t index) const
 {
     if (!(0 <= index && index < IntRegCount))
     {
@@ -149,42 +146,36 @@ uint64_t GdbCycle::GetIntReg(int index) const
     return m_IntRegs[index];
 }
 
-uint64_t GdbCycle::GetFpReg(int index) const
+uint64_t GdbCycle::GetFpReg(size_t index) const
 {
     (void)index;
     return 0;
 }
 
-void GdbCycle::CopyNote(std::string* pOutNote) const
-{
-    (void)pOutNote;
-    RAFI_NOT_IMPLEMENTED();
-}
-
-void GdbCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
-{
-    (void)pOutEvent;
-    (void)index;
-    RAFI_NOT_IMPLEMENTED();
-}
-
-void GdbCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
-{
-    (void)pOutEvent;
-    (void)index;
-    RAFI_NOT_IMPLEMENTED();
-}
-
-void GdbCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
-{
-    (void)pOutEvent;
-    (void)index;
-    RAFI_NOT_IMPLEMENTED();
-}
-
-void GdbCycle::CopyIoState(IoState* pOutState) const
+void GdbCycle::CopyIo(NodeIo* pOutState) const
 {
     (void)pOutState;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const
+{
+    (void)pOutEvent;
+    (void)index;
+    RAFI_NOT_IMPLEMENTED();
+}
+
+void GdbCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
+{
+    (void)pOutEvent;
+    (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 

@@ -33,9 +33,9 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::basic_istream<char>* pInput, XL
         {
             break;
         }
-        else if (s == "PC")
+        else if (s == "BASIC")
         {
-            p->ParsePc(pInput);
+            p->ParseBasic(pInput);
         }
         else if (s == "INT")
         {
@@ -44,10 +44,6 @@ std::unique_ptr<TextCycle> TextCycle::Parse(std::basic_istream<char>* pInput, XL
         else if (s == "FP")
         {
             p->ParseIntReg(pInput);
-        }
-        else if (s == "NOTE")
-        {
-            p->ParseNote(pInput);
         }
         else
         {
@@ -67,14 +63,34 @@ TextCycle::~TextCycle()
 {
 }
 
+uint32_t TextCycle::GetCycle() const
+{
+    if (!m_BasicExist)
+    {
+        throw TraceException("NodeBasic is not exist.");
+    }
+
+    return m_CycleCount;
+}
+
 XLEN TextCycle::GetXLEN() const
 {
+    if (!m_BasicExist)
+    {
+        throw TraceException("NodeBasic is not exist.");
+    }
+
     return m_XLEN;
 }
 
-bool TextCycle::IsPcExist() const
+uint64_t TextCycle::GetPc() const
 {
-    return m_PcExist;
+    if (!m_BasicExist)
+    {
+        throw TraceException("NodeBasic is not exist.");
+    }
+
+    return m_Pc;
 }
 
 bool TextCycle::IsIntRegExist() const
@@ -87,42 +103,27 @@ bool TextCycle::IsFpRegExist() const
     return m_FpRegExist;
 }
 
-bool TextCycle::IsIoStateExist() const
+bool TextCycle::IsIoExist() const
 {
     return false;
 }
 
-bool TextCycle::IsNoteExist() const
-{
-    return !m_Note.empty();
-}
-
-int TextCycle::GetOpEventCount() const
+size_t TextCycle::GetOpEventCount() const
 {
     return 0;
 }
 
-int TextCycle::GetMemoryEventCount() const
+size_t TextCycle::GetMemoryEventCount() const
 {
     return 0;
 }
 
-int TextCycle::GetTrapEventCount() const
+size_t TextCycle::GetTrapEventCount() const
 {
     return 0;
 }
 
-uint64_t TextCycle::GetPc(bool isPhysical) const
-{
-    if (!m_PcExist)
-    {
-        throw TraceException("PC value is not exist.");
-    }
-
-    return isPhysical ? m_PhysicalPc : m_VirtualPc;
-}
-
-uint64_t TextCycle::GetIntReg(int index) const
+uint64_t TextCycle::GetIntReg(size_t index) const
 {
     if (!m_IntRegExist)
     {
@@ -137,7 +138,7 @@ uint64_t TextCycle::GetIntReg(int index) const
     return m_IntRegs[index];
 }
 
-uint64_t TextCycle::GetFpReg(int index) const
+uint64_t TextCycle::GetFpReg(size_t index) const
 {
     if (!m_IntRegExist)
     {
@@ -152,43 +153,40 @@ uint64_t TextCycle::GetFpReg(int index) const
     return m_FpRegs[index];
 }
 
-void TextCycle::CopyIoState(IoState* pOutState) const
+void TextCycle::CopyIo(NodeIo* pOutNode) const
 {
-    (void)pOutState;
+    (void)pOutNode;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyNote(std::string* pOutNote) const
+void TextCycle::CopyOpEvent(NodeOpEvent* pOutNode, size_t index) const
 {
-    *pOutNote = m_Note;
-}
-
-void TextCycle::CopyOpEvent(OpEvent* pOutEvent, int index) const
-{
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyMemoryEvent(MemoryEvent* pOutEvent, int index) const
+void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutNode, size_t index) const
 {
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::CopyTrapEvent(TrapEvent* pOutEvent, int index) const
+void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutNode, size_t index) const
 {
-    (void)pOutEvent;
+    (void)pOutNode;
     (void)index;
     RAFI_NOT_IMPLEMENTED();
 }
 
-void TextCycle::ParsePc(std::basic_istream<char>* pInput)
+void TextCycle::ParseBasic(std::basic_istream<char>* pInput)
 {
-    *pInput >> std::hex >> m_VirtualPc >> m_PhysicalPc;
+    uint32_t xlen;
+    *pInput >> std::hex >> m_CycleCount >> xlen >> m_Pc;
 
-    m_PcExist = true;
+    m_XLEN = static_cast<XLEN>(xlen);
+    m_BasicExist = true;
 }
 
 void TextCycle::ParseIntReg(std::basic_istream<char>* pInput)
@@ -209,11 +207,6 @@ void TextCycle::ParseFpReg(std::basic_istream<char>* pInput)
     }
 
     m_FpRegExist = true;
-}
-
-void TextCycle::ParseNote(std::basic_istream<char>* pInput)
-{
-    *pInput >> m_Note;
 }
 
 }}
