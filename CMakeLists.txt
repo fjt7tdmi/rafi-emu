@@ -274,6 +274,12 @@ add_executable(rafi-check-io
     src/util/TraceUtil.h
 )
 
+add_executable(rafi-conv
+    src/rafi-conv/Main.cpp
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
+)
+
 add_executable(rafi-diff
     src/rafi-diff/Main.cpp
     src/rafi-diff/CommandLineOption.cpp
@@ -366,6 +372,7 @@ add_executable(test-trace
 
 include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
 include_directories(rafi-check-io include)
+include_directories(rafi-conv include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-emu include src/rafi-emu/include)
@@ -373,6 +380,7 @@ include_directories(test-op include)
 include_directories(test-trace include)
 
 target_link_libraries(rafi-check-io librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-conv librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librafi_common librafi_fp librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
