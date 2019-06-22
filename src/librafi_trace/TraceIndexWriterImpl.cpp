@@ -67,8 +67,8 @@ void TraceIndexWriterImpl::Write(void* buffer, int64_t size)
 
 void TraceIndexWriterImpl::OpenBinaryFile()
 {
-    std::stringstream ss(m_PathBase);
-    ss << "-" << m_BinaryFileCount << ".tbin";
+    std::stringstream ss;
+    ss << m_PathBase << "." << m_BinaryFileCount << ".tbin";
 
     const auto path = ss.str();
 

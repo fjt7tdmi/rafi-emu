@@ -24,7 +24,7 @@ namespace rafi { namespace trace {
 
 class TraceIndexWriterImpl;
 
-class TraceIndexWriter : ITraceWriter
+class TraceIndexWriter : public ITraceWriter
 {
 public:
     TraceIndexWriter(const char* pathBase);

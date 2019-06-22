@@ -33,6 +33,7 @@ TraceIndexReaderImpl::~TraceIndexReaderImpl()
     if (m_pTraceBinary != nullptr)
     {
         delete m_pTraceBinary;
+        m_pTraceBinary = nullptr;
     }
 }
 
@@ -50,11 +51,18 @@ void TraceIndexReaderImpl::Next()
 {
     m_pTraceBinary->Next();
 
-    if (m_pTraceBinary->IsEnd())
+    if (!m_pTraceBinary->IsEnd())
     {
-        m_Index++;
-        UpdateTraceBinary();
+        return;
     }
+
+    m_Index++;
+    if (m_Index == m_Entries.size())
+    {
+        return;
+    }
+
+    UpdateTraceBinary();
 }
 
 void TraceIndexReaderImpl::ParseIndexFile(const char* path)
@@ -64,7 +72,12 @@ void TraceIndexReaderImpl::ParseIndexFile(const char* path)
     while (!f.eof())
     {
         Entry entry;
+        
         f >> entry.path;
+        if (entry.path.empty())
+        {
+            continue;
+        }
 
         if (!f.eof())
         {
@@ -81,6 +94,12 @@ void TraceIndexReaderImpl::ParseIndexFile(const char* path)
 
 void TraceIndexReaderImpl::UpdateTraceBinary()
 {
+    if (m_pTraceBinary != nullptr)
+    {
+        delete m_pTraceBinary;
+        m_pTraceBinary = nullptr;
+    }
+
     const auto path = m_Entries[m_Index].path;
 
     m_pTraceBinary = new TraceBinaryReaderImpl(path.c_str());

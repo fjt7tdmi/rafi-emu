@@ -22,8 +22,9 @@
 
 #include <rafi/trace.h>
 
-using namespace rafi;
-using namespace rafi::trace;
+#include "../util/TraceUtil.h"
+
+namespace rafi {
 
 namespace {
     const char* Pass = "[  PASS  ]";
@@ -31,13 +32,13 @@ namespace {
     uint32_t ExpectedHostIoValue = 1;
 }
 
-uint32_t GetLastHostIoValue(TraceBinaryReader* pReader)
+uint32_t GetLastHostIoValue(trace::ITraceReader* pReader)
 {
     uint32_t hostIoValue = 0;
 
     while (!pReader->IsEnd())
     {
-        NodeIo io;
+        trace::NodeIo io;
 
         pReader->GetCycle()->CopyIo(&io);
         pReader->Next();
@@ -48,14 +49,14 @@ uint32_t GetLastHostIoValue(TraceBinaryReader* pReader)
     return hostIoValue;
 }
 
-bool Check(const char* name, const char* path)
+bool CheckIo(const char* name, const char* path)
 {
     try
     {
-        TraceBinaryReader reader(path);
+        auto reader = MakeTraceReader(path);
 
         // Find IoNode
-        const auto hostIoValue = GetLastHostIoValue(&reader);
+        const auto hostIoValue = GetLastHostIoValue(reader.get());
 
         // Check IoValue
         if (hostIoValue != ExpectedHostIoValue)
@@ -74,13 +75,15 @@ bool Check(const char* name, const char* path)
         e.PrintMessage();
         return false;
     }
-    catch (const TraceException& e)
+    catch (const trace::TraceException& e)
     {
         e.PrintMessage();
         return false;
     }
 
     return true;
+}
+
 }
 
 int main(int argc, char** argv)
@@ -95,7 +98,7 @@ int main(int argc, char** argv)
 
     for (int i = 1; i < argc; i++)
     {
-        if (Check(argv[i], argv[i]))
+        if (rafi::CheckIo(argv[i], argv[i]))
         {
             passCount++;
         }

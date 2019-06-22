@@ -270,6 +270,8 @@ add_library(librafi_trace
 
 add_executable(rafi-check-io
     src/rafi-check-io/Main.cpp
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
 )
 
 add_executable(rafi-diff
