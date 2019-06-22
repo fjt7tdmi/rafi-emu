@@ -52,6 +52,8 @@ public:
     bool IsDumpIntRegEnabled() const;
     bool IsDumpMemoryEnabled() const;
 
+    bool IsProfileEnabled() const;
+
     const std::string& GetStateLogPath() const;
     const std::string& GetDumpPath() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
@@ -94,6 +96,8 @@ private:
     bool m_DumpCsrEnabled {false};
     bool m_DumpFpRegEnabled {false};
     bool m_DumpMemoryEnabled {false};
+
+    bool m_ProfilerEnabled {false};
 };
 
 }}

@@ -77,7 +77,10 @@ int main(int argc, char** argv)
     {
         logger.EnableDumpMemory();
     }
-
+    if (option.IsProfileEnabled())
+    {
+        profiler.Enable();
+    }
     if (option.IsHostIoEnabled())
     {
         logger.EnableDumpHostIo();
@@ -92,19 +95,17 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < option.GetCycle(); cycle++)
         {
-            profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
+            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
             traceTextLogger.DumpCycle(cycle);
 
-            profiler.SwitchPhase(rafi::emu::Profiler::Phase_Process);
-            system.ProcessCycle();
+            system.ProcessCycle(&profiler);
 
             if (cycle >= option.GetDumpSkipCycle())
             {
-                profiler.SwitchPhase(rafi::emu::Profiler::Phase_Dump);
+                profiler.Switch(rafi::emu::Profiler::Phase_Dump);
                 logger.DumpCycle(cycle);
             }
-
-            profiler.SwitchPhase(rafi::emu::Profiler::Phase_None);
+            profiler.Switch(rafi::emu::Profiler::Phase_None);
 
             if (option.IsHostIoEnabled())
             {

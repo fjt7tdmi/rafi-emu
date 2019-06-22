@@ -26,19 +26,25 @@ public:
     enum Phase
     {
         Phase_None = 0,
-        Phase_Process,
+        Phase_Cpu,
+        Phase_Fetch,
+        Phase_Decode,
+        Phase_Execute,
         Phase_Dump,
+        Phase_Io,
         Phase_MaxCount,
     };
 
     Profiler();
 
-    void SwitchPhase(Phase phase);
+    void Switch(Phase phase);
     void Dump();
+    void Enable();
 
 private:
-    Phase m_CurrentPhase;
-    int64_t m_CurrentPhaseStart;
+    bool m_Enabled{ false };
+    Phase m_CurrentPhase{ Phase_None};
+    int64_t m_CurrentPhaseStart{ 0 };
 
     // Total time for each phase
     int64_t m_Times[Phase_MaxCount];

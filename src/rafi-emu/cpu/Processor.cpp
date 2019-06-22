@@ -72,7 +72,7 @@ void Processor::WriteTime(uint64_t value)
     m_Csr.WriteTime(value);
 }
 
-void Processor::ProcessCycle()
+void Processor::ProcessCycle(Profiler* pProfiler)
 {
     ClearOpEvent();
     m_TrapProcessor.ClearEvent();
@@ -83,7 +83,7 @@ void Processor::ProcessCycle()
     const auto privilegeLevel = m_Csr.GetPrivilegeLevel();
     const auto pc = m_Csr.GetProgramCounter();
 
-    // Check interruptv
+    // Check interrupt
     m_InterruptController.Update();
 
     if (m_InterruptController.IsRequested())
@@ -97,6 +97,8 @@ void Processor::ProcessCycle()
     }
 
     // Fetch
+    pProfiler->Switch(Profiler::Phase_Fetch);
+
     paddr_t physicalPc;
 
     const auto fetchTrap = CheckFetchTrap(pc);
@@ -113,6 +115,8 @@ void Processor::ProcessCycle()
     SetOpEvent(pc, physicalPc, insn, privilegeLevel);
 
     // Decode
+    pProfiler->Switch(Profiler::Phase_Decode);
+
     const auto op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
     {
@@ -123,6 +127,8 @@ void Processor::ProcessCycle()
     }
 
     // Execute
+    pProfiler->Switch(Profiler::Phase_Execute);
+
     const auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
     if (preExecuteTrap)
     {

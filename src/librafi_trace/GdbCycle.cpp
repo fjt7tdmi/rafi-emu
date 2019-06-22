@@ -34,9 +34,9 @@ namespace {
 std::unique_ptr<GdbCycle> GdbCycle::Parse(std::basic_istream<char>* pInput, uint32_t cycle)
 {
     auto p = std::make_unique<GdbCycle>();
-    
+
     p->m_CycleCount = cycle;
-    
+
     for (;;)
     {
         std::string head;

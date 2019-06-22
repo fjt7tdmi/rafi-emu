@@ -106,6 +106,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("enable-dump-csr", "output csr contents to dump file")
         ("enable-dump-fp-reg", "output fp register contents to dump file")
         ("enable-dump-memory", "output memory contents to dump file")
+        ("enable-profiler", "execute profiler codes")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("help", "show help")
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
@@ -141,6 +142,8 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     m_DumpCsrEnabled = variables.count("enable-dump-csr") > 0;
     m_DumpFpRegEnabled = variables.count("enable-dump-fp-reg") > 0;
     m_DumpMemoryEnabled = variables.count("enable-memory-csr") > 0;
+
+    m_ProfilerEnabled = variables.count("enable-profiler") > 0;
 
     if (variables.count("dtb-addr"))
     {
@@ -227,6 +230,11 @@ bool CommandLineOption::IsDumpIntRegEnabled() const
 bool CommandLineOption::IsDumpMemoryEnabled() const
 {
     return m_DumpMemoryEnabled;
+}
+
+bool CommandLineOption::IsProfileEnabled() const
+{
+    return m_ProfilerEnabled;
 }
 
 const std::string& CommandLineOption::GetStateLogPath() const

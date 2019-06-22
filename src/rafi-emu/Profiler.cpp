@@ -18,6 +18,8 @@
 
 #ifdef WIN32
 #include <Windows.h>
+#else
+#include <time.h>
 #endif
 
 #include <rafi/emu.h>
@@ -26,11 +28,21 @@
 
 namespace rafi { namespace emu {
 
-#ifdef WIN32
-#pragma warning (disable: 4996)
-
-void Profiler::SwitchPhase(Phase phase)
+Profiler::Profiler()
 {
+    for (int i = 0; i < Phase_MaxCount; i++)
+    {
+        m_Times[i] = 0;
+    }
+}
+
+void Profiler::Switch(Phase phase)
+{
+    if (!m_Enabled)
+    {
+        return;
+    }
+
     if (!(Phase_None <= phase && phase < Phase_MaxCount))
     {
         RAFI_EMU_NOT_IMPLEMENTED();
@@ -39,46 +51,46 @@ void Profiler::SwitchPhase(Phase phase)
     const auto prevPhase = m_CurrentPhase;
     const auto prevPhaseStart = m_CurrentPhaseStart;
 
+    m_CurrentPhase = phase;
+
+#ifdef WIN32
+#pragma warning (disable: 4996)
     LARGE_INTEGER tick;
     QueryPerformanceCounter(&tick);
 
-    m_CurrentPhase = phase;
     m_CurrentPhaseStart = static_cast<int64_t>(tick.QuadPart);
+#else
+    m_CurrentPhaseStart = static_cast<int64_t>(clock());
+#endif
 
     m_Times[prevPhase] += (m_CurrentPhaseStart - prevPhaseStart);
 }
 
 void Profiler::Dump()
 {
-    std::cout << std::dec
-        << "[Profiler] process=" << m_Times[Phase_Process]
-        << ", dump=" << m_Times[Phase_Dump]
-        << std::endl;
-}
+    if (!m_Enabled)
+    {
+        return;
+    }
 
+#ifdef WIN32
+    const double divisor = 1;
 #else
-
-void Profiler::SwitchPhase(Phase phase)
-{
-    (void)phase;
-}
-
-void Profiler::Dump()
-{
-    std::cout << "Profiler does not support this platform." << std::endl;
-}
-
+    const double divisor = CLOCKS_PER_SEC;
 #endif
 
-Profiler::Profiler()
-    : m_CurrentPhase(Phase_None)
-    , m_CurrentPhaseStart(0)
+    std::cout << std::dec << "Profiler" << std::endl
+        << "\tcpu:     " << m_Times[Phase_Cpu] / divisor << std::endl
+        << "\tfetch:   " << m_Times[Phase_Fetch] / divisor << std::endl
+        << "\tdecode:  " << m_Times[Phase_Decode] / divisor << std::endl
+        << "\texecute: " << m_Times[Phase_Execute] / divisor << std::endl
+        << "\tio:      " << m_Times[Phase_Io] / divisor << std::endl
+        << "\tdump:    " << m_Times[Phase_Dump] / divisor << std::endl;
+}
+
+void Profiler::Enable()
 {
-    for (int i = 0; i < Phase_MaxCount; i++)
-    {
-        m_Times[i] = 0;
-    }
-    SwitchPhase(Phase_None);
+    m_Enabled = true;
 }
 
 }}
