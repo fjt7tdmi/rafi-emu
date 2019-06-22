@@ -159,12 +159,12 @@ void TraceJsonPrinterImpl::PrintFpReg(const trace::ICycle* pCycle) const
         u.u64.value = pCycle->GetFpReg(i);
 
         printf(
-            "    f%-2d: { u64: 0x%016llx, f32: %e, f64: %e } // %s\n",
+            "    f%-2d: { u64: 0x%" PRIx64 ", f32: %e, f64: %e } // %s\n",
             i,
             u.u64.value,
             u.f32.value,
             u.f64.value,
-            GetFpRegName(i)
+            rafi::GetFpRegName(i)
         );
     }
 

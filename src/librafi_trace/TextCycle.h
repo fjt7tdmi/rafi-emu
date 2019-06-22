@@ -19,7 +19,9 @@
 #include <cstdint>
 #include <string>
 #include <istream>
+#include <memory>
 #include <vector>
+
 #include <rafi/trace.h>
 
 namespace rafi { namespace trace {
