@@ -14,25 +14,35 @@
  * limitations under the License.
  */
 
-#include <rafi/trace.h>
+#pragma once
 
-#include "TraceTextPrinterImpl.h"
+#include <cstdio>
+
+#include <rafi/trace.h>
 
 namespace rafi { namespace trace {
 
-    TraceTextPrinter::TraceTextPrinter()
-    {
-        m_pImpl = new TraceTextPrinterImpl();
-    }
-    
-    TraceTextPrinter::~TraceTextPrinter()
-    {
-        delete m_pImpl;
-    }
+class TraceIndexWriterImpl final
+{
+public:
+    explicit TraceIndexWriterImpl(const char* pathBase);
+    ~TraceIndexWriterImpl();
 
-    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
-    {
-        m_pImpl->Print(pCycle);
-    }
+    void Write(void* buffer, int64_t size);
+
+private:
+    static const int MaxCycleCount = 10000;
+
+    void OpenBinaryFile();
+    void CloseBinaryFile();
+
+    std::FILE* m_pBinaryFile{ nullptr };
+    std::FILE* m_pIndexFile{ nullptr };
+
+    int m_BinaryFileCount{ 0 };
+    int m_CycleCount{ 0 };
+
+    std::string m_PathBase;
+};
 
 }}

@@ -222,6 +222,8 @@ add_library(librafi_trace
     include/rafi/trace/TraceBinaryMemoryWriter.h
     include/rafi/trace/TraceBinaryReader.h
     include/rafi/trace/TraceBinaryWriter.h
+    include/rafi/trace/TraceIndexReader.h
+    include/rafi/trace/TraceIndexWriter.h
     include/rafi/trace/TraceJsonPrinter.h
     include/rafi/trace/TraceTextPrinter.h
     include/rafi/trace/TraceTextReader.h
@@ -251,6 +253,12 @@ add_library(librafi_trace
     src/librafi_trace/TraceBinaryWriter.cpp
     src/librafi_trace/TraceBinaryWriterImpl.cpp
     src/librafi_trace/TraceBinaryWriterImpl.h
+    src/librafi_trace/TraceIndexReader.cpp
+    src/librafi_trace/TraceIndexReaderImpl.cpp
+    src/librafi_trace/TraceIndexReaderImpl.h
+    src/librafi_trace/TraceIndexWriter.cpp
+    src/librafi_trace/TraceIndexWriterImpl.cpp
+    src/librafi_trace/TraceIndexWriterImpl.h
     src/librafi_trace/TraceJsonPrinter.cpp
     src/librafi_trace/TraceJsonPrinterImpl.cpp
     src/librafi_trace/TraceJsonPrinterImpl.h
@@ -262,6 +270,14 @@ add_library(librafi_trace
 
 add_executable(rafi-check-io
     src/rafi-check-io/Main.cpp
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
+)
+
+add_executable(rafi-conv
+    src/rafi-conv/Main.cpp
+    src/util/TraceUtil.cpp
+    src/util/TraceUtil.h
 )
 
 add_executable(rafi-diff
@@ -356,6 +372,7 @@ add_executable(test-trace
 
 include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
 include_directories(rafi-check-io include)
+include_directories(rafi-conv include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-emu include src/rafi-emu/include)
@@ -363,6 +380,7 @@ include_directories(test-op include)
 include_directories(test-trace include)
 
 target_link_libraries(rafi-check-io librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-conv librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_common librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librafi_common librafi_fp librafi_trace ${Boost_LIBRARIES} ${FS_LIBRARIES})

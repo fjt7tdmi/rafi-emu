@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-#include <rafi/trace.h>
+#pragma once
 
-#include "TraceTextPrinterImpl.h"
+#include <rafi/common.h>
+
+#include "ITraceReader.h"
+#include "TraceBinaryMemoryReader.h"
 
 namespace rafi { namespace trace {
 
-    TraceTextPrinter::TraceTextPrinter()
-    {
-        m_pImpl = new TraceTextPrinterImpl();
-    }
-    
-    TraceTextPrinter::~TraceTextPrinter()
-    {
-        delete m_pImpl;
-    }
+class TraceIndexReaderImpl;
 
-    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
-    {
-        m_pImpl->Print(pCycle);
-    }
+class TraceIndexReader : public ITraceReader
+{
+public:
+    TraceIndexReader(const char* path);
+    virtual ~TraceIndexReader();
+
+    virtual const ICycle* GetCycle() const;
+
+    virtual bool IsEnd() const;
+
+    virtual void Next();
+    virtual void Next(uint32_t cycle);
+
+private:
+    TraceIndexReaderImpl* m_pImpl;
+};
 
 }}

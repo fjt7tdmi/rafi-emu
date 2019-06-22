@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-#include <rafi/trace.h>
+#pragma once
 
-#include "TraceTextPrinterImpl.h"
+#include <rafi/common.h>
+
+#include "ITraceWriter.h"
 
 namespace rafi { namespace trace {
 
-    TraceTextPrinter::TraceTextPrinter()
-    {
-        m_pImpl = new TraceTextPrinterImpl();
-    }
-    
-    TraceTextPrinter::~TraceTextPrinter()
-    {
-        delete m_pImpl;
-    }
+class TraceIndexWriterImpl;
 
-    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
-    {
-        m_pImpl->Print(pCycle);
-    }
+class TraceIndexWriter : public ITraceWriter
+{
+public:
+    TraceIndexWriter(const char* pathBase);
+    virtual ~TraceIndexWriter();
+
+    virtual void Write(void* buffer, int64_t size);
+
+private:
+    TraceIndexWriterImpl* m_pImpl;
+};
 
 }}

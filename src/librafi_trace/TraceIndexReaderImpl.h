@@ -14,25 +14,46 @@
  * limitations under the License.
  */
 
+#pragma once
+
+#include <vector>
+
 #include <rafi/trace.h>
 
-#include "TraceTextPrinterImpl.h"
+#include "BinaryCycle.h"
+#include "TraceBinaryReaderImpl.h"
 
 namespace rafi { namespace trace {
 
-    TraceTextPrinter::TraceTextPrinter()
-    {
-        m_pImpl = new TraceTextPrinterImpl();
-    }
-    
-    TraceTextPrinter::~TraceTextPrinter()
-    {
-        delete m_pImpl;
-    }
+class TraceIndexReaderImpl final
+{
+public:
+    TraceIndexReaderImpl(const char* path);
+    ~TraceIndexReaderImpl();
 
-    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
+    const ICycle* GetCycle() const;
+
+    bool IsEnd() const;
+
+    void Next();
+    void Next(uint32_t cycle);
+
+private:
+    void ParseIndexFile(const char* path);
+    void UpdateTraceBinary();
+
+    struct Entry
     {
-        m_pImpl->Print(pCycle);
-    }
+        std::string path;
+        uint32_t cycle;
+    };
+
+    std::vector<Entry> m_Entries;
+
+    int m_EntryIndex{ 0 }; // current index of m_Entries
+    uint32_t m_Cycle{ 0 };
+
+    TraceBinaryReaderImpl* m_pTraceBinary{ nullptr };
+};
 
 }}

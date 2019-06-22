@@ -34,6 +34,7 @@ public:
     virtual bool IsEnd() const = 0;
 
     virtual void Next() = 0;
+    virtual void Next(uint32_t cycle) = 0;
 };
 
 }}

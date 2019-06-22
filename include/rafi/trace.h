@@ -30,6 +30,8 @@
 #include "trace/TraceBinaryMemoryWriter.h"
 #include "trace/TraceBinaryReader.h"
 #include "trace/TraceBinaryWriter.h"
+#include "trace/TraceIndexReader.h"
+#include "trace/TraceIndexWriter.h"
 #include "trace/TraceTextReader.h"
 #include "trace/TraceJsonPrinter.h"
 #include "trace/TraceTextPrinter.h"

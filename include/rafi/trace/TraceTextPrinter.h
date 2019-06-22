@@ -27,6 +27,9 @@ class TraceTextPrinterImpl;
 class TraceTextPrinter : public ITracePrinter
 {
 public:
+    TraceTextPrinter();
+    virtual ~TraceTextPrinter();
+
     virtual void Print(const ICycle* cycle) override;
 
 private:

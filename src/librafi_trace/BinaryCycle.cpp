@@ -107,7 +107,7 @@ uint64_t BinaryCycle::GetIntReg(size_t index) const
 
 uint64_t BinaryCycle::GetFpReg(size_t index) const
 {
-    return m_pNodeIntReg32->regs[index];
+    return m_pNodeFpReg->regs[index].u64.value;
 }
 
 void BinaryCycle::CopyIo(NodeIo* pOutState) const

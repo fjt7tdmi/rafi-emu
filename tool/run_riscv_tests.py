@@ -62,7 +62,7 @@ def VerifyTraces(paths, build_type):
 
 def RunEmulator(config):
     binary_path = f"{BinaryDirPath}/{config['name']}.bin"
-    trace_path = f"{TraceDirPath}/{config['name']}.trace.bin"
+    trace_path = f"{TraceDirPath}/{config['name']}"
     cmd = [
         GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
@@ -84,7 +84,7 @@ def RunTests(configs, build_type):
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         p.map(RunEmulator, configs)
 
-    trace_paths = list(map(lambda config: f"{TraceDirPath}/{config['name']}.trace.bin", configs))
+    trace_paths = list(map(lambda config: f"{TraceDirPath}/{config['name']}.tidx", configs))
     VerifyTraces(trace_paths, build_type)
 
 #

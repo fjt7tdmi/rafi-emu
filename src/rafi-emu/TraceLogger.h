@@ -44,7 +44,7 @@ private:
     const char* m_pPath;
     const System* m_pSystem;
 
-    rafi::trace::TraceBinaryWriter* m_pTraceBinaryWriter;
+    rafi::trace::ITraceWriter* m_pTraceWriter;
 
     bool m_Enabled {false};
     bool m_EnableDumpCsr {false};

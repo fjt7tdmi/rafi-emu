@@ -26,7 +26,7 @@ namespace rafi { namespace trace {
 
 class TraceBinaryWriterImpl;
 
-class TraceBinaryWriter : ITraceWriter
+class TraceBinaryWriter : public ITraceWriter
 {
 public:
     TraceBinaryWriter(const char* path);

@@ -20,9 +20,19 @@
 
 namespace rafi { namespace trace {
 
-void TraceJsonPrinter::Print(const trace::ICycle* pCycle)
-{
-    m_pImpl->Print(pCycle);
-}
+    TraceJsonPrinter::TraceJsonPrinter()
+    {
+        m_pImpl = new TraceJsonPrinterImpl();
+    }
+
+    TraceJsonPrinter::~TraceJsonPrinter()
+    {
+        delete m_pImpl;
+    }
+
+    void TraceJsonPrinter::Print(const trace::ICycle* pCycle)
+    {
+        m_pImpl->Print(pCycle);
+    }
 
 }}

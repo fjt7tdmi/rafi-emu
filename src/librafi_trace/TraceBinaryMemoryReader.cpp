@@ -48,4 +48,12 @@ void TraceBinaryMemoryReader::Next()
     m_pImpl->Next();
 }
 
+void TraceBinaryMemoryReader::Next(uint32_t cycle)
+{
+    for (uint32_t i = 0; i < cycle; i++)
+    {
+        Next();
+    }
+}
+
 }}

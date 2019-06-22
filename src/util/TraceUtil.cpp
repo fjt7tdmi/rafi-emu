@@ -24,10 +24,13 @@ namespace rafi {
 
 std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path)
 {
-    if (boost::algorithm::ends_with(path, ".tbin") ||
-        boost::algorithm::ends_with(path, ".bin"))
+    if (boost::algorithm::ends_with(path, ".tbin") || boost::algorithm::ends_with(path, ".bin"))
     {
         return std::make_unique<trace::TraceBinaryReader>(path.c_str());
+    }
+    else if (boost::algorithm::ends_with(path, ".tidx") || boost::algorithm::ends_with(path, ".idx"))
+    {
+        return std::make_unique<trace::TraceIndexReader>(path.c_str());
     }
     else if (boost::algorithm::ends_with(path, ".gdb.log"))
     {

@@ -16,23 +16,23 @@
 
 #include <rafi/trace.h>
 
-#include "TraceTextPrinterImpl.h"
+#include "TraceIndexWriterImpl.h"
 
 namespace rafi { namespace trace {
 
-    TraceTextPrinter::TraceTextPrinter()
-    {
-        m_pImpl = new TraceTextPrinterImpl();
-    }
-    
-    TraceTextPrinter::~TraceTextPrinter()
-    {
-        delete m_pImpl;
-    }
+TraceIndexWriter::TraceIndexWriter(const char* pathBase)
+{
+    m_pImpl = new TraceIndexWriterImpl(pathBase);
+}
 
-    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
-    {
-        m_pImpl->Print(pCycle);
-    }
+TraceIndexWriter::~TraceIndexWriter()
+{
+    delete m_pImpl;
+}
+
+void TraceIndexWriter::Write(void* buffer, int64_t size)
+{
+    m_pImpl->Write(buffer, size);
+}
 
 }}
