@@ -18,20 +18,27 @@
 
 #include <rafi/common.h>
 
-#include "trace/BinaryCycleLogger.h"
-#include "trace/CycleTypes.h"
-#include "trace/Exception.h"
-#include "trace/GdbTraceReader.h"
-#include "trace/ICycle.h"
-#include "trace/ITracePrinter.h"
-#include "trace/ITraceReader.h"
-#include "trace/ITraceWriter.h"
-#include "trace/TraceBinaryMemoryReader.h"
-#include "trace/TraceBinaryMemoryWriter.h"
-#include "trace/TraceBinaryReader.h"
-#include "trace/TraceBinaryWriter.h"
-#include "trace/TraceIndexReader.h"
-#include "trace/TraceIndexWriter.h"
-#include "trace/TraceTextReader.h"
-#include "trace/TraceJsonPrinter.h"
-#include "trace/TraceTextPrinter.h"
+#include "ITraceReader.h"
+#include "TraceBinaryMemoryReader.h"
+
+namespace rafi { namespace trace {
+
+class TraceIndexReaderImpl;
+
+class TraceIndexReader : public ITraceReader
+{
+public:
+    TraceIndexReader(const char* path);
+    virtual ~TraceIndexReader();
+
+    virtual const ICycle* GetCycle() const;
+
+    virtual bool IsEnd() const;
+
+    virtual void Next();
+
+private:
+    TraceIndexReaderImpl* m_pImpl;
+};
+
+}}

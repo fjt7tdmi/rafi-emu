@@ -222,6 +222,7 @@ add_library(librafi_trace
     include/rafi/trace/TraceBinaryMemoryWriter.h
     include/rafi/trace/TraceBinaryReader.h
     include/rafi/trace/TraceBinaryWriter.h
+    include/rafi/trace/TraceIndexReader.h
     include/rafi/trace/TraceIndexWriter.h
     include/rafi/trace/TraceJsonPrinter.h
     include/rafi/trace/TraceTextPrinter.h
@@ -252,6 +253,9 @@ add_library(librafi_trace
     src/librafi_trace/TraceBinaryWriter.cpp
     src/librafi_trace/TraceBinaryWriterImpl.cpp
     src/librafi_trace/TraceBinaryWriterImpl.h
+    src/librafi_trace/TraceIndexReader.cpp
+    src/librafi_trace/TraceIndexReaderImpl.cpp
+    src/librafi_trace/TraceIndexReaderImpl.h
     src/librafi_trace/TraceIndexWriter.cpp
     src/librafi_trace/TraceIndexWriterImpl.cpp
     src/librafi_trace/TraceIndexWriterImpl.h
