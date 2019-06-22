@@ -45,4 +45,9 @@ void TraceIndexReader::Next()
     m_pImpl->Next();
 }
 
+void TraceIndexReader::Next(uint32_t cycle)
+{
+    m_pImpl->Next(cycle);
+}
+
 }}

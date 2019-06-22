@@ -39,7 +39,12 @@ void PrintTrace(const CommandLineOption& option, IFilter* filter)
     const int begin = option.GetCycleBegin();
     const int end = std::min(option.GetCycleBegin() + option.GetCycleCount(), option.GetCycleEnd());
 
-    for (int i = 0; i < end; i++)
+    if (begin > 0)
+    {
+        reader->Next(static_cast<uint32_t>(begin));
+    }
+
+    for (int i = begin; i < end; i++)
     {
         if (reader->IsEnd())
         {

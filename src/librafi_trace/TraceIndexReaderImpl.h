@@ -36,6 +36,7 @@ public:
     bool IsEnd() const;
 
     void Next();
+    void Next(uint32_t cycle);
 
 private:
     void ParseIndexFile(const char* path);
@@ -44,12 +45,13 @@ private:
     struct Entry
     {
         std::string path;
-        int cycle;
+        uint32_t cycle;
     };
 
     std::vector<Entry> m_Entries;
 
-    int m_Index{ 0 }; // current index of m_Entries
+    int m_EntryIndex{ 0 }; // current index of m_Entries
+    uint32_t m_Cycle{ 0 };
 
     TraceBinaryReaderImpl* m_pTraceBinary{ nullptr };
 };

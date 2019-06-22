@@ -44,25 +44,58 @@ const ICycle* TraceIndexReaderImpl::GetCycle() const
 
 bool TraceIndexReaderImpl::IsEnd() const
 {
-    return m_Index == m_Entries.size();
+    return m_EntryIndex == m_Entries.size();
 }
 
 void TraceIndexReaderImpl::Next()
 {
     m_pTraceBinary->Next();
+    m_Cycle++;
 
     if (!m_pTraceBinary->IsEnd())
     {
         return;
     }
 
-    m_Index++;
-    if (m_Index == m_Entries.size())
+    m_EntryIndex++;
+    if (m_EntryIndex == m_Entries.size())
     {
         return;
     }
 
     UpdateTraceBinary();
+}
+
+void TraceIndexReaderImpl::Next(uint32_t cycle)
+{
+    m_Cycle += cycle;
+
+    int entryIndex = -1;
+
+    uint32_t skippedCycle = 0;
+    for (int i = 0; i < m_Entries.size(); i++)
+    {
+        if (skippedCycle + m_Entries[i].cycle > m_Cycle)
+        {
+            entryIndex = i;
+            return;
+        }
+
+        skippedCycle += m_Entries[i].cycle;
+    }
+
+    if (entryIndex < 0)
+    {
+        throw TraceException("Failed to skip specified cycles in TraceIndexReaderImpl::Next()");
+    }
+
+    m_EntryIndex = entryIndex;
+    UpdateTraceBinary();
+
+    for (uint32_t i = skippedCycle; i < m_Cycle; i++)
+    {
+        Next();
+    }
 }
 
 void TraceIndexReaderImpl::ParseIndexFile(const char* path)
@@ -100,7 +133,7 @@ void TraceIndexReaderImpl::UpdateTraceBinary()
         m_pTraceBinary = nullptr;
     }
 
-    const auto path = m_Entries[m_Index].path;
+    const auto path = m_Entries[m_EntryIndex].path;
 
     m_pTraceBinary = new TraceBinaryReaderImpl(path.c_str());
 }

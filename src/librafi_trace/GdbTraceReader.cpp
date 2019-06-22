@@ -53,4 +53,12 @@ void GdbTraceReader::Next()
     m_pTrace->Next();
 }
 
+void GdbTraceReader::Next(uint32_t cycle)
+{
+    for (uint32_t i = 0; i < cycle; i++)
+    {
+        Next();
+    }
+}
+
 }}

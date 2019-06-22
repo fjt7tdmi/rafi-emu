@@ -36,6 +36,7 @@ public:
     virtual bool IsEnd() const;
 
     virtual void Next();
+    virtual void Next(uint32_t cycle);
 
 private:
     TraceBinaryReaderImpl* m_pImpl;
