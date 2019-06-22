@@ -20,9 +20,19 @@
 
 namespace rafi { namespace trace {
 
-void TraceTextPrinter::Print(const trace::ICycle* pCycle)
-{
-    m_pImpl->Print(pCycle);
-}
+    TraceTextPrinter::TraceTextPrinter()
+    {
+        m_pImpl = new TraceTextPrinterImpl();
+    }
+    
+    TraceTextPrinter::~TraceTextPrinter()
+    {
+        delete m_pImpl;
+    }
+
+    void TraceTextPrinter::Print(const trace::ICycle* pCycle)
+    {
+        m_pImpl->Print(pCycle);
+    }
 
 }}

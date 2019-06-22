@@ -27,6 +27,9 @@ class TraceJsonPrinterImpl;
 class TraceJsonPrinter : public ITracePrinter
 {
 public:
+    TraceJsonPrinter();
+    virtual ~TraceJsonPrinter();
+
     virtual void Print(const ICycle* cycle) override;
 
 private:
