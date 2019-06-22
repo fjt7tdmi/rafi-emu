@@ -51,24 +51,27 @@ TraceBinaryReaderImpl::TraceBinaryReaderImpl(const char* path)
     }
 #endif
 
-    m_pBuffer = malloc(fileSize);
-    if (m_pBuffer == nullptr)
+    if (fileSize > 0)
     {
-        throw TraceException("Failed to allocate memory.\n");
+        m_pBuffer = malloc(fileSize);
+        if (m_pBuffer == nullptr)
+        {
+            throw TraceException("Failed to allocate memory.\n");
+        }
+        m_BufferSize = fileSize;
+
+        auto fp = std::fopen(path, "rb");
+
+        auto n = std::fread(m_pBuffer, m_BufferSize, 1, fp);
+        if (n != 1)
+        {
+            throw TraceException("Failed to read file.\n");
+        }
+
+        std::fclose(fp);
+
+        m_pImpl = new TraceBinaryMemoryReader(m_pBuffer, m_BufferSize);
     }
-    m_BufferSize = fileSize;
-
-    auto fp = std::fopen(path, "rb");
-
-    auto n = std::fread(m_pBuffer, m_BufferSize, 1, fp);
-    if (n != 1)
-    {
-        throw TraceException("Failed to read file.\n");
-    }
-
-    std::fclose(fp);
-
-    m_pImpl = new TraceBinaryMemoryReader(m_pBuffer, m_BufferSize);
 }
 
 TraceBinaryReaderImpl::~TraceBinaryReaderImpl()
@@ -90,7 +93,7 @@ const ICycle* TraceBinaryReaderImpl::GetCycle() const
 
 bool TraceBinaryReaderImpl::IsEnd() const
 {
-    return m_pImpl->IsEnd();
+    return m_pImpl == nullptr || m_pImpl->IsEnd();
 }
 
 void TraceBinaryReaderImpl::Next()
