@@ -23,7 +23,6 @@
 
 #include "bus/Bus.h"
 
-#include "TraceTextLogger.h"
 #include "Profiler.h"
 #include "TraceLogger.h"
 
@@ -35,7 +34,6 @@ int main(int argc, char** argv)
     rafi::emu::CommandLineOption option(argc, argv);
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
-    rafi::emu::TraceTextLogger traceTextLogger(option.GetXLEN(), option.GetStateLogPath().c_str(), &system);
     rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
     rafi::emu::Profiler profiler;
 
@@ -50,11 +48,6 @@ int main(int argc, char** argv)
     {
         e.PrintMessage();
         std::exit(1);
-    }
-
-    if (option.IsTraceTextEnabled())
-    {
-        traceTextLogger.EnableDump();
     }
 
     if (option.IsDumpEnabled())
@@ -95,25 +88,26 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < option.GetCycle(); cycle++)
         {
-            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
-            traceTextLogger.DumpCycle(cycle);
+            profiler.Switch(rafi::emu::Profiler::Phase_None);
+            logger.RecordState();
 
+            if (option.IsHostIoEnabled() && system.GetHostIoValue() != 0)
+            {
+                if (cycle >= option.GetDumpSkipCycle())
+                {
+                    profiler.Switch(rafi::emu::Profiler::Phase_Dump);
+                    logger.DumpCycle(cycle);
+                }
+                break;
+            }
+
+            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
             system.ProcessCycle(&profiler);
 
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.Switch(rafi::emu::Profiler::Phase_Dump);
                 logger.DumpCycle(cycle);
-            }
-            profiler.Switch(rafi::emu::Profiler::Phase_None);
-
-            if (option.IsHostIoEnabled())
-            {
-                const auto hostIoValue = system.GetHostIoValue();
-                if (hostIoValue != 0)
-                {
-                    break;
-                }
             }
         }
     }

@@ -54,7 +54,6 @@ public:
 
     bool IsProfileEnabled() const;
 
-    const std::string& GetStateLogPath() const;
     const std::string& GetDumpPath() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
     XLEN GetXLEN() const;
@@ -73,7 +72,6 @@ private:
 
     uint64_t ParseHex(const std::string str);
 
-    std::string m_StateLogPath;
     std::string m_DumpPath;
     std::vector<LoadOption> m_LoadOptions;
 

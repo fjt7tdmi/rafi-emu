@@ -157,10 +157,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     {
         m_Pc = strtoull(variables["pc"].as<std::string>().c_str(), 0, 16);
     }
-    if (variables.count("trace-txt-path"))
-    {
-        m_StateLogPath = variables["trace-txt-path"].as<std::string>();
-    }
     if (variables.count("dump-path"))
     {
         m_DumpPath = variables["dump-path"].as<std::string>();
@@ -235,11 +231,6 @@ bool CommandLineOption::IsDumpMemoryEnabled() const
 bool CommandLineOption::IsProfileEnabled() const
 {
     return m_ProfilerEnabled;
-}
-
-const std::string& CommandLineOption::GetStateLogPath() const
-{
-    return m_StateLogPath;
 }
 
 const std::string& CommandLineOption::GetDumpPath() const

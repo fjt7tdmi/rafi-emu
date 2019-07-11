@@ -352,8 +352,6 @@ add_executable(rafi-emu
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
     src/rafi-emu/Main.cpp
-    src/rafi-emu/TraceTextLogger.cpp
-    src/rafi-emu/TraceTextLogger.h
     src/rafi-emu/Profiler.cpp
     src/rafi-emu/Profiler.h
     src/rafi-emu/System.cpp

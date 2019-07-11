@@ -82,6 +82,35 @@ void TraceLogger::EnableDumpHostIo()
     m_EnableDumpHostIo = true;
 }
 
+void TraceLogger::RecordState()
+{
+    // IntReg
+    if (m_XLEN == XLEN::XLEN32)
+    {
+        m_pSystem->CopyIntReg(&m_IntReg32);
+    }
+    else if (m_XLEN == XLEN::XLEN64)
+    {
+        m_pSystem->CopyIntReg(&m_IntReg64);
+    }
+    else
+    {
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
+
+    // FpReg
+    m_pSystem->CopyFpReg(&m_FpReg, sizeof(m_FpReg));
+
+    // Io
+    m_Io =
+    {
+        m_pSystem->GetHostIoValue(),
+        0,
+    };
+
+    m_StateRecorded = true;
+}
+
 void TraceLogger::DumpCycle(int cycle)
 {
     if (!m_Enabled)
@@ -89,24 +118,24 @@ void TraceLogger::DumpCycle(int cycle)
         return;
     }
 
+    if (!m_StateRecorded)
+    {
+        RAFI_NOT_IMPLEMENTED();
+    }
+    m_StateRecorded = false;
+
     BinaryCycleLogger cycleLogger(cycle, m_XLEN, m_pSystem->GetPc());
 
-    // IntReg
+    // State
     if (m_EnableDumpIntReg)
     {
         if (m_XLEN == XLEN::XLEN32)
         {
-            NodeIntReg32 node;
-            m_pSystem->CopyIntReg(&node);
-
-            cycleLogger.Add(node);
+            cycleLogger.Add(m_IntReg32);
         }
         else if (m_XLEN == XLEN::XLEN64)
         {
-            NodeIntReg64 node;
-            m_pSystem->CopyIntReg(&node);
-
-            cycleLogger.Add(node);            
+            cycleLogger.Add(m_IntReg64);
         }
         else
         {
@@ -114,28 +143,27 @@ void TraceLogger::DumpCycle(int cycle)
         }
     }
 
-    // FpReg
     if (m_EnableDumpFpReg)
     {
-        NodeFpReg node;
-        m_pSystem->CopyFpReg(&node, sizeof(node));
-
-        cycleLogger.Add(node);
+        cycleLogger.Add(m_FpReg);
     }
 
-    // Io
     if (m_EnableDumpHostIo)
     {
-        NodeIo node
-        {
-            m_pSystem->GetHostIoValue(),
-            0,
-        };
-
-        cycleLogger.Add(node);
+        cycleLogger.Add(m_Io);
     }
 
-    // OpEvent
+    if (m_EnableDumpCsr)
+    {
+        RAFI_NOT_IMPLEMENTED();
+    }
+
+    if (m_EnableDumpMemory)
+    {
+        RAFI_NOT_IMPLEMENTED();
+    }
+
+    // Event
     if (m_pSystem->IsOpEventExist())
     {
         OpEvent opEvent;
@@ -149,7 +177,6 @@ void TraceLogger::DumpCycle(int cycle)
         cycleLogger.Add(node);
     }
 
-    // TrapEvent
     if (m_pSystem->IsTrapEventExist())
     {
         TrapEvent trapEvent;
@@ -167,7 +194,6 @@ void TraceLogger::DumpCycle(int cycle)
         cycleLogger.Add(node);
     }
 
-    // MemoryAccessNode
     for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
     {
         MemoryAccessEvent memoryAccessEvent;
@@ -182,18 +208,6 @@ void TraceLogger::DumpCycle(int cycle)
             memoryAccessEvent.physicalAddress,
         };
         cycleLogger.Add(node);
-    }
-
-    // Csr64Node
-    if (m_EnableDumpCsr)
-    {
-        RAFI_NOT_IMPLEMENTED();
-    }
-
-    // Memory
-    if (m_EnableDumpMemory)
-    {
-        RAFI_NOT_IMPLEMENTED();
     }
 
     cycleLogger.Break();
