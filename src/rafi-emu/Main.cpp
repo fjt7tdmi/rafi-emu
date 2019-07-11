@@ -88,24 +88,26 @@ int main(int argc, char** argv)
     {
         for (cycle = 0; cycle < option.GetCycle(); cycle++)
         {
-            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
+            profiler.Switch(rafi::emu::Profiler::Phase_None);
+            logger.RecordState();
 
+            if (option.IsHostIoEnabled() && system.GetHostIoValue() != 0)
+            {
+                if (cycle >= option.GetDumpSkipCycle())
+                {
+                    profiler.Switch(rafi::emu::Profiler::Phase_Dump);
+                    logger.DumpCycle(cycle);
+                }
+                break;
+            }
+
+            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
             system.ProcessCycle(&profiler);
 
             if (cycle >= option.GetDumpSkipCycle())
             {
                 profiler.Switch(rafi::emu::Profiler::Phase_Dump);
                 logger.DumpCycle(cycle);
-            }
-            profiler.Switch(rafi::emu::Profiler::Phase_None);
-
-            if (option.IsHostIoEnabled())
-            {
-                const auto hostIoValue = system.GetHostIoValue();
-                if (hostIoValue != 0)
-                {
-                    break;
-                }
             }
         }
     }

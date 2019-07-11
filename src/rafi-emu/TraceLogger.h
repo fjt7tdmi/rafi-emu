@@ -37,6 +37,7 @@ public:
     void EnableDumpMemory();
     void EnableDumpHostIo();
 
+    void RecordState();
     void DumpCycle(int cycle);
 
 private:
@@ -45,6 +46,14 @@ private:
     const System* m_pSystem;
 
     rafi::trace::ITraceWriter* m_pTraceWriter;
+
+    // State
+    trace::NodeIntReg32 m_IntReg32;
+    trace::NodeIntReg64 m_IntReg64;
+    trace::NodeFpReg m_FpReg;
+    trace::NodeIo m_Io;
+
+    bool m_StateRecorded {false};
 
     bool m_Enabled {false};
     bool m_EnableDumpCsr {false};
