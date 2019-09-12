@@ -34,7 +34,7 @@ int main(int argc, char** argv)
     rafi::emu::CommandLineOption option(argc, argv);
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
-    rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetDumpPath().c_str(), &system);
+    rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetTraceLoggerConfig(), &system);
     rafi::emu::Profiler profiler;
 
     try
@@ -50,64 +50,49 @@ int main(int argc, char** argv)
         std::exit(1);
     }
 
-    if (option.IsDumpEnabled())
-    {
-        logger.EnableDump();
-    }
-    if (option.IsDumpCsrEnabled())
-    {
-        logger.EnableDumpCsr();
-    }
-    if (option.IsDumpFpRegEnabled())
-    {
-        logger.EnableDumpFpReg();
-    }
-    if (option.IsDumpIntRegEnabled())
-    {
-        logger.EnableDumpIntReg();
-    }
-    if (option.IsDumpMemoryEnabled())
-    {
-        logger.EnableDumpMemory();
-    }
     if (option.IsProfileEnabled())
     {
         profiler.Enable();
     }
     if (option.IsHostIoEnabled())
     {
-        logger.EnableDumpHostIo();
         system.SetHostIoAddress(option.GetHostIoAddress());
     }
 
     system.SetDtbAddress(option.GetDtbAddress());
 
-    int cycle;
+    int cycle = 0;
 
     try
     {
-        for (cycle = 0; cycle < option.GetCycle(); cycle++)
+        for (; cycle < option.GetCycle(); cycle++)
         {
-            profiler.Switch(rafi::emu::Profiler::Phase_None);
-            logger.RecordState();
+            const bool dumpEnabled = cycle >= option.GetDumpSkipCycle();
+            const bool lastCycle = option.IsHostIoEnabled() && system.GetHostIoValue() != 0;
 
-            if (option.IsHostIoEnabled() && system.GetHostIoValue() != 0)
+            if (dumpEnabled)
             {
-                if (cycle >= option.GetDumpSkipCycle())
+                logger.BeginCycle(cycle, system.GetPc());
+                logger.RecordState();
+            }
+
+            if (lastCycle)
+            {
+                if (dumpEnabled)
                 {
-                    profiler.Switch(rafi::emu::Profiler::Phase_Dump);
-                    logger.DumpCycle(cycle);
+                    logger.EndCycle();
                 }
                 break;
             }
 
-            profiler.Switch(rafi::emu::Profiler::Phase_Dump);
             system.ProcessCycle(&profiler);
 
-            if (cycle >= option.GetDumpSkipCycle())
+            if (dumpEnabled)
             {
                 profiler.Switch(rafi::emu::Profiler::Phase_Dump);
-                logger.DumpCycle(cycle);
+
+                logger.RecordEvent();
+                logger.EndCycle();
             }
         }
     }

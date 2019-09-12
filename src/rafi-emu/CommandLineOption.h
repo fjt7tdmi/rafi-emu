@@ -21,6 +21,8 @@
 
 #include <rafi/emu.h>
 
+#include "TraceLoggerConfig.h"
+
 namespace rafi { namespace emu {
 
 class LoadOption
@@ -43,18 +45,9 @@ public:
     CommandLineOption(int argc, char** argv);
 
     bool IsHostIoEnabled() const;
-
-    bool IsTraceTextEnabled() const;
-
-    bool IsDumpEnabled() const;
-    bool IsDumpCsrEnabled() const;
-    bool IsDumpFpRegEnabled() const;
-    bool IsDumpIntRegEnabled() const;
-    bool IsDumpMemoryEnabled() const;
-
     bool IsProfileEnabled() const;
 
-    const std::string& GetDumpPath() const;
+    const TraceLoggerConfig& GetTraceLoggerConfig() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
     XLEN GetXLEN() const;
 
@@ -72,7 +65,7 @@ private:
 
     uint64_t ParseHex(const std::string str);
 
-    std::string m_DumpPath;
+    TraceLoggerConfig m_TraceLoggerConfig;
     std::vector<LoadOption> m_LoadOptions;
 
     XLEN m_XLEN {XLEN::XLEN32};
@@ -87,13 +80,6 @@ private:
     uint64_t m_Pc {0};
 
     bool m_HostIoEnabled {false};
-
-    bool m_TraceTextEnabled {false};
-
-    bool m_DumpEnabled {false};
-    bool m_DumpCsrEnabled {false};
-    bool m_DumpFpRegEnabled {false};
-    bool m_DumpMemoryEnabled {false};
 
     bool m_ProfilerEnabled {false};
 };
