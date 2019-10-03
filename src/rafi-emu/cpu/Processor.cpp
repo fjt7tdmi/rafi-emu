@@ -99,9 +99,9 @@ void Processor::ProcessCycle(Profiler* pProfiler)
     // Fetch
     pProfiler->Switch(Profiler::Phase_Fetch);
 
-    paddr_t physicalPc;
+    uint32_t insn;
 
-    const auto fetchTrap = CheckFetchTrap(pc);
+    const auto fetchTrap = Fetch(&insn, pc);
     if (fetchTrap)
     {
         m_TrapProcessor.ProcessException(fetchTrap.value());
@@ -109,10 +109,6 @@ void Processor::ProcessCycle(Profiler* pProfiler)
         SetOpEvent(pc, privilegeLevel);
         return;
     }
-
-    const auto insn = Fetch(&physicalPc, pc);
-
-    SetOpEvent(pc, physicalPc, insn, privilegeLevel);
 
     // Decode
     pProfiler->Switch(Profiler::Phase_Decode);
@@ -220,40 +216,39 @@ bool Processor::IsTrapEventExist() const
     return m_TrapProcessor.IsTrapEventExist();
 }
 
-std::optional<Trap> Processor::CheckFetchTrap(vaddr_t pc)
+std::optional<Trap> Processor::Fetch(uint32_t* pOutInsn, vaddr_t pc)
 {
-    const auto trap = m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc);
-    if (trap)
+    if (pc % 0x1000 == 0xffe)
     {
-        return trap;
-    }
+        // To support 4-byte instruction across a page boundary, split memory access.
+        const vaddr_t vaddrLow = pc;
+        const vaddr_t vaddrHigh = pc + 2;
 
-    if (pc % 4 == 2)
-    {
-        // To support 4-byte instruction across a page boundary, check pc + 2 is accsessible.
-        return m_MemAccessUnit.CheckTrap(MemoryAccessType::Instruction, pc, pc + 2);
-    }
-    else
-    {
+        paddr_t paddrLow;
+        paddr_t paddrHigh;
+
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrLow, MemoryAccessType::Instruction, vaddrLow, pc));
+        const auto insnLow = m_MemAccessUnit.FetchUInt16(vaddrLow, paddrLow);
+
+        if (m_Decoder.IsCompressedInstruction(insnLow))
+        {
+            *pOutInsn = insnLow;
+            return std::nullopt;
+        }
+
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrHigh, MemoryAccessType::Instruction, vaddrHigh, pc));
+        const auto insnHigh = m_MemAccessUnit.FetchUInt16(vaddrHigh, paddrHigh);
+
+        *pOutInsn = (insnHigh << 16) | insnLow;
         return std::nullopt;
     }
-}
-
-uint32_t Processor::Fetch(paddr_t* pOutPhysicalPc, vaddr_t pc)
-{
-    if (pc % 4 == 0)
-    {
-        return m_MemAccessUnit.FetchUInt32(pOutPhysicalPc, pc);
-    }
     else
     {
-        assert(pc % 4 == 2);
+        paddr_t paddr;
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddr, MemoryAccessType::Instruction, pc, pc));
 
-        // To support 4-byte instruction across a page boundary, split memory access.
-        const auto low = m_MemAccessUnit.FetchUInt16(pOutPhysicalPc, pc);
-        const auto high = m_MemAccessUnit.FetchUInt16(nullptr, pc + 2);
-
-        return static_cast<uint32_t>(high) << 16 | static_cast<uint32_t>(low);
+        *pOutInsn = m_MemAccessUnit.FetchUInt32(pc, paddr);
+        return std::nullopt;
     }
 }
 
