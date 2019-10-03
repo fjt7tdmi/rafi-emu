@@ -112,7 +112,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
         ("dtb-addr", po::value<std::string>(), "dtb address (hex)")
         ("pc", po::value<std::string>(), "initial program counter value (hex)")
-        ("trace-txt-path", po::value<std::string>(), "path of trace txt file")
         ("ram-size", po::value<size_t>(&m_RamSize)->default_value(DefaultRamSize), "ram size (byte)")
         ("xlen", po::value<int>(), "XLEN");
 
@@ -136,12 +135,20 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
 
     m_HostIoEnabled = variables.count("host-io-addr") > 0;
 
-    m_TraceTextEnabled = variables.count("trace-txt-path") > 0;
-
-    m_DumpEnabled = variables.count("dump-path") > 0;
-    m_DumpCsrEnabled = variables.count("enable-dump-csr") > 0;
-    m_DumpFpRegEnabled = variables.count("enable-dump-fp-reg") > 0;
-    m_DumpMemoryEnabled = variables.count("enable-memory-csr") > 0;
+    if (variables.count("dump-path"))
+    {
+        m_TraceLoggerConfig.enabled = true;
+        m_TraceLoggerConfig.enableDumpCsr = variables.count("enable-dump-csr") > 0;
+        m_TraceLoggerConfig.enableDumpFpReg = variables.count("enable-dump-fp-reg") > 0;
+        m_TraceLoggerConfig.enableDumpCsr = variables.count("enable-memory-csr") > 0;
+        m_TraceLoggerConfig.enableDumpMemory = false;
+        m_TraceLoggerConfig.enableDumpHostIo = m_HostIoEnabled;
+        m_TraceLoggerConfig.path = variables["dump-path"].as<std::string>();
+    }
+    else
+    {
+        m_TraceLoggerConfig.enabled = false;
+    }
 
     m_ProfilerEnabled = variables.count("enable-profiler") > 0;
 
@@ -156,10 +163,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     if (variables.count("pc"))
     {
         m_Pc = strtoull(variables["pc"].as<std::string>().c_str(), 0, 16);
-    }
-    if (variables.count("dump-path"))
-    {
-        m_DumpPath = variables["dump-path"].as<std::string>();
     }
 
     try
@@ -198,44 +201,14 @@ bool CommandLineOption::IsHostIoEnabled() const
     return m_HostIoEnabled;
 }
 
-bool CommandLineOption::IsTraceTextEnabled() const
-{
-    return m_TraceTextEnabled;
-}
-
-bool CommandLineOption::IsDumpEnabled() const
-{
-    return m_DumpEnabled;
-}
-
-bool CommandLineOption::IsDumpCsrEnabled() const
-{
-    return m_DumpCsrEnabled;
-}
-
-bool CommandLineOption::IsDumpFpRegEnabled() const
-{
-    return m_DumpFpRegEnabled;
-}
-
-bool CommandLineOption::IsDumpIntRegEnabled() const
-{
-    return true;
-}
-
-bool CommandLineOption::IsDumpMemoryEnabled() const
-{
-    return m_DumpMemoryEnabled;
-}
-
 bool CommandLineOption::IsProfileEnabled() const
 {
     return m_ProfilerEnabled;
 }
 
-const std::string& CommandLineOption::GetDumpPath() const
+const TraceLoggerConfig& CommandLineOption::GetTraceLoggerConfig() const
 {
-    return m_DumpPath;
+    return m_TraceLoggerConfig;
 }
 
 const std::vector<LoadOption>& CommandLineOption::GetLoadOptions() const

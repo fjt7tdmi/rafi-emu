@@ -32,9 +32,12 @@ public:
 
 private:
     static const int MaxCycleCount = 10000;
+    static const size_t BufferSize = 1024 * 1024;
 
     void OpenBinaryFile();
     void CloseBinaryFile();
+
+    char *m_pBuffer;
 
     std::FILE* m_pBinaryFile{ nullptr };
     std::FILE* m_pIndexFile{ nullptr };

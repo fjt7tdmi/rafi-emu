@@ -28,11 +28,14 @@ TraceIndexWriterImpl::TraceIndexWriterImpl(const char* pathBase)
 {
     const auto path = std::string(pathBase) + ".tidx";
 
+    m_pBuffer = (char*)std::malloc(BufferSize);
+
     m_pIndexFile = std::fopen(path.c_str(), "w");
     if (m_pIndexFile == nullptr)
     {
         throw FileOpenFailureException(path.c_str());
     }
+    std::setvbuf(m_pIndexFile, m_pBuffer, _IOFBF, BufferSize);
 
     OpenBinaryFile();
 }
@@ -41,7 +44,10 @@ TraceIndexWriterImpl::~TraceIndexWriterImpl()
 {
     CloseBinaryFile();
 
+    std::fflush(m_pBinaryFile);
     std::fclose(m_pIndexFile);
+
+    std::free(m_pBuffer);
 }
 
 void TraceIndexWriterImpl::Write(void* buffer, int64_t size)
@@ -54,7 +60,6 @@ void TraceIndexWriterImpl::Write(void* buffer, int64_t size)
 #endif
 
     std::fwrite(buffer, static_cast<size_t>(size), 1, m_pBinaryFile);
-    std::fflush(m_pBinaryFile);
 
     m_CycleCount++;
 

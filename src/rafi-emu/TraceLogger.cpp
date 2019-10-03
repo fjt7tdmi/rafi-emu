@@ -30,11 +30,15 @@ using namespace rafi::trace;
 
 namespace rafi { namespace emu {
 
-TraceLogger::TraceLogger(XLEN xlen, const char* path, const System* pSystem)
+TraceLogger::TraceLogger(XLEN xlen, const TraceLoggerConfig& config, const System* pSystem)
     : m_XLEN(xlen)
-    , m_pPath(path)
+    , m_Config(config)
     , m_pSystem(pSystem)
 {
+    if (m_Config.enabled)
+    {
+        m_pTraceWriter = new TraceIndexWriter(m_Config.path.c_str());
+    }
 }
 
 TraceLogger::~TraceLogger()
@@ -42,100 +46,39 @@ TraceLogger::~TraceLogger()
     if (m_pTraceWriter != nullptr)
     {
         delete m_pTraceWriter;
-        m_pTraceWriter = nullptr;
     }
 }
 
-void TraceLogger::EnableDump()
+void TraceLogger::BeginCycle(int cycle, vaddr_t pc)
 {
-    if (m_Enabled)
+    if (!m_Config.enabled)
     {
         return;
     }
 
-    m_Enabled = true;
-    m_pTraceWriter = new TraceIndexWriter(m_pPath);
-}
-
-void TraceLogger::EnableDumpCsr()
-{
-    m_EnableDumpCsr = true;
-}
-
-void TraceLogger::EnableDumpFpReg()
-{
-    m_EnableDumpFpReg = true;
-}
-
-void TraceLogger::EnableDumpIntReg()
-{
-    m_EnableDumpIntReg = true;
-}
-
-void TraceLogger::EnableDumpMemory()
-{
-    m_EnableDumpMemory = true;
-}
-
-void TraceLogger::EnableDumpHostIo()
-{
-    m_EnableDumpHostIo = true;
+    m_pCurrentCycle = new BinaryCycleLogger(cycle, m_XLEN, pc);
 }
 
 void TraceLogger::RecordState()
 {
-    // IntReg
-    if (m_XLEN == XLEN::XLEN32)
-    {
-        m_pSystem->CopyIntReg(&m_IntReg32);
-    }
-    else if (m_XLEN == XLEN::XLEN64)
-    {
-        m_pSystem->CopyIntReg(&m_IntReg64);
-    }
-    else
-    {
-        RAFI_EMU_NOT_IMPLEMENTED();
-    }
-
-    // FpReg
-    m_pSystem->CopyFpReg(&m_FpReg, sizeof(m_FpReg));
-
-    // Io
-    m_Io =
-    {
-        m_pSystem->GetHostIoValue(),
-        0,
-    };
-
-    m_StateRecorded = true;
-}
-
-void TraceLogger::DumpCycle(int cycle)
-{
-    if (!m_Enabled)
+    if (!m_Config.enabled)
     {
         return;
     }
 
-    if (!m_StateRecorded)
-    {
-        RAFI_NOT_IMPLEMENTED();
-    }
-    m_StateRecorded = false;
-
-    BinaryCycleLogger cycleLogger(cycle, m_XLEN, m_pSystem->GetPc());
-
-    // State
-    if (m_EnableDumpIntReg)
+    if (m_Config.enableDumpIntReg)
     {
         if (m_XLEN == XLEN::XLEN32)
         {
-            cycleLogger.Add(m_IntReg32);
+            NodeIntReg32 node;
+            m_pSystem->CopyIntReg(&node);
+            m_pCurrentCycle->Add(node);
         }
         else if (m_XLEN == XLEN::XLEN64)
         {
-            cycleLogger.Add(m_IntReg64);
+            NodeIntReg64 node;
+            m_pSystem->CopyIntReg(&node);
+            m_pCurrentCycle->Add(node);
         }
         else
         {
@@ -143,27 +86,32 @@ void TraceLogger::DumpCycle(int cycle)
         }
     }
 
-    if (m_EnableDumpFpReg)
+    if (m_Config.enableDumpFpReg)
     {
-        cycleLogger.Add(m_FpReg);
+        NodeFpReg node;
+        m_pSystem->CopyFpReg(&node, sizeof(node));
+        m_pCurrentCycle->Add(node);
     }
 
-    if (m_EnableDumpHostIo)
+    if (m_Config.enableDumpHostIo)
     {
-        cycleLogger.Add(m_Io);
+        NodeIo node = { m_pSystem->GetHostIoValue(), 0 };
+        m_pCurrentCycle->Add(node);
     }
 
-    if (m_EnableDumpCsr)
-    {
-        RAFI_NOT_IMPLEMENTED();
-    }
-
-    if (m_EnableDumpMemory)
+    if (m_Config.enableDumpCsr || m_Config.enableDumpMemory)
     {
         RAFI_NOT_IMPLEMENTED();
     }
+}
 
-    // Event
+void TraceLogger::RecordEvent()
+{
+    if (!m_Config.enabled)
+    {
+        return;
+    }
+
     if (m_pSystem->IsOpEventExist())
     {
         OpEvent opEvent;
@@ -174,7 +122,7 @@ void TraceLogger::DumpCycle(int cycle)
             opEvent.insn,
             opEvent.privilegeLevel,
         };
-        cycleLogger.Add(node);
+        m_pCurrentCycle->Add(node);
     }
 
     if (m_pSystem->IsTrapEventExist())
@@ -191,7 +139,7 @@ void TraceLogger::DumpCycle(int cycle)
             trapEvent.trapValue,
         };
 
-        cycleLogger.Add(node);
+        m_pCurrentCycle->Add(node);
     }
 
     for (int index = 0; index < m_pSystem->GetMemoryAccessEventCount(); index++)
@@ -207,11 +155,24 @@ void TraceLogger::DumpCycle(int cycle)
             memoryAccessEvent.virtualAddress,
             memoryAccessEvent.physicalAddress,
         };
-        cycleLogger.Add(node);
+        m_pCurrentCycle->Add(node);
     }
 
-    cycleLogger.Break();
-    m_pTraceWriter->Write(cycleLogger.GetData(), cycleLogger.GetDataSize());
+}
+
+void TraceLogger::EndCycle()
+{
+    if (!m_Config.enabled)
+    {
+        return;
+    }
+
+    m_pCurrentCycle->Break();
+
+    m_pTraceWriter->Write(m_pCurrentCycle->GetData(), m_pCurrentCycle->GetDataSize());
+
+    delete m_pCurrentCycle;
+    m_pCurrentCycle = nullptr;
 }
 
 }}

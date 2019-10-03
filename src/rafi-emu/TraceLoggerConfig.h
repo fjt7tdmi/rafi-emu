@@ -16,33 +16,21 @@
 
 #pragma once
 
-#include <cstdio>
+#include <string>
 
 #include <rafi/trace.h>
 
-#include "System.h"
-#include "TraceLoggerConfig.h"
-
 namespace rafi { namespace emu {
 
-class TraceLogger final
+struct TraceLoggerConfig
 {
-public:
-    TraceLogger(XLEN xlen, const TraceLoggerConfig& config, const System* pSystem);
-    ~TraceLogger();
-
-    void BeginCycle(int cycle, vaddr_t pc);
-    void RecordState();
-    void RecordEvent();
-    void EndCycle();
-
-private:
-    XLEN m_XLEN;
-    TraceLoggerConfig m_Config;
-    const System* m_pSystem {nullptr};
-
-    trace::ITraceWriter* m_pTraceWriter {nullptr};
-    trace::BinaryCycleLogger* m_pCurrentCycle {nullptr};
+    bool enabled;
+    bool enableDumpCsr;
+    bool enableDumpFpReg;
+    bool enableDumpIntReg;
+    bool enableDumpMemory;
+    bool enableDumpHostIo;
+    std::string path;
 };
 
 }}

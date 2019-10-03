@@ -68,7 +68,6 @@ def MakeEmulatorCommand(config):
         "--load", f"{initrd_path}:0x84000000",
         "--ram-size", str(128 * 1024 * 1024),
         "--pc", "0x1000",
-        "--trace-txt-path", trace_txt_path,
         "--xlen", "64",
     ]
     if config['dump']:

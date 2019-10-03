@@ -358,6 +358,7 @@ add_executable(rafi-emu
     src/rafi-emu/System.h
     src/rafi-emu/TraceLogger.cpp
     src/rafi-emu/TraceLogger.h
+    src/rafi-emu/TraceLoggerConfig.h
 )
 
 add_executable(test-op
