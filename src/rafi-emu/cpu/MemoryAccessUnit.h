@@ -45,10 +45,11 @@ public:
     void StoreUInt32(vaddr_t addr, uint32_t value);
     void StoreUInt64(vaddr_t addr, uint64_t value);
 
-    uint16_t FetchUInt16(paddr_t* pOutPhysicalAddress, vaddr_t addr);
-    uint32_t FetchUInt32(paddr_t* pOutPhysicalAddress, vaddr_t addr);
+    uint16_t FetchUInt16(vaddr_t vaddr, paddr_t paddr);
+    uint32_t FetchUInt32(vaddr_t vaddr, paddr_t paddr);
 
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
+    std::optional<Trap> Translate(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc = 0);
 
     // for Dump
     void AddEvent(MemoryAccessType accessType, int size,  vaddr_t value, vaddr_t vaddr, paddr_t paddr);
@@ -70,12 +71,11 @@ private:
 
     std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
-    paddr_t Translate(MemoryAccessType accessType, vaddr_t addr);
-    paddr_t TranslateSv32(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv39(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv48(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv57(vaddr_t addr, bool isWrite);
-    paddr_t TranslateSv64(vaddr_t addr, bool isWrite);
+    std::optional<Trap> TranslateSv32(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
+    std::optional<Trap> TranslateSv39(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
+    std::optional<Trap> TranslateSv48(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
+    std::optional<Trap> TranslateSv57(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
+    std::optional<Trap> TranslateSv64(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
 
     template <typename EntryType>
     std::optional<Trap> CheckTrapForEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const

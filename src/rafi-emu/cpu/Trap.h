@@ -20,9 +20,21 @@
 #include <cstdio>
 #include <string>
 #include <iostream>
+#include <optional>
 #include <variant>
 
 #include <rafi/emu.h>
+
+// _trap: std::optional<Trap>
+#define RAFI_RETURN_IF_TRAP(_trap) \
+    do \
+    { \
+        const auto _t = _trap; \
+        if (_t) \
+        { \
+            return _t; \
+        } \
+    } while(0)
 
 namespace rafi { namespace emu { namespace cpu {
 

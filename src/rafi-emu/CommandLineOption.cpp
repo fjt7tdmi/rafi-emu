@@ -138,6 +138,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     if (variables.count("dump-path"))
     {
         m_TraceLoggerConfig.enabled = true;
+        m_TraceLoggerConfig.enableDumpIntReg = true;
         m_TraceLoggerConfig.enableDumpCsr = variables.count("enable-dump-csr") > 0;
         m_TraceLoggerConfig.enableDumpFpReg = variables.count("enable-dump-fp-reg") > 0;
         m_TraceLoggerConfig.enableDumpCsr = variables.count("enable-memory-csr") > 0;
