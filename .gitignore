@@ -8,6 +8,7 @@
 # Working directories
 build_Debug/
 build_Release/
+dtb/
 work/
 
 # CMake
