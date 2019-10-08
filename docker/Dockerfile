@@ -14,9 +14,6 @@ RUN apt-get install -y \
     automake \
     autotools-dev \
     curl \
-    emacs \
-    libboost-dev \
-    libboost-program-options-dev \
     libmpc-dev \
     libmpfr-dev \
     libgmp-dev \
@@ -48,7 +45,9 @@ RUN apt-get install -y \
 # Install packages for rafi-emu
 RUN apt-get install -y \
     cmake \
-    libboost-dev
+    emacs \
+    libboost-dev \
+    libboost-program-options-dev
 
 # Setup ssh server
 RUN mkdir /var/run/sshd
@@ -96,7 +95,9 @@ WORKDIR $RISCV/freedom-u-sdk
 RUN git submodule update --init --recursive
 RUN sed -i -e 's/riscv64-buildroot-linux-gnu/riscv64-unknown-linux-gnu/' /opt/riscv/freedom-u-sdk/Makefile
 RUN sed -i -e 's|\-machine\ virt|\-machine\ virt,dumpdtb=/opt/riscv/rafi-emu/dtb/qemu.dtb|' /opt/riscv/freedom-u-sdk/Makefile
-RUN make -j8 qemu
+RUN make -j8 bbl
+RUN make -j8 vmlinux
+RUN make -j8 initrd
 
 # Re: Setup envvar
 ENV RISCV_TESTS $RISCV/riscv-tools/riscv-tests
@@ -109,4 +110,3 @@ RUN ./script/build_gtest.sh
 RUN ./script/build_debug.sh
 RUN ./script/build_release.sh
 RUN ./script/prepare_riscv_tests.sh
-RUN ./script/prepare_linux.sh
