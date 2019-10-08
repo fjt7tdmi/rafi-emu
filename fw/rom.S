@@ -23,4 +23,4 @@ _start:
     slli    t0, t0, 0x13
     jr      t0
 .data
-.incbin "work/qemu.dtb"
+.incbin "dtb/qemu.dtb"
