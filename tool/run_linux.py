@@ -16,7 +16,6 @@ import optparse
 import os
 import subprocess
 
-FreedomDirPath = os.environ["RAFI_FREEDOM_U_SDK"]
 BinaryDirPath = "./work/linux"
 TraceDirPath = "./work/linux/trace"
 
@@ -86,13 +85,6 @@ def MakeEmulatorCommand(config):
     if config['enable_profiler']:
         cmd.append("--enable-profiler")
     return cmd
-
-def MakeAddrToLineCommand():
-    elf_path = os.path.join(FreedomDirPath, f"work/riscv_pk/bbl")
-    return [
-        "riscv64-unknown-elf-addr2line",
-        "-e", elf_path,
-    ]
 
 def RunEmulator(config):
     cmd = MakeEmulatorCommand(config)
