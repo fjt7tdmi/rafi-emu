@@ -31,21 +31,17 @@ public:
     void Write(void* buffer, int64_t size);
 
 private:
-    static const int MaxCycleCount = 10000;
-    static const size_t BufferSize = 1024 * 1024;
+    static const size_t MaxFileSize = 256 * 1024 * 1024;
 
-    void OpenBinaryFile();
-    void CloseBinaryFile();
-
-    char *m_pBuffer;
-
-    std::FILE* m_pBinaryFile{ nullptr };
-    std::FILE* m_pIndexFile{ nullptr };
-
-    int m_BinaryFileCount{ 0 };
-    int m_CycleCount{ 0 };
+    void FlushData();
 
     std::string m_PathBase;
+    std::FILE* m_pIndexFile{ nullptr };
+
+    char* m_pData;
+    size_t m_DataSize{ 0 };
+    int m_CycleCount{ 0 };
+    int m_DataFileCount{ 0 };
 };
 
 }}
