@@ -15,6 +15,7 @@
  */
 
 #include <cstdio>
+#include <cstring>
 #include <sstream>
 
 #include <rafi/trace.h>
@@ -28,29 +29,25 @@ TraceIndexWriterImpl::TraceIndexWriterImpl(const char* pathBase)
 {
     const auto path = std::string(pathBase) + ".tidx";
 
-    m_pBuffer = (char*)std::malloc(BufferSize);
+    m_pData = (char*)std::malloc(MaxFileSize);
 
     m_pIndexFile = std::fopen(path.c_str(), "w");
     if (m_pIndexFile == nullptr)
     {
         throw FileOpenFailureException(path.c_str());
     }
-    std::setvbuf(m_pIndexFile, m_pBuffer, _IOFBF, BufferSize);
-
-    OpenBinaryFile();
 }
 
 TraceIndexWriterImpl::~TraceIndexWriterImpl()
 {
-    CloseBinaryFile();
+    FlushData();
 
-    std::fflush(m_pBinaryFile);
     std::fclose(m_pIndexFile);
 
-    std::free(m_pBuffer);
+    std::free(m_pData);
 }
 
-void TraceIndexWriterImpl::Write(void* buffer, int64_t size)
+void TraceIndexWriterImpl::Write(void* buffer, int64_t bufferSize)
 {
 #if INT64_MAX > SIZE_MAX
     if (size > SIZE_MAX)
@@ -59,45 +56,52 @@ void TraceIndexWriterImpl::Write(void* buffer, int64_t size)
     }
 #endif
 
-    std::fwrite(buffer, static_cast<size_t>(size), 1, m_pBinaryFile);
+    const auto size = static_cast<size_t>(bufferSize);
 
-    m_CycleCount++;
-
-    if (m_CycleCount == MaxCycleCount)
+    if (size > MaxFileSize)
     {
-        CloseBinaryFile();
-        OpenBinaryFile();
+        throw TraceException("argument 'size' is larger than MaxFileSize.");
     }
+
+    if (m_DataSize + size > MaxFileSize)
+    {
+        FlushData();
+    }
+
+    std::memcpy(&m_pData[m_DataSize], buffer, size);
+    m_DataSize += size;
+    m_CycleCount++;
 }
 
-void TraceIndexWriterImpl::OpenBinaryFile()
+void TraceIndexWriterImpl::FlushData()
 {
+    if (m_DataSize == 0)
+    {
+        return;
+    }
+
+    // Generate data file path
     std::stringstream ss;
-    ss << m_PathBase << "." << m_BinaryFileCount << ".tbin";
+    ss << m_PathBase << "." << m_DataFileCount << ".tbin";
 
     const auto path = ss.str();
 
-    m_pBinaryFile = std::fopen(path.c_str(), "wb");
-    if (m_pBinaryFile == nullptr)
+    // Write data
+    auto fp = std::fopen(path.c_str(), "wb");
+    if (fp == nullptr)
     {
         throw FileOpenFailureException(path.c_str());
     }
 
-    // write path to index file
-    std::fprintf(m_pIndexFile, "%s\n", path.c_str());
-}
+    std::fwrite(m_pData, m_DataSize, 1, fp);
+    std::fclose(fp);
 
-void TraceIndexWriterImpl::CloseBinaryFile()
-{
-    if (m_pBinaryFile)
-    {
-        std::fclose(m_pBinaryFile);
-        m_BinaryFileCount++;
+    // Write path to index file
+    std::fprintf(m_pIndexFile, "%s %d\n", path.c_str(), m_CycleCount);
 
-        // write cycle count to index file
-        std::fprintf(m_pIndexFile, "%d\n", m_CycleCount);
-        m_CycleCount = 0;
-    }
+    m_DataSize = 0;
+    m_CycleCount = 0;
+    m_DataFileCount++;
 }
 
 }}

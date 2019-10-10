@@ -40,5 +40,7 @@ ${OBJCOPY} -O binary --set-start=0x80200000 --pad-to=0x81f00000 ./work/linux/vml
 # initramfs
 echo "preparing initramfs..."
 cp ${RAFI_FREEDOM_U_SDK}/work/initramfs.cpio.gz ./work/linux/initramfs.cpio.gz
+gunzip ./work/linux/initramfs.cpio.gz
+cp ./work/linux/initramfs.cpio ./work/linux/initramfs.cpio.gz
 
 popd
