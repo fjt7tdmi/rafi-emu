@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <memory>
-#include <string>
+#include <cstdio>
+#include <cinttypes>
 
 #include <rafi/trace.h>
 
-namespace rafi {
+namespace rafi { namespace trace {
 
-enum class PrinterType
-{
-    Text = 0,
-    Json = 1,
-    Pc = 2,
-};
+    TracePcPrinter::TracePcPrinter()
+    {
+    }
+    
+    TracePcPrinter::~TracePcPrinter()
+    {
+    }
 
-std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path);
-std::unique_ptr<trace::ITracePrinter> MakeTracePrinter(PrinterType printerType);
+    void TracePcPrinter::Print(const trace::ICycle* pCycle)
+    {
+        printf("0x%016" PRIx64 "\n", pCycle->GetPc());
+    }
 
-}
+}}

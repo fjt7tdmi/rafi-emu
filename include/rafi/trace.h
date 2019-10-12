@@ -33,5 +33,6 @@
 #include "trace/TraceIndexReader.h"
 #include "trace/TraceIndexWriter.h"
 #include "trace/TraceTextReader.h"
+#include "trace/TracePcPrinter.h"
 #include "trace/TraceJsonPrinter.h"
 #include "trace/TraceTextPrinter.h"

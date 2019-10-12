@@ -16,21 +16,24 @@
 
 #pragma once
 
-#include <memory>
-#include <string>
+#include <rafi/common.h>
 
-#include <rafi/trace.h>
+#include "ITracePrinter.h"
 
-namespace rafi {
+namespace rafi { namespace trace {
 
-enum class PrinterType
+class TracePcPrinterImpl;
+
+class TracePcPrinter : public ITracePrinter
 {
-    Text = 0,
-    Json = 1,
-    Pc = 2,
+public:
+    TracePcPrinter();
+    virtual ~TracePcPrinter();
+
+    virtual void Print(const ICycle* cycle) override;
+
+private:
+    TracePcPrinterImpl* m_pImpl;
 };
 
-std::unique_ptr<trace::ITraceReader> MakeTraceReader(const std::string& path);
-std::unique_ptr<trace::ITracePrinter> MakeTracePrinter(PrinterType printerType);
-
-}
+}}
