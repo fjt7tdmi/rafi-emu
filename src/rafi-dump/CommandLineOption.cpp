@@ -34,6 +34,8 @@ namespace {
 
 CommandLineOption::CommandLineOption(int argc, char** argv)
 {
+    std::string mode;
+
     po::options_description optDesc("options");
     optDesc.add_options()
         ("begin,b", po::value<int>(&m_CycleBegin)->default_value(0), "cycle to begin printing")
@@ -41,7 +43,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("end,e", po::value<int>(&m_CycleEnd)->default_value(DefaultCycleEnd), "cycle to end printing")
         ("filter,f", po::value<std::string>(&m_FilterDescription), "description of cycle print filter")
         ("input,i", po::value<std::string>(&m_Path), "input trace binary path")
-        ("json,j", "set output format as json")
+        ("mode,m", po::value<std::string>(&mode), "output mode (text, json or pc)")
         ("help,h", "show help");
 
     po::positional_options_description posOptDesc;
@@ -65,7 +67,23 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         std::exit(0);
     }
 
-    m_PrinterType = (optMap.count("json") > 0) ? PrinterType::Json : PrinterType::Text;
+    if (mode == "" || mode == "text")
+    {
+        m_PrinterType = PrinterType::Text;
+    }
+    else if (mode == "json")
+    {
+        m_PrinterType = PrinterType::Json;
+    }
+    else if (mode == "pc")
+    {
+        m_PrinterType = PrinterType::Pc;
+    }
+    else
+    {
+        std::cout << "Unknown output mode: " << mode << std::endl;   
+        std::exit(1);
+    }
 }
 
 PrinterType CommandLineOption::GetPrinterType() const
