@@ -28,8 +28,6 @@
 #include "Trap.h"
 #include "TrapProcessor.h"
 
-#include "../Profiler.h"
-
 namespace rafi { namespace emu { namespace cpu {
 
 class Processor
@@ -52,7 +50,7 @@ public:
     void WriteTime(uint64_t value);
 
     // Process
-    void ProcessCycle(Profiler* pProfiler);
+    void ProcessCycle();
 
     // for Dump
     vaddr_t GetPc() const;

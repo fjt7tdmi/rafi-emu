@@ -80,8 +80,6 @@ private:
     uint64_t m_Pc {0};
 
     bool m_HostIoEnabled {false};
-
-    bool m_ProfilerEnabled {false};
 };
 
 }}

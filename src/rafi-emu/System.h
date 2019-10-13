@@ -33,8 +33,6 @@
 
 #include "cpu/Processor.h"
 
-#include "Profiler.h"
-
 namespace rafi { namespace emu {
 
 class System
@@ -48,7 +46,7 @@ public:
     void SetHostIoAddress(vaddr_t address);
 
     // Process
-    void ProcessCycle(Profiler* pProfiler);
+    void ProcessCycle();
 
     // for Dump
     int GetCsrCount() const;

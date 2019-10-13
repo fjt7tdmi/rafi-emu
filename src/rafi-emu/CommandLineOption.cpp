@@ -106,7 +106,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("enable-dump-csr", "output csr contents to dump file")
         ("enable-dump-fp-reg", "output fp register contents to dump file")
         ("enable-dump-memory", "output memory contents to dump file")
-        ("enable-profiler", "execute profiler codes")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("help", "show help")
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
@@ -150,8 +149,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
     {
         m_TraceLoggerConfig.enabled = false;
     }
-
-    m_ProfilerEnabled = variables.count("enable-profiler") > 0;
 
     if (variables.count("dtb-addr"))
     {
@@ -200,11 +197,6 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
 bool CommandLineOption::IsHostIoEnabled() const
 {
     return m_HostIoEnabled;
-}
-
-bool CommandLineOption::IsProfileEnabled() const
-{
-    return m_ProfilerEnabled;
 }
 
 const TraceLoggerConfig& CommandLineOption::GetTraceLoggerConfig() const

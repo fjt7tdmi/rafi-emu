@@ -72,7 +72,7 @@ void Processor::WriteTime(uint64_t value)
     m_Csr.WriteTime(value);
 }
 
-void Processor::ProcessCycle(Profiler* pProfiler)
+void Processor::ProcessCycle()
 {
     ClearOpEvent();
     m_TrapProcessor.ClearEvent();
@@ -97,8 +97,6 @@ void Processor::ProcessCycle(Profiler* pProfiler)
     }
 
     // Fetch
-    pProfiler->Switch(Profiler::Phase_Fetch);
-
     uint32_t insn;
 
     const auto fetchTrap = Fetch(&insn, pc);
@@ -111,8 +109,6 @@ void Processor::ProcessCycle(Profiler* pProfiler)
     }
 
     // Decode
-    pProfiler->Switch(Profiler::Phase_Decode);
-
     const auto op = m_Decoder.Decode(insn);
     if (op.opCode == OpCode::unknown)
     {
@@ -123,8 +119,6 @@ void Processor::ProcessCycle(Profiler* pProfiler)
     }
 
     // Execute
-    pProfiler->Switch(Profiler::Phase_Execute);
-
     const auto preExecuteTrap = m_Executor.PreCheckTrap(op, pc, insn);
     if (preExecuteTrap)
     {

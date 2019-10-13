@@ -82,8 +82,6 @@ def MakeEmulatorCommand(config):
         cmd.append("--enable-dump-int-reg")
     if config['enable_dump_memory']:
         cmd.append("--enable-dump-memory")
-    if config['enable_profiler']:
-        cmd.append("--enable-profiler")
     return cmd
 
 def RunEmulator(config):
@@ -105,7 +103,6 @@ if __name__ == '__main__':
     parser.add_option("--enable-dump-fp-reg", dest="enable_dump_fp_reg", action="store_true", default=False, help="Enable fp register dump.")
     parser.add_option("--enable-dump-int-reg", dest="enable_dump_int_reg", action="store_true", default=False, help="Enable integer register dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
-    parser.add_option("--enable-profiler", dest="enable_profiler", action="store_true", default=False, help="Enable profiler.")
 
     (options, args) = parser.parse_args()
 
@@ -120,7 +117,6 @@ if __name__ == '__main__':
         'enable_dump_fp_reg': options.enable_dump_fp_reg,
         'enable_dump_int_reg': options.enable_dump_int_reg,
         'enable_dump_memory': options.enable_dump_memory,
-        'enable_profiler': options.enable_profiler,
     }
     result = RunEmulator(config)
     if result != 0:

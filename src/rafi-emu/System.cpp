@@ -74,18 +74,14 @@ void System::SetHostIoAddress(vaddr_t address)
     m_HostIoAddress = address;
 }
 
-void System::ProcessCycle(Profiler* pProfiler)
+void System::ProcessCycle()
 {
-    pProfiler->Switch(Profiler::Phase_Io);
-
     m_Clint.ProcessCycle();
     m_Uart16550.ProcessCycle();
     m_Uart.ProcessCycle();
     m_Timer.ProcessCycle();
 
-    pProfiler->Switch(Profiler::Phase_Cpu);
-
-    m_Processor.ProcessCycle(pProfiler);
+    m_Processor.ProcessCycle();
 }
 
 int System::GetCsrCount() const
