@@ -106,6 +106,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         ("enable-dump-csr", "output csr contents to dump file")
         ("enable-dump-fp-reg", "output fp register contents to dump file")
         ("enable-dump-memory", "output memory contents to dump file")
+        ("gdb", po::value<int>(&m_GdbPort)->default_value(0), "enable gdb and specify tcp port")
         ("load", po::value<std::vector<std::string>>(), "path of binary file which is loaded to memory")
         ("help", "show help")
         ("host-io-addr", po::value<std::string>(), "host io address (hex)")
@@ -132,6 +133,7 @@ CommandLineOption::CommandLineOption(int argc, char** argv)
         std::exit(0);
     }
 
+    m_GdbEnabled = variables.count("gdb") > 0;
     m_HostIoEnabled = variables.count("host-io-addr") > 0;
 
     if (variables.count("dump-path"))
@@ -199,6 +201,11 @@ bool CommandLineOption::IsHostIoEnabled() const
     return m_HostIoEnabled;
 }
 
+bool CommandLineOption::IsGdbEnabled() const
+{
+    return m_GdbEnabled;
+}
+
 const TraceLoggerConfig& CommandLineOption::GetTraceLoggerConfig() const
 {
     return m_TraceLoggerConfig;
@@ -217,6 +224,11 @@ XLEN CommandLineOption::GetXLEN() const
 int CommandLineOption::GetCycle() const
 {
     return m_Cycle;
+}
+
+int CommandLineOption::GetGdbPort() const
+{
+    return m_GdbPort;
 }
 
 int CommandLineOption::GetDumpSkipCycle() const
