@@ -208,10 +208,39 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
 
 std::unique_ptr<GdbCommand> GdbServer::ParseCommand(const char* buffer, size_t bufferSize)
 {
+    if (bufferSize < 1)
+    {
+        return std::make_unique<GdbInvalidCommand>();
+    }
+
     // TODO: Implement g,m commands
-    (void)buffer;
+    switch (buffer[0])
+    {
+    case 'q':
+        return ParseCommandQuery(buffer, bufferSize);
+    default:
+        return std::make_unique<GdbInvalidCommand>();
+    }
+}
+
+std::unique_ptr<GdbCommand> GdbServer::ParseCommandQuery(const char* buffer, size_t bufferSize)
+{
     (void)bufferSize;
-    return std::make_unique<GdbInvalidCommand>();
+
+    auto query = std::string(buffer);
+    auto pos = query.find(':');
+
+    auto name = query.substr(0, pos);
+
+    if (name == "qSupported")
+    {
+        return std::make_unique<GdbQuerySupportedCommand>(CommandBufferSize);
+    }
+    else
+    {
+        return std::make_unique<GdbInvalidCommand>();
+    }
+
 }
 
 void GdbServer::SendAck(int socket)

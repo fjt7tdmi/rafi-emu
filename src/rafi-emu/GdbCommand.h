@@ -58,4 +58,15 @@ private:
     uint64_t m_Length;
 };
 
+class GdbQuerySupportedCommand final : public GdbCommand
+{
+public:
+    GdbQuerySupportedCommand(size_t packetSize);
+    virtual ~GdbQuerySupportedCommand() override;
+    virtual void Process(int socket) override;
+
+private:
+    size_t m_PacketSize;
+};
+
 }}

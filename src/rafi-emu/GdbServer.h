@@ -41,8 +41,10 @@ private:
     void ProcessSession(int socket);
 
     bool ReadCommand(char* buffer, size_t bufferSize, int socket);
-    std::unique_ptr<GdbCommand> ParseCommand(const char* buffer, size_t bufferSize);
     void SendAck(int socket);
+
+    std::unique_ptr<GdbCommand> ParseCommand(const char* buffer, size_t bufferSize);
+    std::unique_ptr<GdbCommand> ParseCommandQuery(const char* buffer, size_t bufferSize);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
 

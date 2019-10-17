@@ -15,8 +15,10 @@
  */
 
 #include <cassert>
+#include <cinttypes>
 #include <cstdlib>
 #include <cstring>
+#include <numeric>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -32,14 +34,29 @@
 
 namespace rafi { namespace emu {
 
+namespace {
+
+void SendResponse(int socket, const char* buffer, size_t bufferSize)
+{
+    send(socket, "$", 1, 0);
+    send(socket, buffer, (int)bufferSize, 0);
+
+    const auto checksum = static_cast<uint8_t>(std::accumulate(buffer, &buffer[bufferSize], 0) % 256);
+
+    char str[4] = {0};
+    sprintf(str, "#%02" PRIx8, checksum);
+    send(socket, str, 3, 0);
+}
+
+}
+
 GdbInvalidCommand::~GdbInvalidCommand()
 {
 }
 
 void GdbInvalidCommand::Process(int socket)
 {
-    const auto response = "$#00";
-    send(socket, response, (int)strlen(response), 0);
+    SendResponse(socket, "", 0);
 }
 
 GdbRegisterReadCommand::~GdbRegisterReadCommand()
@@ -68,6 +85,22 @@ void GdbMemoryReadCommand::Process(int socket)
     (void)socket;
     printf("[gdb] TODO: Implement memory read command.\n");
     exit(1);
+}
+
+GdbQuerySupportedCommand::GdbQuerySupportedCommand(size_t packetSize)
+    : m_PacketSize(packetSize)
+{
+}
+
+GdbQuerySupportedCommand::~GdbQuerySupportedCommand()
+{
+}
+
+void GdbQuerySupportedCommand::Process(int socket)
+{
+    char response[20] = {0};
+    sprintf(response, "PacketSize=%zx", m_PacketSize);
+    SendResponse(socket, response, strlen(response));
 }
 
 }}
