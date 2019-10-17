@@ -20,8 +20,6 @@
 
 #include <rafi/emu.h>
 
-#include "GdbCommand.h"
-
 namespace rafi { namespace emu {
 
 class GdbServer
@@ -40,11 +38,14 @@ private:
 
     void ProcessSession(int socket);
 
-    bool ReadCommand(char* buffer, size_t bufferSize, int socket);
+    bool ReadCommand(char* pOutBuffer, size_t bufferSize, int socket);
     void SendAck(int socket);
 
-    std::unique_ptr<GdbCommand> ParseCommand(const char* buffer, size_t bufferSize);
-    std::unique_ptr<GdbCommand> ParseCommandQuery(const char* buffer, size_t bufferSize);
+    void ProcessCommand(int socket, const std::string& command);
+    void ProcessCommandQuery(int socket, const std::string& command);
+
+    void SendInvalidRespone(int socket);
+    void SendResponse(int socket, const char* buffer, size_t bufferSize);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
 

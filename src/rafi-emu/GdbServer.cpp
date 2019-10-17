@@ -28,7 +28,6 @@
 
 #include <rafi/emu.h>
 
-#include "GdbCommand.h"
 #include "GdbServer.h"
 
 namespace rafi { namespace emu {
@@ -115,7 +114,7 @@ void GdbServer::ProcessSession(int socket)
 
     for (;;)
     {
-        char buffer[CommandBufferSize];
+        char buffer[CommandBufferSize] = {0};
 
         if (!ReadCommand(buffer, sizeof(buffer), socket))
         {
@@ -123,22 +122,15 @@ void GdbServer::ProcessSession(int socket)
             break;
         }
 
-        auto command = ParseCommand(buffer, sizeof(buffer));
-        if (!command)
-        {
-            printf("[gdb] Failed to parse command.\n");
-            break;
-        }
-
         SendAck(socket);
-        command->Process(socket);
+
+        auto command = std::string(buffer);
+        ProcessCommand(socket, command);
     }
 }
 
 bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
 {
-    memset(buffer, 0, bufferSize);
-
     for (;;)
     {
         char start;
@@ -206,47 +198,64 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
     return true;
 }
 
-std::unique_ptr<GdbCommand> GdbServer::ParseCommand(const char* buffer, size_t bufferSize)
-{
-    if (bufferSize < 1)
-    {
-        return std::make_unique<GdbInvalidCommand>();
-    }
-
-    // TODO: Implement g,m commands
-    switch (buffer[0])
-    {
-    case 'q':
-        return ParseCommandQuery(buffer, bufferSize);
-    default:
-        return std::make_unique<GdbInvalidCommand>();
-    }
-}
-
-std::unique_ptr<GdbCommand> GdbServer::ParseCommandQuery(const char* buffer, size_t bufferSize)
-{
-    (void)bufferSize;
-
-    auto query = std::string(buffer);
-    auto pos = query.find(':');
-
-    auto name = query.substr(0, pos);
-
-    if (name == "qSupported")
-    {
-        return std::make_unique<GdbQuerySupportedCommand>(CommandBufferSize);
-    }
-    else
-    {
-        return std::make_unique<GdbInvalidCommand>();
-    }
-
-}
-
 void GdbServer::SendAck(int socket)
 {
     const auto ack = "+";
     send(socket, ack, (int)strlen(ack), 0);
+}
+
+void GdbServer::ProcessCommand(int socket, const std::string& command)
+{
+    if (command.length() < 1)
+    {
+        SendInvalidRespone(socket);
+        return;
+    }
+
+    // TODO: Implement g,m commands
+    switch (command[0])
+    {
+    case 'q':
+        ProcessCommandQuery(socket, command);
+        break;
+    default:
+        SendInvalidRespone(socket);
+        break;
+    }
+}
+
+void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
+{
+    auto pos = command.find(':');
+    auto name = command.substr(0, pos);
+
+    if (name == "qSupported")
+    {
+        char response[20] = {0};
+        sprintf(response, "PacketSize=%zx", CommandBufferSize);
+        SendResponse(socket, response, strlen(response));
+    }
+    else
+    {
+        SendInvalidRespone(socket);
+    }
+}
+
+void GdbServer::SendInvalidRespone(int socket)
+{
+    SendResponse(socket, "", 0);
+}
+
+void GdbServer::SendResponse(int socket, const char* buffer, size_t bufferSize)
+{
+    send(socket, "$", 1, 0);
+    send(socket, buffer, (int)bufferSize, 0);
+
+    const auto checksum = static_cast<uint8_t>(std::accumulate(buffer, &buffer[bufferSize], 0) % 256);
+
+    char str[4] = {0};
+    sprintf(str, "#%02" PRIx8, checksum);
+    send(socket, str, 3, 0);
 }
 
 uint8_t GdbServer::HexToUInt8(const char* buffer, size_t bufferSize)

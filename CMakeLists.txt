@@ -357,8 +357,6 @@ add_executable(rafi-emu
     src/rafi-emu/CommandLineOption.h
     src/rafi-emu/GdbServer.cpp
     src/rafi-emu/GdbServer.h
-    src/rafi-emu/GdbCommand.cpp
-    src/rafi-emu/GdbCommand.h
     src/rafi-emu/Main.cpp
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
