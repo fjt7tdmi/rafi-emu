@@ -27,13 +27,16 @@
 #endif
 
 #include <rafi/emu.h>
+#include <rafi/trace.h>
 
 #include "GdbServer.h"
 
 namespace rafi { namespace emu {
 
-GdbServer::GdbServer(int port)
-    : m_Port(port)
+GdbServer::GdbServer(XLEN xlen, System* pSystem, int port)
+    : m_XLEN(xlen)    
+    , m_pSystem(pSystem)
+    , m_Port(port)
 {
 }
 
@@ -218,6 +221,9 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     case 'q':
         ProcessCommandQuery(socket, command);
         break;
+    case 'g':
+        ProcessCommandReadReg(socket);
+        break;
     case 'H':
         // rafi-emu supports only thread 0, but always returns 'OK' for H command.
         SendResponse(socket, "OK");
@@ -228,7 +234,7 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     default:
         SendResponse(socket, "");
         break;
-    }
+    } 
 }
 
 void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
@@ -262,6 +268,85 @@ void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
     {
         SendResponse(socket, "");
     }
+}
+
+void GdbServer::ProcessCommandReadReg(int socket)
+{
+    switch (m_XLEN)
+    {
+    case XLEN::XLEN32:
+        ProcessCommandReadReg32(socket);
+        break;
+    case XLEN::XLEN64:
+        ProcessCommandReadReg64(socket);
+        break;    
+    default:
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
+}
+
+void GdbServer::ProcessCommandReadReg32(int socket)
+{
+    char buffer[sizeof(uint32_t) * 2 * 33 + sizeof(uint64_t) * 2 * 32];
+
+    // IntReg
+    trace::NodeIntReg32 intReg; 
+    m_pSystem->CopyIntReg(&intReg);
+    for (int i = 0; i < 32; i++)
+    {
+        const auto offset = sizeof(uint32_t) * 2 * i;
+        ToHex(&buffer[offset], intReg.regs[i]);
+    }
+
+    // PC
+    const uint32_t pc = static_cast<uint32_t>(m_pSystem->GetPc());
+    {
+        const auto offset = sizeof(uint32_t) * 32;
+        ToHex(&buffer[offset], pc);
+    }
+
+    // FpReg
+    trace::NodeFpReg fpReg; 
+    m_pSystem->CopyFpReg(&fpReg, sizeof(fpReg));
+    for (int i = 0; i < 32; i++)
+    {
+        const auto offset = sizeof(uint32_t) * 2 * 33 + sizeof(uint64_t) * 2 * i;
+        ToHex(&buffer[offset], fpReg.regs[i].u64.value);
+    }
+
+    SendResponse(socket, buffer, sizeof(buffer));
+}
+
+void GdbServer::ProcessCommandReadReg64(int socket)
+{
+    char buffer[sizeof(uint64_t) * 2 * 33 + sizeof(uint64_t) * 2 * 32];
+
+    // IntReg
+    trace::NodeIntReg64 intReg; 
+    m_pSystem->CopyIntReg(&intReg);
+    for (int i = 0; i < 32; i++)
+    {
+        const auto offset = sizeof(uint64_t) * 2 * i;
+        ToHex(&buffer[offset], intReg.regs[i]);
+    }
+
+    // PC
+    const uint64_t pc = static_cast<uint64_t>(m_pSystem->GetPc());
+    {
+        const auto offset = sizeof(uint64_t) * 2 * 32;
+        ToHex(&buffer[offset], pc);
+    }
+
+    // FpReg
+    trace::NodeFpReg fpReg; 
+    m_pSystem->CopyFpReg(&fpReg, sizeof(fpReg));
+    for (int i = 0; i < 32; i++)
+    {
+        const auto offset = sizeof(uint64_t) * 2 * 33 + sizeof(uint64_t) * 2 * i;
+        ToHex(&buffer[offset], fpReg.regs[i].u64.value);
+    }
+
+    SendResponse(socket, buffer, sizeof(buffer));
 }
 
 void GdbServer::SendResponse(int socket, const char* str)

@@ -17,15 +17,18 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
 #include <rafi/emu.h>
+
+#include "System.h"
 
 namespace rafi { namespace emu {
 
 class GdbServer
 {
 public:
-    explicit GdbServer(int port);
+    explicit GdbServer(XLEN xlen, System* pSystem, int port);
     ~GdbServer();
 
     void Start();
@@ -43,11 +46,35 @@ private:
 
     void ProcessCommand(int socket, const std::string& command);
     void ProcessCommandQuery(int socket, const std::string& command);
+    void ProcessCommandReadReg(int socket);
+    void ProcessCommandReadReg32(int socket);
+    void ProcessCommandReadReg64(int socket);
 
     void SendResponse(int socket, const char* str);
     void SendResponse(int socket, const char* buffer, size_t bufferSize);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
+
+    template <typename T>
+    void ToHex(char* pOutBuffer, T value)
+    {
+        static_assert(std::is_integral_v<T>);
+        static_assert(std::is_unsigned_v<T>);
+
+        for (int i = 0; i < sizeof(value) * 2; i += 2)
+        {
+            const T high = (value % 0x100) / 0x10;
+            const T low = value % 0x10;
+
+            pOutBuffer[i] = high < 10 ? '0' + high : 'a' + (high - 10);
+            pOutBuffer[i + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+
+            value >>= 8;
+        }
+    }
+
+    XLEN m_XLEN;
+    System* m_pSystem;
 
     int m_Port;
     int m_ServerSocket;

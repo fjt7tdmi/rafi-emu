@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
         std::cout << "Start gdb server." << std::endl;
 
-        rafi::emu::GdbServer gdbServer(option.GetGdbPort());
+        rafi::emu::GdbServer gdbServer(option.GetXLEN(), &system, option.GetGdbPort());
         gdbServer.Start();
         gdbServer.Process();
         gdbServer.Stop();
