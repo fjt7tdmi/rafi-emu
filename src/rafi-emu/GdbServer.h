@@ -44,7 +44,7 @@ private:
     void ProcessCommand(int socket, const std::string& command);
     void ProcessCommandQuery(int socket, const std::string& command);
 
-    void SendInvalidRespone(int socket);
+    void SendResponse(int socket, const char* str);
     void SendResponse(int socket, const char* buffer, size_t bufferSize);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);

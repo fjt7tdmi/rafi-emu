@@ -208,7 +208,7 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
 {
     if (command.length() < 1)
     {
-        SendInvalidRespone(socket);
+        SendResponse(socket, "");
         return;
     }
 
@@ -218,8 +218,15 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     case 'q':
         ProcessCommandQuery(socket, command);
         break;
+    case 'H':
+        // rafi-emu supports only thread 0, but always returns 'OK' for H command.
+        SendResponse(socket, "OK");
+        break;
+    case '?':
+        SendResponse(socket, "S05"); // 05: SIGTRAP
+        break;
     default:
-        SendInvalidRespone(socket);
+        SendResponse(socket, "");
         break;
     }
 }
@@ -233,17 +240,33 @@ void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
     {
         char response[20] = {0};
         sprintf(response, "PacketSize=%zx", CommandBufferSize);
-        SendResponse(socket, response, strlen(response));
+        SendResponse(socket, response);
+    }
+    else if (name == "qfThreadInfo")
+    {
+        SendResponse(socket, "mp01.01"); // pid 1, tid 1
+    }
+    else if (name == "qsThreadInfo")
+    {
+        SendResponse(socket, "l"); // End of thread list
+    }
+    else if (name == "qC")
+    {
+        SendResponse(socket, "QCp01.01"); // pid 1, tid 1
+    }
+    else if (name == "qAttached")
+    {
+        SendResponse(socket, "1");
     }
     else
     {
-        SendInvalidRespone(socket);
+        SendResponse(socket, "");
     }
 }
 
-void GdbServer::SendInvalidRespone(int socket)
+void GdbServer::SendResponse(int socket, const char* str)
 {
-    SendResponse(socket, "", 0);
+    SendResponse(socket, str, strlen(str));
 }
 
 void GdbServer::SendResponse(int socket, const char* buffer, size_t bufferSize)
