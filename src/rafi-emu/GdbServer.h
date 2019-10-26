@@ -49,11 +49,14 @@ private:
     void ProcessCommandReadReg(int socket);
     void ProcessCommandReadReg32(int socket);
     void ProcessCommandReadReg64(int socket);
+    void ProcessCommandReadMemory(int socket, const std::string& command);
 
     void SendResponse(int socket, const char* str);
     void SendResponse(int socket, const char* buffer, size_t bufferSize);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
+    
+    uint64_t ParseHex(const std::string& str);
 
     template <typename T>
     void ToHex(char* pOutBuffer, T value)

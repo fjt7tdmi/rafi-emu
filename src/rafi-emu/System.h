@@ -48,6 +48,9 @@ public:
     // Process
     void ProcessCycle();
 
+    // for gdbserver
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr);
+
     // for Dump
     int GetCsrCount() const;
     size_t GetRamSize() const;
@@ -61,11 +64,10 @@ public:
     void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
     void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;
-    void CopyRam(void* pOut, size_t size) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
     void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
-
+    
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 

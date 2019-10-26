@@ -84,6 +84,11 @@ void System::ProcessCycle()
     m_Processor.ProcessCycle();
 }
 
+void System::ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr)
+{
+    return m_Bus.Read(pOutBuffer, bufferSize, addr);
+}
+
 int System::GetCsrCount() const
 {
     return m_Processor.GetCsrCount();
@@ -137,11 +142,6 @@ void System::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
 void System::CopyFpReg(void* pOut, size_t size) const
 {
     m_Processor.CopyFpReg(pOut, size);
-}
-
-void System::CopyRam(void* pOut, size_t size) const
-{
-    m_Ram.Copy(pOut, size);
 }
 
 void System::CopyOpEvent(OpEvent* pOut) const

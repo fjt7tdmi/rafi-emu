@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <cinttypes>
 #include <numeric>
 
 #ifdef WIN32
+#define NOMINMAX
 #include <Windows.h>
 #include <Winsock.h>
 #else
@@ -218,11 +220,14 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     // TODO: Implement g,m commands
     switch (command[0])
     {
-    case 'q':
-        ProcessCommandQuery(socket, command);
-        break;
     case 'g':
         ProcessCommandReadReg(socket);
+        break;
+    case 'm':
+        ProcessCommandReadMemory(socket, command);
+        break;
+    case 'q':
+        ProcessCommandQuery(socket, command);
         break;
     case 'H':
         // rafi-emu supports only thread 0, but always returns 'OK' for H command.
@@ -349,6 +354,45 @@ void GdbServer::ProcessCommandReadReg64(int socket)
     SendResponse(socket, buffer, sizeof(buffer));
 }
 
+void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
+{
+    const auto pos = command.find(',');
+    if (pos == std::string::npos)
+    {
+        SendResponse(socket, "");
+        return;
+    }
+
+    const auto addr = static_cast<paddr_t>(ParseHex(command.substr(1, pos - 1)));
+    const auto size = static_cast<size_t>(ParseHex(command.substr(pos + 1)));
+
+    auto data = reinterpret_cast<uint8_t*>(malloc(size));
+    auto response = reinterpret_cast<char*>(malloc(size * 2));
+
+    try
+    {
+        m_pSystem->ReadMemory(data, size, addr);
+        
+        for (size_t i = 0; i < size; i++)
+        {
+            const uint8_t high = data[i] / 0x10;
+            const uint8_t low = data[i] % 0x10;
+
+            response[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
+            response[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+        }
+
+        SendResponse(socket, response, size * 2); // MEMORY_ERROR
+    }
+    catch (const RafiEmuException&)
+    {
+        SendResponse(socket, "E08"); // MEMORY_ERROR
+    }
+
+    free(data);
+    free(response);
+}
+
 void GdbServer::SendResponse(int socket, const char* str)
 {
     SendResponse(socket, str, strlen(str));
@@ -387,6 +431,21 @@ uint8_t GdbServer::HexToUInt8(const char* buffer, size_t bufferSize)
             printf("[gdb] input is not hex.\n");
             exit(1);
         }
+    }
+
+    return sum;
+}
+
+uint64_t GdbServer::ParseHex(const std::string& str)
+{
+    uint64_t sum = 0;
+
+    for (size_t i = 0; i < str.length(); i += 2)
+    {
+        sum <<= 8;
+
+        const auto digit = std::min(str.length() - i, static_cast<size_t>(2));
+        sum += HexToUInt8(&str[i], digit);
     }
 
     return sum;
