@@ -74,18 +74,19 @@ void System::SetHostIoAddress(vaddr_t address)
     m_HostIoAddress = address;
 }
 
-void System::ProcessCycle(Profiler* pProfiler)
+void System::ProcessCycle()
 {
-    pProfiler->Switch(Profiler::Phase_Io);
-
     m_Clint.ProcessCycle();
     m_Uart16550.ProcessCycle();
     m_Uart.ProcessCycle();
     m_Timer.ProcessCycle();
 
-    pProfiler->Switch(Profiler::Phase_Cpu);
+    m_Processor.ProcessCycle();
+}
 
-    m_Processor.ProcessCycle(pProfiler);
+void System::ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr)
+{
+    return m_Bus.Read(pOutBuffer, bufferSize, addr);
 }
 
 int System::GetCsrCount() const
@@ -141,11 +142,6 @@ void System::CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const
 void System::CopyFpReg(void* pOut, size_t size) const
 {
     m_Processor.CopyFpReg(pOut, size);
-}
-
-void System::CopyRam(void* pOut, size_t size) const
-{
-    m_Ram.Copy(pOut, size);
 }
 
 void System::CopyOpEvent(OpEvent* pOut) const

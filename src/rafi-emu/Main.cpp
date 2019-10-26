@@ -19,14 +19,18 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <Winsock2.h>
+#endif
+
 #include <rafi/emu.h>
 
 #include "bus/Bus.h"
 
-#include "Profiler.h"
 #include "TraceLogger.h"
 
 #include "CommandLineOption.h"
+#include "GdbServer.h"
 #include "System.h"
 
 int main(int argc, char** argv)
@@ -35,7 +39,6 @@ int main(int argc, char** argv)
 
     rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
     rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetTraceLoggerConfig(), &system);
-    rafi::emu::Profiler profiler;
 
     try
     {
@@ -50,10 +53,6 @@ int main(int argc, char** argv)
         std::exit(1);
     }
 
-    if (option.IsProfileEnabled())
-    {
-        profiler.Enable();
-    }
     if (option.IsHostIoEnabled())
     {
         system.SetHostIoAddress(option.GetHostIoAddress());
@@ -85,12 +84,10 @@ int main(int argc, char** argv)
                 break;
             }
 
-            system.ProcessCycle(&profiler);
+            system.ProcessCycle();
 
             if (dumpEnabled)
             {
-                profiler.Switch(rafi::emu::Profiler::Phase_Dump);
-
                 logger.RecordEvent();
                 logger.EndCycle();
             }
@@ -106,7 +103,24 @@ int main(int argc, char** argv)
         << std::dec << cycle
         << std::hex << " (0x" << cycle << ")" << std::endl;
 
-    profiler.Dump();
+    if (option.IsGdbEnabled())
+    {
+#ifdef WIN32
+        WSADATA wsaData;
+        WSAStartup(MAKEWORD(2,0), &wsaData);
+#endif
+
+        std::cout << "Start gdb server." << std::endl;
+
+        rafi::emu::GdbServer gdbServer(option.GetXLEN(), &system, option.GetGdbPort());
+        gdbServer.Start();
+        gdbServer.Process();
+        gdbServer.Stop();
+
+#ifdef WIN32
+        WSACleanup();
+#endif
+    }
 
     return 0;
 }

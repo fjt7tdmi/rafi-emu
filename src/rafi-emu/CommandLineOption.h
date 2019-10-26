@@ -44,8 +44,8 @@ class CommandLineOption
 public:
     CommandLineOption(int argc, char** argv);
 
+    bool IsGdbEnabled() const;
     bool IsHostIoEnabled() const;
-    bool IsProfileEnabled() const;
 
     const TraceLoggerConfig& GetTraceLoggerConfig() const;
     const std::vector<LoadOption>& GetLoadOptions() const;
@@ -53,6 +53,7 @@ public:
 
     int GetCycle() const;
     int GetDumpSkipCycle() const;
+    int GetGdbPort() const;
 
     size_t GetRamSize() const;
 
@@ -72,6 +73,7 @@ private:
 
     int m_Cycle {0};
     int m_DumpSkipCycle {0};
+    int m_GdbPort {0};
 
     size_t m_RamSize {0};
 
@@ -79,9 +81,8 @@ private:
     uint64_t m_HostIoAddress {0};
     uint64_t m_Pc {0};
 
+    bool m_GdbEnabled {false};
     bool m_HostIoEnabled {false};
-
-    bool m_ProfilerEnabled {false};
 };
 
 }}

@@ -55,7 +55,6 @@ def MakeEmulatorCommand(config):
     bbl_path = f"{BinaryDirPath}/bbl.bin"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
-    trace_txt_path = f"{TraceDirPath}/linux.trace.txt"
     trace_path = f"{TraceDirPath}/linux.trace.bin"
 
     cmd = [
@@ -82,8 +81,8 @@ def MakeEmulatorCommand(config):
         cmd.append("--enable-dump-int-reg")
     if config['enable_dump_memory']:
         cmd.append("--enable-dump-memory")
-    if config['enable_profiler']:
-        cmd.append("--enable-profiler")
+    if config['gdb'] != 0:
+        cmd.extend(["--gdb", config['gdb']])
     return cmd
 
 def RunEmulator(config):
@@ -105,7 +104,7 @@ if __name__ == '__main__':
     parser.add_option("--enable-dump-fp-reg", dest="enable_dump_fp_reg", action="store_true", default=False, help="Enable fp register dump.")
     parser.add_option("--enable-dump-int-reg", dest="enable_dump_int_reg", action="store_true", default=False, help="Enable integer register dump.")
     parser.add_option("--enable-dump-memory", dest="enable_dump_memory", action="store_true", default=False, help="Enable memory dump.")
-    parser.add_option("--enable-profiler", dest="enable_profiler", action="store_true", default=False, help="Enable profiler.")
+    parser.add_option("--gdb", dest="gdb", default=0, help="Run rafi-dump after emulation.")
 
     (options, args) = parser.parse_args()
 
@@ -120,7 +119,7 @@ if __name__ == '__main__':
         'enable_dump_fp_reg': options.enable_dump_fp_reg,
         'enable_dump_int_reg': options.enable_dump_int_reg,
         'enable_dump_memory': options.enable_dump_memory,
-        'enable_profiler': options.enable_profiler,
+        'gdb': options.gdb,
     }
     result = RunEmulator(config)
     if result != 0:

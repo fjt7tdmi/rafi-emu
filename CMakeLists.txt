@@ -21,6 +21,7 @@ endif()
 
 set(GoogleTest_INCLUDE_DIRS "third_party/googletest/googletest/include")
 if (MSVC)
+    set(Socket_LIBRARIES "ws2_32")
     if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
         set(GoogleTest_LIBRARIES "gtestd" "gtest_maind")
         set(GoogleTest_LIBRARY_DIRS "third_party/googletest/x64-Debug/googletest/Debug" "third_party/googletest/x64-Debug/googlemock/gtest/Debug")
@@ -29,6 +30,7 @@ if (MSVC)
         set(GoogleTest_LIBRARY_DIRS "third_party/googletest/x64-Release/googletest/Release" "third_party/googletest/x64-Release/googlemock/gtest/Release")
     endif()
 else()
+    set(Socket_LIBRARIES "")
     set(Boost_LIBRARIES "boost_program_options")
     set(FS_LIBRARIES "stdc++fs")
 
@@ -353,9 +355,9 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Rom.h
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
+    src/rafi-emu/GdbServer.cpp
+    src/rafi-emu/GdbServer.h
     src/rafi-emu/Main.cpp
-    src/rafi-emu/Profiler.cpp
-    src/rafi-emu/Profiler.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
     src/rafi-emu/TraceLogger.cpp
@@ -384,6 +386,6 @@ target_link_libraries(rafi-check-io librafi_trace librafi_common ${Boost_LIBRARI
 target_link_libraries(rafi-conv librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
-target_link_libraries(rafi-emu librafi_trace librafi_fp librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
+target_link_libraries(rafi-emu librafi_trace librafi_fp librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES} ${Socket_LIBRARIES})
 target_link_libraries(test-op librafi_trace librafi_common ${GoogleTest_LIBRARIES})
 target_link_libraries(test-trace librafi_trace librafi_common ${GoogleTest_LIBRARIES})
