@@ -49,7 +49,9 @@ public:
     void ProcessCycle();
 
     // for gdbserver
+    bool IsValidMemory(paddr_t addr, size_t size) const;
     void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr);
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr);
 
     // for Dump
     int GetCsrCount() const;

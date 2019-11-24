@@ -123,22 +123,9 @@ void Bus::RegisterIo(io::IIo* pIo, paddr_t address, size_t size)
     m_IoList.push_back(info);
 }
 
-MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
+bool Bus::IsValidAddress(paddr_t address, size_t accessSize) const
 {
-    for (const auto& location: m_MemoryList)
-    {
-        if (location.address <= address && address < location.address + location.size)
-        {
-            MemoryLocation ret;
-
-            ret.pMemory = location.pMemory;
-            ret.offset = static_cast<int>(address - location.address);
-
-            return ret;
-        }
-    }
-
-    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+    return IsMemoryAddress(address, accessSize) && IsIoAddress(address, accessSize);
 }
 
 bool Bus::IsMemoryAddress(paddr_t address, size_t accessSize) const
@@ -157,6 +144,40 @@ bool Bus::IsMemoryAddress(paddr_t address, size_t accessSize) const
     return false;
 }
 
+bool Bus::IsIoAddress(paddr_t address, size_t accessSize) const
+{
+    const auto low = address;
+    const auto high = address + accessSize - 1;
+
+    for (const auto& location: m_IoList)
+    {
+        if (location.address <= low && high < location.address + location.size)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
+{
+    for (const auto& location: m_MemoryList)
+    {
+        if (location.address <= address && address < location.address + location.size)
+        {
+            MemoryLocation ret;
+
+            ret.pMemory = location.pMemory;
+            ret.offset = static_cast<int>(address - location.address);
+
+            return ret;
+        }
+    }
+
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+}
+
 IoLocation Bus::ConvertToIoLocation(paddr_t address) const
 {
     for (const auto& location: m_IoList)
@@ -173,22 +194,6 @@ IoLocation Bus::ConvertToIoLocation(paddr_t address) const
     }
 
     RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
-}
-
-bool Bus::IsIoAddress(paddr_t address, size_t accessSize) const
-{
-    const auto low = address;
-    const auto high = address + accessSize - 1;
-
-    for (const auto& location: m_IoList)
-    {
-        if (location.address <= low && high < location.address + location.size)
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 }}}

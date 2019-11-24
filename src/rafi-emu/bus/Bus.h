@@ -71,11 +71,12 @@ public:
     void RegisterMemory(mem::IMemory* pMemory, paddr_t address, size_t size);
     void RegisterIo(io::IIo* pIo, paddr_t address, size_t size);
 
-    MemoryLocation ConvertToMemoryLocation(paddr_t address) const;
+    bool IsValidAddress(paddr_t address, size_t accessSize) const;
     bool IsMemoryAddress(paddr_t address, size_t accessSize) const;
-
-    IoLocation ConvertToIoLocation(paddr_t address) const;
     bool IsIoAddress(paddr_t address, size_t accessSize) const;
+
+    MemoryLocation ConvertToMemoryLocation(paddr_t address) const;
+    IoLocation ConvertToIoLocation(paddr_t address) const;
 
 private:
     std::vector<MemoryInfo> m_MemoryList;

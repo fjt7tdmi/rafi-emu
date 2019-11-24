@@ -84,9 +84,19 @@ void System::ProcessCycle()
     m_Processor.ProcessCycle();
 }
 
+bool System::IsValidMemory(paddr_t addr, size_t size) const
+{
+    return m_Bus.IsValidAddress(addr, size);
+}
+
 void System::ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr)
 {
     return m_Bus.Read(pOutBuffer, bufferSize, addr);
+}
+
+void System::WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr)
+{
+    return m_Bus.Write(pBuffer, bufferSize, addr);
 }
 
 int System::GetCsrCount() const

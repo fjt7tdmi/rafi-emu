@@ -178,7 +178,7 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
         return false;
     }
 
-    printf("[gdb] request: $%s#\n", buffer);
+    printf("[gdb] [recv] %s\n", buffer);
 
     char checksum[2];
     if (recv(socket, checksum, sizeof(checksum), 0) != sizeof(checksum))
@@ -220,6 +220,20 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     // TODO: Implement g,m commands
     switch (command[0])
     {
+    case '?':
+        SendResponse(socket, "S05"); // 05: SIGTRAP
+        break;
+    case 'H':
+        // This emulator supports only thread 0, but always returns 'OK' for H command.
+        SendResponse(socket, "OK");
+        break;
+    case 'Z':
+        ProcessCommandInsertBreakPoint(socket, command);
+        break;
+    case 'c':
+        //ProcessCommandContinue(socket, command);
+        SendResponse(socket, "S05");
+        break;
     case 'g':
         ProcessCommandReadReg(socket);
         break;
@@ -229,12 +243,14 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     case 'q':
         ProcessCommandQuery(socket, command);
         break;
-    case 'H':
-        // rafi-emu supports only thread 0, but always returns 'OK' for H command.
-        SendResponse(socket, "OK");
+    case 's':
+        ProcessCommandStep(socket);
         break;
-    case '?':
-        SendResponse(socket, "S05"); // 05: SIGTRAP
+    case 'v':
+        ProcessCommandVerbose(socket, command);
+        break;
+    case 'z':
+        ProcessCommandRemoveBreakPoint(socket, command);
         break;
     default:
         SendResponse(socket, "");
@@ -242,37 +258,29 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     } 
 }
 
-void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
+void GdbServer::ProcessCommandInsertBreakPoint(int socket, const std::string& command)
 {
-    auto pos = command.find(':');
-    auto name = command.substr(0, pos);
-
-    if (name == "qSupported")
-    {
-        char response[20] = {0};
-        sprintf(response, "PacketSize=%zx", CommandBufferSize);
-        SendResponse(socket, response);
-    }
-    else if (name == "qfThreadInfo")
-    {
-        SendResponse(socket, "mp01.01"); // pid 1, tid 1
-    }
-    else if (name == "qsThreadInfo")
-    {
-        SendResponse(socket, "l"); // End of thread list
-    }
-    else if (name == "qC")
-    {
-        SendResponse(socket, "QCp01.01"); // pid 1, tid 1
-    }
-    else if (name == "qAttached")
-    {
-        SendResponse(socket, "1");
-    }
-    else
+    const auto pos0 = command.find(',');
+    if (pos0 == std::string::npos)
     {
         SendResponse(socket, "");
+        return;
     }
+
+    const auto subCommand = command.substr(pos0 + 1);
+    const auto pos1 = subCommand.find(',');
+    if (pos1 == std::string::npos)
+    {
+        SendResponse(socket, "");
+        return;
+    }
+
+    const auto addr = ParseHex(subCommand.substr(0, pos1));
+
+    uint32_t value;
+    m_pSystem->ReadMemory(&value, sizeof(value), addr);
+
+    m_MemoryBackups.emplace(addr, value);
 }
 
 void GdbServer::ProcessCommandReadReg(int socket)
@@ -284,7 +292,7 @@ void GdbServer::ProcessCommandReadReg(int socket)
         break;
     case XLEN::XLEN64:
         ProcessCommandReadReg64(socket);
-        break;    
+        break;
     default:
         RAFI_EMU_NOT_IMPLEMENTED();
     }
@@ -292,7 +300,8 @@ void GdbServer::ProcessCommandReadReg(int socket)
 
 void GdbServer::ProcessCommandReadReg32(int socket)
 {
-    char buffer[sizeof(uint32_t) * 2 * 33 + sizeof(uint64_t) * 2 * 32];
+    const size_t bufferSize = sizeof(uint32_t) * 2 * 33 + 1;
+    char buffer[bufferSize];
 
     // IntReg
     trace::NodeIntReg32 intReg; 
@@ -300,31 +309,25 @@ void GdbServer::ProcessCommandReadReg32(int socket)
     for (int i = 0; i < 32; i++)
     {
         const auto offset = sizeof(uint32_t) * 2 * i;
-        ToHex(&buffer[offset], intReg.regs[i]);
+        ToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
     }
 
     // PC
     const uint32_t pc = static_cast<uint32_t>(m_pSystem->GetPc());
     {
         const auto offset = sizeof(uint32_t) * 32;
-        ToHex(&buffer[offset], pc);
+        ToHex(&buffer[offset], bufferSize - offset, pc);
     }
 
-    // FpReg
-    trace::NodeFpReg fpReg; 
-    m_pSystem->CopyFpReg(&fpReg, sizeof(fpReg));
-    for (int i = 0; i < 32; i++)
-    {
-        const auto offset = sizeof(uint32_t) * 2 * 33 + sizeof(uint64_t) * 2 * i;
-        ToHex(&buffer[offset], fpReg.regs[i].u64.value);
-    }
+    buffer[bufferSize - 1] = '\0';
 
-    SendResponse(socket, buffer, sizeof(buffer));
+    SendResponse(socket, buffer);
 }
 
 void GdbServer::ProcessCommandReadReg64(int socket)
 {
-    char buffer[sizeof(uint64_t) * 2 * 33 + sizeof(uint64_t) * 2 * 32];
+    const size_t bufferSize = sizeof(uint64_t) * 2 * 33 + 1;
+    char buffer[bufferSize];
 
     // IntReg
     trace::NodeIntReg64 intReg; 
@@ -332,26 +335,19 @@ void GdbServer::ProcessCommandReadReg64(int socket)
     for (int i = 0; i < 32; i++)
     {
         const auto offset = sizeof(uint64_t) * 2 * i;
-        ToHex(&buffer[offset], intReg.regs[i]);
+        ToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
     }
 
     // PC
     const uint64_t pc = static_cast<uint64_t>(m_pSystem->GetPc());
     {
         const auto offset = sizeof(uint64_t) * 2 * 32;
-        ToHex(&buffer[offset], pc);
+        ToHex(&buffer[offset], bufferSize - offset, pc);
     }
 
-    // FpReg
-    trace::NodeFpReg fpReg; 
-    m_pSystem->CopyFpReg(&fpReg, sizeof(fpReg));
-    for (int i = 0; i < 32; i++)
-    {
-        const auto offset = sizeof(uint64_t) * 2 * 33 + sizeof(uint64_t) * 2 * i;
-        ToHex(&buffer[offset], fpReg.regs[i].u64.value);
-    }
+    buffer[bufferSize - 1] = '\0';
 
-    SendResponse(socket, buffer, sizeof(buffer));
+    SendResponse(socket, buffer);
 }
 
 void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
@@ -367,22 +363,35 @@ void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
     const auto size = static_cast<size_t>(ParseHex(command.substr(pos + 1)));
 
     auto data = reinterpret_cast<uint8_t*>(malloc(size));
-    auto response = reinterpret_cast<char*>(malloc(size * 2));
+    auto response = reinterpret_cast<char*>(malloc(size * 2 + 1));
 
     try
     {
-        m_pSystem->ReadMemory(data, size, addr);
-        
-        for (size_t i = 0; i < size; i++)
+        if (m_pSystem->IsValidMemory(addr, size))
         {
-            const uint8_t high = data[i] / 0x10;
-            const uint8_t low = data[i] % 0x10;
+            m_pSystem->ReadMemory(data, size, addr);
+            
+            for (size_t i = 0; i < size; i++)
+            {
+                const uint8_t high = data[i] / 0x10;
+                const uint8_t low = data[i] % 0x10;
 
-            response[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
-            response[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+                response[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
+                response[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < size; i++)
+            {
+                response[i * 2] = 'c';
+                response[i * 2 + 1] = 'd';
+            }
         }
 
-        SendResponse(socket, response, size * 2); // MEMORY_ERROR
+        response[size * 2] = '\0';
+
+        SendResponse(socket, response);
     }
     catch (const RafiEmuException&)
     {
@@ -393,13 +402,107 @@ void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
     free(response);
 }
 
-void GdbServer::SendResponse(int socket, const char* str)
+void GdbServer::ProcessCommandRemoveBreakPoint(int socket, const std::string& command)
 {
-    SendResponse(socket, str, strlen(str));
+    const auto pos0 = command.find(',');
+    if (pos0 == std::string::npos)
+    {
+        SendResponse(socket, "");
+        return;
+    }
+
+    const auto subCommand = command.substr(pos0 + 1);
+    const auto pos1 = subCommand.find(',');
+    if (pos1 == std::string::npos)
+    {
+        SendResponse(socket, "");
+        return;
+    }
+
+    const auto addr = ParseHex(subCommand.substr(0, pos1));
+    const auto value = m_MemoryBackups[addr];
+
+    m_pSystem->WriteMemory(&value, sizeof(value), addr);
+    m_MemoryBackups.erase(addr);
 }
 
-void GdbServer::SendResponse(int socket, const char* buffer, size_t bufferSize)
+void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
 {
+    {
+        auto pos = command.find(';');
+        auto name = command.substr(0, pos);
+
+        if (name == "qThreadExtraInfo")
+        {            
+            char s[32] = {0};
+            ToHex(s, sizeof(s), "Breaked.");
+
+            SendResponse(socket, s);
+            return;
+        }
+    }
+
+    {
+        auto pos = command.find(':');
+        auto name = command.substr(0, pos);
+
+        if (name == "qSupported")
+        {
+            char response[20] = {0};
+            sprintf(response, "PacketSize=%zx", CommandBufferSize);
+            SendResponse(socket, response);
+        }
+        else if (name == "qfThreadInfo")
+        {
+            SendResponse(socket, "mp01.01"); // pid 1, tid 1
+        }
+        else if (name == "qsThreadInfo")
+        {
+            SendResponse(socket, "l"); // End of thread list
+        }
+        else if (name == "qC")
+        {
+            SendResponse(socket, "QCp01.01"); // pid 1, tid 1
+        }
+        else if (name == "qAttached")
+        {
+            SendResponse(socket, "1");
+        }
+        else
+        {
+            SendResponse(socket, "");
+        }        
+    }
+}
+
+void GdbServer::ProcessCommandStep(int socket)
+{
+    m_pSystem->ProcessCycle();
+    SendResponse(socket, "S05");
+}
+
+void GdbServer::ProcessCommandVerbose(int socket, const std::string& command)
+{
+    if (command == "vMustReplyEmpty")
+    {
+        SendResponse(socket, "");
+    }
+    else if (command == "vCont?")
+    {
+        SendResponse(socket, "vCont;c;s");
+    }
+    else
+    {
+        RAFI_EMU_NOT_IMPLEMENTED();                
+    }    
+}
+
+void GdbServer::SendResponse(int socket, const char* buffer)
+{
+    printf("[gdb] [send] %s\n", buffer);
+
+    const auto bufferSize = std::strlen(buffer);
+
     send(socket, "$", 1, 0);
     send(socket, buffer, (int)bufferSize, 0);
 
