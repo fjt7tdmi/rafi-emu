@@ -24,18 +24,17 @@ ObjcopyCmd = "riscv64-unknown-elf-objcopy"
 StartAddr = "0x8000000"
 EndAddr = "0x80008000"
 InDirPath = os.environ["RISCV_TESTS"]
-OutDirPath = "./work/riscv-tests"
 
 #
 # Functions
 #
-def InitializeDirectory(path):
+def init_dir(path):
     shutil.rmtree(path, ignore_errors=True)
     os.makedirs(path)
 
-def MakeObjcopyCommand(testname):
-    in_path = os.path.join(InDirPath, f"build/isa/{testname}")
-    out_path = os.path.join(OutDirPath, f"{testname}.bin")
+def make_objcopy_cmd(out_dir_path, test_type, test_name):
+    in_path = os.path.join(InDirPath, f"build/{test_type}/{test_name}")
+    out_path = os.path.join(out_dir_path, f"{test_name}.bin")
 
     return [
         ObjcopyCmd,
@@ -46,9 +45,9 @@ def MakeObjcopyCommand(testname):
         out_path,
     ]
 
-def RunObjcopy(configs):
+def run_objcopy(out_dir_path, test_type, configs):
     for config in configs:
-        cmd = MakeObjcopyCommand(config['name'])
+        cmd = make_objcopy_cmd(out_dir_path, test_type, config['name'])
         print(' '.join(cmd))
 
         subprocess.run(cmd)
@@ -58,18 +57,21 @@ def RunObjcopy(configs):
 #
 if __name__ == '__main__':
     parser = optparse.OptionParser()
-    parser.add_option("-f", dest="filter", default=None, help="Filter test by name.")
     parser.add_option("-i", dest="input_path", default=None, help="Input test list json path.")
     parser.add_option("-l", dest="list_tests", action="store_true", default=False, help="List test names.")
+    parser.add_option("-o", dest="output_path", default=None, help="Output directory path.")
+    parser.add_option("-t", dest="type", default=None, help="Specify 'benchmarks' or 'isa'.")
 
     (options, args) = parser.parse_args()
 
+    if options.type is None or options.type not in ['benchmarks', 'isa']:
+        print("Specify test type. ('benchmarks' or 'isa')")
+        exit(1)
     if options.input_path is None:
         print("Input test list json is not specified.")
         exit(1)
 
     configs = []
-
     with open(options.input_path, "r") as f:
         configs = json.load(f)
 
@@ -78,11 +80,8 @@ if __name__ == '__main__':
             print(config['name'])
         exit(0)
 
-    if options.filter is not None:
-        configs = list(filter(lambda config: fnmatch.fnmatch(config['name'], options.filter), configs))
-
     print("-------------------------------------------------------------")
-    InitializeDirectory(OutDirPath)
+    init_dir(options.output_path)
 
     print("Run objcopy:")
-    RunObjcopy(configs)
+    run_objcopy(options.output_path, options.type, configs)
