@@ -6,7 +6,7 @@
             "request": "attach",
             "gdbpath": "riscv64-unknown-elf-gdb",
             "name": "Attach to gdbserver",
-            "executable": "../riscv-tests/build/benchmarks/qsort.riscv",
+            "executable": "work/linux/vmlinux",
             "target": ":8000",
             "remote": true,
             "cwd": "${workspaceRoot}",
