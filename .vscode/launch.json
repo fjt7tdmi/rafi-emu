@@ -1,12 +1,12 @@
 {
     "version": "0.2.0",
-    "configurations": [
+    "configurations": [        
         {
             "type": "gdb",
             "request": "attach",
-            "gdbpath": "riscv64-unknown-elf-gdb",
+            "gdbpath": "riscv64-unknown-linux-gnu-gdb",
             "name": "Attach to gdbserver",
-            "executable": "work/linux/vmlinux",
+            "executable": "${env:RAFI_FREEDOM_U_SDK}/work/linux/vmlinux",
             "target": ":8000",
             "remote": true,
             "cwd": "${workspaceRoot}",
