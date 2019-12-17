@@ -22,13 +22,12 @@
 #include <rafi/emu.h>
 
 #include "bus/Bus.h"
-
-#include "TraceLogger.h"
+#include "gdb/GdbServer.h"
 
 #include "CommandLineOption.h"
-#include "GdbServer.h"
 #include "Socket.h"
 #include "System.h"
+#include "TraceLogger.h"
 
 int main(int argc, char** argv)
 {

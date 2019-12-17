@@ -333,6 +333,8 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/gdb/GdbServer.cpp
+    src/rafi-emu/gdb/GdbServer.h
     src/rafi-emu/io/Clint.cpp
     src/rafi-emu/io/Clint.h
     src/rafi-emu/io/IIo.h
@@ -355,8 +357,6 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Rom.h
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
-    src/rafi-emu/GdbServer.cpp
-    src/rafi-emu/GdbServer.h
     src/rafi-emu/Main.cpp
     src/rafi-emu/Socket.cpp
     src/rafi-emu/Socket.h

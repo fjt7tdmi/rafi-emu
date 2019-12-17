@@ -19,12 +19,12 @@
 #include <cinttypes>
 #include <numeric>
 
-
 #include <rafi/emu.h>
 #include <rafi/trace.h>
 
 #include "GdbServer.h"
-#include "Socket.h"
+
+#include "../Socket.h"
 
 namespace rafi { namespace emu {
 

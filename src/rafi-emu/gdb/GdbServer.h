@@ -22,7 +22,7 @@
 
 #include <rafi/emu.h>
 
-#include "System.h"
+#include "../System.h"
 
 namespace rafi { namespace emu {
 
