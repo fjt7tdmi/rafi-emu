@@ -19,19 +19,15 @@
 #include <string>
 #include <vector>
 
-#ifdef WIN32
-#include <Winsock2.h>
-#endif
-
 #include <rafi/emu.h>
 
 #include "bus/Bus.h"
-
-#include "TraceLogger.h"
+#include "gdb/GdbServer.h"
 
 #include "CommandLineOption.h"
-#include "GdbServer.h"
+#include "Socket.h"
 #include "System.h"
+#include "TraceLogger.h"
 
 int main(int argc, char** argv)
 {
@@ -105,10 +101,7 @@ int main(int argc, char** argv)
 
     if (option.IsGdbEnabled())
     {
-#ifdef WIN32
-        WSADATA wsaData;
-        WSAStartup(MAKEWORD(2,0), &wsaData);
-#endif
+        rafi::emu::InitializeSocket();
 
         std::cout << "Start gdb server." << std::endl;
 
@@ -117,9 +110,7 @@ int main(int argc, char** argv)
         gdbServer.Process();
         gdbServer.Stop();
 
-#ifdef WIN32
-        WSACleanup();
-#endif
+        rafi::emu::FinalizeSocket();
     }
 
     return 0;

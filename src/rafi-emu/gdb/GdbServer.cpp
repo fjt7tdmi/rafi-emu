@@ -19,74 +19,15 @@
 #include <cinttypes>
 #include <numeric>
 
-#ifdef WIN32
-#define NOMINMAX
-#include <Windows.h>
-#include <Winsock.h>
-#else
-#include <netinet/ip.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
-
 #include <rafi/emu.h>
 #include <rafi/trace.h>
 
 #include "GdbServer.h"
+#include "GdbUtil.h"
+
+#include "../Socket.h"
 
 namespace rafi { namespace emu {
-
-namespace {
-
-template <typename T>
-void ToHex(char* pOutBuffer, size_t bufferSize, const T value)
-{
-    (void)bufferSize; // for release build
-
-    static_assert(std::is_integral_v<T>);
-    static_assert(std::is_unsigned_v<T>);
-
-    auto tmp = value;
-
-    for (int i = 0; i < sizeof(tmp) * 2; i += 2)
-    {
-        const T high = (tmp % 0x100) / 0x10;
-        const T low = tmp % 0x10;
-
-        assert(i + 1 <= bufferSize);
-
-        pOutBuffer[i] = high < 10 ? '0' + high : 'a' + (high - 10);
-        pOutBuffer[i + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
-
-        tmp >>= 8;
-    }
-}
-
-template <>
-void ToHex(char* pOutBuffer, size_t bufferSize, const char* str)
-{
-    (void)bufferSize; // for release build
-
-    for (int i = 0; i < std::strlen(str); i++)
-    {
-        const char high = (str[i] % 0x100) / 0x10;
-        const char low = str[i] % 0x10;
-
-        assert(i * 2 + 1 <= bufferSize);
-
-        pOutBuffer[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
-        pOutBuffer[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
-    }
-}
-
-template <>
-void ToHex(char* pOutBuffer, size_t bufferSize, const std::string str)
-{
-    ToHex(pOutBuffer, bufferSize, str.c_str());
-}
-
-}
 
 GdbServer::GdbServer(XLEN xlen, System* pSystem, int port)
     : m_XLEN(xlen)    
@@ -115,21 +56,13 @@ void GdbServer::Start()
 
     if (bind(m_ServerSocket, (struct sockaddr *)&addr, sizeof(addr)) != 0)
     {
-#ifdef WIN32
-        printf("[gdb] Failed to bind() (error: %d).\n", GetLastError());
-#else
-        printf("[gdb] Failed to bind().\n");
-#endif
+        printf("[gdb] Failed to bind() (error: %d).\n", GetSocketError());
         std::exit(1);
     }
 
     if (listen(m_ServerSocket, 1) != 0)
     {
-#ifdef WIN32
-        printf("[gdb] Failed to listen() (error: %d).\n", GetLastError());
-#else
-        printf("[gdb] Failed to listen().\n");
-#endif
+        printf("[gdb] Failed to listen() (error: %d).\n", GetSocketError());
         std::exit(1);
     }
 
@@ -138,11 +71,7 @@ void GdbServer::Start()
 
 void GdbServer::Stop()
 {
-#ifdef WIN32
-    ::closesocket(m_ServerSocket);
-#else
-    ::close(m_ServerSocket);
-#endif
+    close(m_ServerSocket);
 
     m_Started = false;
 }
@@ -362,14 +291,14 @@ void GdbServer::ProcessCommandReadReg32(int socket)
     for (int i = 0; i < 32; i++)
     {
         const auto offset = sizeof(uint32_t) * 2 * i;
-        ToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
+        BinaryToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
     }
 
     // PC
     const uint32_t pc = static_cast<uint32_t>(m_pSystem->GetPc());
     {
         const auto offset = sizeof(uint32_t) * 32;
-        ToHex(&buffer[offset], bufferSize - offset, pc);
+        BinaryToHex(&buffer[offset], bufferSize - offset, pc);
     }
 
     buffer[bufferSize - 1] = '\0';
@@ -388,14 +317,14 @@ void GdbServer::ProcessCommandReadReg64(int socket)
     for (int i = 0; i < 32; i++)
     {
         const auto offset = sizeof(uint64_t) * 2 * i;
-        ToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
+        BinaryToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
     }
 
     // PC
     const uint64_t pc = static_cast<uint64_t>(m_pSystem->GetPc());
     {
         const auto offset = sizeof(uint64_t) * 2 * 32;
-        ToHex(&buffer[offset], bufferSize - offset, pc);
+        BinaryToHex(&buffer[offset], bufferSize - offset, pc);
     }
 
     buffer[bufferSize - 1] = '\0';
@@ -488,7 +417,7 @@ void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
         if (name == "qThreadExtraInfo")
         {            
             char s[32] = {0};
-            ToHex(s, sizeof(s), "Breaked.");
+            StringToHex(s, sizeof(s), "Breaked.");
 
             SendResponse(socket, s);
             return;

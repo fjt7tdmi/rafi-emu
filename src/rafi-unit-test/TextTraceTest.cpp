@@ -27,7 +27,7 @@
 
 namespace rafi { namespace trace {
 
-TEST(TextTrace, Basic)
+TEST(DISABLED_TextTraceTest, Basic)
 {
     const char* text =
         "XLEN 32\n"

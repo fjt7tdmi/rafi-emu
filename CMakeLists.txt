@@ -333,6 +333,10 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/gdb/GdbServer.cpp
+    src/rafi-emu/gdb/GdbServer.h
+    src/rafi-emu/gdb/GdbUtil.cpp
+    src/rafi-emu/gdb/GdbUtil.h
     src/rafi-emu/io/Clint.cpp
     src/rafi-emu/io/Clint.h
     src/rafi-emu/io/IIo.h
@@ -355,9 +359,9 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Rom.h
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
-    src/rafi-emu/GdbServer.cpp
-    src/rafi-emu/GdbServer.h
     src/rafi-emu/Main.cpp
+    src/rafi-emu/Socket.cpp
+    src/rafi-emu/Socket.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
     src/rafi-emu/TraceLogger.cpp
@@ -365,12 +369,12 @@ add_executable(rafi-emu
     src/rafi-emu/TraceLoggerConfig.h
 )
 
-add_executable(test-op
-    test/test-op/test_OpGetString.cpp
-)
-
-add_executable(test-trace
-    test/test-trace/test_TextTrace.cpp
+add_executable(rafi-unit-test
+    src/rafi-emu/gdb/GdbUtil.cpp
+    src/rafi-emu/gdb/GdbUtil.h
+    src/rafi-unit-test/GdbTest.cpp
+    src/rafi-unit-test/OpGetStringTest.cpp
+    src/rafi-unit-test/TextTraceTest.cpp
 )
 
 include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
@@ -379,13 +383,11 @@ include_directories(rafi-conv include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-emu include src/rafi-emu/include)
-include_directories(test-op include)
-include_directories(test-trace include)
+include_directories(rafi-unit-test include)
 
 target_link_libraries(rafi-check-io librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-conv librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librafi_trace librafi_fp librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES} ${Socket_LIBRARIES})
-target_link_libraries(test-op librafi_trace librafi_common ${GoogleTest_LIBRARIES})
-target_link_libraries(test-trace librafi_trace librafi_common ${GoogleTest_LIBRARIES})
+target_link_libraries(rafi-unit-test librafi_trace librafi_common ${GoogleTest_LIBRARIES})

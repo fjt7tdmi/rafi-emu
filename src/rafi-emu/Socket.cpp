@@ -14,29 +14,43 @@
  * limitations under the License.
  */
 
-#include <cstdlib>
-#include <cstring>
-#include <memory>
+#include <rafi/emu.h>
 
-#include <gtest/gtest.h>
+#include "Socket.h"
 
-#include <rafi/common.h>
+namespace rafi { namespace emu {
 
-using namespace rafi;
-
-TEST(OpTest, GetString)
+void InitializeSocket()
 {
-    Decoder decoder(XLEN::XLEN32);
-
-    const Op& auipc = Op{ OpClass::RV32I, OpCode::auipc, OperandI {10, 3} };
-    const Op& lui = decoder.Decode(0xfffff8b7);
-
-    char buffer[64];
-
-    SNPrintOp(buffer, sizeof(buffer), auipc);
-    printf("%s\n", buffer);
-
-    SNPrintOp(buffer, sizeof(buffer), lui);
-    printf("%s\n", buffer);
+#ifdef WIN32
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2,0), &wsaData);
+#endif
 }
 
+void FinalizeSocket()
+{
+#ifdef WIN32
+    WSACleanup();
+#endif
+}
+
+int close(int fd)
+{
+#ifdef WIN32
+    return ::closesocket(fd);
+#else
+    return ::close(fd);
+#endif
+}
+
+int GetSocketError()
+{
+#ifdef WIN32
+    return GetLastError();
+#else
+    return errno;
+#endif
+}
+
+}}

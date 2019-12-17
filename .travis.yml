@@ -10,6 +10,4 @@ before_install:
 script:
   - ./script/build_gtest.sh
   - ./script/build_debug.sh
-  - cd build
-  - ./test-op
-  - ./test-trace
+  - ./script/run_unit_test.sh
