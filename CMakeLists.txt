@@ -370,6 +370,9 @@ add_executable(rafi-emu
 )
 
 add_executable(rafi-unit-test
+    src/rafi-emu/gdb/GdbUtil.cpp
+    src/rafi-emu/gdb/GdbUtil.h
+    src/rafi-unit-test/GdbTest.cpp
     src/rafi-unit-test/OpGetStringTest.cpp
     src/rafi-unit-test/TextTraceTest.cpp
 )

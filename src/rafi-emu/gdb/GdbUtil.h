@@ -43,8 +43,8 @@ void BinaryToHex(char* pOutBuffer, size_t bufferSize, const T value)
 
         assert(i + 1 <= bufferSize);
 
-        pOutBuffer[i] = high < 10 ? '0' + high : 'a' + (high - 10);
-        pOutBuffer[i + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+        pOutBuffer[i] = static_cast<char>(high < 10 ? '0' + high : 'a' + (high - 10));
+        pOutBuffer[i + 1] = static_cast<char>(low < 10 ? '0' + low : 'a' + (low - 10));
 
         tmp >>= 8;
     }
