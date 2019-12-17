@@ -19,21 +19,12 @@
 #include <cinttypes>
 #include <numeric>
 
-#ifdef WIN32
-#define NOMINMAX
-#include <Windows.h>
-#include <Winsock.h>
-#else
-#include <netinet/ip.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
 
 #include <rafi/emu.h>
 #include <rafi/trace.h>
 
 #include "GdbServer.h"
+#include "Socket.h"
 
 namespace rafi { namespace emu {
 
@@ -115,21 +106,13 @@ void GdbServer::Start()
 
     if (bind(m_ServerSocket, (struct sockaddr *)&addr, sizeof(addr)) != 0)
     {
-#ifdef WIN32
-        printf("[gdb] Failed to bind() (error: %d).\n", GetLastError());
-#else
-        printf("[gdb] Failed to bind().\n");
-#endif
+        printf("[gdb] Failed to bind() (error: %d).\n", GetSocketError());
         std::exit(1);
     }
 
     if (listen(m_ServerSocket, 1) != 0)
     {
-#ifdef WIN32
-        printf("[gdb] Failed to listen() (error: %d).\n", GetLastError());
-#else
-        printf("[gdb] Failed to listen().\n");
-#endif
+        printf("[gdb] Failed to listen() (error: %d).\n", GetSocketError());
         std::exit(1);
     }
 
@@ -138,11 +121,7 @@ void GdbServer::Start()
 
 void GdbServer::Stop()
 {
-#ifdef WIN32
-    ::closesocket(m_ServerSocket);
-#else
-    ::close(m_ServerSocket);
-#endif
+    close(m_ServerSocket);
 
     m_Started = false;
 }

@@ -358,6 +358,8 @@ add_executable(rafi-emu
     src/rafi-emu/GdbServer.cpp
     src/rafi-emu/GdbServer.h
     src/rafi-emu/Main.cpp
+    src/rafi-emu/Socket.cpp
+    src/rafi-emu/Socket.h
     src/rafi-emu/System.cpp
     src/rafi-emu/System.h
     src/rafi-emu/TraceLogger.cpp
