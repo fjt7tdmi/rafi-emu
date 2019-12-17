@@ -369,12 +369,9 @@ add_executable(rafi-emu
     src/rafi-emu/TraceLoggerConfig.h
 )
 
-add_executable(test-op
-    test/test-op/test_OpGetString.cpp
-)
-
-add_executable(test-trace
-    test/test-trace/test_TextTrace.cpp
+add_executable(rafi-unit-test
+    src/rafi-unit-test/OpGetStringTest.cpp
+    src/rafi-unit-test/TextTraceTest.cpp
 )
 
 include_directories(librafi_fp include ${Softfloat_INCLUDE_DIRS})
@@ -383,13 +380,11 @@ include_directories(rafi-conv include)
 include_directories(rafi-diff include)
 include_directories(rafi-dump include)
 include_directories(rafi-emu include src/rafi-emu/include)
-include_directories(test-op include)
-include_directories(test-trace include)
+include_directories(rafi-unit-test include)
 
 target_link_libraries(rafi-check-io librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-conv librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-diff librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-dump librafi_trace librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES})
 target_link_libraries(rafi-emu librafi_trace librafi_fp librafi_common ${Boost_LIBRARIES} ${FS_LIBRARIES} ${Socket_LIBRARIES})
-target_link_libraries(test-op librafi_trace librafi_common ${GoogleTest_LIBRARIES})
-target_link_libraries(test-trace librafi_trace librafi_common ${GoogleTest_LIBRARIES})
+target_link_libraries(rafi-unit-test librafi_trace librafi_common ${GoogleTest_LIBRARIES})
