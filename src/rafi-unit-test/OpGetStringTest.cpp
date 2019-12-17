@@ -24,7 +24,7 @@
 
 using namespace rafi;
 
-TEST(OpTest, GetString)
+TEST(OpGetStringTest, GetString)
 {
     Decoder decoder(XLEN::XLEN32);
 
