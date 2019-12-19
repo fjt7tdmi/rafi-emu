@@ -370,6 +370,14 @@ add_executable(rafi-emu
 )
 
 add_executable(rafi-unit-test
+    src/rafi-emu/gdb/GdbCommandFactory.cpp
+    src/rafi-emu/gdb/GdbCommandFactory.h
+    src/rafi-emu/gdb/GdbCommands.cpp
+    src/rafi-emu/gdb/GdbCommands.h
+    src/rafi-emu/gdb/GdbData.cpp
+    src/rafi-emu/gdb/GdbData.h
+    src/rafi-emu/gdb/GdbException.h
+    src/rafi-emu/gdb/GdbTypes.h
     src/rafi-emu/gdb/GdbUtil.cpp
     src/rafi-emu/gdb/GdbUtil.h
     src/rafi-unit-test/GdbTest.cpp

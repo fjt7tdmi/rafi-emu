@@ -26,6 +26,7 @@
 
 namespace rafi { namespace emu {
 
+// deprecated
 template <typename T>
 void BinaryToHex(char* pOutBuffer, size_t bufferSize, const T value)
 {
@@ -50,7 +51,50 @@ void BinaryToHex(char* pOutBuffer, size_t bufferSize, const T value)
     }
 }
 
+template <typename T>
+char DigitToHexChar(const T value)
+{
+    static_assert(std::is_integral_v<T>);
+
+    assert(0 <= value && value < 16);
+
+    return static_cast<char>(value < 10 ? '0' + value : 'a' + (value - 10));
+}
+
+template <typename T>
+std::string BinaryToHex(const T value)
+{
+    static_assert(std::is_integral_v<T>);
+    static_assert(std::is_unsigned_v<T>);
+
+    std::string response;
+
+    auto tmp = value;
+
+    for (int i = 0; i < sizeof(tmp); i ++)
+    {
+        const T high = (tmp % 0x100) / 0x10;
+        const T low = tmp % 0x10;
+
+        response += static_cast<char>(DigitToHexChar(high));
+        response += static_cast<char>(DigitToHexChar(low));
+
+        tmp >>= 8;
+    }
+
+    return response;
+}
+
+// deprecated
 void StringToHex(char* pOutBuffer, size_t bufferSize, const char* str);
+
+// deprecated
 void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str);
+
+std::string StringToHex(const std::string& str);
+
+uint8_t HexCharToUInt8(char c);
+
+uint64_t HexToUInt64(const std::string& str);
 
 }}

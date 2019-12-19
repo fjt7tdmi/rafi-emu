@@ -43,4 +43,52 @@ void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str)
     StringToHex(pOutBuffer, bufferSize, str.c_str());
 }
 
+std::string StringToHex(const std::string& str)
+{
+    std::string response;
+
+    for (int i = 0; i < str.size(); i++)
+    {
+        const auto x = static_cast<uint8_t>(str[i]);
+
+        response += BinaryToHex(x);
+    }
+
+    return response;
+}
+
+uint8_t HexCharToUInt8(char c)
+{
+    if ('0' <= c && c <= '9')
+    {
+        return static_cast<uint8_t>(c - '0');
+    }
+    else if ('a' <= c && c <= 'f')
+    {
+        return static_cast<uint8_t>(c - 'a' + 10);
+    }
+    else
+    {
+        printf("[gdb] input is not hex.\n");
+        RAFI_NOT_IMPLEMENTED();
+    }
+}
+
+uint64_t HexToUInt64(const std::string& str)
+{
+    assert(str.size() % 2 == 0);
+
+    uint64_t sum = 0;
+
+    for (size_t i = 0; i < str.length(); i += 2)
+    {
+        sum <<= 8;
+
+        sum += HexCharToUInt8(str[i]) * 0x10;
+        sum += HexCharToUInt8(str[i + 1]);
+    }
+
+    return sum;
+}
+
 }}
