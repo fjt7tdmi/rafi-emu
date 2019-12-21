@@ -333,6 +333,14 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/gdb/GdbCommandFactory.cpp
+    src/rafi-emu/gdb/GdbCommandFactory.h
+    src/rafi-emu/gdb/GdbCommands.cpp
+    src/rafi-emu/gdb/GdbCommands.h
+    src/rafi-emu/gdb/GdbData.cpp
+    src/rafi-emu/gdb/GdbData.h
+    src/rafi-emu/gdb/GdbException.h
+    src/rafi-emu/gdb/GdbTypes.h
     src/rafi-emu/gdb/GdbServer.cpp
     src/rafi-emu/gdb/GdbServer.h
     src/rafi-emu/gdb/GdbUtil.cpp

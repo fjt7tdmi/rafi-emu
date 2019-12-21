@@ -95,6 +95,8 @@ std::string StringToHex(const std::string& str);
 
 uint8_t HexCharToUInt8(char c);
 
+uint8_t HexToUInt8(const std::string& str);
+
 uint64_t HexToUInt64(const std::string& str);
 
 }}

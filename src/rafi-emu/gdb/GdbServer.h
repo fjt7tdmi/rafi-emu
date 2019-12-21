@@ -16,13 +16,11 @@
 
 #pragma once
 
-#include <map>
-#include <memory>
-#include <type_traits>
-
 #include <rafi/emu.h>
 
 #include "../ISystem.h"
+
+#include "GdbCommandFactory.h"
 
 namespace rafi { namespace emu {
 
@@ -35,40 +33,21 @@ public:
     void Process();
 
 private:
-    static const uint32_t BreakInsn = 0x100073;
-    static const size_t CommandBufferSize = 256;
+    void ProcessSession(int clientSocket);
 
-    void ProcessSession(int socket);
+    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
 
-    bool ReadCommand(char* pOutBuffer, size_t bufferSize, int socket);
-    void SendAck(int socket);
-
-    void ProcessCommand(int socket, const std::string& command);
-    void ProcessCommandInsertBreakPoint(int socket, const std::string& command);
-    void ProcessCommandReadReg(int socket);
-    void ProcessCommandReadReg32(int socket);
-    void ProcessCommandReadReg64(int socket);
-    void ProcessCommandReadMemory(int socket, const std::string& command);
-    void ProcessCommandRemoveBreakPoint(int socket, const std::string& command);
-    void ProcessCommandQuery(int socket, const std::string& command);
-    void ProcessCommandStep(int socket);
-    void ProcessCommandVerbose(int socket, const std::string& command);
-
-    void SendResponse(int socket, const char* str);
-
-    uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
-
-    uint64_t ParseHex(const std::string& str);
-
-    std::map<paddr_t, uint32_t> m_MemoryBackups;
+    void SendAck(int clientSocket);
+    void SendResponse(int clientSocket, const std::string& response);
 
     XLEN m_XLEN;
     ISystem* m_pSystem;
-
     int m_Port;
-    int m_ServerSocket;
 
-    bool m_Started { false };
+    GdbCommandFactory m_GdbCommandFactory;
+    GdbData m_GdbData;
+
+    int m_ServerSocket;
 };
 
 }}

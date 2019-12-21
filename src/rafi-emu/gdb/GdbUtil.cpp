@@ -74,6 +74,11 @@ uint8_t HexCharToUInt8(char c)
     }
 }
 
+uint8_t HexToUInt8(const std::string& str)
+{
+    return static_cast<uint8_t>(HexToUInt64(str));
+}
+
 uint64_t HexToUInt64(const std::string& str)
 {
     uint64_t sum = 0;
