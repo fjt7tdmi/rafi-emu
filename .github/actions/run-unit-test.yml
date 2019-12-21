@@ -1,0 +1,17 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: build_gtest
+      run: ./script/build_gtest.sh
+    - name: build_debug
+      run: ./script/build_debug.sh
+    - name: build_release
+      run: ./script/build_release.sh
+    - name: run_unit_test
+      run: ./script/run_unit_test.sh
