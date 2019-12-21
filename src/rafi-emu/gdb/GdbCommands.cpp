@@ -147,6 +147,16 @@ std::string GdbCommandReadMemory::Process(ISystem* pSystem, GdbData*)
     }
 }
 
+paddr_t GdbCommandReadMemory::GetAddr() const
+{
+    return m_Addr;
+}
+
+size_t GdbCommandReadMemory::GetSize() const
+{
+    return m_Size;
+}
+
 // ----------------------------------------------------------------------------
 
 GdbCommandInsertBreakPoint::GdbCommandInsertBreakPoint(const std::string& cmd)
@@ -158,7 +168,7 @@ GdbCommandInsertBreakPoint::GdbCommandInsertBreakPoint(const std::string& cmd)
         RAFI_NOT_IMPLEMENTED();
     }
 
-    const auto addr = cmd.substr(comma0 + 1, comma1);
+    const auto addr = cmd.substr(comma0 + 1, comma1 - (comma0 + 1));
     const auto size = cmd.substr(comma1 + 1);
 
     m_Addr = HexToUInt64(addr);
@@ -197,6 +207,16 @@ std::string GdbCommandInsertBreakPoint::Process(ISystem* pSystem, GdbData* pData
     }
 }
 
+paddr_t GdbCommandInsertBreakPoint::GetAddr() const
+{
+    return m_Addr;
+}
+
+size_t GdbCommandInsertBreakPoint::GetSize() const
+{
+    return m_Size;
+}
+
 // ----------------------------------------------------------------------------
 
 GdbCommandRemoveBreakPoint::GdbCommandRemoveBreakPoint(const std::string& cmd)
@@ -208,7 +228,7 @@ GdbCommandRemoveBreakPoint::GdbCommandRemoveBreakPoint(const std::string& cmd)
         RAFI_NOT_IMPLEMENTED();
     }
 
-    const auto addr = cmd.substr(comma0 + 1, comma1);
+    const auto addr = cmd.substr(comma0 + 1, comma1 - (comma0 + 1));
     const auto size = cmd.substr(comma1 + 1);
 
     m_Addr = HexToUInt64(addr);
@@ -237,6 +257,16 @@ std::string GdbCommandRemoveBreakPoint::Process(ISystem* pSystem, GdbData* pData
         RAFI_NOT_IMPLEMENTED();
         break;
     }
+}
+
+paddr_t GdbCommandRemoveBreakPoint::GetAddr() const
+{
+    return m_Addr;
+}
+
+size_t GdbCommandRemoveBreakPoint::GetSize() const
+{
+    return m_Size;
 }
 
 // ----------------------------------------------------------------------------

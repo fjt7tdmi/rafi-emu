@@ -67,6 +67,9 @@ public:
 
     std::string Process(ISystem* pSystem, GdbData* pData) override;
 
+    paddr_t GetAddr() const;
+    size_t GetSize() const;
+
 private:
     paddr_t m_Addr;
     size_t m_Size;
@@ -79,6 +82,9 @@ public:
     GdbCommandInsertBreakPoint(const std::string& cmd);
 
     std::string Process(ISystem* pSystem, GdbData* pData) override;
+
+    paddr_t GetAddr() const;
+    size_t GetSize() const;
 
 private:
     static const uint32_t BreakInsn = 0x100073; // ebreak
@@ -94,6 +100,9 @@ public:
     GdbCommandRemoveBreakPoint(const std::string& cmd);
 
     std::string Process(ISystem* pSystem, GdbData* pData) override;
+
+    paddr_t GetAddr() const;
+    size_t GetSize() const;
 
 private:
     paddr_t m_Addr;

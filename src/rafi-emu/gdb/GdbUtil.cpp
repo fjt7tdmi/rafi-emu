@@ -76,16 +76,12 @@ uint8_t HexCharToUInt8(char c)
 
 uint64_t HexToUInt64(const std::string& str)
 {
-    assert(str.size() % 2 == 0);
-
     uint64_t sum = 0;
 
-    for (size_t i = 0; i < str.length(); i += 2)
+    for (size_t i = 0; i < str.size(); i++)
     {
-        sum <<= 8;
-
-        sum += HexCharToUInt8(str[i]) * 0x10;
-        sum += HexCharToUInt8(str[i + 1]);
+        sum <<= 4;
+        sum += HexCharToUInt8(str[i]);
     }
 
     return sum;
