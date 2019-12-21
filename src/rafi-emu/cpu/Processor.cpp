@@ -221,7 +221,7 @@ std::optional<Trap> Processor::Fetch(uint32_t* pOutInsn, vaddr_t pc)
         paddr_t paddrLow;
         paddr_t paddrHigh;
 
-        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrLow, MemoryAccessType::Instruction, vaddrLow, pc));
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrLow, MemoryAccessType::Instruction, vaddrLow, true, pc));
         const auto insnLow = m_MemAccessUnit.FetchUInt16(vaddrLow, paddrLow);
 
         if (m_Decoder.IsCompressedInstruction(insnLow))
@@ -230,7 +230,7 @@ std::optional<Trap> Processor::Fetch(uint32_t* pOutInsn, vaddr_t pc)
             return std::nullopt;
         }
 
-        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrHigh, MemoryAccessType::Instruction, vaddrHigh, pc));
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddrHigh, MemoryAccessType::Instruction, vaddrHigh, true, pc));
         const auto insnHigh = m_MemAccessUnit.FetchUInt16(vaddrHigh, paddrHigh);
 
         *pOutInsn = (insnHigh << 16) | insnLow;
@@ -239,7 +239,7 @@ std::optional<Trap> Processor::Fetch(uint32_t* pOutInsn, vaddr_t pc)
     else
     {
         paddr_t paddr;
-        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddr, MemoryAccessType::Instruction, pc, pc));
+        RAFI_RETURN_IF_TRAP(m_MemAccessUnit.Translate(&paddr, MemoryAccessType::Instruction, pc, true, pc));
 
         *pOutInsn = m_MemAccessUnit.FetchUInt32(pc, paddr);
         return std::nullopt;

@@ -38,7 +38,7 @@ void MemoryAccessUnit::Initialize(bus::Bus* pBus, Csr* pCsr)
 uint8_t MemoryAccessUnit::LoadUInt8(vaddr_t addr)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Load, addr);
+    Translate(&paddr, MemoryAccessType::Load, addr, true);
     const auto value = m_pBus->ReadUInt8(paddr);
 
     AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, paddr);
@@ -49,7 +49,7 @@ uint8_t MemoryAccessUnit::LoadUInt8(vaddr_t addr)
 uint16_t MemoryAccessUnit::LoadUInt16(vaddr_t addr)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Load, addr);
+    Translate(&paddr, MemoryAccessType::Load, addr, true);
     const auto value = m_pBus->ReadUInt16(paddr);
 
     AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, paddr);
@@ -60,7 +60,7 @@ uint16_t MemoryAccessUnit::LoadUInt16(vaddr_t addr)
 uint32_t MemoryAccessUnit::LoadUInt32(vaddr_t addr)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Load, addr);
+    Translate(&paddr, MemoryAccessType::Load, addr, true);
     const auto value = m_pBus->ReadUInt32(paddr);
 
     AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, paddr);
@@ -71,7 +71,7 @@ uint32_t MemoryAccessUnit::LoadUInt32(vaddr_t addr)
 uint64_t MemoryAccessUnit::LoadUInt64(vaddr_t addr)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Load, addr);
+    Translate(&paddr, MemoryAccessType::Load, addr, true);
     const auto value = m_pBus->ReadUInt64(paddr);
 
     AddEvent(MemoryAccessType::Load, sizeof(value), value, addr, paddr);
@@ -82,7 +82,7 @@ uint64_t MemoryAccessUnit::LoadUInt64(vaddr_t addr)
 void MemoryAccessUnit::StoreUInt8(vaddr_t addr, uint8_t value)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Store, addr);
+    Translate(&paddr, MemoryAccessType::Store, addr, true);
     m_pBus->WriteUInt8(paddr, value);
 
     AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, paddr);
@@ -91,7 +91,7 @@ void MemoryAccessUnit::StoreUInt8(vaddr_t addr, uint8_t value)
 void MemoryAccessUnit::StoreUInt16(vaddr_t addr, uint16_t value)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Store, addr);
+    Translate(&paddr, MemoryAccessType::Store, addr, true);
     m_pBus->WriteUInt16(paddr, value);
 
     AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, paddr);
@@ -100,7 +100,7 @@ void MemoryAccessUnit::StoreUInt16(vaddr_t addr, uint16_t value)
 void MemoryAccessUnit::StoreUInt32(vaddr_t addr, uint32_t value)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Store, addr);
+    Translate(&paddr, MemoryAccessType::Store, addr, true);
     m_pBus->WriteUInt32(paddr, value);
 
     AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, paddr);
@@ -109,7 +109,7 @@ void MemoryAccessUnit::StoreUInt32(vaddr_t addr, uint32_t value)
 void MemoryAccessUnit::StoreUInt64(vaddr_t addr, uint64_t value)
 {
     paddr_t paddr;
-    Translate(&paddr, MemoryAccessType::Store, addr);
+    Translate(&paddr, MemoryAccessType::Store, addr, true);
     m_pBus->WriteUInt64(paddr, value);
 
     AddEvent(MemoryAccessType::Store, sizeof(value), value, addr, paddr);
@@ -410,7 +410,7 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vadd
     }
 }
 
-std::optional<Trap> MemoryAccessUnit::Translate(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::Translate(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc)
 {
     switch (GetAddresssTranslationMode(accessType))
     {
@@ -418,21 +418,21 @@ std::optional<Trap> MemoryAccessUnit::Translate(paddr_t* pOutAddr, MemoryAccessT
         *pOutAddr = (m_XLEN == XLEN::XLEN32) ? ZeroExtend(32, addr) : static_cast<paddr_t>(addr);
         return std::nullopt;
     case AddressTranslationMode::Sv32:
-        return TranslateSv32(pOutAddr, accessType, addr, pc);
+        return TranslateSv32(pOutAddr, accessType, addr, updateEntry, pc);
     case AddressTranslationMode::Sv39:
-        return TranslateSv39(pOutAddr, accessType, addr, pc);
+        return TranslateSv39(pOutAddr, accessType, addr, updateEntry, pc);
     case AddressTranslationMode::Sv48:
-        return TranslateSv48(pOutAddr, accessType, addr, pc);
+        return TranslateSv48(pOutAddr, accessType, addr, updateEntry, pc);
     case AddressTranslationMode::Sv57:
-        return TranslateSv57(pOutAddr, accessType, addr, pc);
+        return TranslateSv57(pOutAddr, accessType, addr, updateEntry, pc);
     case AddressTranslationMode::Sv64:
-        return TranslateSv64(pOutAddr, accessType, addr, pc);
+        return TranslateSv64(pOutAddr, accessType, addr, updateEntry, pc);
     default:
         RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
-std::optional<Trap> MemoryAccessUnit::TranslateSv32(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::TranslateSv32(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc)
 {
     const bool isWrite = (accessType == (MemoryAccessType::Store));
 
@@ -448,7 +448,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv32(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry1))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv32>(entryAddr1, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv32>(entryAddr1, isWrite);
+        }
 
         PhysicalAddressSv32 paddr(
             entry1.GetMember<PageTableEntrySv32::PPN1>(),
@@ -467,7 +470,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv32(paddr_t* pOutAddr, MemoryAcc
 
     RAFI_RETURN_IF_TRAP(CheckTrapForEntry(entry2, accessType, pc, addr));
     RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
-    UpdateEntry<PageTableEntrySv32>(entryAddr2, isWrite);
+    if (updateEntry)
+    {
+        UpdateEntry<PageTableEntrySv32>(entryAddr2, isWrite);
+    }
 
     PhysicalAddressSv32 paddr(
         entry2.GetMember<PageTableEntrySv32::PPN1>(),
@@ -478,7 +484,7 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv32(paddr_t* pOutAddr, MemoryAcc
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc)
 {
     const bool isWrite = (accessType == (MemoryAccessType::Store));
 
@@ -494,7 +500,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry1))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv39>(entryAddr1, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv39>(entryAddr1, isWrite);
+        }
 
         PhysicalAddressSv39 paddr(
             entry1.GetMember<PageTableEntrySv39::PPN2>(),
@@ -516,7 +525,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry2))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv39>(entryAddr2, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv39>(entryAddr2, isWrite);
+        }
 
         PhysicalAddressSv39 paddr(
             entry2.GetMember<PageTableEntrySv39::PPN2>(),
@@ -536,7 +548,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAcc
 
     RAFI_RETURN_IF_TRAP(CheckTrapForEntry(entry3, accessType, pc, addr));
     RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry3, accessType, pc, addr));
-    UpdateEntry<PageTableEntrySv39>(entryAddr3, isWrite);
+    if (updateEntry)
+    {
+        UpdateEntry<PageTableEntrySv39>(entryAddr3, isWrite);
+    }
 
     PhysicalAddressSv39 paddr(
         entry3.GetMember<PageTableEntrySv39::PPN2>(),
@@ -547,7 +562,7 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv39(paddr_t* pOutAddr, MemoryAcc
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc)
 {
     const bool isWrite = (accessType == (MemoryAccessType::Store));
 
@@ -563,7 +578,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry1))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry1, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv48>(entryAddr1, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv48>(entryAddr1, isWrite);
+        }
 
         PhysicalAddressSv48 paddr(
             entry1.GetMember<PageTableEntrySv48::PPN3>(),
@@ -587,7 +605,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry2))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry2, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv48>(entryAddr2, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv48>(entryAddr2, isWrite);
+        }
 
         PhysicalAddressSv48 paddr(
             entry2.GetMember<PageTableEntrySv48::PPN3>(),
@@ -611,7 +632,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAcc
     if (IsLeafEntry(entry3))
     {
         RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry3, accessType, pc, addr));
-        UpdateEntry<PageTableEntrySv48>(entryAddr3, isWrite);
+        if (updateEntry)
+        {
+            UpdateEntry<PageTableEntrySv48>(entryAddr3, isWrite);
+        }
 
         PhysicalAddressSv48 paddr(
             entry3.GetMember<PageTableEntrySv48::PPN3>(),
@@ -633,7 +657,10 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAcc
 
     RAFI_RETURN_IF_TRAP(CheckTrapForEntry(entry4, accessType, pc, addr));
     RAFI_RETURN_IF_TRAP(CheckTrapForLeafEntry(entry4, accessType, pc, addr));
-    UpdateEntry<PageTableEntrySv48>(entryAddr4, isWrite);
+    if (updateEntry)
+    {
+        UpdateEntry<PageTableEntrySv48>(entryAddr4, isWrite);
+    }
 
     PhysicalAddressSv48 paddr(
         entry4.GetMember<PageTableEntrySv48::PPN3>(),
@@ -646,21 +673,13 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv48(paddr_t* pOutAddr, MemoryAcc
     return std::nullopt;
 }
 
-std::optional<Trap> MemoryAccessUnit::TranslateSv57(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::TranslateSv57(paddr_t*, MemoryAccessType, vaddr_t, bool, vaddr_t)
 {
-    (void)pOutAddr;
-    (void)accessType;
-    (void)addr;
-    (void)pc;
     RAFI_EMU_NOT_IMPLEMENTED;
 }
 
-std::optional<Trap> MemoryAccessUnit::TranslateSv64(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
+std::optional<Trap> MemoryAccessUnit::TranslateSv64(paddr_t*, MemoryAccessType, vaddr_t, bool, vaddr_t)
 {
-    (void)pOutAddr;
-    (void)accessType;
-    (void)addr;
-    (void)pc;
     RAFI_EMU_NOT_IMPLEMENTED;
 }
 

@@ -49,7 +49,7 @@ public:
     uint32_t FetchUInt32(vaddr_t vaddr, paddr_t paddr);
 
     std::optional<Trap> CheckTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
-    std::optional<Trap> Translate(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc = 0);
+    std::optional<Trap> Translate(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc = 0);
 
     // for Dump
     void AddEvent(MemoryAccessType accessType, int size,  vaddr_t value, vaddr_t vaddr, paddr_t paddr);
@@ -71,11 +71,11 @@ private:
 
     std::optional<Trap> MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const;
 
-    std::optional<Trap> TranslateSv32(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
-    std::optional<Trap> TranslateSv39(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
-    std::optional<Trap> TranslateSv48(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
-    std::optional<Trap> TranslateSv57(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
-    std::optional<Trap> TranslateSv64(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc);
+    std::optional<Trap> TranslateSv32(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc);
+    std::optional<Trap> TranslateSv39(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc);
+    std::optional<Trap> TranslateSv48(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc);
+    std::optional<Trap> TranslateSv57(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc);
+    std::optional<Trap> TranslateSv64(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, bool updateEntry, vaddr_t pc);
 
     template <typename EntryType>
     std::optional<Trap> CheckTrapForEntry(const EntryType& entry, MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
