@@ -75,7 +75,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
     case OpCode::sb:
     case OpCode::sh:
@@ -93,7 +93,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
     case OpCode::csrrw:
     case OpCode::csrrs:
@@ -123,7 +123,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
     case OpCode::sc_d:
     case OpCode::sc_w:
@@ -137,7 +137,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
     case OpCode::amoswap_d:
     case OpCode::amoswap_w:
@@ -167,7 +167,7 @@ std::optional<Trap> Executor::PreCheckTrap(const Op& op, vaddr_t pc, uint32_t in
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
     default:
         return std::nullopt;
@@ -695,7 +695,7 @@ std::optional<Trap> Executor::PostCheckTrapForEcall(vaddr_t pc) const
     case PrivilegeLevel::User:
         return MakeEnvironmentCallFromUserException(pc);
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -918,7 +918,7 @@ void Executor::ProcessRVF(const Op& op)
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
         return;
     case OpCode::fsw:
@@ -932,7 +932,7 @@ void Executor::ProcessRVF(const Op& op)
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
         return;
     case OpCode::fmadd_s:
@@ -1003,7 +1003,7 @@ void Executor::ProcessRVD(const Op& op)
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
         return;
     case OpCode::fsd:
@@ -1017,7 +1017,7 @@ void Executor::ProcessRVD(const Op& op)
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
         return;
     case OpCode::fmadd_d:

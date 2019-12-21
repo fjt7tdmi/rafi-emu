@@ -138,7 +138,7 @@ Csr::Csr(XLEN xlen, vaddr_t initialPc)
         m_ISA.SetMember<misa_t::MXL_RV64>(static_cast<uint32_t>(XLEN::XLEN64));
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     // Disable SXL and UXL bit for qemu-compatibility.
@@ -322,7 +322,7 @@ xstatus_t Csr::ReadStatus() const
                 status.SetMember<xstatus_t::SD_RV64>(1ull);
                 break;
             default:
-                RAFI_EMU_NOT_IMPLEMENTED();
+                RAFI_EMU_NOT_IMPLEMENTED;
         }
     }
 
@@ -475,7 +475,7 @@ uint64_t Csr::ReadSupervisorModeRegister(csr_addr_t addr) const
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
     case csr_addr_t::sedeleg:
         return m_SupervisorExceptionDelegation;
@@ -676,7 +676,7 @@ void Csr::WriteSupervisorModeRegister(csr_addr_t addr, uint64_t value)
                 WriteStatus(value & xstatus_t::SupervisorMask_RV64);
                 return;
             default:
-                RAFI_EMU_NOT_IMPLEMENTED();
+                RAFI_EMU_NOT_IMPLEMENTED;
         }
     case csr_addr_t::sedeleg:
         m_SupervisorExceptionDelegation = value;
@@ -821,7 +821,7 @@ int Csr::GetPerformanceCounterIndex(csr_addr_t addr) const
     }
     else
     {
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     return static_cast<int>(addr) - static_cast<int>(base);

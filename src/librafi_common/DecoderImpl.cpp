@@ -119,7 +119,7 @@ Op DecoderImpl::DecodeI(uint32_t insn) const
         opClass = OpClass::RV64I;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto opcode = Pick(insn, 0, 7);
@@ -478,7 +478,7 @@ Op DecoderImpl::DecodeM(uint32_t insn) const
         opClass = OpClass::RV64M;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto opcode = Pick(insn, 0, 7);
@@ -545,7 +545,7 @@ Op DecoderImpl::DecodeM(uint32_t insn) const
             return Op{ opClass, OpCode::unknown, DecodeOperandR(insn) };
         }
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -561,7 +561,7 @@ Op DecoderImpl::DecodeA(uint32_t insn) const
         opClass = OpClass::RV64A;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto funct3 = Pick(insn, 12, 3);
@@ -685,7 +685,7 @@ Op DecoderImpl::DecodeF(uint32_t insn) const
         opClass = OpClass::RV64F;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto opcode = Pick(insn, 0, 7);
@@ -857,7 +857,7 @@ Op DecoderImpl::DecodeD(uint32_t insn) const
         opClass = OpClass::RV64D;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto opcode = Pick(insn, 0, 7);
@@ -1045,7 +1045,7 @@ Op DecoderImpl::DecodeC(uint16_t insn) const
         opClass = OpClass::RV64C;
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto opcode = Pick(insn, 0, 2);
@@ -1501,7 +1501,7 @@ Operand DecoderImpl::DecodeOperandCI_LoadSP(uint16_t insn, int accessSize) const
             Pick(insn, 7, 5), // rs1
         });
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -1550,7 +1550,7 @@ Operand DecoderImpl::DecodeOperandCSS(uint16_t insn, int accessSize) const
             Pick(insn, 2, 5), // rs2
         });
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -1605,7 +1605,7 @@ Operand DecoderImpl::DecodeOperandCL(uint16_t insn, int accessSize) const
             Pick(insn, 7, 3) + 8, // rs1
         });
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -1646,7 +1646,7 @@ Operand DecoderImpl::DecodeOperandCS(uint16_t insn, int accessSize) const
             Pick(insn, 2, 3) + 8, // rs2
         });
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 

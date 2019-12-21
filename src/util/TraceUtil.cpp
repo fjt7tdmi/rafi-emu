@@ -53,7 +53,7 @@ std::unique_ptr<trace::ITracePrinter> MakeTracePrinter(PrinterType printerType)
         case PrinterType::Pc:
             return std::make_unique<trace::TracePcPrinter>();
         default:
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
     }
 }
 

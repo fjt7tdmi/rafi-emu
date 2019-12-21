@@ -60,7 +60,7 @@ std::unique_ptr<IGdbCommand> GdbCommandFactory::Parse(const std::string& cmd)
     default:
         fprintf(stderr, "Failed to parse gdb command.\n");
         fprintf(stderr, "%s\n", cmd.c_str());
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -78,7 +78,7 @@ std::unique_ptr<IGdbCommand> GdbCommandFactory::ParseLongCommand(const std::stri
     {
         fprintf(stderr, "Failed to parse gdb command.\n");
         fprintf(stderr, "%s\n", cmd.c_str());
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 

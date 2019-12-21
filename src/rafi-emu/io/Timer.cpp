@@ -50,7 +50,7 @@ void Timer::Read(void* pOutBuffer, size_t size, uint64_t address)
         value = GetHigh32(m_TimeCmp);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     std::memcpy(pOutBuffer, &value, sizeof(value));
@@ -84,7 +84,7 @@ void Timer::Write(const void* pBuffer, size_t size, uint64_t address)
         SetHigh32(&m_TimeCmp, value);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 

@@ -152,7 +152,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrap(MemoryAccessType accessType, vad
     case AddressTranslationMode::Sv64:
         return CheckTrapSv64(accessType, pc, addr);
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -207,7 +207,7 @@ AddressTranslationMode MemoryAccessUnit::GetAddresssTranslationMode(MemoryAccess
     case XLEN::XLEN64:
         return static_cast<AddressTranslationMode>(satp.GetMember<satp_t::MODE_RV64>());
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -384,7 +384,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv57(MemoryAccessType accessType,
     (void)accessType;
     (void)pc;
     (void)addr;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    RAFI_EMU_NOT_IMPLEMENTED;
 }
 
 std::optional<Trap> MemoryAccessUnit::CheckTrapSv64(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
@@ -392,7 +392,7 @@ std::optional<Trap> MemoryAccessUnit::CheckTrapSv64(MemoryAccessType accessType,
     (void)accessType;
     (void)pc;
     (void)addr;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    RAFI_EMU_NOT_IMPLEMENTED;
 }
 
 std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vaddr_t pc, vaddr_t addr) const
@@ -406,7 +406,7 @@ std::optional<Trap> MemoryAccessUnit::MakeTrap(MemoryAccessType accessType, vadd
     case MemoryAccessType::Store:
         return MakeStorePageFaultException(pc, addr);
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -428,7 +428,7 @@ std::optional<Trap> MemoryAccessUnit::Translate(paddr_t* pOutAddr, MemoryAccessT
     case AddressTranslationMode::Sv64:
         return TranslateSv64(pOutAddr, accessType, addr, pc);
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -652,7 +652,7 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv57(paddr_t* pOutAddr, MemoryAcc
     (void)accessType;
     (void)addr;
     (void)pc;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    RAFI_EMU_NOT_IMPLEMENTED;
 }
 
 std::optional<Trap> MemoryAccessUnit::TranslateSv64(paddr_t* pOutAddr, MemoryAccessType accessType, vaddr_t addr, vaddr_t pc)
@@ -661,7 +661,7 @@ std::optional<Trap> MemoryAccessUnit::TranslateSv64(paddr_t* pOutAddr, MemoryAcc
     (void)accessType;
     (void)addr;
     (void)pc;
-    RAFI_EMU_NOT_IMPLEMENTED();
+    RAFI_EMU_NOT_IMPLEMENTED;
 }
 
 }}}

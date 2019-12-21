@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <cstdio>
 
-#define RAFI_NOT_IMPLEMENTED() \
+#define RAFI_NOT_IMPLEMENTED \
     do { \
         std::fprintf(stderr, "[ERROR] Not implemented @ %s:%d\n", __FILE__, __LINE__); \
         std::exit(1); \

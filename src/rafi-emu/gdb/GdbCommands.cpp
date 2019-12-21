@@ -50,7 +50,7 @@ std::string GdbCommandReadReg::Process(ISystem* pSystem, GdbData*)
     case XLEN::XLEN64:
         return Process64(pSystem);
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -99,7 +99,7 @@ GdbCommandReadMemory::GdbCommandReadMemory(const std::string& cmd)
     const auto comma = cmd.find(',');
     if (comma == std::string::npos)
     {
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto addr = cmd.substr(1, comma - 1);
@@ -165,7 +165,7 @@ GdbCommandInsertBreakPoint::GdbCommandInsertBreakPoint(const std::string& cmd)
     const auto comma1 = cmd.find(',', comma0 + 1);
     if (comma0 == std::string::npos || comma1 == std::string::npos)
     {
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto addr = cmd.substr(comma0 + 1, comma1 - (comma0 + 1));
@@ -202,7 +202,7 @@ std::string GdbCommandInsertBreakPoint::Process(ISystem* pSystem, GdbData* pData
         }
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
         break;
     }
 }
@@ -225,7 +225,7 @@ GdbCommandRemoveBreakPoint::GdbCommandRemoveBreakPoint(const std::string& cmd)
     const auto comma1 = cmd.find(',', comma0 + 1);
     if (comma0 == std::string::npos || comma1 == std::string::npos)
     {
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 
     const auto addr = cmd.substr(comma0 + 1, comma1 - (comma0 + 1));
@@ -254,7 +254,7 @@ std::string GdbCommandRemoveBreakPoint::Process(ISystem* pSystem, GdbData* pData
         }
         break;
     default:
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
         break;
     }
 }
@@ -291,7 +291,7 @@ GdbCommandContinue::GdbCommandContinue()
 
 std::string GdbCommandContinue::Process(ISystem*, GdbData*)
 {
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 // ----------------------------------------------------------------------------

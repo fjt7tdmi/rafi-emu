@@ -52,7 +52,7 @@ void Uart::Read(void* pOutBuffer, size_t size, uint64_t address)
         value = m_InterruptPending.GetValue();
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     std::memcpy(pOutBuffer, &value, sizeof(value));
@@ -85,7 +85,7 @@ void Uart::Write(const void* pBuffer, size_t size, uint64_t address)
         m_InterruptPending.SetValue(value);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 

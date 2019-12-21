@@ -60,7 +60,7 @@ void Convert(const char* inPath, const char* outPathBase)
                 }
                 else
                 {
-                    RAFI_NOT_IMPLEMENTED();
+                    RAFI_NOT_IMPLEMENTED;
                 }
             }
 

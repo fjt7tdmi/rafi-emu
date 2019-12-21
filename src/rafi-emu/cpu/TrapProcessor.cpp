@@ -97,7 +97,7 @@ void TrapProcessor::ProcessTrapReturn(PrivilegeLevel level)
         m_pCsr->SetProgramCounter(pc);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     const auto nextPrivilegeLevel = static_cast<PrivilegeLevel>(previousLevel);
@@ -143,7 +143,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
         cause = (isInterrupt ? 1ull << 63 : 0) | exceptionCode;
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     xtvec_t trapVector;
@@ -193,7 +193,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
         trapVector = xtvec_t(m_pCsr->ReadUInt64(csr_addr_t::utvec));
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     uint64_t base;
@@ -206,7 +206,7 @@ void TrapProcessor::ProcessTrapEnter(bool isInterrupt, uint32_t exceptionCode, u
         base = trapVector.GetWithMask(xtvec_t::BASE_RV64::Mask);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     uint64_t mode = trapVector.GetMember<xtvec_t::MODE>();

@@ -156,28 +156,28 @@ uint64_t TextCycle::GetFpReg(size_t index) const
 void TextCycle::CopyIo(NodeIo* pOutNode) const
 {
     (void)pOutNode;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void TextCycle::CopyOpEvent(NodeOpEvent* pOutNode, size_t index) const
 {
     (void)pOutNode;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void TextCycle::CopyMemoryEvent(NodeMemoryEvent* pOutNode, size_t index) const
 {
     (void)pOutNode;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void TextCycle::CopyTrapEvent(NodeTrapEvent* pOutNode, size_t index) const
 {
     (void)pOutNode;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void TextCycle::ParseBasic(std::basic_istream<char>* pInput)

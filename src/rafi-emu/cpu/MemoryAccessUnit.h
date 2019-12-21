@@ -138,7 +138,7 @@ private:
             }
             break;
         default:
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
 
         return std::nullopt;

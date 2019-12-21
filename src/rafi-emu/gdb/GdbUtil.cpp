@@ -49,7 +49,7 @@ uint8_t HexCharToUInt8(char c)
     else
     {
         printf("[gdb] input is not hex.\n");
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 

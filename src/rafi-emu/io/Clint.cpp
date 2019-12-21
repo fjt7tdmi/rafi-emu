@@ -44,7 +44,7 @@ void Clint::Read(void* pOutBuffer, size_t size, uint64_t address)
         std::memcpy(pOutBuffer, &m_TimeCmp, size);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
@@ -68,7 +68,7 @@ void Clint::Write(const void* pBuffer, size_t size, uint64_t address)
         std::memcpy(&m_TimeCmp, pBuffer, size);
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 

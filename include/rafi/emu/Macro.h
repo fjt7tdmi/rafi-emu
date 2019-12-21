@@ -29,7 +29,7 @@
         throw RafiEmuException(); \
     } while(0)
 
-#define RAFI_EMU_NOT_IMPLEMENTED() \
+#define RAFI_EMU_NOT_IMPLEMENTED \
     do { \
         fprintf(stderr, "[ERROR] Not implemented @ %s:%d\n", __FILE__, __LINE__); \
         throw RafiEmuException(); \

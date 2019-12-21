@@ -82,7 +82,7 @@ void TraceLogger::RecordState()
         }
         else
         {
-            RAFI_EMU_NOT_IMPLEMENTED();
+            RAFI_EMU_NOT_IMPLEMENTED;
         }
     }
 
@@ -101,7 +101,7 @@ void TraceLogger::RecordState()
 
     if (m_Config.enableDumpCsr || m_Config.enableDumpMemory)
     {
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 

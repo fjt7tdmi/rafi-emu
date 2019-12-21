@@ -155,28 +155,28 @@ uint64_t GdbCycle::GetFpReg(size_t index) const
 void GdbCycle::CopyIo(NodeIo* pOutState) const
 {
     (void)pOutState;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void GdbCycle::CopyOpEvent(NodeOpEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void GdbCycle::CopyMemoryEvent(NodeMemoryEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 void GdbCycle::CopyTrapEvent(NodeTrapEvent* pOutEvent, size_t index) const
 {
     (void)pOutEvent;
     (void)index;
-    RAFI_NOT_IMPLEMENTED();
+    RAFI_NOT_IMPLEMENTED;
 }
 
 }}

@@ -101,7 +101,7 @@ uint64_t BinaryCycle::GetIntReg(size_t index) const
     }
     else
     {
-        RAFI_NOT_IMPLEMENTED();
+        RAFI_NOT_IMPLEMENTED;
     }
 }
 
@@ -176,7 +176,7 @@ size_t BinaryCycle::ParseNode(const void* buffer, size_t bufferSize)
         }
         else
         {
-            RAFI_NOT_IMPLEMENTED();
+            RAFI_NOT_IMPLEMENTED;
         }
         break;
     case NodeId_IO:

@@ -91,7 +91,7 @@ void InterruptController::Update()
         }
         break;
     default:
-        RAFI_EMU_NOT_IMPLEMENTED();
+        RAFI_EMU_NOT_IMPLEMENTED;
     }
 
     // Check interrupt to M-mode
