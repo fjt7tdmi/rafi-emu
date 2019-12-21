@@ -16,38 +16,22 @@
 
 #pragma once
 
+#include <map>
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
-
-#include "GdbCommandFactory.h"
+#include "GdbCommands.h"
 
 namespace rafi { namespace emu {
 
-class GdbServer
+class GdbData
 {
 public:
-    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
-    ~GdbServer();
+    void PushMemoryValue(paddr_t addr, uint64_t value);
 
-    void Process();
+    uint64_t PopMemoryValue(paddr_t addr);
 
 private:
-    void ProcessSession(int clientSocket);
-
-    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
-
-    void SendAck(int clientSocket);
-    void SendResponse(int clientSocket, const std::string& response);
-
-    XLEN m_XLEN;
-    ISystem* m_pSystem;
-    int m_Port;
-
-    GdbCommandFactory m_GdbCommandFactory;
-    GdbData m_GdbData;
-
-    int m_ServerSocket;
+    std::map<paddr_t, uint64_t> m_MemoryValues;
 };
 
 }}

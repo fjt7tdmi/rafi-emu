@@ -18,36 +18,11 @@
 
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
-
-#include "GdbCommandFactory.h"
-
 namespace rafi { namespace emu {
 
-class GdbServer
+class GdbException
 {
-public:
-    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
-    ~GdbServer();
-
-    void Process();
-
-private:
-    void ProcessSession(int clientSocket);
-
-    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
-
-    void SendAck(int clientSocket);
-    void SendResponse(int clientSocket, const std::string& response);
-
-    XLEN m_XLEN;
-    ISystem* m_pSystem;
-    int m_Port;
-
-    GdbCommandFactory m_GdbCommandFactory;
-    GdbData m_GdbData;
-
-    int m_ServerSocket;
 };
 
 }}
+

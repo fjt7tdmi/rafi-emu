@@ -16,38 +16,26 @@
 
 #pragma once
 
-#include <rafi/emu.h>
+#include <sstream>
 
-#include "../ISystem.h"
+#include <rafi/trace.h>
 
-#include "GdbCommandFactory.h"
+#include "../rafi-emu/ISystem.h"
 
-namespace rafi { namespace emu {
+namespace rafi { namespace test {
 
-class GdbServer
+class StubSystem : public emu::ISystem
 {
 public:
-    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
-    ~GdbServer();
+    virtual ~StubSystem();
 
-    void Process();
-
-private:
-    void ProcessSession(int clientSocket);
-
-    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
-
-    void SendAck(int clientSocket);
-    void SendResponse(int clientSocket, const std::string& response);
-
-    XLEN m_XLEN;
-    ISystem* m_pSystem;
-    int m_Port;
-
-    GdbCommandFactory m_GdbCommandFactory;
-    GdbData m_GdbData;
-
-    int m_ServerSocket;
+    void ProcessCycle() override;
+    bool IsValidMemory(paddr_t addr, size_t size) const override;
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
+    vaddr_t GetPc() const override;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
 };
 
 }}

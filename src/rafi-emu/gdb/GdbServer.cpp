@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cinttypes>
+#include <cstring>
 #include <numeric>
 
 #include <rafi/emu.h>
@@ -24,24 +25,17 @@
 
 #include "GdbServer.h"
 #include "GdbUtil.h"
+#include "GdbTypes.h"
 
 #include "../Socket.h"
 
 namespace rafi { namespace emu {
 
-GdbServer::GdbServer(XLEN xlen, System* pSystem, int port)
-    : m_XLEN(xlen)    
+GdbServer::GdbServer(XLEN xlen, ISystem* pSystem, int port)
+    : m_XLEN(xlen)
     , m_pSystem(pSystem)
     , m_Port(port)
-{
-}
-
-GdbServer::~GdbServer()
-{
-    Stop();
-}
-
-void GdbServer::Start()
+    , m_GdbCommandFactory(xlen)
 {
     m_ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -65,21 +59,15 @@ void GdbServer::Start()
         printf("[gdb] Failed to listen() (error: %d).\n", GetSocketError());
         std::exit(1);
     }
-
-    m_Started = true;
 }
 
-void GdbServer::Stop()
+GdbServer::~GdbServer()
 {
     close(m_ServerSocket);
-
-    m_Started = false;
 }
 
 void GdbServer::Process()
 {
-    assert(m_Started);
-
     for (;;)
     {
         struct sockaddr_in addr;
@@ -95,28 +83,29 @@ void GdbServer::Process()
     }
 }
 
-void GdbServer::ProcessSession(int socket)
+void GdbServer::ProcessSession(int clientSocket)
 {
-    printf("GdbServer::ProcessSession()\n");
-
     for (;;)
     {
-        char buffer[CommandBufferSize] = {0};
+        char buffer[GdbCommandBufferSize + 1] = {0};
 
-        if (!ReadCommand(buffer, sizeof(buffer), socket))
+        if (!ReceiveCommand(buffer, GdbCommandBufferSize, clientSocket))
         {
             printf("[gdb] Failed to read command.\n");
             break;
         }
 
-        SendAck(socket);
+        SendAck(clientSocket);
 
-        auto command = std::string(buffer);
-        ProcessCommand(socket, command);
+        auto command = m_GdbCommandFactory.Parse(std::string(buffer));
+
+        auto response = command->Process(m_pSystem, &m_GdbData);
+
+        SendResponse(clientSocket, response);
     }
 }
 
-bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
+bool GdbServer::ReceiveCommand(char* buffer, size_t bufferSize, int socket)
 {
     for (;;)
     {
@@ -162,8 +151,8 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
 
     printf("[gdb] [recv] %s\n", buffer);
 
-    char checksum[2];
-    if (recv(socket, checksum, sizeof(checksum), 0) != sizeof(checksum))
+    char checksum[3] = {0};
+    if (recv(socket, checksum, 2, 0) != 2)
     {
         return false;
     }
@@ -175,7 +164,7 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
     }
 
     const uint8_t sum = (uint8_t)std::accumulate(&buffer[0], &buffer[bufferSize], 0);
-    const uint8_t checksumValue = HexToUInt8(checksum, sizeof(checksum));
+    const uint8_t checksumValue = HexToUInt8(checksum);
     if (sum != checksumValue)
     {
         printf("[gdb] Checksum verification error (sum:0x%02" PRIx8 " checksum:0x%02" PRIx8 ").", sum, checksumValue);
@@ -185,355 +174,24 @@ bool GdbServer::ReadCommand(char* buffer, size_t bufferSize, int socket)
     return true;
 }
 
-void GdbServer::SendAck(int socket)
+void GdbServer::SendAck(int clientSocket)
 {
     const auto ack = "+";
-    send(socket, ack, (int)strlen(ack), 0);
+    send(clientSocket, ack, (int)strlen(ack), 0);
 }
 
-void GdbServer::ProcessCommand(int socket, const std::string& command)
+void GdbServer::SendResponse(int clientSocket, const std::string& command)
 {
-    if (command.length() < 1)
-    {
-        SendResponse(socket, "");
-        return;
-    }
+    printf("[gdb] [send] %s\n", command.c_str());
 
-    // TODO: Implement g,m commands
-    switch (command[0])
-    {
-    case '?':
-        SendResponse(socket, "S05"); // 05: SIGTRAP
-        break;
-    case 'H':
-        // This emulator supports only thread 0, but always returns 'OK' for H command.
-        SendResponse(socket, "OK");
-        break;
-    case 'Z':
-        ProcessCommandInsertBreakPoint(socket, command);
-        break;
-    case 'c':
-        //ProcessCommandContinue(socket, command);
-        SendResponse(socket, "S05");
-        break;
-    case 'g':
-        ProcessCommandReadReg(socket);
-        break;
-    case 'm':
-        ProcessCommandReadMemory(socket, command);
-        break;
-    case 'q':
-        ProcessCommandQuery(socket, command);
-        break;
-    case 's':
-        ProcessCommandStep(socket);
-        break;
-    case 'v':
-        ProcessCommandVerbose(socket, command);
-        break;
-    case 'z':
-        ProcessCommandRemoveBreakPoint(socket, command);
-        break;
-    default:
-        SendResponse(socket, "");
-        break;
-    } 
-}
+    send(clientSocket, "$", 1, 0);
+    send(clientSocket, command.c_str(), command.size(), 0);
 
-void GdbServer::ProcessCommandInsertBreakPoint(int socket, const std::string& command)
-{
-    const auto pos0 = command.find(',');
-    if (pos0 == std::string::npos)
-    {
-        SendResponse(socket, "");
-        return;
-    }
-
-    const auto subCommand = command.substr(pos0 + 1);
-    const auto pos1 = subCommand.find(',');
-    if (pos1 == std::string::npos)
-    {
-        SendResponse(socket, "");
-        return;
-    }
-
-    const auto addr = ParseHex(subCommand.substr(0, pos1));
-
-    uint32_t value;
-    m_pSystem->ReadMemory(&value, sizeof(value), addr);
-
-    m_MemoryBackups.emplace(addr, value);
-}
-
-void GdbServer::ProcessCommandReadReg(int socket)
-{
-    switch (m_XLEN)
-    {
-    case XLEN::XLEN32:
-        ProcessCommandReadReg32(socket);
-        break;
-    case XLEN::XLEN64:
-        ProcessCommandReadReg64(socket);
-        break;
-    default:
-        RAFI_EMU_NOT_IMPLEMENTED();
-    }
-}
-
-void GdbServer::ProcessCommandReadReg32(int socket)
-{
-    const size_t bufferSize = sizeof(uint32_t) * 2 * 33 + 1;
-    char buffer[bufferSize];
-
-    // IntReg
-    trace::NodeIntReg32 intReg; 
-    m_pSystem->CopyIntReg(&intReg);
-    for (int i = 0; i < 32; i++)
-    {
-        const auto offset = sizeof(uint32_t) * 2 * i;
-        BinaryToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
-    }
-
-    // PC
-    const uint32_t pc = static_cast<uint32_t>(m_pSystem->GetPc());
-    {
-        const auto offset = sizeof(uint32_t) * 32;
-        BinaryToHex(&buffer[offset], bufferSize - offset, pc);
-    }
-
-    buffer[bufferSize - 1] = '\0';
-
-    SendResponse(socket, buffer);
-}
-
-void GdbServer::ProcessCommandReadReg64(int socket)
-{
-    const size_t bufferSize = sizeof(uint64_t) * 2 * 33 + 1;
-    char buffer[bufferSize];
-
-    // IntReg
-    trace::NodeIntReg64 intReg; 
-    m_pSystem->CopyIntReg(&intReg);
-    for (int i = 0; i < 32; i++)
-    {
-        const auto offset = sizeof(uint64_t) * 2 * i;
-        BinaryToHex(&buffer[offset], bufferSize - offset, intReg.regs[i]);
-    }
-
-    // PC
-    const uint64_t pc = static_cast<uint64_t>(m_pSystem->GetPc());
-    {
-        const auto offset = sizeof(uint64_t) * 2 * 32;
-        BinaryToHex(&buffer[offset], bufferSize - offset, pc);
-    }
-
-    buffer[bufferSize - 1] = '\0';
-
-    SendResponse(socket, buffer);
-}
-
-void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
-{
-    const auto pos = command.find(',');
-    if (pos == std::string::npos)
-    {
-        SendResponse(socket, "");
-        return;
-    }
-
-    const auto addr = static_cast<paddr_t>(ParseHex(command.substr(1, pos - 1)));
-    const auto size = static_cast<size_t>(ParseHex(command.substr(pos + 1)));
-
-    auto data = reinterpret_cast<uint8_t*>(malloc(size));
-    auto response = reinterpret_cast<char*>(malloc(size * 2 + 1));
-
-    try
-    {
-        if (m_pSystem->IsValidMemory(addr, size))
-        {
-            m_pSystem->ReadMemory(data, size, addr);
-            
-            for (size_t i = 0; i < size; i++)
-            {
-                const uint8_t high = data[i] / 0x10;
-                const uint8_t low = data[i] % 0x10;
-
-                response[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
-                response[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < size; i++)
-            {
-                response[i * 2] = 'c';
-                response[i * 2 + 1] = 'd';
-            }
-        }
-
-        response[size * 2] = '\0';
-
-        SendResponse(socket, response);
-    }
-    catch (const RafiEmuException&)
-    {
-        SendResponse(socket, "E08"); // MEMORY_ERROR
-    }
-
-    free(data);
-    free(response);
-}
-
-void GdbServer::ProcessCommandRemoveBreakPoint(int socket, const std::string& command)
-{
-    const auto pos0 = command.find(',');
-    if (pos0 == std::string::npos)
-    {
-        SendResponse(socket, "");
-        return;
-    }
-
-    const auto subCommand = command.substr(pos0 + 1);
-    const auto pos1 = subCommand.find(',');
-    if (pos1 == std::string::npos)
-    {
-        SendResponse(socket, "");
-        return;
-    }
-
-    const auto addr = ParseHex(subCommand.substr(0, pos1));
-    const auto value = m_MemoryBackups[addr];
-
-    m_pSystem->WriteMemory(&value, sizeof(value), addr);
-    m_MemoryBackups.erase(addr);
-}
-
-void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
-{
-    {
-        auto pos = command.find(';');
-        auto name = command.substr(0, pos);
-
-        if (name == "qThreadExtraInfo")
-        {            
-            char s[32] = {0};
-            StringToHex(s, sizeof(s), "Breaked.");
-
-            SendResponse(socket, s);
-            return;
-        }
-    }
-
-    {
-        auto pos = command.find(':');
-        auto name = command.substr(0, pos);
-
-        if (name == "qSupported")
-        {
-            char response[20] = {0};
-            sprintf(response, "PacketSize=%zx", CommandBufferSize);
-            SendResponse(socket, response);
-        }
-        else if (name == "qfThreadInfo")
-        {
-            SendResponse(socket, "mp01.01"); // pid 1, tid 1
-        }
-        else if (name == "qsThreadInfo")
-        {
-            SendResponse(socket, "l"); // End of thread list
-        }
-        else if (name == "qC")
-        {
-            SendResponse(socket, "QCp01.01"); // pid 1, tid 1
-        }
-        else if (name == "qAttached")
-        {
-            SendResponse(socket, "1");
-        }
-        else
-        {
-            SendResponse(socket, "");
-        }        
-    }
-}
-
-void GdbServer::ProcessCommandStep(int socket)
-{
-    m_pSystem->ProcessCycle();
-    SendResponse(socket, "S05");
-}
-
-void GdbServer::ProcessCommandVerbose(int socket, const std::string& command)
-{
-    if (command == "vMustReplyEmpty")
-    {
-        SendResponse(socket, "");
-    }
-    else if (command == "vCont?")
-    {
-        SendResponse(socket, "vCont;c;s");
-    }
-    else
-    {
-        RAFI_EMU_NOT_IMPLEMENTED();                
-    }    
-}
-
-void GdbServer::SendResponse(int socket, const char* buffer)
-{
-    printf("[gdb] [send] %s\n", buffer);
-
-    const auto bufferSize = std::strlen(buffer);
-
-    send(socket, "$", 1, 0);
-    send(socket, buffer, (int)bufferSize, 0);
-
-    const auto checksum = static_cast<uint8_t>(std::accumulate(buffer, &buffer[bufferSize], 0) % 256);
+    const auto checksum = static_cast<uint8_t>(std::accumulate(command.begin(), command.end(), 0) % 256);
 
     char str[4] = {0};
     sprintf(str, "#%02" PRIx8, checksum);
-    send(socket, str, 3, 0);
-}
-
-uint8_t GdbServer::HexToUInt8(const char* buffer, size_t bufferSize)
-{
-    uint8_t sum = 0;
-
-    for (size_t i = 0; i < bufferSize; i++)
-    {
-        sum <<= 4;
-
-        if ('0' <= buffer[i] && buffer[i] <= '9')
-        {
-            sum += static_cast<uint8_t>(buffer[i] - '0');
-        }
-        else if ('a' <= buffer[i] && buffer[i] <= 'f')
-        {
-            sum += static_cast<uint8_t>(buffer[i] - 'a' + 10);
-        }
-        else
-        {
-            printf("[gdb] input is not hex.\n");
-            exit(1);
-        }
-    }
-
-    return sum;
-}
-
-uint64_t GdbServer::ParseHex(const std::string& str)
-{
-    uint64_t sum = 0;
-
-    for (size_t i = 0; i < str.length(); i += 2)
-    {
-        sum <<= 8;
-
-        const auto digit = std::min(str.length() - i, static_cast<size_t>(2));
-        sum += HexToUInt8(&str[i], digit);
-    }
-
-    return sum;
+    send(clientSocket, str, 3, 0);
 }
 
 }}

@@ -22,25 +22,53 @@
 
 namespace rafi { namespace emu {
 
-void StringToHex(char* pOutBuffer, size_t bufferSize, const char* str)
+std::string StringToHex(const std::string& str)
 {
-    (void)bufferSize; // for release build
+    std::string response;
 
-    for (int i = 0; i < std::strlen(str); i++)
+    for (int i = 0; i < str.size(); i++)
     {
-        const char high = (str[i] % 0x100) / 0x10;
-        const char low = str[i] % 0x10;
+        const auto x = static_cast<uint8_t>(str[i]);
 
-        assert(i * 2 + 1 <= bufferSize);
+        response += BinaryToHex(x);
+    }
 
-        pOutBuffer[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
-        pOutBuffer[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
+    return response;
+}
+
+uint8_t HexCharToUInt8(char c)
+{
+    if ('0' <= c && c <= '9')
+    {
+        return static_cast<uint8_t>(c - '0');
+    }
+    else if ('a' <= c && c <= 'f')
+    {
+        return static_cast<uint8_t>(c - 'a' + 10);
+    }
+    else
+    {
+        printf("[gdb] input is not hex.\n");
+        RAFI_NOT_IMPLEMENTED();
     }
 }
 
-void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str)
+uint8_t HexToUInt8(const std::string& str)
 {
-    StringToHex(pOutBuffer, bufferSize, str.c_str());
+    return static_cast<uint8_t>(HexToUInt64(str));
+}
+
+uint64_t HexToUInt64(const std::string& str)
+{
+    uint64_t sum = 0;
+
+    for (size_t i = 0; i < str.size(); i++)
+    {
+        sum <<= 4;
+        sum += HexCharToUInt8(str[i]);
+    }
+
+    return sum;
 }
 
 }}

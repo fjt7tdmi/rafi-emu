@@ -22,35 +22,50 @@
 
 #include <rafi/emu.h>
 
-#include "../System.h"
+#include "../ISystem.h"
 
 namespace rafi { namespace emu {
 
 template <typename T>
-void BinaryToHex(char* pOutBuffer, size_t bufferSize, const T value)
+char DigitToHexChar(const T value)
 {
-    (void)bufferSize; // for release build
+    static_assert(std::is_integral_v<T>);
 
+    assert(0 <= value && value < 16);
+
+    return static_cast<char>(value < 10 ? '0' + value : 'a' + (value - 10));
+}
+
+template <typename T>
+std::string BinaryToHex(const T value)
+{
     static_assert(std::is_integral_v<T>);
     static_assert(std::is_unsigned_v<T>);
 
+    std::string response;
+
     auto tmp = value;
 
-    for (int i = 0; i < sizeof(tmp) * 2; i += 2)
+    for (int i = 0; i < sizeof(tmp); i ++)
     {
         const T high = (tmp % 0x100) / 0x10;
         const T low = tmp % 0x10;
 
-        assert(i + 1 <= bufferSize);
-
-        pOutBuffer[i] = static_cast<char>(high < 10 ? '0' + high : 'a' + (high - 10));
-        pOutBuffer[i + 1] = static_cast<char>(low < 10 ? '0' + low : 'a' + (low - 10));
+        response += static_cast<char>(DigitToHexChar(high));
+        response += static_cast<char>(DigitToHexChar(low));
 
         tmp >>= 8;
     }
+
+    return response;
 }
 
-void StringToHex(char* pOutBuffer, size_t bufferSize, const char* str);
-void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str);
+std::string StringToHex(const std::string& str);
+
+uint8_t HexCharToUInt8(char c);
+
+uint8_t HexToUInt8(const std::string& str);
+
+uint64_t HexToUInt64(const std::string& str);
 
 }}

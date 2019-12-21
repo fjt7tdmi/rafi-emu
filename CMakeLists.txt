@@ -333,6 +333,14 @@ add_executable(rafi-emu
     src/rafi-emu/cpu/Trap.h
     src/rafi-emu/cpu/TrapProcessor.cpp
     src/rafi-emu/cpu/TrapProcessor.h
+    src/rafi-emu/gdb/GdbCommandFactory.cpp
+    src/rafi-emu/gdb/GdbCommandFactory.h
+    src/rafi-emu/gdb/GdbCommands.cpp
+    src/rafi-emu/gdb/GdbCommands.h
+    src/rafi-emu/gdb/GdbData.cpp
+    src/rafi-emu/gdb/GdbData.h
+    src/rafi-emu/gdb/GdbException.h
+    src/rafi-emu/gdb/GdbTypes.h
     src/rafi-emu/gdb/GdbServer.cpp
     src/rafi-emu/gdb/GdbServer.h
     src/rafi-emu/gdb/GdbUtil.cpp
@@ -359,6 +367,7 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Rom.h
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
+    src/rafi-emu/ISystem.h
     src/rafi-emu/Main.cpp
     src/rafi-emu/Socket.cpp
     src/rafi-emu/Socket.h
@@ -370,10 +379,20 @@ add_executable(rafi-emu
 )
 
 add_executable(rafi-unit-test
+    src/rafi-emu/gdb/GdbCommandFactory.cpp
+    src/rafi-emu/gdb/GdbCommandFactory.h
+    src/rafi-emu/gdb/GdbCommands.cpp
+    src/rafi-emu/gdb/GdbCommands.h
+    src/rafi-emu/gdb/GdbData.cpp
+    src/rafi-emu/gdb/GdbData.h
+    src/rafi-emu/gdb/GdbException.h
+    src/rafi-emu/gdb/GdbTypes.h
     src/rafi-emu/gdb/GdbUtil.cpp
     src/rafi-emu/gdb/GdbUtil.h
     src/rafi-unit-test/GdbTest.cpp
     src/rafi-unit-test/OpGetStringTest.cpp
+    src/rafi-unit-test/StubSystem.cpp
+    src/rafi-unit-test/StubSystem.h
     src/rafi-unit-test/TextTraceTest.cpp
 )
 

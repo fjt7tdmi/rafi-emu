@@ -14,40 +14,27 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <string>
 
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
-
 #include "GdbCommandFactory.h"
+#include "GdbException.h"
 
 namespace rafi { namespace emu {
 
-class GdbServer
+void GdbData::PushMemoryValue(paddr_t addr, uint64_t value)
 {
-public:
-    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
-    ~GdbServer();
+    m_MemoryValues.emplace(addr, value);
+}
 
-    void Process();
+uint64_t GdbData::PopMemoryValue(paddr_t addr)
+{
+    const auto value = m_MemoryValues[addr];
 
-private:
-    void ProcessSession(int clientSocket);
+    m_MemoryValues.erase(addr);
 
-    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
-
-    void SendAck(int clientSocket);
-    void SendResponse(int clientSocket, const std::string& response);
-
-    XLEN m_XLEN;
-    ISystem* m_pSystem;
-    int m_Port;
-
-    GdbCommandFactory m_GdbCommandFactory;
-    GdbData m_GdbData;
-
-    int m_ServerSocket;
-};
+    return value;
+}
 
 }}
