@@ -58,8 +58,9 @@ void FinalizeSocket();
 // ----------------------------------------------------------------------------
 // Socket API wrapper
 
+int recv(int fd, void* buffer, size_t size, int flags);
+int send(int fd, const void* buffer, size_t size, int flags);
 int close(int fd);
-
 int GetSocketError();
 
 }}
