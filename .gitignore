@@ -17,6 +17,7 @@ CMakeCache.txt
 
 # Editor
 .vscode/ipch/
+.vscode/settings.json
 
 # Windows (MSVC)
 .vs/
