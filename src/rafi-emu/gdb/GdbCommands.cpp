@@ -276,9 +276,10 @@ GdbCommandStep::GdbCommandStep()
     // TODO: impl
 }
 
-std::string GdbCommandStep::Process(ISystem*, GdbData*)
+std::string GdbCommandStep::Process(ISystem* pSystem, GdbData*)
 {
-    RAFI_NOT_IMPLEMENTED();
+    pSystem->ProcessCycle();
+    return "S05"; // 05: SIGTRAP
 }
 
 // ----------------------------------------------------------------------------
