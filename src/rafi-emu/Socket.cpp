@@ -35,6 +35,26 @@ void FinalizeSocket()
 #endif
 }
 
+int recv(int fd, void* buffer, size_t size, int flags)
+{
+#ifdef WIN32
+    return ::recv(static_cast<SOCKET>(fd), reinterpret_cast<char*>(buffer), static_cast<int>(size), flags);
+#else
+    const auto ret = ::recv(fd, buffer, size, flags);
+    return static_cast<int>(ret);
+#endif
+}
+
+int send(int fd, const void* buffer, size_t size, int flags)
+{
+#ifdef WIN32
+    return ::send(static_cast<SOCKET>(fd), reinterpret_cast<const char*>(buffer), static_cast<int>(size), flags);
+#else
+    const auto ret = ::send(fd, buffer, size, flags);
+    return static_cast<int>(ret);
+#endif
+}
+
 int close(int fd)
 {
 #ifdef WIN32
