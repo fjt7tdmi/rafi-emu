@@ -32,9 +32,6 @@ public:
     explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
     ~GdbServer();
 
-    void Start();
-    void Stop();
-
     void Process();
 
 private:

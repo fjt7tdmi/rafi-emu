@@ -34,15 +34,6 @@ GdbServer::GdbServer(XLEN xlen, ISystem* pSystem, int port)
     , m_pSystem(pSystem)
     , m_Port(port)
 {
-}
-
-GdbServer::~GdbServer()
-{
-    Stop();
-}
-
-void GdbServer::Start()
-{
     m_ServerSocket = socket(AF_INET, SOCK_STREAM, 0);
 
     char yes = 1;
@@ -69,7 +60,7 @@ void GdbServer::Start()
     m_Started = true;
 }
 
-void GdbServer::Stop()
+GdbServer::~GdbServer()
 {
     close(m_ServerSocket);
 
