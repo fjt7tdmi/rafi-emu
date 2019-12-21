@@ -21,7 +21,7 @@
 
 #include <rafi/emu.h>
 
-#include "../System.h"
+#include "../ISystem.h"
 
 #include "GdbData.h"
 
@@ -34,7 +34,7 @@ public:
     {
     }
 
-    virtual std::string Process(System* pSystem, GdbData* pData) = 0;
+    virtual std::string Process(ISystem* pSystem, GdbData* pData) = 0;
 };
 
 class GdbCommandInvalid : public IGdbCommand
@@ -42,7 +42,7 @@ class GdbCommandInvalid : public IGdbCommand
 public:
     GdbCommandInvalid();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 class GdbCommandReadReg : public IGdbCommand
@@ -50,11 +50,11 @@ class GdbCommandReadReg : public IGdbCommand
 public:
     GdbCommandReadReg(XLEN xlen);
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 
 private:
-    std::string Process32(System* pSystem);
-    std::string Process64(System* pSystem);
+    std::string Process32(ISystem* pSystem);
+    std::string Process64(ISystem* pSystem);
 
     XLEN m_XLEN;
 };
@@ -65,7 +65,7 @@ public:
     GdbCommandReadMemory(const std::string& cmd);
     virtual ~GdbCommandReadMemory();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 
 private:
     paddr_t m_Addr;
@@ -78,7 +78,7 @@ class GdbCommandInsertBreakPoint : public IGdbCommand
 public:
     GdbCommandInsertBreakPoint(const std::string& cmd);
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 
 private:
     static const uint32_t BreakInsn = 0x100073; // ebreak
@@ -93,7 +93,7 @@ class GdbCommandRemoveBreakPoint : public IGdbCommand
 public:
     GdbCommandRemoveBreakPoint(const std::string& cmd);
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 
 private:
     paddr_t m_Addr;
@@ -105,7 +105,7 @@ class GdbCommandContinue : public IGdbCommand
 public:
     GdbCommandContinue();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 class GdbCommandStep : public IGdbCommand
@@ -113,7 +113,7 @@ class GdbCommandStep : public IGdbCommand
 public:
     GdbCommandStep();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 class GdbCommandSetThread : public IGdbCommand
@@ -121,7 +121,7 @@ class GdbCommandSetThread : public IGdbCommand
 public:
     GdbCommandSetThread();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 class GdbCommandStopReason : public IGdbCommand
@@ -129,7 +129,7 @@ class GdbCommandStopReason : public IGdbCommand
 public:
     GdbCommandStopReason();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 class GdbCommandQuery : public IGdbCommand
@@ -137,7 +137,7 @@ class GdbCommandQuery : public IGdbCommand
 public:
     GdbCommandQuery(const std::string& cmd);
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 
 private:
     std::string m_Command;
@@ -148,7 +148,7 @@ class GdbCommandContinueQuery : public IGdbCommand
 public:
     GdbCommandContinueQuery();
 
-    std::string Process(System* pSystem, GdbData* pData) override;
+    std::string Process(ISystem* pSystem, GdbData* pData) override;
 };
 
 }}

@@ -16,13 +16,26 @@
 
 #pragma once
 
-#include <rafi/emu.h>
+#include <sstream>
 
-namespace rafi { namespace emu {
+#include <rafi/trace.h>
 
-class GdbException
+#include "../rafi-emu/ISystem.h"
+
+namespace rafi { namespace test {
+
+class StubSystem : public emu::ISystem
 {
+public:
+    virtual ~StubSystem();
+
+    void ProcessCycle() override;
+    bool IsValidMemory(paddr_t addr, size_t size) const override;
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
+    vaddr_t GetPc() const override;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
 };
 
 }}
-

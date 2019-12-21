@@ -22,14 +22,14 @@
 
 #include <rafi/emu.h>
 
-#include "../System.h"
+#include "../ISystem.h"
 
 namespace rafi { namespace emu {
 
 class GdbServer
 {
 public:
-    explicit GdbServer(XLEN xlen, System* pSystem, int port);
+    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
     ~GdbServer();
 
     void Start();
@@ -60,13 +60,13 @@ private:
     void SendResponse(int socket, const char* str);
 
     uint8_t HexToUInt8(const char* buffer, size_t bufferSize);
-    
+
     uint64_t ParseHex(const std::string& str);
 
     std::map<paddr_t, uint32_t> m_MemoryBackups;
 
     XLEN m_XLEN;
-    System* m_pSystem;
+    ISystem* m_pSystem;
 
     int m_Port;
     int m_ServerSocket;

@@ -29,7 +29,7 @@ GdbCommandInvalid::GdbCommandInvalid()
 {
 }
 
-std::string GdbCommandInvalid::Process(System*, GdbData*)
+std::string GdbCommandInvalid::Process(ISystem*, GdbData*)
 {
     return "";
 }
@@ -41,7 +41,7 @@ GdbCommandReadReg::GdbCommandReadReg(XLEN xlen)
 {
 }
 
-std::string GdbCommandReadReg::Process(System* pSystem, GdbData*)
+std::string GdbCommandReadReg::Process(ISystem* pSystem, GdbData*)
 {
     switch (m_XLEN)
     {
@@ -54,7 +54,7 @@ std::string GdbCommandReadReg::Process(System* pSystem, GdbData*)
     }
 }
 
-std::string GdbCommandReadReg::Process32(System* pSystem)
+std::string GdbCommandReadReg::Process32(ISystem* pSystem)
 {
     std::string response;
 
@@ -73,7 +73,7 @@ std::string GdbCommandReadReg::Process32(System* pSystem)
     return response;
 }
 
-std::string GdbCommandReadReg::Process64(System* pSystem)
+std::string GdbCommandReadReg::Process64(ISystem* pSystem)
 {
     std::string response;
 
@@ -116,7 +116,7 @@ GdbCommandReadMemory::~GdbCommandReadMemory()
     free(m_pBuffer);
 }
 
-std::string GdbCommandReadMemory::Process(System* pSystem, GdbData*)
+std::string GdbCommandReadMemory::Process(ISystem* pSystem, GdbData*)
 {
     std::string response;
 
@@ -165,7 +165,7 @@ GdbCommandInsertBreakPoint::GdbCommandInsertBreakPoint(const std::string& cmd)
     m_Size = HexToUInt64(size);
 }
 
-std::string GdbCommandInsertBreakPoint::Process(System* pSystem, GdbData* pData)
+std::string GdbCommandInsertBreakPoint::Process(ISystem* pSystem, GdbData* pData)
 {
     switch (m_Size)
     {
@@ -215,7 +215,7 @@ GdbCommandRemoveBreakPoint::GdbCommandRemoveBreakPoint(const std::string& cmd)
     m_Size = HexToUInt64(size);
 }
 
-std::string GdbCommandRemoveBreakPoint::Process(System* pSystem, GdbData* pData)
+std::string GdbCommandRemoveBreakPoint::Process(ISystem* pSystem, GdbData* pData)
 {
     switch (m_Size)
     {
@@ -246,7 +246,7 @@ GdbCommandStep::GdbCommandStep()
     // TODO: impl
 }
 
-std::string GdbCommandStep::Process(System*, GdbData*)
+std::string GdbCommandStep::Process(ISystem*, GdbData*)
 {
     RAFI_NOT_IMPLEMENTED();
 }
@@ -258,7 +258,7 @@ GdbCommandContinue::GdbCommandContinue()
     // TODO: impl
 }
 
-std::string GdbCommandContinue::Process(System*, GdbData*)
+std::string GdbCommandContinue::Process(ISystem*, GdbData*)
 {
     RAFI_NOT_IMPLEMENTED();
 }
@@ -270,7 +270,7 @@ GdbCommandSetThread::GdbCommandSetThread()
     // TODO: support 'H' command completely
 }
 
-std::string GdbCommandSetThread::Process(System*, GdbData*)
+std::string GdbCommandSetThread::Process(ISystem*, GdbData*)
 {
     // This emulator supports only thread 0, but always returns 'OK' for H command.
     return "OK";
@@ -283,7 +283,7 @@ GdbCommandStopReason::GdbCommandStopReason()
     // TODO: support '?' command completely
 }
 
-std::string GdbCommandStopReason::Process(System*, GdbData*)
+std::string GdbCommandStopReason::Process(ISystem*, GdbData*)
 {
     return "S05"; // 05: SIGTRAP
 }
@@ -295,7 +295,7 @@ GdbCommandQuery::GdbCommandQuery(const std::string& cmd)
 {
 }
 
-std::string GdbCommandQuery::Process(System*, GdbData*)
+std::string GdbCommandQuery::Process(ISystem*, GdbData*)
 {
     {
         auto pos = m_Command.find(';');
@@ -346,7 +346,7 @@ GdbCommandContinueQuery::GdbCommandContinueQuery()
 {
 }
 
-std::string GdbCommandContinueQuery::Process(System*, GdbData*)
+std::string GdbCommandContinueQuery::Process(ISystem*, GdbData*)
 {
     return "vCont;c;s";
 }

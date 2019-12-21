@@ -14,15 +14,46 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <sstream>
 
-#include <rafi/emu.h>
+#include <rafi/trace.h>
 
-namespace rafi { namespace emu {
+#include "StubSystem.h"
 
-class GdbException
+namespace rafi { namespace test {
+
+StubSystem::~StubSystem()
+{
+}
+
+void StubSystem::ProcessCycle()
+{
+};
+
+bool StubSystem::IsValidMemory(paddr_t, size_t) const
+{
+    return false;
+};
+
+void StubSystem::ReadMemory(void*, size_t, paddr_t)
+{
+};
+
+void StubSystem::WriteMemory(const void*, size_t, paddr_t)
+{
+};
+
+vaddr_t StubSystem::GetPc() const
+{
+    return 0;
+};
+
+void StubSystem::CopyIntReg(trace::NodeIntReg32*) const
+{
+};
+
+void StubSystem::CopyIntReg(trace::NodeIntReg64*) const
 {
 };
 
 }}
-

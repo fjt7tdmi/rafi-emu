@@ -29,8 +29,8 @@
 
 namespace rafi { namespace emu {
 
-GdbServer::GdbServer(XLEN xlen, System* pSystem, int port)
-    : m_XLEN(xlen)    
+GdbServer::GdbServer(XLEN xlen, ISystem* pSystem, int port)
+    : m_XLEN(xlen)
     , m_pSystem(pSystem)
     , m_Port(port)
 {
@@ -237,7 +237,7 @@ void GdbServer::ProcessCommand(int socket, const std::string& command)
     default:
         SendResponse(socket, "");
         break;
-    } 
+    }
 }
 
 void GdbServer::ProcessCommandInsertBreakPoint(int socket, const std::string& command)
@@ -286,7 +286,7 @@ void GdbServer::ProcessCommandReadReg32(int socket)
     char buffer[bufferSize];
 
     // IntReg
-    trace::NodeIntReg32 intReg; 
+    trace::NodeIntReg32 intReg;
     m_pSystem->CopyIntReg(&intReg);
     for (int i = 0; i < 32; i++)
     {
@@ -312,7 +312,7 @@ void GdbServer::ProcessCommandReadReg64(int socket)
     char buffer[bufferSize];
 
     // IntReg
-    trace::NodeIntReg64 intReg; 
+    trace::NodeIntReg64 intReg;
     m_pSystem->CopyIntReg(&intReg);
     for (int i = 0; i < 32; i++)
     {
@@ -352,7 +352,7 @@ void GdbServer::ProcessCommandReadMemory(int socket, const std::string& command)
         if (m_pSystem->IsValidMemory(addr, size))
         {
             m_pSystem->ReadMemory(data, size, addr);
-            
+
             for (size_t i = 0; i < size; i++)
             {
                 const uint8_t high = data[i] / 0x10;
@@ -415,7 +415,7 @@ void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
         auto name = command.substr(0, pos);
 
         if (name == "qThreadExtraInfo")
-        {            
+        {
             char s[32] = {0};
             StringToHex(s, sizeof(s), "Breaked.");
 
@@ -453,7 +453,7 @@ void GdbServer::ProcessCommandQuery(int socket, const std::string& command)
         else
         {
             SendResponse(socket, "");
-        }        
+        }
     }
 }
 
@@ -475,8 +475,8 @@ void GdbServer::ProcessCommandVerbose(int socket, const std::string& command)
     }
     else
     {
-        RAFI_EMU_NOT_IMPLEMENTED();                
-    }    
+        RAFI_EMU_NOT_IMPLEMENTED();
+    }
 }
 
 void GdbServer::SendResponse(int socket, const char* buffer)

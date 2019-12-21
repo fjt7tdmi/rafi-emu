@@ -18,6 +18,8 @@
 
 #include <rafi/emu.h>
 
+#include "bus/Bus.h"
+#include "cpu/Processor.h"
 #include "io/IoInterruptSource.h"
 #include "io/Clint.h"
 #include "io/Plic.h"
@@ -25,20 +27,18 @@
 #include "io/Uart16550.h"
 #include "io/Timer.h"
 #include "io/VirtIo.h"
-
 #include "mem/Ram.h"
 #include "mem/Rom.h"
 
-#include "bus/Bus.h"
-
-#include "cpu/Processor.h"
+#include "ISystem.h"
 
 namespace rafi { namespace emu {
 
-class System
+class System final : public ISystem
 {
 public:
     System(XLEN xlen, vaddr_t pc, size_t ramSize);
+    virtual ~System();
 
     // Setup
     void LoadFileToMemory(const char* path, paddr_t address);
@@ -46,30 +46,30 @@ public:
     void SetHostIoAddress(vaddr_t address);
 
     // Process
-    void ProcessCycle();
+    void ProcessCycle() override;
 
     // for gdbserver
-    bool IsValidMemory(paddr_t addr, size_t size) const;
-    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr);
-    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr);
+    bool IsValidMemory(paddr_t addr, size_t size) const override;
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
 
     // for Dump
     int GetCsrCount() const;
     size_t GetRamSize() const;
     size_t GetMemoryAccessEventCount() const;
-
     uint32_t GetHostIoValue() const;
-    vaddr_t GetPc() const;
 
-    void CopyIntReg(trace::NodeIntReg32* pOut) const;
-    void CopyIntReg(trace::NodeIntReg64* pOut) const;
+    vaddr_t GetPc() const override;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
+
     void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
     void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;
     void CopyFpReg(void* pOut, size_t size) const;
     void CopyOpEvent(OpEvent* pOut) const;
     void CopyTrapEvent(TrapEvent* pOut) const;
     void CopyMemoryAccessEvent(MemoryAccessEvent* pOut, int index) const;
-    
+
     bool IsOpEventExist() const;
     bool IsTrapEventExist() const;
 

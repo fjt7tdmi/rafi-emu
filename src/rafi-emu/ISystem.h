@@ -20,9 +20,21 @@
 
 namespace rafi { namespace emu {
 
-class GdbException
+class ISystem
 {
+public:
+    virtual ~ISystem()
+    {
+    };
+
+    virtual void ProcessCycle() = 0;
+    virtual bool IsValidMemory(paddr_t addr, size_t size) const = 0;
+    virtual void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) = 0;
+    virtual void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) = 0;
+
+    virtual vaddr_t GetPc() const = 0;
+    virtual void CopyIntReg(trace::NodeIntReg32* pOut) const = 0;
+    virtual void CopyIntReg(trace::NodeIntReg64* pOut) const = 0;
 };
 
 }}
-

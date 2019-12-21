@@ -57,6 +57,10 @@ System::System(XLEN xlen, vaddr_t pc, size_t ramSize)
     m_Clint.RegisterProcessor(&m_Processor);
 }
 
+System::~System()
+{
+}
+
 void System::LoadFileToMemory(const char* path, paddr_t address)
 {
     auto location = m_Bus.ConvertToMemoryLocation(address);

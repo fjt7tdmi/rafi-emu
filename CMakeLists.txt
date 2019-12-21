@@ -359,6 +359,7 @@ add_executable(rafi-emu
     src/rafi-emu/mem/Rom.h
     src/rafi-emu/CommandLineOption.cpp
     src/rafi-emu/CommandLineOption.h
+    src/rafi-emu/ISystem.h
     src/rafi-emu/Main.cpp
     src/rafi-emu/Socket.cpp
     src/rafi-emu/Socket.h
@@ -382,6 +383,8 @@ add_executable(rafi-unit-test
     src/rafi-emu/gdb/GdbUtil.h
     src/rafi-unit-test/GdbTest.cpp
     src/rafi-unit-test/OpGetStringTest.cpp
+    src/rafi-unit-test/StubSystem.cpp
+    src/rafi-unit-test/StubSystem.h
     src/rafi-unit-test/TextTraceTest.cpp
 )
 
