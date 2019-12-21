@@ -291,7 +291,7 @@ GdbCommandContinue::GdbCommandContinue()
 
 std::string GdbCommandContinue::Process(ISystem*, GdbData*)
 {
-    RAFI_NOT_IMPLEMENTED;
+    return "S05"; // 05: SIGTRAP
 }
 
 // ----------------------------------------------------------------------------
