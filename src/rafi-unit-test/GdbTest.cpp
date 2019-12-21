@@ -35,9 +35,8 @@ TEST(GdbTest, BinaryToHex)
 {
     auto test = [](const char* expected, const auto value)
     {
-        char buffer[256] = {0};
-        BinaryToHex(buffer, sizeof(buffer), value);
-        ASSERT_STREQ(expected, buffer);
+        auto actual = BinaryToHex(value);
+        ASSERT_STREQ(expected, actual.c_str());
     };
 
     test("00", static_cast<uint8_t>(0x00));

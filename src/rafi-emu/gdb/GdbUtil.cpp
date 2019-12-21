@@ -22,27 +22,6 @@
 
 namespace rafi { namespace emu {
 
-void StringToHex(char* pOutBuffer, size_t bufferSize, const char* str)
-{
-    (void)bufferSize; // for release build
-
-    for (int i = 0; i < std::strlen(str); i++)
-    {
-        const char high = (str[i] % 0x100) / 0x10;
-        const char low = str[i] % 0x10;
-
-        assert(i * 2 + 1 <= bufferSize);
-
-        pOutBuffer[i * 2] = high < 10 ? '0' + high : 'a' + (high - 10);
-        pOutBuffer[i * 2 + 1] = low < 10 ? '0' + low : 'a' + (low - 10);
-    }
-}
-
-void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str)
-{
-    StringToHex(pOutBuffer, bufferSize, str.c_str());
-}
-
 std::string StringToHex(const std::string& str)
 {
     std::string response;

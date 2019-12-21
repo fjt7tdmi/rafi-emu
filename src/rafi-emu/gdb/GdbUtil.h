@@ -26,31 +26,6 @@
 
 namespace rafi { namespace emu {
 
-// deprecated
-template <typename T>
-void BinaryToHex(char* pOutBuffer, size_t bufferSize, const T value)
-{
-    (void)bufferSize; // for release build
-
-    static_assert(std::is_integral_v<T>);
-    static_assert(std::is_unsigned_v<T>);
-
-    auto tmp = value;
-
-    for (int i = 0; i < sizeof(tmp) * 2; i += 2)
-    {
-        const T high = (tmp % 0x100) / 0x10;
-        const T low = tmp % 0x10;
-
-        assert(i + 1 <= bufferSize);
-
-        pOutBuffer[i] = static_cast<char>(high < 10 ? '0' + high : 'a' + (high - 10));
-        pOutBuffer[i + 1] = static_cast<char>(low < 10 ? '0' + low : 'a' + (low - 10));
-
-        tmp >>= 8;
-    }
-}
-
 template <typename T>
 char DigitToHexChar(const T value)
 {
@@ -84,12 +59,6 @@ std::string BinaryToHex(const T value)
 
     return response;
 }
-
-// deprecated
-void StringToHex(char* pOutBuffer, size_t bufferSize, const char* str);
-
-// deprecated
-void StringToHex(char* pOutBuffer, size_t bufferSize, const std::string str);
 
 std::string StringToHex(const std::string& str);
 

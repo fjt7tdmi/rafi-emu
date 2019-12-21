@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cinttypes>
+#include <cstring>
 #include <numeric>
 
 #include <rafi/emu.h>
