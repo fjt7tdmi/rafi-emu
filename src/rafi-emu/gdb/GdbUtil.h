@@ -22,8 +22,6 @@
 
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
-
 namespace rafi { namespace emu {
 
 template <typename T>

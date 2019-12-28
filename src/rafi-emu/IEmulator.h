@@ -18,36 +18,23 @@
 
 #include <rafi/emu.h>
 
-#include "../IEmulator.h"
-
-#include "GdbCommandFactory.h"
-
 namespace rafi { namespace emu {
 
-class GdbServer
+class IEmulator
 {
 public:
-    explicit GdbServer(XLEN xlen, IEmulator* pEmulator, int port);
-    ~GdbServer();
+    virtual ~IEmulator()
+    {
+    };
 
-    void Process();
+    virtual void ProcessCycle() = 0;
+    virtual bool IsValidMemory(paddr_t addr, size_t size) const = 0;
+    virtual void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) = 0;
+    virtual void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) = 0;
 
-private:
-    void ProcessSession(int clientSocket);
-
-    bool ReceiveCommand(char* pOutBuffer, size_t bufferSize, int clientSocket);
-
-    void SendAck(int clientSocket);
-    void SendResponse(int clientSocket, const std::string& response);
-
-    XLEN m_XLEN;
-    IEmulator* m_pEmulator;
-    int m_Port;
-
-    GdbCommandFactory m_GdbCommandFactory;
-    GdbData m_GdbData;
-
-    int m_ServerSocket;
+    virtual vaddr_t GetPc() const = 0;
+    virtual void CopyIntReg(trace::NodeIntReg32* pOut) const = 0;
+    virtual void CopyIntReg(trace::NodeIntReg64* pOut) const = 0;
 };
 
 }}

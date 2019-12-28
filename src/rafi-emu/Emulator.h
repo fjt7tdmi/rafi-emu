@@ -18,23 +18,30 @@
 
 #include <rafi/emu.h>
 
+#include "System.h"
+#include "IEmulator.h"
+
 namespace rafi { namespace emu {
 
-class ISystem
+class Emulator final : public IEmulator
 {
 public:
-    virtual ~ISystem()
-    {
-    };
+    Emulator(XLEN xlen, vaddr_t pc, size_t ramSize);
+    virtual ~Emulator();
 
-    virtual void ProcessCycle() = 0;
-    virtual bool IsValidMemory(paddr_t addr, size_t size) const = 0;
-    virtual void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) = 0;
-    virtual void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) = 0;
+    System* GetSystem();
 
-    virtual vaddr_t GetPc() const = 0;
-    virtual void CopyIntReg(trace::NodeIntReg32* pOut) const = 0;
-    virtual void CopyIntReg(trace::NodeIntReg64* pOut) const = 0;
+    void ProcessCycle() override;
+    bool IsValidMemory(paddr_t addr, size_t size) const override;
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
+
+    vaddr_t GetPc() const override;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
+
+private:
+    System m_System;
 };
 
 }}

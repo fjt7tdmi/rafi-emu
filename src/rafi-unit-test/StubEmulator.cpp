@@ -14,28 +14,46 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <sstream>
 
 #include <rafi/trace.h>
 
-#include "../rafi-emu/ISystem.h"
+#include "StubEmulator.h"
 
 namespace rafi { namespace test {
 
-class StubSystem : public emu::ISystem
+StubEmulator::~StubEmulator()
 {
-public:
-    virtual ~StubSystem();
+}
 
-    void ProcessCycle() override;
-    bool IsValidMemory(paddr_t addr, size_t size) const override;
-    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
-    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
-    vaddr_t GetPc() const override;
-    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
-    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
-};
+void StubEmulator::ProcessCycle()
+{
+}
+
+bool StubEmulator::IsValidMemory(paddr_t, size_t) const
+{
+    return false;
+}
+
+void StubEmulator::ReadMemory(void*, size_t, paddr_t)
+{
+}
+
+void StubEmulator::WriteMemory(const void*, size_t, paddr_t)
+{
+}
+
+vaddr_t StubEmulator::GetPc() const
+{
+    return 0;
+}
+
+void StubEmulator::CopyIntReg(trace::NodeIntReg32*) const
+{
+}
+
+void StubEmulator::CopyIntReg(trace::NodeIntReg64*) const
+{
+}
 
 }}
