@@ -18,7 +18,9 @@
 
 #include <rafi/emu.h>
 
+#include "CommandLineOption.h"
 #include "System.h"
+#include "TraceLogger.h"
 #include "IEmulator.h"
 
 namespace rafi { namespace emu {
@@ -26,12 +28,17 @@ namespace rafi { namespace emu {
 class Emulator final : public IEmulator
 {
 public:
-    Emulator(XLEN xlen, vaddr_t pc, size_t ramSize);
+    Emulator(CommandLineOption option);
     virtual ~Emulator();
 
-    System* GetSystem();
+    void LoadFileToMemory(const char* path, paddr_t address);
+    void PrintStatus() const;
+    int GetCycle() const;
 
+    void Process(EmulationStop condition, int cycle);
+    void Process(EmulationStop condition) override;
     void ProcessCycle() override;
+
     bool IsValidMemory(paddr_t addr, size_t size) const override;
     void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
     void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
@@ -41,7 +48,16 @@ public:
     void CopyIntReg(trace::NodeIntReg64* pOut) const override;
 
 private:
+    static const int CycleForever = -1;
+
+    bool IsStopConditionFilledPre(EmulationStop condition);
+    bool IsStopConditionFilledPost(EmulationStop condition);
+
+    const CommandLineOption& m_Option;
     System m_System;
+    TraceLogger m_Logger;
+
+    int m_Cycle{0};
 };
 
 }}

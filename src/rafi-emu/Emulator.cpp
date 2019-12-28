@@ -20,18 +20,79 @@
 
 namespace rafi { namespace emu {
 
-Emulator::Emulator(XLEN xlen, vaddr_t pc, size_t ramSize)
-    : m_System(xlen, pc, ramSize)
+Emulator::Emulator(CommandLineOption option)
+    : m_Option(option)
+    , m_System(option.GetXLEN(), option.GetPc(), option.GetRamSize())
+    , m_Logger(option.GetXLEN(), option.GetTraceLoggerConfig(), &m_System)
 {
+    if (option.IsHostIoEnabled())
+    {
+        m_System.SetHostIoAddress(option.GetHostIoAddress());
+    }
+
+    m_System.SetDtbAddress(option.GetDtbAddress());
 }
 
 Emulator::~Emulator()
 {
 }
 
-System* Emulator::GetSystem()
+void Emulator::LoadFileToMemory(const char* path, paddr_t address)
 {
-    return &m_System;
+    m_System.LoadFileToMemory(path, address);
+}
+
+void Emulator::PrintStatus() const
+{
+    m_System.PrintStatus();
+}
+
+int Emulator::GetCycle() const
+{
+    return m_Cycle;
+}
+
+void Emulator::Process(EmulationStop condition, int cycle)
+{
+    while (m_Cycle < cycle || cycle == CycleForever)
+    {
+        const bool dumpEnabled = m_Cycle >= m_Option.GetDumpSkipCycle();
+        
+        if (dumpEnabled)
+        {
+            m_Logger.BeginCycle(cycle, m_System.GetPc());
+            m_Logger.RecordState();
+        }
+
+        if (IsStopConditionFilledPre(condition))
+        {
+            if (dumpEnabled)
+            {
+                m_Logger.EndCycle();
+            }
+            break;
+        }
+
+        ProcessCycle();
+
+        if (dumpEnabled)
+        {
+            m_Logger.RecordEvent();
+            m_Logger.EndCycle();
+        }
+
+        if (IsStopConditionFilledPost(condition))
+        {
+            break;
+        }
+
+        m_Cycle++;
+    }
+}
+
+void Emulator::Process(EmulationStop condition)
+{
+    Process(condition, CycleForever);
 }
 
 void Emulator::ProcessCycle()
@@ -67,6 +128,35 @@ void Emulator::CopyIntReg(trace::NodeIntReg32* pOut) const
 void Emulator::CopyIntReg(trace::NodeIntReg64* pOut) const
 {
     m_System.CopyIntReg(pOut);
+}
+
+bool Emulator::IsStopConditionFilledPre(EmulationStop condition)
+{
+    if (condition & EmulationStop_HostIo)
+    {
+        if (m_System.GetHostIoValue() != 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Emulator::IsStopConditionFilledPost(EmulationStop condition)
+{
+    if (condition & EmulationStop_Breakpoint)
+    {
+        if (m_System.IsTrapEventExist())
+        {
+            TrapEvent trapEvent;
+            m_System.CopyTrapEvent(&trapEvent);
+
+            return trapEvent.trapType == TrapType::Exception && trapEvent.trapCause == static_cast<uint32_t>(ExceptionType::Breakpoint);
+        }
+    }
+
+    return false;
 }
 
 }}

@@ -285,12 +285,12 @@ std::string GdbCommandStep::Process(IEmulator* pEmulator, GdbData*)
 
 GdbCommandContinue::GdbCommandContinue()
 {
-    // TODO: impl
 }
 
-std::string GdbCommandContinue::Process(IEmulator*, GdbData*)
+std::string GdbCommandContinue::Process(IEmulator* pEmulator, GdbData*)
 {
-    return "S05"; // 05: SIGTRAP
+    pEmulator->Process(EmulationStop_Breakpoint);
+    return "S05";
 }
 
 // ----------------------------------------------------------------------------
