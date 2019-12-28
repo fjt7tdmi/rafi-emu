@@ -31,9 +31,9 @@
 
 namespace rafi { namespace emu {
 
-GdbServer::GdbServer(XLEN xlen, ISystem* pSystem, int port)
+GdbServer::GdbServer(XLEN xlen, IEmulator* pEmulator, int port)
     : m_XLEN(xlen)
-    , m_pSystem(pSystem)
+    , m_pEmulator(pEmulator)
     , m_Port(port)
     , m_GdbCommandFactory(xlen)
 {
@@ -99,7 +99,7 @@ void GdbServer::ProcessSession(int clientSocket)
 
         auto command = m_GdbCommandFactory.Parse(std::string(buffer));
 
-        auto response = command->Process(m_pSystem, &m_GdbData);
+        auto response = command->Process(m_pEmulator, &m_GdbData);
 
         SendResponse(clientSocket, response);
     }

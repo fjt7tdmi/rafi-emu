@@ -20,14 +20,23 @@
 
 namespace rafi { namespace emu {
 
-class ISystem
+enum EmulationStop
+{
+    EmulationStop_None = 0,
+    EmulationStop_HostIo = 1,
+    EmulationStop_Breakpoint = 2,
+};
+
+class IEmulator
 {
 public:
-    virtual ~ISystem()
+    virtual ~IEmulator()
     {
     };
 
+    virtual void Process(EmulationStop condition) = 0;
     virtual void ProcessCycle() = 0;
+
     virtual bool IsValidMemory(paddr_t addr, size_t size) const = 0;
     virtual void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) = 0;
     virtual void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) = 0;

@@ -21,7 +21,7 @@
 
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
+#include "../IEmulator.h"
 
 #include "GdbData.h"
 
@@ -34,7 +34,7 @@ public:
     {
     }
 
-    virtual std::string Process(ISystem* pSystem, GdbData* pData) = 0;
+    virtual std::string Process(IEmulator* pEmulator, GdbData* pData) = 0;
 };
 
 class GdbCommandInvalid : public IGdbCommand
@@ -42,7 +42,7 @@ class GdbCommandInvalid : public IGdbCommand
 public:
     GdbCommandInvalid();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 class GdbCommandReadReg : public IGdbCommand
@@ -50,11 +50,11 @@ class GdbCommandReadReg : public IGdbCommand
 public:
     GdbCommandReadReg(XLEN xlen);
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 
 private:
-    std::string Process32(ISystem* pSystem);
-    std::string Process64(ISystem* pSystem);
+    std::string Process32(IEmulator* pEmulator);
+    std::string Process64(IEmulator* pEmulator);
 
     XLEN m_XLEN;
 };
@@ -65,7 +65,7 @@ public:
     GdbCommandReadMemory(const std::string& cmd);
     virtual ~GdbCommandReadMemory();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 
     paddr_t GetAddr() const;
     size_t GetSize() const;
@@ -81,7 +81,7 @@ class GdbCommandInsertBreakPoint : public IGdbCommand
 public:
     GdbCommandInsertBreakPoint(const std::string& cmd);
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 
     paddr_t GetAddr() const;
     size_t GetSize() const;
@@ -99,7 +99,7 @@ class GdbCommandRemoveBreakPoint : public IGdbCommand
 public:
     GdbCommandRemoveBreakPoint(const std::string& cmd);
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 
     paddr_t GetAddr() const;
     size_t GetSize() const;
@@ -114,7 +114,7 @@ class GdbCommandContinue : public IGdbCommand
 public:
     GdbCommandContinue();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 class GdbCommandStep : public IGdbCommand
@@ -122,7 +122,7 @@ class GdbCommandStep : public IGdbCommand
 public:
     GdbCommandStep();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 class GdbCommandSetThread : public IGdbCommand
@@ -130,7 +130,7 @@ class GdbCommandSetThread : public IGdbCommand
 public:
     GdbCommandSetThread();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 class GdbCommandStopReason : public IGdbCommand
@@ -138,7 +138,7 @@ class GdbCommandStopReason : public IGdbCommand
 public:
     GdbCommandStopReason();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 class GdbCommandQuery : public IGdbCommand
@@ -146,7 +146,7 @@ class GdbCommandQuery : public IGdbCommand
 public:
     GdbCommandQuery(const std::string& cmd);
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 
 private:
     std::string m_Command;
@@ -157,7 +157,7 @@ class GdbCommandContinueQuery : public IGdbCommand
 public:
     GdbCommandContinueQuery();
 
-    std::string Process(ISystem* pSystem, GdbData* pData) override;
+    std::string Process(IEmulator* pEmulator, GdbData* pData) override;
 };
 
 }}

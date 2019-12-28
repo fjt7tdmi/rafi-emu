@@ -18,7 +18,7 @@
 
 #include <rafi/emu.h>
 
-#include "../ISystem.h"
+#include "../IEmulator.h"
 
 #include "GdbCommandFactory.h"
 
@@ -27,7 +27,7 @@ namespace rafi { namespace emu {
 class GdbServer
 {
 public:
-    explicit GdbServer(XLEN xlen, ISystem* pSystem, int port);
+    explicit GdbServer(XLEN xlen, IEmulator* pEmulator, int port);
     ~GdbServer();
 
     void Process();
@@ -41,7 +41,7 @@ private:
     void SendResponse(int clientSocket, const std::string& response);
 
     XLEN m_XLEN;
-    ISystem* m_pSystem;
+    IEmulator* m_pEmulator;
     int m_Port;
 
     GdbCommandFactory m_GdbCommandFactory;

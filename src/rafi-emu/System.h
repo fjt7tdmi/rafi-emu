@@ -30,15 +30,14 @@
 #include "mem/Ram.h"
 #include "mem/Rom.h"
 
-#include "ISystem.h"
+#include "IEmulator.h"
 
 namespace rafi { namespace emu {
 
-class System final : public ISystem
+class System final
 {
 public:
     System(XLEN xlen, vaddr_t pc, size_t ramSize);
-    virtual ~System();
 
     // Setup
     void LoadFileToMemory(const char* path, paddr_t address);
@@ -46,12 +45,12 @@ public:
     void SetHostIoAddress(vaddr_t address);
 
     // Process
-    void ProcessCycle() override;
+    void ProcessCycle();
 
     // for gdbserver
-    bool IsValidMemory(paddr_t addr, size_t size) const override;
-    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr) override;
-    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr) override;
+    bool IsValidMemory(paddr_t addr, size_t size) const;
+    void ReadMemory(void* pOutBuffer, size_t bufferSize, paddr_t addr);
+    void WriteMemory(const void* pBuffer, size_t bufferSize, paddr_t addr);
 
     // for Dump
     int GetCsrCount() const;
@@ -59,9 +58,9 @@ public:
     size_t GetMemoryAccessEventCount() const;
     uint32_t GetHostIoValue() const;
 
-    vaddr_t GetPc() const override;
-    void CopyIntReg(trace::NodeIntReg32* pOut) const override;
-    void CopyIntReg(trace::NodeIntReg64* pOut) const override;
+    vaddr_t GetPc() const;
+    void CopyIntReg(trace::NodeIntReg32* pOut) const;
+    void CopyIntReg(trace::NodeIntReg64* pOut) const;
 
     void CopyCsr(trace::Csr32Node* pOutNodes, int nodeCount) const;
     void CopyCsr(trace::Csr64Node* pOutNodes, int nodeCount) const;

@@ -26,21 +26,18 @@
 
 #include "CommandLineOption.h"
 #include "Socket.h"
-#include "System.h"
-#include "TraceLogger.h"
+#include "Emulator.h"
 
 int main(int argc, char** argv)
 {
     rafi::emu::CommandLineOption option(argc, argv);
-
-    rafi::emu::System system(option.GetXLEN(), option.GetPc(), option.GetRamSize());
-    rafi::emu::TraceLogger logger(option.GetXLEN(), option.GetTraceLoggerConfig(), &system);
+    rafi::emu::Emulator emulator(option);
 
     try
     {
         for (auto& loadOption: option.GetLoadOptions())
         {
-            system.LoadFileToMemory(loadOption.GetPath().c_str(), loadOption.GetAddress());
+            emulator.LoadFileToMemory(loadOption.GetPath().c_str(), loadOption.GetAddress());
         }
     }
     catch (rafi::FileOpenFailureException e)
@@ -49,55 +46,23 @@ int main(int argc, char** argv)
         std::exit(1);
     }
 
-    if (option.IsHostIoEnabled())
-    {
-        system.SetHostIoAddress(option.GetHostIoAddress());
-    }
-
-    system.SetDtbAddress(option.GetDtbAddress());
-
-    int cycle = 0;
-
     try
     {
-        for (; cycle < option.GetCycle(); cycle++)
-        {
-            const bool dumpEnabled = cycle >= option.GetDumpSkipCycle();
-            const bool lastCycle = option.IsHostIoEnabled() && system.GetHostIoValue() != 0;
+        const auto condition = option.IsHostIoEnabled()
+            ? rafi::emu::EmulationStop_HostIo
+            : rafi::emu::EmulationStop_None;
 
-            if (dumpEnabled)
-            {
-                logger.BeginCycle(cycle, system.GetPc());
-                logger.RecordState();
-            }
-
-            if (lastCycle)
-            {
-                if (dumpEnabled)
-                {
-                    logger.EndCycle();
-                }
-                break;
-            }
-
-            system.ProcessCycle();
-
-            if (dumpEnabled)
-            {
-                logger.RecordEvent();
-                logger.EndCycle();
-            }
-        }
+        emulator.Process(condition, option.GetCycle());
     }
     catch (rafi::emu::RafiEmuException)
     {
         std::cout << "Emulation stopped by exception." << std::endl;
-        system.PrintStatus();
+        emulator.PrintStatus();
     }
 
     std::cout << "Emulation finished @ cycle "
-        << std::dec << cycle
-        << std::hex << " (0x" << cycle << ")" << std::endl;
+        << std::dec << emulator.GetCycle()
+        << std::hex << " (0x" << emulator.GetCycle() << ")" << std::endl;
 
     if (option.IsGdbEnabled())
     {
@@ -105,7 +70,7 @@ int main(int argc, char** argv)
 
         std::cout << "Start gdb server." << std::endl;
 
-        rafi::emu::GdbServer gdbServer(option.GetXLEN(), &system, option.GetGdbPort());
+        rafi::emu::GdbServer gdbServer(option.GetXLEN(), &emulator, option.GetGdbPort());
         gdbServer.Process();
 
         rafi::emu::FinalizeSocket();

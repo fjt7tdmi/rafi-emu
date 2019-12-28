@@ -29,7 +29,7 @@ GdbCommandInvalid::GdbCommandInvalid()
 {
 }
 
-std::string GdbCommandInvalid::Process(ISystem*, GdbData*)
+std::string GdbCommandInvalid::Process(IEmulator*, GdbData*)
 {
     return "";
 }
@@ -41,26 +41,26 @@ GdbCommandReadReg::GdbCommandReadReg(XLEN xlen)
 {
 }
 
-std::string GdbCommandReadReg::Process(ISystem* pSystem, GdbData*)
+std::string GdbCommandReadReg::Process(IEmulator* pEmulator, GdbData*)
 {
     switch (m_XLEN)
     {
     case XLEN::XLEN32:
-        return Process32(pSystem);
+        return Process32(pEmulator);
     case XLEN::XLEN64:
-        return Process64(pSystem);
+        return Process64(pEmulator);
     default:
         RAFI_EMU_NOT_IMPLEMENTED;
     }
 }
 
-std::string GdbCommandReadReg::Process32(ISystem* pSystem)
+std::string GdbCommandReadReg::Process32(IEmulator* pEmulator)
 {
     std::string response;
 
     // IntReg
     trace::NodeIntReg32 intReg;
-    pSystem->CopyIntReg(&intReg);
+    pEmulator->CopyIntReg(&intReg);
 
     for (auto value: intReg.regs)
     {
@@ -68,18 +68,18 @@ std::string GdbCommandReadReg::Process32(ISystem* pSystem)
     }
 
     // PC
-    response += BinaryToHex(static_cast<uint32_t>(pSystem->GetPc()));
+    response += BinaryToHex(static_cast<uint32_t>(pEmulator->GetPc()));
 
     return response;
 }
 
-std::string GdbCommandReadReg::Process64(ISystem* pSystem)
+std::string GdbCommandReadReg::Process64(IEmulator* pEmulator)
 {
     std::string response;
 
     // IntReg
     trace::NodeIntReg64 intReg;
-    pSystem->CopyIntReg(&intReg);
+    pEmulator->CopyIntReg(&intReg);
 
     for (auto value: intReg.regs)
     {
@@ -87,7 +87,7 @@ std::string GdbCommandReadReg::Process64(ISystem* pSystem)
     }
 
     // PC
-    response += BinaryToHex(static_cast<uint64_t>(pSystem->GetPc()));
+    response += BinaryToHex(static_cast<uint64_t>(pEmulator->GetPc()));
 
     return response;
 }
@@ -116,15 +116,15 @@ GdbCommandReadMemory::~GdbCommandReadMemory()
     free(m_pBuffer);
 }
 
-std::string GdbCommandReadMemory::Process(ISystem* pSystem, GdbData*)
+std::string GdbCommandReadMemory::Process(IEmulator* pEmulator, GdbData*)
 {
     std::string response;
 
     try
     {
-        if (pSystem->IsValidMemory(m_Addr, m_Size))
+        if (pEmulator->IsValidMemory(m_Addr, m_Size))
         {
-            pSystem->ReadMemory(m_pBuffer, m_Size, m_Addr);
+            pEmulator->ReadMemory(m_pBuffer, m_Size, m_Addr);
 
             for (size_t i = 0; i < m_Size; i++)
             {
@@ -175,29 +175,29 @@ GdbCommandInsertBreakPoint::GdbCommandInsertBreakPoint(const std::string& cmd)
     m_Size = HexToUInt64(size);
 }
 
-std::string GdbCommandInsertBreakPoint::Process(ISystem* pSystem, GdbData* pData)
+std::string GdbCommandInsertBreakPoint::Process(IEmulator* pEmulator, GdbData* pData)
 {
     switch (m_Size)
     {
     case 2:
         {
             uint16_t value;
-            pSystem->ReadMemory(&value, sizeof(value), m_Addr);
+            pEmulator->ReadMemory(&value, sizeof(value), m_Addr);
             pData->PushMemoryValue(m_Addr, value);
 
             uint16_t insn = ShortBreakInsn;
-            pSystem->WriteMemory(&insn, sizeof(insn), m_Addr);
+            pEmulator->WriteMemory(&insn, sizeof(insn), m_Addr);
             return "OK";
         }
         break;
     case 4:
         {
             uint32_t value;
-            pSystem->ReadMemory(&value, sizeof(value), m_Addr);
+            pEmulator->ReadMemory(&value, sizeof(value), m_Addr);
             pData->PushMemoryValue(m_Addr, value);
 
             uint32_t insn = BreakInsn;
-            pSystem->WriteMemory(&insn, sizeof(insn), m_Addr);
+            pEmulator->WriteMemory(&insn, sizeof(insn), m_Addr);
             return "OK";
         }
         break;
@@ -235,21 +235,21 @@ GdbCommandRemoveBreakPoint::GdbCommandRemoveBreakPoint(const std::string& cmd)
     m_Size = HexToUInt64(size);
 }
 
-std::string GdbCommandRemoveBreakPoint::Process(ISystem* pSystem, GdbData* pData)
+std::string GdbCommandRemoveBreakPoint::Process(IEmulator* pEmulator, GdbData* pData)
 {
     switch (m_Size)
     {
     case 2:
         {
             auto value = static_cast<uint16_t>(pData->PopMemoryValue(m_Addr));
-            pSystem->WriteMemory(&value, sizeof(value), m_Addr);
+            pEmulator->WriteMemory(&value, sizeof(value), m_Addr);
             return "OK";
         }
         break;
     case 4:
         {
             auto value = static_cast<uint32_t>(pData->PopMemoryValue(m_Addr));
-            pSystem->WriteMemory(&value, sizeof(value), m_Addr);
+            pEmulator->WriteMemory(&value, sizeof(value), m_Addr);
             return "OK";
         }
         break;
@@ -273,25 +273,24 @@ size_t GdbCommandRemoveBreakPoint::GetSize() const
 
 GdbCommandStep::GdbCommandStep()
 {
-    // TODO: impl
 }
 
-std::string GdbCommandStep::Process(ISystem* pSystem, GdbData*)
+std::string GdbCommandStep::Process(IEmulator* pEmulator, GdbData*)
 {
-    pSystem->ProcessCycle();
-    return "S05"; // 05: SIGTRAP
+    pEmulator->ProcessCycle();
+    return "T05"; // 05: SIGTRAP
 }
 
 // ----------------------------------------------------------------------------
 
 GdbCommandContinue::GdbCommandContinue()
 {
-    // TODO: impl
 }
 
-std::string GdbCommandContinue::Process(ISystem*, GdbData*)
+std::string GdbCommandContinue::Process(IEmulator* pEmulator, GdbData*)
 {
-    return "S05"; // 05: SIGTRAP
+    pEmulator->Process(EmulationStop_Breakpoint);
+    return "S05";
 }
 
 // ----------------------------------------------------------------------------
@@ -301,7 +300,7 @@ GdbCommandSetThread::GdbCommandSetThread()
     // TODO: support 'H' command completely
 }
 
-std::string GdbCommandSetThread::Process(ISystem*, GdbData*)
+std::string GdbCommandSetThread::Process(IEmulator*, GdbData*)
 {
     // This emulator supports only thread 0, but always returns 'OK' for H command.
     return "OK";
@@ -314,7 +313,7 @@ GdbCommandStopReason::GdbCommandStopReason()
     // TODO: support '?' command completely
 }
 
-std::string GdbCommandStopReason::Process(ISystem*, GdbData*)
+std::string GdbCommandStopReason::Process(IEmulator*, GdbData*)
 {
     return "S05"; // 05: SIGTRAP
 }
@@ -326,7 +325,7 @@ GdbCommandQuery::GdbCommandQuery(const std::string& cmd)
 {
 }
 
-std::string GdbCommandQuery::Process(ISystem*, GdbData*)
+std::string GdbCommandQuery::Process(IEmulator*, GdbData*)
 {
     {
         auto pos = m_Command.find(';');
@@ -377,7 +376,7 @@ GdbCommandContinueQuery::GdbCommandContinueQuery()
 {
 }
 
-std::string GdbCommandContinueQuery::Process(ISystem*, GdbData*)
+std::string GdbCommandContinueQuery::Process(IEmulator*, GdbData*)
 {
     return "vCont;c;s";
 }
