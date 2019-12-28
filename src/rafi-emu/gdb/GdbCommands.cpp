@@ -273,13 +273,12 @@ size_t GdbCommandRemoveBreakPoint::GetSize() const
 
 GdbCommandStep::GdbCommandStep()
 {
-    // TODO: impl
 }
 
 std::string GdbCommandStep::Process(IEmulator* pEmulator, GdbData*)
 {
     pEmulator->ProcessCycle();
-    return "S05"; // 05: SIGTRAP
+    return "T05"; // 05: SIGTRAP
 }
 
 // ----------------------------------------------------------------------------
