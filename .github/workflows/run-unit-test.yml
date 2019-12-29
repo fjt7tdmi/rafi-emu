@@ -7,6 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    # Workaround for a bug of GitHub Actions
+    #   - https://github.com/actions/virtual-environments/issues/83
+    #   - https://github.com/actions/virtual-environments/issues/110
+    - name: install-boost
+      run: >
+        sudo apt-get install -y libboost-filesystem1.65.1 libboost-program-options1.65.1 libboost1.65-dev
+        && sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.65.1 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
+        && sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_program_options.so.1.65.1 /usr/lib/x86_64-linux-gnu/libboost_program_options.so
     - name: build_gtest
       run: ./script/build_gtest.sh
     - name: build_debug
