@@ -57,7 +57,8 @@ int main(int argc, char** argv)
     catch (rafi::emu::RafiEmuException)
     {
         std::cout << "Emulation stopped by exception." << std::endl;
-        emulator.PrintStatus();
+        emulator.PrintStatus();        
+        std::exit(1);
     }
 
     std::cout << "Emulation finished @ cycle "
