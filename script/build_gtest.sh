@@ -24,7 +24,7 @@ if [[ -v RAFI_WIN ]]; then
 else
     mkdir -p build
     pushd build
-        cmake .. -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF && cmake --build .
+        cmake .. -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF -G Ninja && cmake --build .
         exit_code="$?"
     popd
 fi
