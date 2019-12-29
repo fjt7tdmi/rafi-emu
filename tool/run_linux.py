@@ -16,7 +16,7 @@ import optparse
 import os
 import subprocess
 
-BinaryDirPath = "./work/linux"
+BinaryDirPath = "./third_party/rafi-prebuilt-binary/linux"
 TraceDirPath = "./work/linux/trace"
 
 DefaultCycle = 5 * 1000 * 1000
@@ -51,7 +51,7 @@ def PrintCommand(msg, cmd):
             print(', '.join(args))
 
 def MakeEmulatorCommand(config):
-    rom_path = f"{BinaryDirPath}/rom.bin"
+    linux_boot_rom_path = f"{BinaryDirPath}/linux-boot-rom.bin"
     bbl_path = f"{BinaryDirPath}/bbl.bin"
     vmlinux_path = f"{BinaryDirPath}/vmlinux.bin"
     initrd_path = f"{BinaryDirPath}/initramfs.cpio.gz"
@@ -60,7 +60,7 @@ def MakeEmulatorCommand(config):
     cmd = [
         GetEmulatorPath(config['build_type']),
         "--cycle", str(config['cycle']),
-        "--load", f"{rom_path}:0x1000",
+        "--load", f"{linux_boot_rom_path}:0x1000",
         "--load", f"{bbl_path}:0x80000000",
         "--load", f"{vmlinux_path}:0x80200000",
         "--load", f"{initrd_path}:0x84000000",

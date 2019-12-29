@@ -14,8 +14,6 @@ jobs:
     # Workaround for a bug of GitHub Actions
     #   - https://github.com/actions/virtual-environments/issues/83
     #   - https://github.com/actions/virtual-environments/issues/110
-    - name: prepare binary
-      run: ./script/prepare_binary.sh
     - name: install-boost
       run: >
         sudo apt-get install -y libboost-filesystem1.65.1 libboost-program-options1.65.1 libboost1.65-dev

@@ -22,7 +22,7 @@ import subprocess
 from functools import reduce
 from operator import or_
 
-BinaryDirPath = "./work/riscv-tests"
+BinaryDirPath = "./third_party/rafi-prebuilt-binary/riscv-tests/isa"
 TraceDirPath = "./work/riscv-tests/trace"
 
 #
