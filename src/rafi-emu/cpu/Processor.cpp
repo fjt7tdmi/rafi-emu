@@ -15,6 +15,7 @@
  */
 
 #include <algorithm>
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
@@ -249,7 +250,7 @@ std::optional<Trap> Processor::Fetch(uint32_t* pOutInsn, vaddr_t pc)
 void Processor::PrintStatus() const
 {
     printf("    OpCount: %d (0x%x)\n", m_OpCount, m_OpCount);
-    printf("    PC:      0x%016llx\n", static_cast<unsigned long long>(m_Csr.GetProgramCounter()));
+    printf("    PC:      0x%016" PRIx64 "\n", m_Csr.GetProgramCounter());
 }
 
 void Processor::ClearOpEvent()

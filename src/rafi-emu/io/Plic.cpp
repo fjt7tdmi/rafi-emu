@@ -15,6 +15,7 @@
  */
 
 #include <cassert>
+#include <cinttypes>
 #include <cstdio>
 #include <cstring>
 
@@ -45,7 +46,7 @@ void Plic::Read(void* pOutBuffer, size_t size, uint64_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("[Plic] Read size (%zd byte) is invalid. (address: 0x%llx)\n", size, static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("[Plic] Read size (%zd byte) is invalid. (address: 0x%" PRIx64 ")\n", size, address);
     }
 }
 
@@ -70,7 +71,7 @@ void Plic::Write(const void* pBuffer, size_t size, uint64_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("[Plic] Write size (%zd byte) is invalid. (address: 0x%llx)\n", size, static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("[Plic] Write size (%zd byte) is invalid. (address: 0x%" PRIx64 ")\n", size, address);
     }
 }
 
@@ -113,7 +114,7 @@ uint32_t Plic::ReadUInt32(uint64_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("[Plic] Read address (0x%llx) is invalid .\n", static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("[Plic] Read address (0x%" PRIx64 ") is invalid .\n", address);
     }
 }
 
@@ -141,7 +142,7 @@ void Plic::WriteUInt32(uint64_t address, uint32_t value)
     }
     else
     {
-        RAFI_EMU_ERROR("[Plic] Write address (0x%llx) is invalid.\n", static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("[Plic] Write address (0x%" PRIx64 ") is invalid.\n", address);
     }
 }
 

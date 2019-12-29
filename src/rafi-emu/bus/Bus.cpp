@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
+#include <cinttypes>
 #include <rafi/emu.h>
 
 #include "Bus.h"
-
-// Suppress VC warning for printf "%16lx"
-#pragma warning(disable:4477)
 
 namespace rafi { namespace emu { namespace bus {
 
@@ -37,7 +35,7 @@ void Bus::Read(void* pOutBuffer, size_t size, paddr_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016" PRIx64 "\n", address);
     }
 }
 
@@ -55,7 +53,7 @@ void Bus::Write(const void* pBuffer, size_t size, paddr_t address)
     }
     else
     {
-        RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+        RAFI_EMU_ERROR("Invalid addresss: 0x%016" PRIx64 "\n", address);
     }
 }
 
@@ -175,7 +173,7 @@ MemoryLocation Bus::ConvertToMemoryLocation(paddr_t address) const
         }
     }
 
-    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016" PRIx64 "\n", address);
 }
 
 IoLocation Bus::ConvertToIoLocation(paddr_t address) const
@@ -193,7 +191,7 @@ IoLocation Bus::ConvertToIoLocation(paddr_t address) const
         }
     }
 
-    RAFI_EMU_ERROR("Invalid addresss: 0x%016llx\n", static_cast<unsigned long long>(address));
+    RAFI_EMU_ERROR("Invalid addresss: 0x%016" PRIx64 "\n", address);
 }
 
 }}}
