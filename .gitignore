@@ -27,3 +27,6 @@ Win32/
 ipch/
 x64/
 x86/
+
+# manually checked-out submodules
+third_party/rafi-prebuilt-binary
