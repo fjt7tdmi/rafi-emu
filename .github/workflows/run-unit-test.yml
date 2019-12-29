@@ -27,3 +27,7 @@ jobs:
       run: ./script/build_release.sh
     - name: run_unit_test
       run: ./script/run_unit_test.sh
+    - name: run_riscv_tests
+      run: ./script/run_riscv_tests.sh
+    - name: run_linux
+      run: ./script/run_linux.sh
