@@ -14,7 +14,7 @@ if [[ -v RAFI_WIN ]]; then
     cmake .. -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 15 2017 Win64" && cmake --build . --config Debug
     exit_code="$?"
 else
-    cmake .. -DCMAKE_BUILD_TYPE=Debug && cmake --build . --config Debug
+    cmake .. -DCMAKE_BUILD_TYPE=Debug -G Ninja && cmake --build . --config Debug
     exit_code=$?
 fi
 

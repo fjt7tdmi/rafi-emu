@@ -14,19 +14,17 @@ jobs:
     # Workaround for a bug of GitHub Actions
     #   - https://github.com/actions/virtual-environments/issues/83
     #   - https://github.com/actions/virtual-environments/issues/110
-    - name: install-boost
+    - name: install additional packages
       run: >
-        sudo apt-get install -y libboost-filesystem1.65.1 libboost-program-options1.65.1 libboost1.65-dev
+        sudo apt-get install -y ninja-build libboost-filesystem1.65.1 libboost-program-options1.65.1 libboost1.65-dev
         && sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.65.1 /usr/lib/x86_64-linux-gnu/libboost_filesystem.so
         && sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_program_options.so.1.65.1 /usr/lib/x86_64-linux-gnu/libboost_program_options.so
     - name: build_gtest
       run: ./script/build_gtest.sh
-    - name: build_debug
-      run: ./script/build_debug.sh
     - name: build_release
       run: ./script/build_release.sh
     - name: run_unit_test
-      run: ./script/run_unit_test.sh
+      run: ./script/run_unit_test.sh Release
     - name: run_riscv_tests
       run: ./script/run_riscv_tests.sh
     - name: run_linux
