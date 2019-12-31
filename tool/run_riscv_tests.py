@@ -24,6 +24,7 @@ from operator import or_
 
 BinaryDirPath = "./third_party/rafi-prebuilt-binary/riscv-tests/isa"
 TraceDirPath = "./work/riscv-tests/trace"
+Timeout = 30
 
 #
 # Functions
@@ -96,7 +97,9 @@ def RunTests(configs, build_type):
         config['build_type'] = build_type
 
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
-        p.map(RunEmulator, configs)
+        # use map_async() to avoid problem with Ctrl-C
+        # https://stackoverflow.com/questions/1408356/keyboard-interrupts-with-pythons-multiprocessing-pool
+        p.map_async(RunEmulator, configs).get(Timeout)
 
     trace_paths = list(map(lambda config: f"{TraceDirPath}/{config['name']}.tidx", configs))
     exit_code = VerifyTraces(trace_paths, build_type)
