@@ -113,5 +113,5 @@ int main(int argc, char** argv)
     std::cout << std::endl;
     std::cout << testCount << " tests executed (" << passCount << " passed, " << failCount << " failed)." << std::endl;
 
-    return 0;
+    return failCount;
 }

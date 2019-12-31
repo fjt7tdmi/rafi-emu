@@ -28,6 +28,17 @@ TraceDirPath = "./work/riscv-tests/trace"
 #
 # Functions
 #
+def ReadConfig(json_path, name_filter, build_type):
+    with open(options.input_path, "r") as f:
+        configs = json.load(f)
+        matched = list(filter(lambda x: fnmatch.fnmatch(x['name'], name_filter), configs))
+
+        runnable = list(filter(lambda x: 'skip' not in x or x['skip'] == False, matched))
+        skipped = list(filter(lambda x: 'skip' in x and x['skip'] == True, matched))
+        unmatched = list(filter(lambda x: not fnmatch.fnmatch(x['name'], name_filter), configs))
+
+        return (runnable, skipped, unmatched)
+
 def GetCheckIoPath(build_type):
     if os.name == "nt":
         return f"./build_{build_type}/{build_type}/rafi-check-io.exe"
@@ -58,7 +69,7 @@ def VerifyTraces(paths, build_type):
     cmd = [GetCheckIoPath(build_type)]
     cmd.extend(paths)
     PrintCommand("Run", cmd)
-    subprocess.run(cmd)
+    return subprocess.run(cmd).returncode
 
 def RunEmulator(config):
     binary_path = f"{BinaryDirPath}/{config['name']}.bin"
@@ -81,11 +92,16 @@ def RunEmulator(config):
         return False # Emulation Failure
 
 def RunTests(configs, build_type):
+    for config in configs:
+        config['build_type'] = build_type
+
     with multiprocessing.Pool(multiprocessing.cpu_count()) as p:
         p.map(RunEmulator, configs)
 
     trace_paths = list(map(lambda config: f"{TraceDirPath}/{config['name']}.tidx", configs))
-    VerifyTraces(trace_paths, build_type)
+    exit_code = VerifyTraces(trace_paths, build_type)
+
+    return exit_code
 
 #
 # Entry point
@@ -93,7 +109,7 @@ def RunTests(configs, build_type):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-d", dest="debug", action="store_true", default=False, help="Use debug build.")
-    parser.add_option("-f", dest="filter", default=None, help="Filter test by name.")
+    parser.add_option("-f", dest="filter", default="*", help="Filter test by name.")
     parser.add_option("-i", dest="input_path", default=None, help="Input test list json path.")
     parser.add_option("-l", dest="list_tests", action="store_true", default=False, help="List test names.")
 
@@ -103,25 +119,25 @@ if __name__ == '__main__':
         print("Input test list json is not specified.")
         exit(1)
 
-    configs = []
+    build_type = "Debug" if options.debug else "Release"
 
-    with open(options.input_path, "r") as f:
-        configs = json.load(f)
+    (runnable, skipped, _) = ReadConfig(options.input_path, options.filter, build_type)
 
     if options.list_tests:
-        for config in configs:
+        for config in runnable:
             print(config['name'])
         exit(0)
 
-    if options.filter is not None:
-        configs = list(filter(lambda config: fnmatch.fnmatch(config['name'], options.filter), configs))
-
-    build_type = "Debug" if options.debug else "Release"
-    for config in configs:
-        config['build_type'] = build_type
-
     print("-------------------------------------------------------------")
+    print(f"Initialize trace directory ({TraceDirPath})")
     InitializeDirectory(TraceDirPath)
 
     print("Run test on emulator:")
-    RunTests(configs, build_type)
+    exit_code = RunTests(runnable, build_type)
+
+    if len(skipped) > 0:
+        print("Skipped tests:")
+        for config in skipped:
+            print(f"    {config['name']}")
+
+    exit(exit_code)
