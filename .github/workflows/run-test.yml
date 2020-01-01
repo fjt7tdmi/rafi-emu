@@ -1,4 +1,4 @@
-name: run-unit-test
+name: run-test
 
 on: [push]
 
