@@ -5,7 +5,7 @@ RAFI (RISCV Akifumi Fujita Implementation) is my hobby project to make a RISCV p
 The main purpose of this emulator (rafi-emu) is to help debugging my HDL implementation.
 It's not a pragmatic emulator for general purposes.
 
-**This repository will be archived and integrated into https://github.com/fjt7tdmi/rafi-1st** .
+**This repository is archived and integrated into https://github.com/fjt7tdmi/rafi-1st** .
 
 ![](https://github.com/fjt7tdmi/rafi-emu/workflows/run-test/badge.svg)
 
@@ -30,9 +30,10 @@ It's not a pragmatic emulator for general purposes.
 Install the following programs manually.
 
 * Visual Studio 2019
-* CMake (>= 3.8)
 * Boost (>= 1.65)
-* MSYS2 (my shell environment)
+* CMake (>= 3.8)
+* MSYS2 (CUI environment)
+* Python (>= 3.6)
 
 #### Ubuntu 18.04
 ```
